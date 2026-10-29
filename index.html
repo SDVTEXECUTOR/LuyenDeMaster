@@ -855,11 +855,12 @@ function fmtMs(totalMs) {
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
 }
 
-// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS
+// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS,CC (ví dụ 00:00,00)
 function fmtMsShort(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const ms = Math.floor((totalMs % 1000) / 10); // 2 số mili giây
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(2,'0')}`;
 }
 
 function normText(s){
@@ -895,21 +896,17 @@ function checkTextAnswer(userStr, correctList, keywords = null) {
   if (!userStr) return false;
   const uNorm = normText(userStr);
 
-  // 1. Chấm theo từ khóa (cho Reading)
   if (keywords) {
     return keywords.every(k => uNorm.includes(normText(k)));
   }
 
-  // 2. Chấm theo đáp án (cho Writing)
   for (let acc of correctList) {
     const aNorm = normText(acc);
-    // Nếu giống hệt, hoặc câu của user chứa đáp án (thừa chữ), hoặc đáp án chứa câu của user (thiếu chữ)
     if (uNorm === aNorm) return true;
     if (uNorm.length > aNorm.length && uNorm.includes(aNorm)) return true;
     if (aNorm.length > uNorm.length && aNorm.includes(uNorm)) return true;
   }
 
-  // 3. Chấm mềm dẻo (Fuzzy match): Sai lệch dưới 20% (thiếu the, sai chính tả 1-2 chữ) thì vẫn ĐÚNG
   for (let acc of correctList) {
     const aNorm = normText(acc);
     const dist = levenshtein(uNorm, aNorm);
@@ -1238,7 +1235,7 @@ async function renderLeaderboard(elId, filter){
           + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + (isBanned ? '-' : String(v.score).replace(".", ",") + 'đ') + '</div>'
           + (timeStr && !isBanned ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
         + '</span>'
-        // ✅ SỬ DỤNG HÀM THỜI GIAN NGẮN GỌN (PHÚT:GIÂY)
+        // ✅ SỬ DỤNG HÀM THỜI GIAN CHI TIẾT (PHÚT:GIÂY,MILI GIÂY)
         + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span>'
         + '</div>';
     }).join("");
@@ -1556,7 +1553,6 @@ function showResults(){
       let ok = false;
       let modelAns = "";
       
-      // ✅ ÁP DỤNG HÀM CHẤM ĐIỂM THÔNG MINH
       if(q[2] === "keys"){
         modelAns = q[3] || "";
         ok = checkTextAnswer(userAns, null, q[1]);
@@ -1580,7 +1576,6 @@ function showResults(){
       const cIdx = q[2][0];
       const correctLetter = L[cIdx];
       const correctText = q[1][cIdx];
-      // ✅ ÁP DỤNG HÀM CHẤM ĐIỂM THÔNG MINH CHO CẢ ĐỊA LÍ GHI THỦ CÔNG
       const ok = checkTextAnswer(userAns, [correctText]);
       
       pts += ok ? 1 : 0;
