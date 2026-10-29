@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Luyện Đề Trắc Nghiệm – Secure&Fair v2.0</title>
+<title>Luyện Đề Trắc Nghiệm – Tin học, GDCD, Tiếng Anh &amp; Địa lí 9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -313,7 +313,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   .stats { gap: 16px; }
   .stats div span { font-size: 1.2rem; }
   .lbrow { grid-template-columns: 36px minmax(0, 1fr) auto; }
-  .lbrow .dur { display: none; } /* Ẩn thời gian làm bài trên mobile để đủ chỗ cho ngày giờ nộp */
+  .lbrow .dur { display: none; }
 }
 
 .song-item {
@@ -496,7 +496,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     <div class="top">
       <strong id="who" style="font-size:1rem"></strong>
       <div style="display:flex;align-items:center;gap:8px">
-        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00</span></span>
+        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00.000</span></span>
         <button class="p sm" id="headerNext" style="display:none;">Tiếp ➔</button>
         <button class="g sm" id="exitQuiz" type="button">Thoát</button>
       </div>
@@ -846,7 +846,14 @@ const LEADERBOARD_SUBJECTS = {
 const $ = id => document.getElementById(id);
 const L = "ABCD";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmt = s => String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+
+// Định dạng thời gian có mili giây: MM:SS.mmm
+function fmtMs(totalMs) {
+  const m = Math.floor(totalMs / 60000);
+  const s = Math.floor((totalMs % 60000) / 1000);
+  const ms = Math.floor(totalMs % 1000);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
+}
 
 function normText(s){
   return String(s || "").toLowerCase()
@@ -886,7 +893,7 @@ function recordViolation(name) {
   let count = parseInt(localStorage.getItem("violations_" + key) || "0");
   count++;
   localStorage.setItem("violations_" + key, count);
-  if (count >= 3) {
+  if (count >= 1) { // Ban ngay lập tức khi phát hiện tên bậy
     localStorage.setItem("banned_" + key, "true");
     localStorage.setItem("banned_ip_sim", "true");
     return true; 
@@ -898,7 +905,7 @@ function showBanScreen(name) {
   document.body.innerHTML = `
     <div class="ban-screen">
       <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
-      <p>Bạn đã vi phạm quy tắc ứng xử (sử dụng từ ngữ không phù hợp) quá 3 lần.<br>
+      <p>Bạn đã vi phạm quy tắc ứng xử (sử dụng từ ngữ không phù hợp).<br>
       Tài khoản <b>"${esc(name)}"</b> và thiết bị này đã bị chặn vĩnh viễn.<br><br>
       Vui lòng liên hệ quản trị nếu có khiếu nại.</p>
       <button class="p" style="margin-top:24px" onclick="localStorage.clear(); location.reload();">Tôi hiểu và muốn thử lại (Xóa dữ liệu)</button>
@@ -950,13 +957,8 @@ async function doRegister(u, p, name, cls){
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
   
   if (checkProfanity(u) || checkProfanity(name)) {
-    const isBanned = recordViolation(name);
-    if (isBanned) {
-      throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN! (Vi phạm quy tắc ứng xử lần 4).");
-    } else {
-      const remaining = 3 - parseInt(localStorage.getItem("violations_" + getBanKey(name)) || "0");
-      throw new Error(`⚠️ CẢNH BÁO: Tên chứa từ ngữ không phù hợp! Bạn còn ${remaining} lần cảnh cáo trước khi bị khóa vĩnh viễn.`);
-    }
+    recordViolation(name);
+    throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN! (Vi phạm quy tắc ứng xử).");
   }
   
   const key = keyOf(u);
@@ -1136,14 +1138,28 @@ async function renderLeaderboard(elId, filter){
     if(!list.length){ el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
     
     el.innerHTML = list.map((v, i) => {
-      const isShuffled = v.isShuffled === true;
+      let rawName = v.name || v.username || "?";
+      let displayName = esc(rawName);
+      let isBanned = false;
+
+      // QUÉT VÀ BAN NGAY NẾU TÊN BẬY
+      if (checkProfanity(rawName)) {
+        recordViolation(rawName);
+        displayName = "🚫 Vi phạm";
+        isBanned = true;
+        // Nếu người dùng hiện tại trùng tên này, ban ngay lập tức
+        if (session && normText(session.name) === normText(rawName)) {
+          showBanScreen(rawName);
+        }
+      }
+
+      const isShuffled = v.isShuffled === true && !isBanned;
       const medal = isShuffled ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
       const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
       const subj = LEADERBOARD_SUBJECTS[v.subject];
       const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
       const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
       
-      // Format time from Firebase
       let timeStr = '';
       if (v.time) {
         let d;
@@ -1159,12 +1175,12 @@ async function renderLeaderboard(elId, filter){
 
       return '<div class="lbrow' + clsTop + '">'
         + '<span class="rk">' + medal + '</span>'
-        + '<span class="who2"><b>' + esc(v.name || v.username || "?") + shuffleBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
+        + '<span class="who2"><b>' + displayName + shuffleBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls && !isBanned ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
         + '<span class="pts">' 
-          + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + String(v.score).replace(".", ",") + 'đ</div>'
-          + (timeStr ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
+          + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + (isBanned ? '-' : String(v.score).replace(".", ",") + 'đ') + '</div>'
+          + (timeStr && !isBanned ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
         + '</span>'
-        + '<span class="dur">⏱ ' + fmt(v.duration || 0) + '</span>'
+        + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMs(v.duration || 0)) + '</span>'
         + '</div>';
     }).join("");
   }catch(e){ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>'; }
@@ -1206,7 +1222,8 @@ function startQuiz(subjectKey, mode = 'choice'){
 
   $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label + (currentMode === 'manual' ? " (Ghi)" : "");
   clearInterval(tick);
-  tick = setInterval(() => { $("tm").textContent = fmt(Math.floor((Date.now()-t0)/1000)); }, 500);
+  // Cập nhật mỗi 30ms để hiển thị mili giây mượt mà
+  tick = setInterval(() => { $("tm").textContent = fmtMs(Date.now() - t0); }, 30);
   show("quiz");
   if (allAtOnce) drawAll(); else draw();
 }
@@ -1463,7 +1480,7 @@ function finish(){
 }
 
 function showResults(){
-  const sec = Math.floor((Date.now() - t0) / 1000);
+  const ms = Date.now() - t0;
   let pts = 0, full = 0, h = "";
 
   order.forEach((qi, i) => {
@@ -1540,7 +1557,7 @@ function showResults(){
   $("sc").textContent = String(sc).replace(".", ",");
   $("rc").textContent = full + "/" + Q.length;
   $("rw").textContent = (Q.length - full) + "";
-  $("rt").textContent = fmt(sec);
+  $("rt").textContent = fmtMs(ms);
   $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label + (currentMode === 'manual' ? " (Ghi)" : "");
   
   if (currentSubject === 'english') {
@@ -1598,11 +1615,20 @@ function showResults(){
   if (currentSubject === 'diali') {
       finalSubject = currentMode === 'manual' ? 'diali_manual' : 'diali_choice';
   }
-  saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec, isShuffled: isShuffled });
+  saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled: isShuffled });
 }
 
 async function saveAndRefresh(res){
   if(!db){ $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
+  
+  // CHẶN LƯU NẾU TÊN BẬY
+  if (checkProfanity(res.name)) {
+    recordViolation(res.name);
+    ovOff();
+    showBanScreen(res.name);
+    return;
+  }
+
   try{
     ovOn("Đang lưu kết quả…");
     const r = push(ref(db, "results"));
