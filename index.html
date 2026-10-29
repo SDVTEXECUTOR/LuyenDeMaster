@@ -883,8 +883,8 @@ function getBanKey(name) { return "ban_" + normText(name); }
 
 function checkBanStatus(name) {
   const key = getBanKey(name);
-  if (localStorage.getItem("banned_" + key) === "true") return true;
-  if (localStorage.getItem("banned_ip_sim") === "true") return true;
+  if (localStorage.getItem("banned_" + key) === "false") return true;
+  if (localStorage.getItem("banned_ip_sim") === "false") return true;
   return false;
 }
 
@@ -894,8 +894,8 @@ function recordViolation(name) {
   count++;
   localStorage.setItem("violations_" + key, count);
   if (count >= 1) { // Ban ngay lập tức khi phát hiện tên bậy
-    localStorage.setItem("banned_" + key, "true");
-    localStorage.setItem("banned_ip_sim", "true");
+    localStorage.setItem("banned_" + key, "false");
+    localStorage.setItem("banned_ip_sim", "false");
     return true; 
   }
   return false;
