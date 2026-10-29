@@ -807,14 +807,14 @@ const ENGLISH_SECTIONS = [
       ["Rewrite the sentence so that it has the same meaning:<br><i>Young people are discussing how they can help the poor and the elderly in their local community.</i><br>→ Young people are discussing ___", ["how to help the poor and the elderly in their local community"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me when I should hand in the assignment?</i><br>→ Could you tell me ___", ["when to hand in the assignment"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>The community is friendly. People feel happy.</i><br>→ The friendlier ___", ["the community is, the happier people feel"], "text"],
-      ["Rewrite the sentence so that it has the same meaning:<br><i>The city becomes crowded. Traffic is bad.</i><br>→ The more ___", ["crowded the city becomes, the worse the traffic is"], "text"],
+      ["Rewrite the sentence so that it has the same meaning:<br><i>The city becomes crowded. Traffic is bad.</i><br>→ The more ___", ["crowded the city becomes, the worse the traffic is", "crowded the city becomes, the worse traffic is"], "text"],
       ["Rewrite the sentence using the word in brackets:<br><i>The city government is making efforts to reduce the amount of rubbish.</i> (cut down on)<br>→ The city government ___", ["is making efforts to cut down on the amount of rubbish"], "text"],
-      ["Rewrite the sentence using the word in brackets:<br><i>Whenever teenagers have free time, they enjoy spending time exploring the city centre.</i> (look around)<br>→ Whenever teenagers have free time, they enjoy ___", ["looking around the city centre"], "text"],
+      ["Rewrite the sentence using the word in brackets:<br><i>Whenever teenagers have free time, they enjoy spending time exploring the city centre.</i> (look around)<br>→ Whenever teenagers have free time, they enjoy ___", ["looking around the city centre", "spending time looking around the city centre"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>The students are wondering how they can make their neighbourhood a better place.</i><br>→ The students are wondering ___", ["how to make their neighbourhood a better place"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me where I can buy fresh food in the local market?</i><br>→ Could you tell me ___", ["where to buy fresh food in the local market"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>The streets are busy. It is difficult to travel around the city.</i><br>→ The busier ___", ["the streets are, the more difficult it is to travel around the city"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>Teenagers exercise regularly. They are strong.</i><br>→ The more ___", ["regularly teenagers exercise, the stronger they are"], "text"],
-      ["Rewrite the sentence using the word in brackets:<br><i>People try to save water because they sometimes have no clean water left during the dry season.</i> (run out of)<br>→ People try to save water because ___", ["they sometimes run out of clean water during the dry season", "they sometimes run out of clean water in the dry season"], "text"],
+      ["Rewrite the sentence using the word in brackets:<br><i>People try to save water because they sometimes have no clean water left during the dry season.</i> (run out of)<br>→ People try to save water because ___", ["they sometimes run out of clean water during the dry season", "they sometimes run out of clean water in the dry season", "they sometimes run out of clean water left during the dry season", "they sometimes run out of clean water left in the dry season"], "text"],
       ["Rewrite the sentence using the word in brackets:<br><i>Many traditional crafts and customs in our local community have been passed from older generations to younger ones.</i> (hand down)<br>→ Many traditional crafts and customs in our local community ___", ["have been handed down from older generations to younger ones", "have been handed down from older to younger generations"], "text"]
   ]}
 ];
@@ -847,7 +847,7 @@ const $ = id => document.getElementById(id);
 const L = "ABCD";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-// Định dạng thời gian có mili giây: MM:SS.mmm (dùng cho đồng hồ làm bài & trang kết quả)
+// Định dạng thời gian có mili giây: MM:SS.mmm (đồng hồ chạy)
 function fmtMs(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
@@ -855,7 +855,7 @@ function fmtMs(totalMs) {
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
 }
 
-// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS  (vd: 05:23, 12:07) — đúng 5 ký tự
+// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS
 function fmtMsShort(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
@@ -869,6 +869,56 @@ function normText(s){
     .replace(/[.,!?;:'"()\-–—]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// ✅ Thuật toán tính khoảng cách Levenshtein để chấm điểm mềm dẻo (cho phép sai 1-2 chữ)
+function levenshtein(a, b) {
+  if(a.length === 0) return b.length;
+  if(b.length === 0) return a.length;
+  var matrix = [];
+  for(var i = 0; i <= b.length; i++){ matrix[i] = [i]; }
+  for(var j = 0; j <= a.length; j++){ matrix[0][j] = j; }
+  for(var i = 1; i <= b.length; i++){
+    for(var j = 1; j <= a.length; j++){
+      if(b.charAt(i-1) == a.charAt(j-1)){
+        matrix[i][j] = matrix[i-1][j-1];
+      } else {
+        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+// ✅ Hàm chấm điểm tự luận thông minh
+function checkTextAnswer(userStr, correctList, keywords = null) {
+  if (!userStr) return false;
+  const uNorm = normText(userStr);
+
+  // 1. Chấm theo từ khóa (cho Reading)
+  if (keywords) {
+    return keywords.every(k => uNorm.includes(normText(k)));
+  }
+
+  // 2. Chấm theo đáp án (cho Writing)
+  for (let acc of correctList) {
+    const aNorm = normText(acc);
+    // Nếu giống hệt, hoặc câu của user chứa đáp án (thừa chữ), hoặc đáp án chứa câu của user (thiếu chữ)
+    if (uNorm === aNorm) return true;
+    if (uNorm.length > aNorm.length && uNorm.includes(aNorm)) return true;
+    if (aNorm.length > uNorm.length && aNorm.includes(uNorm)) return true;
+  }
+
+  // 3. Chấm mềm dẻo (Fuzzy match): Sai lệch dưới 20% (thiếu the, sai chính tả 1-2 chữ) thì vẫn ĐÚNG
+  for (let acc of correctList) {
+    const aNorm = normText(acc);
+    const dist = levenshtein(uNorm, aNorm);
+    const maxLen = Math.max(uNorm.length, aNorm.length);
+    if (maxLen > 0 && (1 - dist / maxLen) >= 0.8) {
+      return true;
+    }
+  }
+  return false;
 }
 
 const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'phát'];
@@ -1188,7 +1238,7 @@ async function renderLeaderboard(elId, filter){
           + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + (isBanned ? '-' : String(v.score).replace(".", ",") + 'đ') + '</div>'
           + (timeStr && !isBanned ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
         + '</span>'
-        // ✅ ĐÃ ĐỔI SANG fmtMsShort → hiển thị MM:SS (5 ký tự)
+        // ✅ SỬ DỤNG HÀM THỜI GIAN NGẮN GỌN (PHÚT:GIÂY)
         + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span>'
         + '</div>';
     }).join("");
@@ -1505,13 +1555,16 @@ function showResults(){
       const userAns = (ans[qi][0] || "").trim();
       let ok = false;
       let modelAns = "";
+      
+      // ✅ ÁP DỤNG HÀM CHẤM ĐIỂM THÔNG MINH
       if(q[2] === "keys"){
         modelAns = q[3] || "";
-        ok = userAns && q[1].every(k => normText(userAns).includes(normText(k)));
+        ok = checkTextAnswer(userAns, null, q[1]);
       } else {
         modelAns = q[1][0];
-        ok = userAns && q[1].some(acc => normText(userAns) === normText(acc));
+        ok = checkTextAnswer(userAns, q[1]);
       }
+
       pts += ok ? 1 : 0;
       full += ok ? 1 : 0;
       const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
@@ -1527,7 +1580,9 @@ function showResults(){
       const cIdx = q[2][0];
       const correctLetter = L[cIdx];
       const correctText = q[1][cIdx];
-      const ok = userAns && normText(userAns) === normText(correctText);
+      // ✅ ÁP DỤNG HÀM CHẤM ĐIỂM THÔNG MINH CHO CẢ ĐỊA LÍ GHI THỦ CÔNG
+      const ok = checkTextAnswer(userAns, [correctText]);
+      
       pts += ok ? 1 : 0;
       full += ok ? 1 : 0;
       const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
