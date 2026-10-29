@@ -444,7 +444,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
         <div class="mut" style="margin:8px 0 16px">Giữa học kì I · 30 câu</div>
         <div style="display:flex; gap:8px">
           <button class="p" style="flex:1" id="startDialyKhoanh">Trắc nghiệm</button>
-          <button class="g" style="flex:1" id="startDialyViet">Tự luận</button>
+          <button class="g" style="flex:1" id="startDialyViet">Ghi thủ công</button>
         </div>
       </div>
     </div>
@@ -1140,22 +1140,21 @@ async function renderLeaderboard(elId, filter){
 }
 
 /* ================= Quiz Logic ================= */
-let currentSubject, Q, order, opt, ans, cur, t0, tick;
+let currentSubject, Q, order, opt, ans, cur, t0, tick, currentMode = 'choice';
 let maskMode = "submit";
 let autoSubmitTriggered = false;
 let allAtOnce = false;
 let isShuffled = false;
 
-$("startTinhoc").onclick = () => startQuiz("tinhoc");
-$("startGdcd").onclick = () => startQuiz("gdcd");
-$("startEnglish").onclick = () => startQuiz("english");
-$("startDialyKhoanh").onclick = () => startQuiz("diali");
-$("startDialyViet").onclick = () => {
-  showToast("🚧 Tính năng Tự luận Địa lí đang được phát triển. Coming soon!", true);
-};
+$("startTinhoc").onclick = () => startQuiz("tinhoc", "choice");
+$("startGdcd").onclick = () => startQuiz("gdcd", "choice");
+$("startEnglish").onclick = () => startQuiz("english", "choice");
+$("startDialyKhoanh").onclick = () => startQuiz("diali", "choice");
+$("startDialyViet").onclick = () => startQuiz("diali", "manual");
 
-function startQuiz(subjectKey){
+function startQuiz(subjectKey, mode = 'choice'){
   currentSubject = subjectKey;
+  currentMode = mode;
   Q = SUBJECTS[subjectKey].data;
   allAtOnce = !!SUBJECTS[subjectKey].allAtOnce;
   
@@ -1174,7 +1173,7 @@ function startQuiz(subjectKey){
   t0 = Date.now();
   autoSubmitTriggered = false;
 
-  $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label;
+  $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label + (currentMode === 'manual' ? " (Ghi thủ công)" : "");
   clearInterval(tick);
   tick = setInterval(() => { $("tm").textContent = fmt(Math.floor((Date.now()-t0)/1000)); }, 500);
   show("quiz");
@@ -1184,6 +1183,32 @@ function startQuiz(subjectKey){
 function draw(){
   const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
   let h = "";
+  
+  if (currentMode === 'manual') {
+    h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · Ghi thủ công</span><div class="q">' + q[0] + '</div>';
+    h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
+    q[1].forEach((txt, k) => {
+      h += '<div style="margin:4px 0; padding:8px 12px; background:rgba(255,255,255,0.4); border-radius:8px; border:1px solid var(--ln);"><b>' + L[k] + '.</b> ' + txt + '</div>';
+    });
+    h += '</div>';
+    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng vào ô bên dưới (Không gõ A, B, C, D)</div>';
+    h += '<input type="text" id="man-input" class="txt-input" style="margin-bottom:12px;font-weight:600;font-size:1.1rem" placeholder="Nhập nguyên văn nội dung đáp án..." value="' + esc(ans[qi][0] || "") + '">';
+    h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
+    $("qc").innerHTML = h;
+    
+    const inp = $("man-input");
+    inp.oninput = () => {
+      ans[qi] = inp.value.trim() ? [inp.value.trim()] : [];
+      updateNavAndCount();
+      checkAutoSubmit();
+    };
+    
+    $("pv").onclick = () => { cur--; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
+    $("nx").onclick = () => { cur++; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
+    updateNavAndCount();
+    return;
+  }
+
   h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
   opt[qi].forEach((oi, k) => {
     const s = ans[qi].indexOf(oi) > -1;
@@ -1438,6 +1463,27 @@ function finish(){
         + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span>'
         + '<span class="correct-ans">' + esc(modelAns) + '</span>'
         + '</div></div>';
+    } else if (currentMode === 'manual') {
+      const userAns = (ans[qi][0] || "").trim();
+      const cIdx = q[2][0];
+      const correctLetter = L[cIdx];
+      const correctText = q[1][cIdx];
+      // Bắt buộc gõ nguyên văn nội dung, không chấp nhận gõ A,B,C,D
+      const ok = userAns && normText(userAns) === normText(correctText);
+      
+      pts += ok ? 1 : 0;
+      full += ok ? 1 : 0;
+      
+      const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
+      h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
+        + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
+        + '<div class="q">' + q[0] + '</div>'
+        + '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
+        + '<span class="lbl">Đáp án của bạn:</span>'
+        + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
+        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span>'
+        + '<span class="correct-ans">' + correctLetter + '. ' + esc(correctText) + '</span>'
+        + '</div></div>';
     } else {
       const c = q[2], a = ans[qi];
       const r = a.filter(x => c.indexOf(x) > -1).length;
@@ -1467,7 +1513,7 @@ function finish(){
   $("rc").textContent = full + "/" + Q.length;
   $("rw").textContent = (Q.length - full) + "";
   $("rt").textContent = fmt(sec);
-  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label;
+  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label + (currentMode === 'manual' ? " (Ghi thủ công)" : "");
   $("rv").innerHTML = h;
   
   const resultCard = $("resultCard");
@@ -1508,7 +1554,7 @@ async function saveAndRefresh(res){
   renderLeaderboard("lbResult", currentSubject);
 }
 
-$("again").onclick = function(){ startQuiz(currentSubject); };
+$("again").onclick = function(){ startQuiz(currentSubject, currentMode); };
 $("home").onclick = function(){ show("app"); switchTab("practice"); };
 
 /* ================= Music Logic ================= */
