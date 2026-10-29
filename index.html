@@ -1179,10 +1179,25 @@ function renderQItem(flatIdx, q) {
   let h = '<div class="q-item" id="q-' + flatIdx + '">';
   h += '<span class="tag">Câu ' + (flatIdx + 1) + '/' + Q.length + (isText ? ' · Viết câu trả lời' : '') + '</span>';
   h += '<div class="q">' + q[0] + '</div>';
+  
   if (isText) {
+    // Hiển thị lại đoạn văn bản (nếu có) để người dùng dễ đọc và bôi đen
+    if (currentSubject === "english") {
+      const meta = ENGLISH_QMETA[flatIdx];
+      if (meta) {
+        const block = ENGLISH_SECTIONS[meta.blockIdx];
+        if (block.passage) {
+          h += '<div class="passage" style="font-size:0.85rem; margin-bottom:12px; max-height:150px; overflow-y:auto; user-select:text;">' + block.passage + '</div>';
+        }
+      }
+    }
+
     const saved = (ans[flatIdx][0] || "");
-    h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án của bạn...">' + esc(saved) + '</textarea>';
-    h += '<div class="mut" style="font-size:0.8rem;margin-top:6px">Không phân biệt chữ hoa/thường và dấu câu.</div>';
+    h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án của bạn... (Bôi đen đoạn văn bản ở trên rồi bấm nút Điền)"></textarea>';
+    h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+    h += '<span>Không phân biệt chữ hoa/thường và dấu câu. (Chống gian lận: Không được Copy/Paste từ ngoài)</span>';
+    h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ')">📥 Điền đoạn bôi đen</button>';
+    h += '</div>';
   } else {
     const multi = q[2].length > 1;
     opt[flatIdx].forEach((oi, k) => {
@@ -1194,17 +1209,62 @@ function renderQItem(flatIdx, q) {
   return h;
 }
 
+// Hàm xử lý "Điền đoạn bôi đen"
+window.fillSelectedText = function(flatIdx) {
+  const sel = window.getSelection().toString().trim();
+  if (!sel) {
+    showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true);
+    return;
+  }
+  // Làm sạch đoạn văn bản (xóa xuống dòng thừa)
+  const cleanText = sel.replace(/\s+/g, ' ');
+  
+  const ta = document.getElementById("txt-" + flatIdx);
+  if (ta) {
+    // Nối thêm vào vị trí con trỏ hoặc thay thế toàn bộ (ở đây làm thay thế cho nhanh)
+    ta.value = cleanText;
+    // Trigger sự kiện input để lưu trạng thái
+    ta.dispatchEvent(new Event('input'));
+    showToast("✅ Đã điền đáp án!");
+  }
+};
+
 function attachAllHandlers() {
   Q.forEach((q, flatIdx) => {
     const isText = (typeof q[2] === "string");
     if (isText) {
       const ta = $("txt-" + flatIdx);
-      if (ta) ta.oninput = () => {
-        const v = ta.value.trim();
-        ans[flatIdx] = v ? [ta.value] : [];
-        updateNavAndCount();
-        checkAutoSubmit();
-      };
+      if (ta) {
+        ta.value = ans[flatIdx][0] || ""; // Set value safely
+        
+        ta.oninput = () => {
+          const v = ta.value.trim();
+          ans[flatIdx] = v ? [ta.value] : [];
+          updateNavAndCount();
+          checkAutoSubmit();
+        };
+
+        // ===== ANTI-CHEAT LOGIC =====
+        ta.onpaste = function(e) {
+          e.preventDefault();
+          showToast("⚠️ Không được phép dán (Paste) đáp án từ bên ngoài!", true);
+        };
+        
+        ta.oncontextmenu = function(e) {
+          e.preventDefault();
+          showToast("⚠️ Không được phép nhấp chuột phải!", true);
+        };
+
+        ta.ondrop = function(e) {
+          e.preventDefault();
+          showToast("⚠️ Không được phép kéo thả văn bản!", true);
+        };
+        
+        ta.ondragover = function(e) {
+          e.preventDefault();
+        };
+        // ============================
+      }
     } else {
       const container = $("q-" + flatIdx);
       if (!container) return;
