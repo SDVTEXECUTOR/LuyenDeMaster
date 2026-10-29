@@ -251,6 +251,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 8px;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--bad); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3); }
 
 @media (max-width: 600px) {
   .subjgrid { grid-template-columns: 1fr; }
@@ -599,10 +600,10 @@ function ovOff(){ $("ov").classList.add("hide"); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function skeleton(n){ return Array.from({length:n}, () => '<div class="skel"></div>').join(""); }
 
-function showToast(msg) {
+function showToast(msg, isError = false) {
   const t = $("toast");
   t.textContent = msg;
-  t.classList.add("show");
+  t.className = "toast show" + (isError ? " error" : "");
   setTimeout(() => t.classList.remove("show"), 3000);
 }
 
@@ -947,38 +948,71 @@ async function saveAndRefresh(res){
 $("again").onclick = function(){ startQuiz(currentSubject); };
 $("home").onclick = function(){ show("app"); switchTab("practice"); };
 
-/* ================= Nhạc nền (Sửa lại theo Checkbox) ================= */
+/* ================= Nhạc nền ================= */
 const bgMusic = $("bgMusic");
 const musicCheck = $("musicCheck");
-let isMusicOn = localStorage.getItem("qp_music") === "on";
 
-// Cập nhật trạng thái ban đầu
+// Lấy trạng thái từ localStorage (mặc định là tắt)
+let isMusicOn = localStorage.getItem("qp_music") === "on";
 musicCheck.checked = isMusicOn;
 
-// Nếu đã bật trước đó, tự động phát nhạc
-if (isMusicOn) {
-  bgMusic.play().catch(e => console.log("Trình duyệt chặn phát nhạc tự động, cần click."));
+// Xử lý khi có lỗi load file nhạc (ví dụ sai đường dẫn)
+bgMusic.addEventListener("error", () => {
+  console.error("Lỗi tải nhạc! Hãy kiểm tra lại đường dẫn file.");
+  showToast("⚠️ Không tìm thấy file Grateful.mp3!", true);
+  musicCheck.checked = false;
+  isMusicOn = false;
+  localStorage.setItem("qp_music", "off");
+});
+
+// Hàm phát nhạc an toàn
+function playMusic() {
+  if (!isMusicOn) return;
+  bgMusic.play().then(() => {
+    // Đã phát thành công
+  }).catch(e => {
+    console.log("Trình duyệt chặn tự động phát nhạc, đang chờ người dùng click...");
+  });
 }
 
-// Bắt sự kiện khi tick hoặc bỏ tick
+// Thử phát nhạc ngay khi tải trang (nếu đã bật trước đó)
+if (isMusicOn) playMusic();
+
+// Bắt sự kiện Tick / Bỏ tick
 musicCheck.onchange = () => {
   isMusicOn = musicCheck.checked;
   localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
   if (isMusicOn) {
-    bgMusic.play().catch(e => console.log("Trình duyệt chặn phát nhạc tự động."));
+    playMusic();
   } else {
     bgMusic.pause();
   }
 };
 
-// Tự động phát nhạc khi người dùng tương tác lần đầu nếu đã bật trước đó (vượt qua chặn autoplay)
-const tryPlayMusic = () => {
+// Nếu nhạc bị chặn do Autoplay Policy, tự động phát lại khi user click vào bất kì đâu
+const tryPlayMusicOnInteraction = () => {
   if (isMusicOn && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+    playMusic();
   }
 };
-document.body.addEventListener("click", tryPlayMusic);
-bgMusic.addEventListener("playing", () => document.body.removeEventListener("click", tryPlayMusic));
+document.body.addEventListener("click", tryPlayMusicOnInteraction);
+document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
+
+// Đồng bộ lại UI khi nhạc thực sự phát hoặc dừng
+bgMusic.addEventListener("playing", () => {
+  if (!musicCheck.checked) {
+    musicCheck.checked = true;
+    isMusicOn = true;
+    localStorage.setItem("qp_music", "on");
+  }
+});
+bgMusic.addEventListener("pause", () => {
+  if (musicCheck.checked) {
+    musicCheck.checked = false;
+    isMusicOn = false;
+    localStorage.setItem("qp_music", "off");
+  }
+});
 
 /* ================= Khởi động phiên (sau cutscene) ================= */
 const existing = loadSession();
