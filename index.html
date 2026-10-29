@@ -392,6 +392,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <div>
         <strong id="hiName" style="font-size:1.1rem"></strong>
         <div class="mut" id="hiSub"></div>
+        <div class="mut" id="liveClock" style="font-size:0.85rem; margin-top:4px; font-weight:600; color: var(--ac);"></div>
       </div>
       <button class="g sm" id="logout">Đăng xuất</button>
     </div>
@@ -1428,9 +1429,7 @@ $("no").onclick = () => $("mk").classList.remove("on");
 
 $("yes").onclick = function(){
   $("mk").classList.remove("on");
-  if(maskMode === "listening_check"){
-    showResults();
-  } else if(maskMode === "submit"){
+  if(maskMode === "submit"){
     showResults();
   } else if(maskMode === "exit"){ 
     clearInterval(tick); 
@@ -1441,23 +1440,6 @@ $("yes").onclick = function(){
 
 function finish(){
   clearInterval(tick);
-  if (currentSubject === 'english') {
-    maskMode = "listening_check";
-    $("mkTitle").textContent = "⚠️ LƯU Ý ĐỀ NGHE";
-    $("mt").innerHTML = `
-      <div style="background:var(--bads); padding:16px; border-radius:10px; border-left:4px solid var(--bad); margin-bottom:12px;">
-        <strong>Bạn đã kiểm tra kỹ phần đề nghe chưa?</strong><br>
-        <span style="font-size:0.9rem; color:var(--mut);">Hãy đảm bảo đã chọn đáp án cho tất cả câu hỏi nghe hiểu!</span>
-      </div>
-      <div style="font-weight:600; color:var(--ac); margin-top:8px;">Đã chọn / Chưa chọn?</div>
-      <div style="font-size:0.85rem; color:var(--mut); margin-top:4px;">Hãy chắc chắn trước khi nộp bài!</div>
-    `;
-    $("yes").textContent = "Đã chọn - Tiếp tục";
-    $("yes").style.background = "var(--ok)";
-    $("no").textContent = "Chưa chọn - Hủy";
-    $("mk").classList.add("on");
-    return;
-  }
   showResults();
 }
 
@@ -1758,6 +1740,21 @@ bgMusic.addEventListener("playing", () => {
     musicSelectionArea.classList.remove("hide");
   }
 });
+
+// ================= Real-time Clock =================
+function updateClock() {
+  const now = new Date();
+  const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+  const dayName = days[now.getDay()];
+  const dateStr = now.toLocaleDateString("vi-VN");
+  const timeStr = now.toLocaleTimeString("vi-VN");
+  const clockEl = $("liveClock");
+  if (clockEl) {
+    clockEl.textContent = `📅 ${dayName}, ${dateStr} · ⏰ ${timeStr}`;
+  }
+}
+setInterval(updateClock, 1000);
+updateClock();
 
 const existing = loadSession();
 if(existing){ 
