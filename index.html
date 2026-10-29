@@ -262,8 +262,8 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 </head>
 <body>
 
-<!-- NHẠC NỀN -->
-<audio id="bgMusic" src="Grateful.mp3" loop></audio>
+<!-- NHẠC NỀN (Không gắn src ở đây để JS tự dò) -->
+<audio id="bgMusic" loop></audio>
 
 <!-- ===== CUTSCENE v2 (cinematic) ===== -->
 <div id="cutscene" aria-hidden="true">
@@ -604,7 +604,7 @@ function showToast(msg, isError = false) {
   const t = $("toast");
   t.textContent = msg;
   t.className = "toast show" + (isError ? " error" : "");
-  setTimeout(() => t.classList.remove("show"), 3000);
+  setTimeout(() => t.classList.remove("show"), 4000);
 }
 
 /* ================= Mật khẩu (SHA-256) ================= */
@@ -948,35 +948,57 @@ async function saveAndRefresh(res){
 $("again").onclick = function(){ startQuiz(currentSubject); };
 $("home").onclick = function(){ show("app"); switchTab("practice"); };
 
-/* ================= Nhạc nền ================= */
+/* ================= Nhạc nền (Tự động dò tìm vị trí file) ================= */
 const bgMusic = $("bgMusic");
 const musicCheck = $("musicCheck");
 
-// Lấy trạng thái từ localStorage (mặc định là tắt)
+// Danh sách các đường dẫn có thể có của file nhạc
+const audioPaths = [
+  "Grateful.mp3",
+  "./Grateful.mp3",
+  "onemore/Grateful.mp3",
+  "./onemore/Grateful.mp3",
+  "Grateful.MP3",
+  "onemore/Grateful.MP3"
+];
+let pathIndex = 0;
+
 let isMusicOn = localStorage.getItem("qp_music") === "on";
 musicCheck.checked = isMusicOn;
 
-// Xử lý khi có lỗi load file nhạc (ví dụ sai đường dẫn)
-bgMusic.addEventListener("error", () => {
-  console.error("Lỗi tải nhạc! Hãy kiểm tra lại đường dẫn file.");
-  showToast("⚠️ Không tìm thấy file Grateful.mp3!", true);
-  musicCheck.checked = false;
-  isMusicOn = false;
-  localStorage.setItem("qp_music", "off");
-});
+// Hàm thử đường dẫn tiếp theo nếu file hiện tại lỗi
+function tryNextAudioPath() {
+  if (pathIndex < audioPaths.length) {
+    bgMusic.src = audioPaths[pathIndex];
+    bgMusic.load();
+    pathIndex++;
+    if (isMusicOn) {
+      bgMusic.play().catch(() => {});
+    }
+  } else {
+    // Đã thử hết các đường dẫn mà không được
+    console.error("Không tìm thấy file Grateful.mp3 ở các đường dẫn mặc định.");
+    showToast("⚠️ Lỗi: Không tìm thấy Grateful.mp3. Hãy đảm bảo file nằm CÙNG THƯ MỤC với index.html và đúng tên 'Grateful.mp3' (chú ý viết hoa).", true);
+    musicCheck.checked = false;
+    isMusicOn = false;
+    localStorage.setItem("qp_music", "off");
+  }
+}
+
+// Lắng nghe sự kiện lỗi tải file nhạc
+bgMusic.addEventListener("error", tryNextAudioPath);
+
+// Kích hoạt dò tìm đường dẫn đầu tiên
+bgMusic.src = audioPaths[pathIndex];
+pathIndex++;
 
 // Hàm phát nhạc an toàn
 function playMusic() {
   if (!isMusicOn) return;
-  bgMusic.play().then(() => {
-    // Đã phát thành công
-  }).catch(e => {
-    console.log("Trình duyệt chặn tự động phát nhạc, đang chờ người dùng click...");
+  bgMusic.play().catch(e => {
+    console.log("Trình duyệt chặn tự động phát nhạc, chờ người dùng click...");
   });
 }
-
-// Thử phát nhạc ngay khi tải trang (nếu đã bật trước đó)
-if (isMusicOn) playMusic();
 
 // Bắt sự kiện Tick / Bỏ tick
 musicCheck.onchange = () => {
@@ -1004,13 +1026,6 @@ bgMusic.addEventListener("playing", () => {
     musicCheck.checked = true;
     isMusicOn = true;
     localStorage.setItem("qp_music", "on");
-  }
-});
-bgMusic.addEventListener("pause", () => {
-  if (musicCheck.checked) {
-    musicCheck.checked = false;
-    isMusicOn = false;
-    localStorage.setItem("qp_music", "off");
   }
 });
 
