@@ -881,13 +881,14 @@ function checkProfanity(str) {
 
 function getBanKey(name) { return "ban_" + normText(name); }
 
+// ✅ ĐÃ XOÁ KIỂM TRA BAN IP (banned_ip_sim)
 function checkBanStatus(name) {
   const key = getBanKey(name);
   if (localStorage.getItem("banned_" + key) === "false") return true;
-  if (localStorage.getItem("banned_ip_sim") === "false") return true;
   return false;
 }
 
+// ✅ ĐÃ XOÁ SET BAN IP (banned_ip_sim)
 function recordViolation(name) {
   const key = getBanKey(name);
   let count = parseInt(localStorage.getItem("violations_" + key) || "0");
@@ -895,18 +896,20 @@ function recordViolation(name) {
   localStorage.setItem("violations_" + key, count);
   if (count >= 1) { // Ban ngay lập tức khi phát hiện tên bậy
     localStorage.setItem("banned_" + key, "false");
-    localStorage.setItem("banned_ip_sim", "false");
     return true; 
   }
   return false;
 }
+
+// Dọn key cũ nếu có
+try { localStorage.removeItem("banned_ip_sim"); } catch(e) {}
 
 function showBanScreen(name) {
   document.body.innerHTML = `
     <div class="ban-screen">
       <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
       <p>Bạn đã vi phạm quy tắc ứng xử (sử dụng từ ngữ không phù hợp).<br>
-      Tài khoản <b>"${esc(name)}"</b> và thiết bị này đã bị chặn vĩnh viễn.<br><br>
+      Tài khoản <b>"${esc(name)}"</b> đã bị chặn.<br><br>
       Vui lòng liên hệ quản trị nếu có khiếu nại.</p>
       <button class="p" style="margin-top:24px" onclick="localStorage.clear(); location.reload();">Tôi hiểu và muốn thử lại (Xóa dữ liệu)</button>
     </div>
@@ -958,7 +961,7 @@ async function doRegister(u, p, name, cls){
   
   if (checkProfanity(u) || checkProfanity(name)) {
     recordViolation(name);
-    throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN! (Vi phạm quy tắc ứng xử).");
+    throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
   }
   
   const key = keyOf(u);
