@@ -443,7 +443,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
         <h2>Địa lí 9</h2>
         <div class="mut" style="margin:8px 0 16px">Giữa học kì I · 30 câu</div>
         <div style="display:flex; gap:8px">
-          <button class="p" style="flex:1" id="startDialyKhoanh">Trắc nghiệm</button>
+          <button class="p" style="flex:1" id="startDialyKhoanh">Khoanh</button>
           <button class="g" style="flex:1" id="startDialyViet">Ghi thủ công</button>
         </div>
       </div>
@@ -909,6 +909,12 @@ const SUBJECTS = {
   diali:  { label:"Địa lí 9", icon:"🌍", data:Q_DIALI, allAtOnce:false }
 };
 
+const LEADERBOARD_SUBJECTS = {
+  ...SUBJECTS,
+  diali_choice: { label:"Địa lí 9 (Khoanh)", icon:"🌍", data:Q_DIALI, allAtOnce:false },
+  diali_manual: { label:"Địa lí 9 (Ghi)", icon:"✍️", data:Q_DIALI, allAtOnce:false }
+};
+
 /* ================= Utilities ================= */
 const $ = id => document.getElementById(id);
 const L = "ABCD";
@@ -922,6 +928,22 @@ function normText(s){
     .replace(/[.,!?;:'"()\-–—]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// Danh sách từ ngữ nhạy cảm / tục tĩu
+const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên'];
+function checkProfanity(str) {
+  if (!str) return false;
+  const lowerStr = String(str).toLowerCase();
+  const noAccentStr = normText(str);
+  return BAD_WORDS.some(w => {
+    // Kiểm tra cả có dấu và không dấu
+    if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(w)) {
+       return lowerStr.includes(w);
+    } else {
+       return noAccentStr.includes(w) || lowerStr.includes(w);
+    }
+  });
 }
 
 function show(id){ 
@@ -966,6 +988,12 @@ $("atRegister").onclick = function(){
 
 async function doRegister(u, p, name, cls){
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
+  
+  // Kiểm tra từ ngữ nhạy cảm
+  if (checkProfanity(u) || checkProfanity(name)) {
+    throw new Error("Tên đăng nhập hoặc Họ tên chứa từ ngữ không phù hợp, vui lòng nhập tên khác!");
+  }
+  
   const key = keyOf(u);
   const passHash = await sha256Hex(p);
   ovOn("Đang tạo tài khoản…");
@@ -1066,10 +1094,19 @@ $("btnBack").onclick = function() {
 
 function wirePills(pillsId, listId, initial){
   const el = $(pillsId);
-  el.innerHTML = ["all","tinhoc","gdcd","english","diali"].map(f => {
-    const label = f === "all" ? "Tất cả" : (SUBJECTS[f].icon + " " + SUBJECTS[f].label);
-    return '<button class="pill' + (f === initial ? ' active' : '') + '" data-f="' + f + '">' + label + '</button>';
+  const filters = [
+    { id: "all", label: "Tất cả" },
+    { id: "tinhoc", label: "💻 Tin học 9" },
+    { id: "gdcd", label: "⚖️ GDCD 9" },
+    { id: "english", label: "🇬🇧 Tiếng Anh 9" },
+    { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
+    { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" }
+  ];
+  
+  el.innerHTML = filters.map(f => {
+    return '<button class="pill' + (f.id === initial ? ' active' : '') + '" data-f="' + f.id + '">' + f.label + '</button>';
   }).join("");
+  
   el.querySelectorAll(".pill").forEach(b => {
     b.onclick = function(){
       el.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
@@ -1090,7 +1127,17 @@ async function renderLeaderboard(elId, filter){
     snap.forEach(ch => {
       const v = ch.val();
       if(!v || v.type !== "quiz_result") return;
-      if(filter !== "all" && v.subject !== filter) return;
+      
+      // Xử lý filter
+      if(filter !== "all") {
+        if (filter === "diali_choice") {
+           if(v.subject !== "diali_choice") return;
+        } else if (filter === "diali_manual") {
+           if(v.subject !== "diali_manual") return;
+        } else {
+           if(v.subject !== filter) return;
+        }
+      }
       
       const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
       const prev = best.get(key);
@@ -1125,7 +1172,7 @@ async function renderLeaderboard(elId, filter){
       const medal = isShuffled ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
       const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
       
-      const subj = SUBJECTS[v.subject];
+      const subj = LEADERBOARD_SUBJECTS[v.subject];
       const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
       const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
       
@@ -1191,7 +1238,7 @@ function draw(){
       h += '<div style="margin:4px 0; padding:8px 12px; background:rgba(255,255,255,0.4); border-radius:8px; border:1px solid var(--ln);"><b>' + L[k] + '.</b> ' + txt + '</div>';
     });
     h += '</div>';
-    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng vào ô bên dưới (Không gõ A, B, C, D)</div>';
+    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng vào ô bên dưới (Không gõ A, B, C, D). <br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
     h += '<input type="text" id="man-input" class="txt-input" style="margin-bottom:12px;font-weight:600;font-size:1.1rem" placeholder="Nhập nguyên văn nội dung đáp án..." value="' + esc(ans[qi][0] || "") + '">';
     h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
     $("qc").innerHTML = h;
@@ -1202,6 +1249,18 @@ function draw(){
       updateNavAndCount();
       checkAutoSubmit();
     };
+    
+    // Anti-cheat block
+    inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste) đáp án!", true); };
+    inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
+    inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả văn bản!", true); };
+    inp.ondragover = (e) => { e.preventDefault(); };
+    inp.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+            e.preventDefault();
+            showToast("⚠️ Không được phép sao chép/dán!", true);
+        }
+    });
     
     $("pv").onclick = () => { cur--; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
     $("nx").onclick = () => { cur++; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
@@ -1335,6 +1394,13 @@ function attachAllHandlers() {
         ta.ondragover = function(e) {
           e.preventDefault();
         };
+        
+        ta.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+                e.preventDefault();
+                showToast("⚠️ Không được phép sao chép/dán!", true);
+            }
+        });
         // ============================
       }
     } else {
@@ -1531,7 +1597,14 @@ function finish(){
 
   show("result");
   wirePills("lbPillsResult", "lbResult", currentSubject);
-  saveAndRefresh({ subject: currentSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec, isShuffled: isShuffled });
+  
+  // Lưu kết quả với Subject phân biệt cho Địa lí
+  let finalSubject = currentSubject;
+  if (currentSubject === 'diali') {
+      finalSubject = currentMode === 'manual' ? 'diali_manual' : 'diali_choice';
+  }
+  
+  saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec, isShuffled: isShuffled });
 }
 
 async function saveAndRefresh(res){
@@ -1551,7 +1624,7 @@ async function saveAndRefresh(res){
     $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
     return;
   }
-  renderLeaderboard("lbResult", currentSubject);
+  renderLeaderboard("lbResult", res.subject);
 }
 
 $("again").onclick = function(){ startQuiz(currentSubject, currentMode); };
