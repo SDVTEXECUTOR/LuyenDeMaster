@@ -847,12 +847,19 @@ const $ = id => document.getElementById(id);
 const L = "ABCD";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-// Định dạng thời gian có mili giây: MM:SS.mmm
+// Định dạng thời gian có mili giây: MM:SS.mmm (dùng cho đồng hồ làm bài & trang kết quả)
 function fmtMs(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
   const ms = Math.floor(totalMs % 1000);
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
+}
+
+// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS  (vd: 05:23, 12:07) — đúng 5 ký tự
+function fmtMsShort(totalMs) {
+  const m = Math.floor(totalMs / 60000);
+  const s = Math.floor((totalMs % 60000) / 1000);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
 function normText(s){
@@ -881,20 +888,20 @@ function checkProfanity(str) {
 
 function getBanKey(name) { return "ban_" + normText(name); }
 
-// ✅ ĐÃ XOÁ KIỂM TRA BAN IP (banned_ip_sim)
+// ✅ ĐÃ XOÁ KIỂM TRA BAN IP
 function checkBanStatus(name) {
   const key = getBanKey(name);
   if (localStorage.getItem("banned_" + key) === "false") return true;
   return false;
 }
 
-// ✅ ĐÃ XOÁ SET BAN IP (banned_ip_sim)
+// ✅ ĐÃ XOÁ SET BAN IP
 function recordViolation(name) {
   const key = getBanKey(name);
   let count = parseInt(localStorage.getItem("violations_" + key) || "0");
   count++;
   localStorage.setItem("violations_" + key, count);
-  if (count >= 1) { // Ban ngay lập tức khi phát hiện tên bậy
+  if (count >= 1) {
     localStorage.setItem("banned_" + key, "false");
     return true; 
   }
@@ -1145,12 +1152,10 @@ async function renderLeaderboard(elId, filter){
       let displayName = esc(rawName);
       let isBanned = false;
 
-      // QUÉT VÀ BAN NGAY NẾU TÊN BẬY
       if (checkProfanity(rawName)) {
         recordViolation(rawName);
         displayName = "🚫 Vi phạm";
         isBanned = true;
-        // Nếu người dùng hiện tại trùng tên này, ban ngay lập tức
         if (session && normText(session.name) === normText(rawName)) {
           showBanScreen(rawName);
         }
@@ -1183,7 +1188,8 @@ async function renderLeaderboard(elId, filter){
           + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + (isBanned ? '-' : String(v.score).replace(".", ",") + 'đ') + '</div>'
           + (timeStr && !isBanned ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
         + '</span>'
-        + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMs(v.duration || 0)) + '</span>'
+        // ✅ ĐÃ ĐỔI SANG fmtMsShort → hiển thị MM:SS (5 ký tự)
+        + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span>'
         + '</div>';
     }).join("");
   }catch(e){ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>'; }
@@ -1225,7 +1231,6 @@ function startQuiz(subjectKey, mode = 'choice'){
 
   $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label + (currentMode === 'manual' ? " (Ghi)" : "");
   clearInterval(tick);
-  // Cập nhật mỗi 30ms để hiển thị mili giây mượt mà
   tick = setInterval(() => { $("tm").textContent = fmtMs(Date.now() - t0); }, 30);
   show("quiz");
   if (allAtOnce) drawAll(); else draw();
@@ -1624,7 +1629,6 @@ function showResults(){
 async function saveAndRefresh(res){
   if(!db){ $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
   
-  // CHẶN LƯU NẾU TÊN BẬY
   if (checkProfanity(res.name)) {
     recordViolation(res.name);
     ovOff();
