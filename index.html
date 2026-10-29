@@ -180,7 +180,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .pill.active { background: var(--ac); color: #fff; border-color: var(--ac); }
 
-/* ===== DEV TAB STYLES ===== */
 .dev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 .dev-card {
   text-align: center; padding: 24px 16px; border: 1px solid var(--ln); border-radius: 16px;
@@ -195,7 +194,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .dev-card button { width: 100%; background: var(--ln); color: var(--fg); box-shadow: none; font-size: 0.9rem; }
 .dev-card button:hover { background: var(--acs); color: var(--ac); }
 
-/* ===== IFRAME OVERLAY ===== */
 #iframe-overlay {
   position: fixed; inset: 0; z-index: 1000; background: #000;
   display: flex; flex-direction: column;
@@ -303,13 +301,20 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--bad); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3); }
 
+/* Ban Screen Styles */
+.ban-screen {
+  position: fixed; inset: 0; z-index: 9999; background: #0f172a; color: #fff;
+  display: grid; place-items: center; text-align: center; padding: 24px;
+}
+.ban-screen h1 { color: var(--bad); font-size: 2.5rem; margin-bottom: 16px; }
+.ban-screen p { font-size: 1.1rem; color: #94a3b8; max-width: 500px; line-height: 1.6; }
+
 @media (max-width: 600px) {
   .subjgrid { grid-template-columns: 1fr; }
   .stats { gap: 16px; }
   .stats div span { font-size: 1.2rem; }
 }
 
-/* ===== MUSIC MODAL STYLES ===== */
 .song-item {
   display: flex; align-items: center; gap: 12px; padding: 10px 12px;
   border-radius: 8px; transition: background 0.2s; cursor: pointer;
@@ -407,7 +412,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <label class="chk"><input type="checkbox" id="sa" checked> Xáo trộn thứ tự đáp án</label>
       <label class="chk"><input type="checkbox" id="musicCheck"> Bật nhạc nền</label>
       
-      <!-- Khung chọn nhạc khi bật -->
       <div id="musicSelectionArea" class="hide" style="margin-left: 32px; margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         <span id="currentSongLabel" class="mut" style="font-weight: 500; font-size: 0.9rem;">🎵 Đang phát: <b>Ngẫu nhiên</b></span>
         <button class="g sm" id="btnChangeMusic" style="padding: 6px 12px; font-size: 0.8rem;">Thay đổi</button>
@@ -462,57 +466,25 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     </div>
   </div>
 
-  <!-- ===== DEV TAB ===== -->
   <div id="tab-dev" class="hide">
     <div class="card">
       <h2 style="text-align:center;margin-bottom:24px">🤖 Các AI Đồng Hành</h2>
       <div class="dev-grid">
-        
-        <!-- Claude -->
         <div class="dev-card">
-          <div class="logo">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 10 L55 40 L85 45 L55 50 L50 80 L45 50 L15 45 L45 40 Z" fill="#D97706"/>
-              <circle cx="50" cy="50" r="8" fill="#FCD34D"/>
-            </svg>
-          </div>
-          <h3>Claude</h3>
-          <p class="mut">Anthropic</p>
+          <div class="logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 10 L55 40 L85 45 L55 50 L50 80 L45 50 L15 45 L45 40 Z" fill="#D97706"/><circle cx="50" cy="50" r="8" fill="#FCD34D"/></svg></div>
+          <h3>Claude</h3><p class="mut">Anthropic</p>
           <button class="play-video" data-src="cutscene/hieuung1.html">▶ Xem đoạn video ngắn</button>
         </div>
-
-        <!-- DeepSeek -->
         <div class="dev-card">
-          <div class="logo">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 60 Q 30 30 60 40 Q 80 50 90 70 Q 70 80 50 70 Q 30 90 10 60 Z" fill="#2563EB"/>
-              <circle cx="70" cy="55" r="4" fill="#fff"/>
-            </svg>
-          </div>
-          <h3>DeepSeek</h3>
-          <p class="mut">DeepSeek AI</p>
+          <div class="logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10 60 Q 30 30 60 40 Q 80 50 90 70 Q 70 80 50 70 Q 30 90 10 60 Z" fill="#2563EB"/><circle cx="70" cy="55" r="4" fill="#fff"/></svg></div>
+          <h3>DeepSeek</h3><p class="mut">DeepSeek AI</p>
           <button class="play-video" data-src="cutscene/hieuung1.html">▶ Xem đoạn video ngắn</button>
         </div>
-
-        <!-- Qwen -->
         <div class="dev-card">
-          <div class="logo">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="30" stroke="url(#qwenGrad)" stroke-width="10" fill="none"/>
-              <path d="M65 65 L85 85" stroke="url(#qwenGrad)" stroke-width="10" stroke-linecap="round"/>
-              <defs>
-                <linearGradient id="qwenGrad" x1="0" y1="0" x2="100" y2="100">
-                  <stop offset="0%" stop-color="#8B5CF6"/>
-                  <stop offset="100%" stop-color="#EC4899"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <h3>Qwen</h3>
-          <p class="mut">Alibaba Cloud</p>
+          <div class="logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="30" stroke="url(#qwenGrad)" stroke-width="10" fill="none"/><path d="M65 65 L85 85" stroke="url(#qwenGrad)" stroke-width="10" stroke-linecap="round"/><defs><linearGradient id="qwenGrad" x1="0" y1="0" x2="100" y2="100"><stop offset="0%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#EC4899"/></linearGradient></defs></svg></div>
+          <h3>Qwen</h3><p class="mut">Alibaba Cloud</p>
           <button class="play-video" data-src="cutscene/hieuung1.html">▶ Xem đoạn video ngắn</button>
         </div>
-
       </div>
     </div>
   </div>
@@ -522,8 +494,10 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   <div class="card" style="position:sticky;top:0;z-index:10">
     <div class="top">
       <strong id="who" style="font-size:1rem"></strong>
-      <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px">
         <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00</span></span>
+        <!-- Nút Tiếp theo dành riêng cho GDCD -->
+        <button class="p sm" id="headerNext" style="display:none;">Tiếp ➔</button>
         <button class="g sm" id="exitQuiz" type="button">Thoát</button>
       </div>
     </div>
@@ -582,26 +556,14 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   </div>
 </div>
 
-<!-- MUSIC MODAL -->
 <div class="mask" id="musicMask">
   <div class="card" style="max-width: 440px; width: 100%;">
     <h2 style="margin-bottom: 16px;">🎵 Chọn nhạc nền</h2>
-    
     <div style="margin-bottom: 16px;">
-      <label class="chk" style="margin: 8px 0;">
-        <input type="radio" name="mMode" value="random" id="mModeRandom"> 
-        <b>Ngẫu nhiên</b> (Mỗi bài phát 1 lần, hết vòng lặp lại)
-      </label>
-      <label class="chk" style="margin: 8px 0;">
-        <input type="radio" name="mMode" value="playlist" id="mModePlaylist"> 
-        <b>Danh sách</b> (Phát lần lượt các bài đã chọn)
-      </label>
+      <label class="chk" style="margin: 8px 0;"><input type="radio" name="mMode" value="random" id="mModeRandom"> <b>Ngẫu nhiên</b></label>
+      <label class="chk" style="margin: 8px 0;"><input type="radio" name="mMode" value="playlist" id="mModePlaylist"> <b>Danh sách</b></label>
     </div>
-
-    <div id="songListContainer" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; border: 1px solid var(--ln); border-radius: 10px; background: rgba(255,255,255,0.4);">
-      <!-- Tự động điền bằng JS -->
-    </div>
-
+    <div id="songListContainer" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; border: 1px solid var(--ln); border-radius: 10px; background: rgba(255,255,255,0.4);"></div>
     <div class="row">
       <button class="g" id="btnCancelMusic" style="flex: 1;">Hủy</button>
       <button class="p" id="btnSaveMusic" style="flex: 1;">Lưu</button>
@@ -698,7 +660,7 @@ try {
   db = getDatabase(app);
 } catch (e) { console.warn("Firebase init error:", e); }
 
-/* ================= Tin học & GDCD & Địa lí ================= */
+/* ================= Dữ liệu câu hỏi ================= */
 const Q_TINHOC = [
 ["Thiết bị nào sau đây có gắn bộ xử lí thông tin?",["Bình đựng nước thông thường.","Ghế nhựa thông thường.","Máy giặt tự động hoạt động theo chương trình.","Ổ khóa cơ dùng chìa."],[2]],
 ["Khả năng nào sau đây là của máy tính?",["Xử lí lượng lớn dữ liệu nhanh theo chương trình.","Mọi thông tin trên Internet đều đúng.","Tự quyết định mọi việc mà không cần dữ liệu.","Luôn hiểu đầy đủ cảm xúc của con người."],[0]],
@@ -777,74 +739,49 @@ const Q_DIALI = [
 ["Người Kinh chiếm tỉ lệ bao nhiêu phần trăm trong tổng số dân của nước ta?",["54%","85%","70%","95%"],[1]]
 ];
 
-/* ================= TIẾNG ANH ================= */
 const P_LONDON = "London is Britain's biggest city. It is a very old city and dates to the Romans. It is a city of historic buildings and churches, and it has many beautiful parks. It also has some of the (1) _______ museums in the world. London is very crowded (2) _______ summer. It is a popular city with foreign tourists and has more than eight million (3) _______ a year. The city is (4) _______ for its shopping and department stores. London has an excellent underground railway system, so it is easy for tourists to (5) _______.";
 const P_HALONG = "Hạ Long Bay (Descending Dragon) is popular with both Vietnamese and international (1) _______. One of the attractions of Hạ Long is the bay's calm water with limestone mountains. The bay's water is (2) _______ during the spring and early summer. Upon arriving in Hạ Long City, visitors can (3) _______ Bãi Cháy Beach. From the beach, they can hire a boat and go out to the bay. It is heard that visitors can find some of Southeast Asia's most beautiful sites. Dấu Gỗ Cave is one of the (4) _______ beautiful caves at Hạ Long. It was the cave in which General Trần Hưng Đạo hid wooden stakes to beat the Mongols on Bạch Đằng (5) _______ in 1288.";
 const P_QUATDONG = "There are many existing villages in Việt Nam, but Quất Động Village in Hà Nội is widely known for its products of high quality. Embroidery has been developing around here since the seventeenth century. In the past, local skilled artisans were chosen to make sophisticated, embroidered costumes for the Vietnamese King, Queen and other Royal family members. The first man who taught the local people how to embroider was Dr. Lê Công Hành, who lived during the Le Dynasty. He learned how to embroider while on a trip to China as an envoy and taught the villagers of Quất Động upon his return. Although these skills eventually spread across the country, the Quất Động artisans' creations are still the most appreciated. To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands. Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries.";
 const P_DONGHO = "Đông Hồ Folk Painting Village is the place that will surprise many art lovers. As its name suggests, the main product of the village is impressive folk paintings. The village is quite small and there are no more than two hundred households here. Villagers get their main income from making paintings. Looking at their products, you will surely get a deeper insight into the beauty of Vietnam as well as the traditional customs and Vietnamese festivals. These paintings used to be precious decorations during the Tết holiday. Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees). There are 5 main colors used in paintings, including green, red, yellow, black and indigo. They are mostly created from natural materials like bricks, flowers, straw, and different trees, ...";
 
 const ENGLISH_SECTIONS = [
-  {
-    title: "II. READING – A. London",
-    passage: P_LONDON,
-    questions: [
+  { title: "II. READING – A. London", passage: P_LONDON, questions: [
       ["Question 1: Choose the best word for blank (1).", ["good","well","better","best"], [3]],
       ["Question 2: Choose the best word for blank (2).", ["on","in","at","for"], [1]],
       ["Question 3: Choose the best word for blank (3).", ["visitors","villagers","artisans","workers"], [0]],
       ["Question 4: Choose the best word for blank (4).", ["good","amazing","well-known","interesting"], [2]],
       ["Question 5: Choose the best word for blank (5).", ["go out","take care of","hand down","get around"], [3]]
-    ]
-  },
-  {
-    title: "II. READING – A. Hạ Long Bay",
-    passage: P_HALONG,
-    questions: [
+  ]},
+  { title: "II. READING – A. Hạ Long Bay", passage: P_HALONG, questions: [
       ["Question 1: Choose the best word for blank (1).", ["tourists","leaders","famous people","festival goers"], [0]],
       ["Question 2: Choose the best word for blank (2).", ["blue","white","clear","liquid"], [2]],
       ["Question 3: Choose the best word for blank (3).", ["go along","hand down","go out","come back"], [0]],
       ["Question 4: Choose the best word for blank (4).", ["more","best","most","better"], [2]],
       ["Question 5: Choose the best word for blank (5).", ["Mountain","Village","Cave","River"], [3]]
-    ]
-  },
-  {
-    title: "II. READING – B. Quất Động Village",
-    passage: P_QUATDONG,
-    questions: [
+  ]},
+  { title: "II. READING – B. Quất Động Village", passage: P_QUATDONG, questions: [
       ["Question 1: What is the main topic of the passage?", ["The history and development of embroidery in Quất Động Village","The life of Vietnamese kings and queens","How to travel to Quất Động Village","The history of villages in Việt Nam"], [0]],
       ["Question 2: When did embroidery begin developing in Quất Động village?", ["In the 15th century","In the 16th century","In the 17th century","In the 18th century"], [2]],
       ["Question 3: The word \"He\" refers to _______.", ["the Vietnamese King","Dr. Lê Công Hành","a local artisan","a member of the Royal family"], [1]],
       ["Question 4: Answer in full:<br><b>What qualities must an artisan have to create beautiful embroideries?</b>", ["patient","careful","design","clever hands"], "keys", "To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands."],
       ["Question 5: Answer in full:<br><b>What products are made in Quất Động Village nowadays?</b>", ["clothes","bags","pillowcases","paintings","decorations"], "keys", "Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries."]
-    ]
-  },
-  {
-    title: "II. READING – B. Đông Hồ Folk Painting Village",
-    passage: P_DONGHO,
-    questions: [
+  ]},
+  { title: "II. READING – B. Đông Hồ Folk Painting Village", passage: P_DONGHO, questions: [
       ["Question 1: What is the main topic of the passage?", ["The history of Vietnamese festivals","Đông Hồ Folk Painting Village and its traditional paintings","The life of people in Vietnamese villages","Different types of paper in Việt Nam"], [1]],
       ["Question 2: How many households are there in Đông Hồ Village?", ["More than 100 households","Exactly 200 households","No more than 200 households","About 500 households"], [2]],
       ["Question 3: The word \"their\" in the passage refers to _______.", ["paintings'","villagers'","the main colors'","products'"], [1]],
       ["Question 4: Answer in full:<br><b>Why are Đông Hồ Paintings so unique?</b>", ["poonah","paper"], "keys", "Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees)."],
       ["Question 5: Answer in full:<br><b>What are the main colors used in Đông Hồ Paintings mostly created from?</b>", ["natural","bricks","flowers","straw","trees"], "keys", "They are mostly created from natural materials like bricks, flowers, straw, and different trees, ..."]
-    ]
-  },
-  {
-    title: "III. LANGUAGE FOCUS – A. Pronunciation",
-    questions: [
+  ]},
+  { title: "III. LANGUAGE FOCUS – A. Pronunciation", questions: [
       ["Choose the word whose underlined part differs from the others. (1) house / mouse / country / about", ["house","mouse","country","about"], [2]],
       ["Choose the word whose underlined part differs from the others. (2) walk / talk / calm / water", ["walk","talk","calm","water"], [2]]
-    ]
-  },
-  {
-    title: "III. LANGUAGE FOCUS – B. Word Stress",
-    questions: [
+  ]},
+  { title: "III. LANGUAGE FOCUS – B. Word Stress", questions: [
       ["Choose the word that differs from the other three in the position of stress. (1)", ["suburb","neighbor","useful","remind"], [3]],
       ["Choose the word that differs from the other three in the position of stress. (2)", ["traffic","protect","plumber","lifeguard"], [1]]
-    ]
-  },
-  {
-    title: "III. LANGUAGE FOCUS – C. Multiple Choice",
-    questions: [
+  ]},
+  { title: "III. LANGUAGE FOCUS – C. Multiple Choice", questions: [
       ["My hometown is _______ for handicrafts, such as paper fans and lanterns.", ["famously","famous","fame","infamous"], [1]],
       ["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.", ["handicrafts","festivals","dishes","costumes"], [0]],
       ["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"", ["That would be great!","Sure","Here you are.","Yes, I am"], [1]],
@@ -853,29 +790,20 @@ const ENGLISH_SECTIONS = [
       ["Our _______ help keep law and order in our community.", ["artisans","police officers","craftsmen","electricians"], [1]],
       ["– Tom: \"I can show you how to open this smart door if you want.\" – Anna: \"_______\"", ["That would be great, thanks!","So do I","The card? Why's that?","I don't think so."], [0]],
       ["– Tim: \"Thanks a lot for lending me an interesting book.\" – Mary: \"_______\"", ["Sure, here you are.","You're welcome.","The book? OK.","OK, I'll think about that."], [1]]
-    ]
-  },
-  {
-    title: "IV. WRITING – A. Find the error",
-    questions: [
+  ]},
+  { title: "IV. WRITING – A. Find the error", questions: [
       ["The more carefully students listen, the good they understand the lesson.", ["carefully","good","understand","lesson"], [1]],
       ["Can you decide where to start the project: on Monday or on Tuesday?", ["decide","where","on Monday","on Tuesday"], [1]],
       ["The more trees we plant, the more green the environment will become.", ["more trees","plant","more green","will become"], [2]],
       ["Do you know who to choose for the school competition: a song or a dance?", ["know","who","for","a song or a dance"], [1]]
-    ]
-  },
-  {
-    title: "IV. WRITING – B. Sentence Arrangement",
-    questions: [
+  ]},
+  { title: "IV. WRITING – B. Sentence Arrangement", questions: [
       [`Arrange the sentences to make a meaningful letter:<br>Dear Lan,<br>a. We can discuss our ideas for the science project and divide the tasks together.<br>b. I'm writing to invite you to a group meeting this Saturday afternoon.<br>c. Please let me know if you can come.<br>d. Sorry I haven't contacted you for a few days because I was busy preparing for exams.<br>e. The meeting will start at 2 p.m. at my house.<br>Best wishes!`, ["b - e - d - a - c","b - d - e - a - c","d - a - b - e - c","d - b - e - a - c"], [3]],
       [`Arrange the sentences to make a meaningful paragraph:<br>a. Finally, it makes our planet a better place to live for future generations.<br>b. Moreover, by saving the environment, we are protecting our ecosystem and other natural resources.<br>c. Firstly, when we protect the environment, we are saving ourselves from the problems that will arise in the future. Also, the effects of climate change can also be reduced greatly.<br>d. It is important to save the environment for the survival of the planet and the living beings in it.<br>e. In conclusion, it is vital to preserve and protect life on Earth.`, ["d - c - b - e - a","d - c - b - a - e","d - b - c - e - a","d - c - e - b - a"], [1]],
       [`Arrange the sentences to make a meaningful letter:<br>Dear Anna,<br>a. We are going to prepare some traditional dishes and enjoy music together.<br>b. Please reply soon and tell me if you can join us. I'm looking forward to seeing you!<br>c. I'm very happy to invite you to our school camping trip next Sunday at Green Park.<br>d. Besides outdoor games, we will also have a talent show in the evening.<br>e. Don't forget to bring a hat and some comfortable clothes for outdoor activities.<br>Best,<br>Linda`, ["a - e - c - d - b","b - d - a - e - c","c - d - e - b - a","c - a - d - e - b"], [3]],
       [`Arrange the sentences to make a meaningful paragraph:<br>a. Furthermore, online learning allows students to access lessons and materials anytime and anywhere with an Internet connection.<br>b. In short, online learning offers many advantages and has become an important part of modern education.<br>c. Online learning is becoming increasingly popular among students around the world.<br>d. First of all, it provides flexibility, helping learners study at their own pace and manage their time effectively.<br>e. Last but not least, students can join virtual classes and interact with teachers and classmates easily through online platforms.`, ["c - d - a - e - b","d - c - a - e - b","c - a - d - e - b","c - d - e - b - a"], [0]]
-    ]
-  },
-  {
-    title: "IV. WRITING – C. Rewrite sentences",
-    questions: [
+  ]},
+  { title: "IV. WRITING – C. Rewrite sentences", questions: [
       ["Rewrite the sentence so that it has the same meaning:<br><i>Young people are discussing how they can help the poor and the elderly in their local community.</i><br>→ Young people are discussing ___", ["how to help the poor and the elderly in their local community"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me when I should hand in the assignment?</i><br>→ Could you tell me ___", ["when to hand in the assignment"], "text"],
       ["Rewrite the sentence so that it has the same meaning:<br><i>The community is friendly. People feel happy.</i><br>→ The friendlier ___", ["the community is, the happier people feel"], "text"],
@@ -888,8 +816,7 @@ const ENGLISH_SECTIONS = [
       ["Rewrite the sentence so that it has the same meaning:<br><i>Teenagers exercise regularly. They are strong.</i><br>→ The more ___", ["regularly teenagers exercise, the stronger they are"], "text"],
       ["Rewrite the sentence using the word in brackets:<br><i>People try to save water because they sometimes have no clean water left during the dry season.</i> (run out of)<br>→ People try to save water because ___", ["they sometimes run out of clean water during the dry season", "they sometimes run out of clean water in the dry season"], "text"],
       ["Rewrite the sentence using the word in brackets:<br><i>Many traditional crafts and customs in our local community have been passed from older generations to younger ones.</i> (hand down)<br>→ Many traditional crafts and customs in our local community ___", ["have been handed down from older generations to younger ones", "have been handed down from older to younger generations"], "text"]
-    ]
-  }
+  ]}
 ];
 
 const Q_ENGLISH = [];
@@ -915,7 +842,7 @@ const LEADERBOARD_SUBJECTS = {
   diali_manual: { label:"Địa lí 9 (Ghi)", icon:"✍️", data:Q_DIALI, allAtOnce:false }
 };
 
-/* ================= Utilities ================= */
+/* ================= Utilities & Anti-Profanity ================= */
 const $ = id => document.getElementById(id);
 const L = "ABCD";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -930,20 +857,53 @@ function normText(s){
     .trim();
 }
 
-// Danh sách từ ngữ nhạy cảm / tục tĩu
-const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên'];
+const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'Phát'];
+
 function checkProfanity(str) {
   if (!str) return false;
   const lowerStr = String(str).toLowerCase();
   const noAccentStr = normText(str);
   return BAD_WORDS.some(w => {
-    // Kiểm tra cả có dấu và không dấu
     if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(w)) {
        return lowerStr.includes(w);
     } else {
        return noAccentStr.includes(w) || lowerStr.includes(w);
     }
   });
+}
+
+function getBanKey(name) { return "ban_" + normText(name); }
+
+function checkBanStatus(name) {
+  const key = getBanKey(name);
+  if (localStorage.getItem("banned_" + key) === "true") return true;
+  if (localStorage.getItem("banned_ip_sim") === "true") return true;
+  return false;
+}
+
+function recordViolation(name) {
+  const key = getBanKey(name);
+  let count = parseInt(localStorage.getItem("violations_" + key) || "0");
+  count++;
+  localStorage.setItem("violations_" + key, count);
+  if (count >= 3) {
+    localStorage.setItem("banned_" + key, "true");
+    localStorage.setItem("banned_ip_sim", "true");
+    return true; 
+  }
+  return false;
+}
+
+function showBanScreen(name) {
+  document.body.innerHTML = `
+    <div class="ban-screen">
+      <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
+      <p>Bạn đã vi phạm quy tắc ứng xử (sử dụng từ ngữ không phù hợp) quá 3 lần.<br>
+      Tài khoản <b>"${esc(name)}"</b> và thiết bị này đã bị chặn vĩnh viễn.<br><br>
+      Vui lòng liên hệ quản trị nếu có khiếu nại.</p>
+      <button class="p" style="margin-top:24px" onclick="localStorage.clear(); location.reload();">Tôi hiểu và muốn thử lại (Xóa dữ liệu)</button>
+    </div>
+  `;
 }
 
 function show(id){ 
@@ -989,9 +949,14 @@ $("atRegister").onclick = function(){
 async function doRegister(u, p, name, cls){
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
   
-  // Kiểm tra từ ngữ nhạy cảm
   if (checkProfanity(u) || checkProfanity(name)) {
-    throw new Error("Tên đăng nhập hoặc Họ tên chứa từ ngữ không phù hợp, vui lòng nhập tên khác!");
+    const isBanned = recordViolation(name);
+    if (isBanned) {
+      throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN! (Vi phạm quy tắc ứng xử lần 4).");
+    } else {
+      const remaining = 3 - parseInt(localStorage.getItem("violations_" + getBanKey(name)) || "0");
+      throw new Error(`⚠️ CẢNH BÁO: Tên chứa từ ngữ không phù hợp! Bạn còn ${remaining} lần cảnh cáo trước khi bị khóa vĩnh viễn.`);
+    }
   }
   
   const key = keyOf(u);
@@ -1016,6 +981,13 @@ async function doLogin(u, p){
   try{ snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
   if(!snap.exists()) throw new Error("Tài khoản không tồn tại.");
   const acc = snap.val();
+  
+  if (checkBanStatus(acc.name)) {
+    clearSession();
+    showBanScreen(acc.name);
+    throw new Error("Tài khoản đã bị khóa.");
+  }
+
   const passHash = await sha256Hex(p);
   if(acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
   saveSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
@@ -1039,6 +1011,11 @@ $("auGo").onclick = async function(){
 };
 
 function enterApp(){
+  if (session && checkBanStatus(session.name)) {
+    clearSession();
+    showBanScreen(session.name);
+    return;
+  }
   $("hiName").textContent = "👋 Xin chào, " + session.name;
   $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
   $("auUser").value = ""; $("auPass").value = "";
@@ -1070,7 +1047,6 @@ $("rfResult").onclick = function(){
   renderLeaderboard("lbResult", active ? active.dataset.f : currentSubject);
 };
 
-/* ===== DEV TAB VIDEO LOGIC ===== */
 document.querySelectorAll('.play-video').forEach(btn => {
   btn.onclick = function() {
     const src = this.dataset.src;
@@ -1127,21 +1103,13 @@ async function renderLeaderboard(elId, filter){
     snap.forEach(ch => {
       const v = ch.val();
       if(!v || v.type !== "quiz_result") return;
-      
-      // Xử lý filter
       if(filter !== "all") {
-        if (filter === "diali_choice") {
-           if(v.subject !== "diali_choice") return;
-        } else if (filter === "diali_manual") {
-           if(v.subject !== "diali_manual") return;
-        } else {
-           if(v.subject !== filter) return;
-        }
+        if (filter === "diali_choice" && v.subject !== "diali_choice") return;
+        if (filter === "diali_manual" && v.subject !== "diali_manual") return;
+        if (filter !== "diali_choice" && filter !== "diali_manual" && v.subject !== filter) return;
       }
-      
       const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
       const prev = best.get(key);
-      
       if(!prev) {
         best.set(key, v);
       } else {
@@ -1165,13 +1133,12 @@ async function renderLeaderboard(elId, filter){
       return a.duration - b.duration;
     }).slice(0, 20);
 
-    if(!list.length){ el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài. Hãy là người đầu tiên!</div>'; return; }
+    if(!list.length){ el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
     
     el.innerHTML = list.map((v, i) => {
       const isShuffled = v.isShuffled === true;
       const medal = isShuffled ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
       const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
-      
       const subj = LEADERBOARD_SUBJECTS[v.subject];
       const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
       const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
@@ -1220,7 +1187,7 @@ function startQuiz(subjectKey, mode = 'choice'){
   t0 = Date.now();
   autoSubmitTriggered = false;
 
-  $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label + (currentMode === 'manual' ? " (Ghi thủ công)" : "");
+  $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label + (currentMode === 'manual' ? " (Ghi)" : "");
   clearInterval(tick);
   tick = setInterval(() => { $("tm").textContent = fmt(Math.floor((Date.now()-t0)/1000)); }, 500);
   show("quiz");
@@ -1231,6 +1198,14 @@ function draw(){
   const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
   let h = "";
   
+  const headerNext = $("headerNext");
+  if (currentSubject === 'gdcd' && cur < Q.length - 1) {
+    headerNext.style.display = "block";
+    headerNext.onclick = () => { cur++; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
+  } else {
+    headerNext.style.display = "none";
+  }
+
   if (currentMode === 'manual') {
     h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · Ghi thủ công</span><div class="q">' + q[0] + '</div>';
     h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
@@ -1238,7 +1213,7 @@ function draw(){
       h += '<div style="margin:4px 0; padding:8px 12px; background:rgba(255,255,255,0.4); border-radius:8px; border:1px solid var(--ln);"><b>' + L[k] + '.</b> ' + txt + '</div>';
     });
     h += '</div>';
-    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng vào ô bên dưới (Không gõ A, B, C, D). <br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
+    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng vào ô bên dưới. <br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
     h += '<input type="text" id="man-input" class="txt-input" style="margin-bottom:12px;font-weight:600;font-size:1.1rem" placeholder="Nhập nguyên văn nội dung đáp án..." value="' + esc(ans[qi][0] || "") + '">';
     h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
     $("qc").innerHTML = h;
@@ -1249,11 +1224,9 @@ function draw(){
       updateNavAndCount();
       checkAutoSubmit();
     };
-    
-    // Anti-cheat block
-    inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste) đáp án!", true); };
+    inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste)!", true); };
     inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
-    inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả văn bản!", true); };
+    inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
     inp.ondragover = (e) => { e.preventDefault(); };
     inp.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
@@ -1312,7 +1285,6 @@ function renderQItem(flatIdx, q) {
   h += '<div class="q">' + q[0] + '</div>';
   
   if (isText) {
-    // Hiển thị lại đoạn văn bản (nếu có) để người dùng dễ đọc và bôi đen
     if (currentSubject === "english") {
       const meta = ENGLISH_QMETA[flatIdx];
       if (meta) {
@@ -1322,11 +1294,10 @@ function renderQItem(flatIdx, q) {
         }
       }
     }
-
     const saved = (ans[flatIdx][0] || "");
-    h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án của bạn... (Bôi đen đoạn văn bản ở trên rồi bấm nút Điền)"></textarea>';
+    h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
     h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-    h += '<span>Không phân biệt chữ hoa/thường và dấu câu. (Chống gian lận: Không được Copy/Paste từ ngoài)</span>';
+    h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
     h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ')">📥 Điền đoạn bôi đen</button>';
     h += '</div>';
   } else {
@@ -1340,21 +1311,16 @@ function renderQItem(flatIdx, q) {
   return h;
 }
 
-// Hàm xử lý "Điền đoạn bôi đen"
 window.fillSelectedText = function(flatIdx) {
   const sel = window.getSelection().toString().trim();
   if (!sel) {
     showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true);
     return;
   }
-  // Làm sạch đoạn văn bản (xóa xuống dòng thừa)
   const cleanText = sel.replace(/\s+/g, ' ');
-  
   const ta = document.getElementById("txt-" + flatIdx);
   if (ta) {
-    // Nối thêm vào vị trí con trỏ hoặc thay thế toàn bộ (ở đây làm thay thế cho nhanh)
     ta.value = cleanText;
-    // Trigger sự kiện input để lưu trạng thái
     ta.dispatchEvent(new Event('input'));
     showToast("✅ Đã điền đáp án!");
   }
@@ -1366,42 +1332,23 @@ function attachAllHandlers() {
     if (isText) {
       const ta = $("txt-" + flatIdx);
       if (ta) {
-        ta.value = ans[flatIdx][0] || ""; // Set value safely
-        
+        ta.value = ans[flatIdx][0] || "";
         ta.oninput = () => {
           const v = ta.value.trim();
           ans[flatIdx] = v ? [ta.value] : [];
           updateNavAndCount();
           checkAutoSubmit();
         };
-
-        // ===== ANTI-CHEAT LOGIC =====
-        ta.onpaste = function(e) {
-          e.preventDefault();
-          showToast("⚠️ Không được phép dán (Paste) đáp án từ bên ngoài!", true);
-        };
-        
-        ta.oncontextmenu = function(e) {
-          e.preventDefault();
-          showToast("⚠️ Không được phép nhấp chuột phải!", true);
-        };
-
-        ta.ondrop = function(e) {
-          e.preventDefault();
-          showToast("⚠️ Không được phép kéo thả văn bản!", true);
-        };
-        
-        ta.ondragover = function(e) {
-          e.preventDefault();
-        };
-        
+        ta.onpaste = function(e) { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
+        ta.oncontextmenu = function(e) { e.preventDefault(); showToast("⚠️ Không được phép nhấp chuột phải!", true); };
+        ta.ondrop = function(e) { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
+        ta.ondragover = function(e) { e.preventDefault(); };
         ta.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
                 e.preventDefault();
                 showToast("⚠️ Không được phép sao chép/dán!", true);
             }
         });
-        // ============================
       }
     } else {
       const container = $("q-" + flatIdx);
@@ -1458,7 +1405,7 @@ function checkAutoSubmit() {
     setTimeout(() => {
       maskMode = "submit";
       $("mkTitle").textContent = "🎯 Hoàn thành xuất sắc!";
-      $("mt").innerHTML = "Bạn đã làm đủ <b>" + Q.length + "</b> câu hỏi.<br>Hệ thống đã sẵn sàng nộp bài. Bạn có muốn xem kết quả ngay không?";
+      $("mt").innerHTML = "Bạn đã làm đủ <b>" + Q.length + "</b> câu hỏi.<br>Hệ thống đã sẵn sàng nộp bài.";
       $("yes").textContent = "Nộp bài ngay";
       $("yes").style.background = "var(--ok)";
       $("mk").classList.add("on");
@@ -1518,37 +1465,29 @@ function finish(){
       }
       pts += ok ? 1 : 0;
       full += ok ? 1 : 0;
-      
       const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
       h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
         + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
         + '<div class="q">' + q[0] + '</div>'
         + '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="lbl">Đáp án của bạn:</span>'
-        + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
-        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span>'
-        + '<span class="correct-ans">' + esc(modelAns) + '</span>'
+        + '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
+        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + esc(modelAns) + '</span>'
         + '</div></div>';
     } else if (currentMode === 'manual') {
       const userAns = (ans[qi][0] || "").trim();
       const cIdx = q[2][0];
       const correctLetter = L[cIdx];
       const correctText = q[1][cIdx];
-      // Bắt buộc gõ nguyên văn nội dung, không chấp nhận gõ A,B,C,D
       const ok = userAns && normText(userAns) === normText(correctText);
-      
       pts += ok ? 1 : 0;
       full += ok ? 1 : 0;
-      
       const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
       h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
         + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
         + '<div class="q">' + q[0] + '</div>'
         + '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="lbl">Đáp án của bạn:</span>'
-        + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
-        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span>'
-        + '<span class="correct-ans">' + correctLetter + '. ' + esc(correctText) + '</span>'
+        + '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
+        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + correctLetter + '. ' + esc(correctText) + '</span>'
         + '</div></div>';
     } else {
       const c = q[2], a = ans[qi];
@@ -1558,8 +1497,7 @@ function finish(){
       const ok = (r === c.length && w === 0);
       pts += p;
       if(ok) full++;
-
-      let status = ok ? 'Đúng' : (!a.length ? 'Chưa làm' : (c.length > 1 ? 'Chưa đúng (đúng một phần)' : 'Chưa đúng'));
+      let status = ok ? 'Đúng' : (!a.length ? 'Chưa làm' : (c.length > 1 ? 'Chưa đúng (một phần)' : 'Chưa đúng'));
       h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
         + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
         + '<div class="q">' + q[0] + '</div>';
@@ -1579,7 +1517,39 @@ function finish(){
   $("rc").textContent = full + "/" + Q.length;
   $("rw").textContent = (Q.length - full) + "";
   $("rt").textContent = fmt(sec);
-  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label + (currentMode === 'manual' ? " (Ghi thủ công)" : "");
+  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label + (currentMode === 'manual' ? " (Ghi)" : "");
+  
+  // === TIẾNG ANH: CẢNH BÁO ĐỀ NGHE & ĐÁP ÁN GỌN ===
+  if (currentSubject === 'english') {
+    let answerKeySummary = "📝 Đáp án tham khảo: ";
+    let keyParts = [];
+    order.forEach((qi, i) => {
+      const q = Q[qi];
+      if (typeof q[2] !== "string") {
+        const displayLetterIdx = opt[qi].indexOf(q[2][0]);
+        const displayLetter = "ABCD"[displayLetterIdx];
+        keyParts.push(`${i+1}. ${displayLetter}`);
+      }
+    });
+    const grouped = [];
+    for(let i=0; i<keyParts.length; i+=5) {
+      grouped.push(keyParts.slice(i, i+5).join(", "));
+    }
+    
+    const listeningWarning = `<div class="card" style="background:var(--bads); border-left:4px solid var(--bad); margin-bottom:16px;">
+        <strong>⚠️ LƯU Ý ĐỀ NGHE:</strong><br>
+        Bạn đã kiểm tra kỹ phần đề nghe chưa? <br>
+        <b>Đã chọn</b> / <b>Chưa chọn</b>? Hãy chắc chắn trước khi nộp bài lần sau!
+    </div>`;
+    
+    const answerKeyDisplay = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-size:1.05rem; text-align:center; line-height:1.8; background:var(--acs); border-color:var(--ac);">
+        ${listeningWarning}
+        <div style="margin-top:12px; color:var(--ac); font-weight:800;">${grouped.join("<br>")}</div>
+    </div>`;
+    
+    h = answerKeyDisplay + h;
+  }
+
   $("rv").innerHTML = h;
   
   const resultCard = $("resultCard");
@@ -1588,22 +1558,33 @@ function finish(){
   lowScoreMsg.innerHTML = "";
   
   if (sc < 5) {
-    setTimeout(() => {
-      resultCard.classList.add("punch-low-score");
-    }, 300);
-    const msgs = ["⚠️Đây là điểm của bạn","⚠️Đây là điểm của bạn⚠️","⚠️Đây là điểm của bạn"];
+    setTimeout(() => { resultCard.classList.add("punch-low-score"); }, 300);
+    const msgs = ["⚠️ Đây là điểm của bạn","⚠️ Cần cố gắng hơn!","⚠️ Đừng nản lòng!"];
     lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
   }
+
+  // === TÀI TRỢ & NÚT ĐÓNG ===
+  const sponsorBlock = `
+    <div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
+      <div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Được tài trợ bởi</div>
+      <div style="font-size:1.8rem; font-weight:900; color:var(--ac); letter-spacing:2px; margin-bottom:16px;">DUY TÂN</div>
+      <button class="p" id="closeResultBtn" style="width:100%; max-width:300px;">Đóng</button>
+    </div>
+  `;
+  $("rv").innerHTML += sponsorBlock;
+  
+  $("closeResultBtn").onclick = function() {
+    show("app");
+    switchTab("practice");
+  };
 
   show("result");
   wirePills("lbPillsResult", "lbResult", currentSubject);
   
-  // Lưu kết quả với Subject phân biệt cho Địa lí
   let finalSubject = currentSubject;
   if (currentSubject === 'diali') {
       finalSubject = currentMode === 'manual' ? 'diali_manual' : 'diali_choice';
   }
-  
   saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec, isShuffled: isShuffled });
 }
 
@@ -1632,7 +1613,6 @@ $("home").onclick = function(){ show("app"); switchTab("practice"); };
 
 /* ================= Music Logic ================= */
 const bgMusic = $("bgMusic");
-// Xóa thuộc tính loop của thẻ audio để tự code logic chuyển bài
 bgMusic.removeAttribute("loop"); 
 
 const musicCheck = $("musicCheck");
@@ -1663,25 +1643,19 @@ function updateMusicUI() {
     currentSongLabel.innerHTML = '🎵 Đang phát: <b>Ngẫu nhiên</b>';
   } else {
     const selected = SONGS.filter(s => selectedSongIds.includes(s.id));
-    if (selected.length === 0) {
-      currentSongLabel.innerHTML = '🎵 Đang phát: <b>Chưa chọn bài</b>';
-    } else if (selected.length === 1) {
-      currentSongLabel.innerHTML = '🎵 Đang phát: <b>' + selected[0].title + '</b>';
-    } else {
-      currentSongLabel.innerHTML = '🎵 Đang phát: <b>Danh sách (' + selected.length + ' bài)</b>';
-    }
+    if (selected.length === 0) currentSongLabel.innerHTML = '🎵 Đang phát: <b>Chưa chọn bài</b>';
+    else if (selected.length === 1) currentSongLabel.innerHTML = '🎵 Đang phát: <b>' + selected[0].title + '</b>';
+    else currentSongLabel.innerHTML = '🎵 Đang phát: <b>Danh sách (' + selected.length + ' bài)</b>';
   }
 }
 
 function buildPlaylist() {
   let list = [];
   if (musicMode === "random") {
-    // Xáo trộn toàn bộ danh sách
     list = [...SONGS].sort(() => Math.random() - 0.5);
   } else {
-    // Chỉ lấy những bài được chọn, giữ nguyên thứ tự
     list = SONGS.filter(s => selectedSongIds.includes(s.id));
-    if (list.length === 0) list = [SONGS[0]]; // Fallback
+    if (list.length === 0) list = [SONGS[0]];
   }
   return list;
 }
@@ -1689,68 +1663,43 @@ function buildPlaylist() {
 function playCurrentSong() {
   if (!isMusicOn || currentPlaylist.length === 0) return;
   const song = currentPlaylist[currentPlayIndex];
-  
-  // Tránh load lại bài nếu đang phát đúng bài đó (giúp resume mượt mà)
-  if (!bgMusic.src.endsWith(song.src)) {
-    bgMusic.src = song.src;
-  }
-  
+  if (!bgMusic.src.endsWith(song.src)) bgMusic.src = song.src;
   bgMusic.play().catch(() => {});
   updateMusicUI();
 }
 
 function playNextSong() {
   if (!isMusicOn) return;
-  
   if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
-  
   currentPlayIndex++;
   if (currentPlayIndex >= currentPlaylist.length) {
     currentPlayIndex = 0;
-    if (musicMode === "random") {
-      // Hết vòng random -> Xáo trộn lại
-      currentPlaylist = buildPlaylist();
-    }
+    if (musicMode === "random") currentPlaylist = buildPlaylist();
   }
   playCurrentSong();
 }
 
-// Tự động chuyển bài khi hết nhạc
 bgMusic.addEventListener("ended", playNextSong);
-// Bỏ qua nếu file bị lỗi
-bgMusic.addEventListener("error", () => {
-   console.warn("Lỗi tải nhạc: " + bgMusic.src);
-   if (isMusicOn && currentPlaylist.length > 1) playNextSong();
-});
+bgMusic.addEventListener("error", () => { if (isMusicOn && currentPlaylist.length > 1) playNextSong(); });
 
-// Bật / Tắt nhạc
 musicCheck.onchange = () => {
   isMusicOn = musicCheck.checked;
   localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
   musicSelectionArea.classList.toggle("hide", !isMusicOn);
-  
   if (isMusicOn) {
-    if (currentPlaylist.length === 0) {
-       currentPlaylist = buildPlaylist();
-       currentPlayIndex = 0;
-    }
+    if (currentPlaylist.length === 0) { currentPlaylist = buildPlaylist(); currentPlayIndex = 0; }
     playCurrentSong();
-  } else {
-    bgMusic.pause();
-  }
+  } else { bgMusic.pause(); }
 };
 
-// Mở Modal chọn nhạc
 $("btnChangeMusic").onclick = () => {
   $("mModeRandom").checked = musicMode === "random";
   $("mModePlaylist").checked = musicMode === "playlist";
-  
   let h = "";
   SONGS.forEach(s => {
     h += `<label class="song-item"><input type="checkbox" value="${s.id}" ${selectedSongIds.includes(s.id) ? 'checked' : ''}><span>${s.title}</span></label>`;
   });
   $("songListContainer").innerHTML = h;
-  
   toggleSongCheckboxes();
   $("musicMask").classList.add("on");
 };
@@ -1760,44 +1709,33 @@ function toggleSongCheckboxes() {
   $("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
   $("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
 }
-
 $("mModeRandom").onchange = toggleSongCheckboxes;
 $("mModePlaylist").onchange = toggleSongCheckboxes;
-
 $("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
 
-// Lưu cài đặt nhạc
 $("btnSaveMusic").onclick = () => {
   musicMode = $("mModeRandom").checked ? "random" : "playlist";
-  
   const checkboxes = $("songListContainer").querySelectorAll("input[type=checkbox]");
   selectedSongIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-  
   if (musicMode === "playlist" && selectedSongIds.length === 0) {
     showToast("Vui lòng chọn ít nhất 1 bài hát!", true);
     return;
   }
-
   localStorage.setItem("qp_music_mode", musicMode);
   localStorage.setItem("qp_music_selected", JSON.stringify(selectedSongIds));
-  
   $("musicMask").classList.remove("on");
-  
-  // Reset lại danh sách phát và bắt đầu lại từ đầu
   currentPlaylist = buildPlaylist();
   currentPlayIndex = 0;
   if (isMusicOn) playCurrentSong();
   else updateMusicUI();
 };
 
-// Khởi tạo trạng thái nhạc
 if (isMusicOn) {
   currentPlaylist = buildPlaylist();
   currentPlayIndex = 0;
   updateMusicUI();
 }
 
-// Mở khóa phát nhạc trên các trình duyệt chặn Autoplay
 const tryPlayMusicOnInteraction = () => { if (isMusicOn && bgMusic.paused) playCurrentSong(); };
 document.body.addEventListener("click", tryPlayMusicOnInteraction);
 document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
@@ -1810,7 +1748,17 @@ bgMusic.addEventListener("playing", () => {
 });
 
 const existing = loadSession();
-if(existing){ session = existing; enterApp(); } else { show("auth"); }
+if(existing){ 
+  if (checkBanStatus(existing.name)) {
+    clearSession();
+    showBanScreen(existing.name);
+  } else {
+    session = existing; 
+    enterApp(); 
+  }
+} else { 
+  show("auth"); 
+}
 </script>
 </body>
 </html>
