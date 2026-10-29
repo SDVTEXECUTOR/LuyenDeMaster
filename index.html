@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Luyện Đề Trắc Nghiệm – Secure & Fair v2.0</title>
+<title>Luyện Đề Trắc Nghiệm – Secure&Fair v2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -161,7 +161,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .lbrow .rk { font-weight: 800; text-align: center; font-size: 1.1rem; }
 .lbrow .who2 { min-width: 0; }
 .lbrow .who2 b { display: block; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lbrow .pts { font-weight: 800; color: var(--ac); font-variant-numeric: tabular-nums; }
+.lbrow .pts { font-weight: 800; color: var(--ac); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.3; }
 .lbrow .dur { font-variant-numeric: tabular-nums; color: var(--mut); font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
 .lbrow.top1 { border-color: #fbbf24; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent); }
 .lbrow.top2 { border-color: #94a3b8; background: linear-gradient(135deg, rgba(148, 163, 184, 0.1), transparent); }
@@ -312,6 +312,8 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   .subjgrid { grid-template-columns: 1fr; }
   .stats { gap: 16px; }
   .stats div span { font-size: 1.2rem; }
+  .lbrow { grid-template-columns: 36px minmax(0, 1fr) auto; }
+  .lbrow .dur { display: none; } /* Ẩn thời gian làm bài trên mobile để đủ chỗ cho ngày giờ nộp */
 }
 
 .song-item {
@@ -1141,10 +1143,27 @@ async function renderLeaderboard(elId, filter){
       const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
       const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
       
+      // Format time from Firebase
+      let timeStr = '';
+      if (v.time) {
+        let d;
+        if (typeof v.time === 'object' && v.time.toDate) {
+          d = v.time.toDate();
+        } else if (typeof v.time === 'number') {
+          d = new Date(v.time);
+        } else {
+          d = new Date();
+        }
+        timeStr = d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+
       return '<div class="lbrow' + clsTop + '">'
         + '<span class="rk">' + medal + '</span>'
         + '<span class="who2"><b>' + esc(v.name || v.username || "?") + shuffleBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
-        + '<span class="pts">' + String(v.score).replace(".", ",") + 'đ</span>'
+        + '<span class="pts">' 
+          + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + String(v.score).replace(".", ",") + 'đ</div>'
+          + (timeStr ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
+        + '</span>'
         + '<span class="dur">⏱ ' + fmt(v.duration || 0) + '</span>'
         + '</div>';
     }).join("");
