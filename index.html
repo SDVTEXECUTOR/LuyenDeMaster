@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Luyện Đề Trắc Nghiệm-1</title>
+<title>Luyện Đề Trắc Nghiệm – Tin học &amp; GDCD 9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -261,6 +261,9 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 </head>
 <body>
 
+<!-- NHẠC NỀN -->
+<audio id="bgMusic" src="Grateful.mp3" loop></audio>
+
 <!-- ===== CUTSCENE v2 (cinematic) ===== -->
 <div id="cutscene" aria-hidden="true">
   <canvas id="csCanvas"></canvas>
@@ -339,6 +342,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <strong style="display:block;margin-bottom:12px">⚙️ Tùy chọn làm bài</strong>
       <label class="chk"><input type="checkbox" id="sq" checked> Xáo trộn thứ tự câu hỏi</label>
       <label class="chk"><input type="checkbox" id="sa" checked> Xáo trộn thứ tự đáp án</label>
+      <label class="chk"><input type="checkbox" id="musicCheck"> Bật nhạc nền (Grateful.mp3)</label>
     </div>
 
     <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
@@ -942,6 +946,39 @@ async function saveAndRefresh(res){
 
 $("again").onclick = function(){ startQuiz(currentSubject); };
 $("home").onclick = function(){ show("app"); switchTab("practice"); };
+
+/* ================= Nhạc nền (Sửa lại theo Checkbox) ================= */
+const bgMusic = $("bgMusic");
+const musicCheck = $("musicCheck");
+let isMusicOn = localStorage.getItem("qp_music") === "on";
+
+// Cập nhật trạng thái ban đầu
+musicCheck.checked = isMusicOn;
+
+// Nếu đã bật trước đó, tự động phát nhạc
+if (isMusicOn) {
+  bgMusic.play().catch(e => console.log("Trình duyệt chặn phát nhạc tự động, cần click."));
+}
+
+// Bắt sự kiện khi tick hoặc bỏ tick
+musicCheck.onchange = () => {
+  isMusicOn = musicCheck.checked;
+  localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
+  if (isMusicOn) {
+    bgMusic.play().catch(e => console.log("Trình duyệt chặn phát nhạc tự động."));
+  } else {
+    bgMusic.pause();
+  }
+};
+
+// Tự động phát nhạc khi người dùng tương tác lần đầu nếu đã bật trước đó (vượt qua chặn autoplay)
+const tryPlayMusic = () => {
+  if (isMusicOn && bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
+};
+document.body.addEventListener("click", tryPlayMusic);
+bgMusic.addEventListener("playing", () => document.body.removeEventListener("click", tryPlayMusic));
 
 /* ================= Khởi động phiên (sau cutscene) ================= */
 const existing = loadSession();
