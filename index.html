@@ -1,1 +1,947 @@
-dqwd
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Luyện Đề Trắc Nghiệm – Tin học & GDCD 9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
+  --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
+  --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  --glass: blur(12px) saturate(180%);
+  box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
+    --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
+    --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --ln: rgba(148, 163, 184, 0.15);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
+  --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
+  --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --ln: rgba(148, 163, 184, 0.15);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  background-image: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+main { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+
+/* ===== Typography & Cards ===== */
+h1 { font-size: 1.75rem; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+.card {
+  background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--ln); border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+.mut { color: var(--mut); font-size: 0.9rem; }
+
+/* ===== Inputs & Buttons ===== */
+input[type=text], input[type=password] {
+  width: 100%; padding: 12px 16px; font: inherit; border: 1.5px solid var(--ln);
+  border-radius: 10px; background: rgba(255,255,255,0.5); color: var(--fg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus-visible { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
+.chk { display: flex; gap: 12px; align-items: center; margin: 12px 0; cursor: pointer; font-weight: 500; }
+.chk input { width: 20px; height: 20px; accent-color: var(--ac); cursor: pointer; }
+
+button {
+  font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 20px;
+  cursor: pointer; background: var(--ac); color: #fff; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+button:active { transform: translateY(1px); }
+button.g { background: transparent; color: var(--fg); border: 1.5px solid var(--ln); box-shadow: none; }
+button.g:hover { background: var(--acs); border-color: var(--ac); }
+button.sm { padding: 8px 14px; font-size: 0.85rem; }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+/* ===== Layout Utilities ===== */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.row { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.hide { display: none !important; }
+
+/* ===== Quiz Specific ===== */
+.bar { height: 8px; background: var(--ln); border-radius: 4px; overflow: hidden; margin: 12px 0 0; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ac), #60a5fa); width: 0; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.q { font-size: 1.1rem; font-weight: 600; margin: 8px 0 16px; line-height: 1.5; }
+.tag {
+  display: inline-block; background: var(--acs); color: var(--ac); border-radius: 6px;
+  padding: 4px 10px; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.02em;
+}
+.opt {
+  display: flex; gap: 14px; align-items: flex-start; border: 1.5px solid var(--ln);
+  border-radius: 12px; padding: 14px; margin: 10px 0; cursor: pointer;
+  background: rgba(255,255,255,0.4); transition: all 0.2s; position: relative;
+}
+.opt:hover { border-color: var(--ac); background: var(--acs); }
+.opt input { position: absolute; opacity: 0; pointer-events: none; }
+.opt b {
+  flex: none; width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--ln);
+  display: grid; place-items: center; font-size: 0.9rem; font-weight: 700; transition: all 0.2s;
+}
+.opt.sel { border-color: var(--ac); background: var(--acs); }
+.opt.sel b { background: var(--ac); border-color: var(--ac); color: #fff; transform: scale(1.05); }
+.opt.ok { border-color: var(--ok); background: var(--oks); }
+.opt.bad { border-color: var(--bad); background: var(--bads); }
+.opt.ok b { background: var(--ok); border-color: var(--ok); color: #fff; }
+.opt.bad b { background: var(--bad); border-color: var(--bad); color: #fff; }
+.opt.rev { cursor: default; }
+
+/* ===== Navigation Grid ===== */
+.nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; margin-top: 12px; }
+.nav button {
+  padding: 10px 0; background: var(--card); color: var(--fg); border: 1.5px solid var(--ln);
+  font-weight: 600; border-radius: 8px; box-shadow: none;
+}
+.nav button.d { background: var(--acs); border-color: var(--ac); color: var(--ac); }
+.nav button.c { border-color: var(--ac); color: var(--ac); box-shadow: 0 0 0 2px var(--acs); font-weight: 800; }
+
+/* ===== Result & Stats ===== */
+.score { font-size: 3.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+.stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+.stats div span { display: block; font-size: 1.5rem; font-weight: 800; color: var(--ac); }
+.rv { border-left: 4px solid var(--ln); }
+.rv.ok { border-left-color: var(--ok); }
+.rv.bad { border-left-color: var(--bad); }
+
+/* ===== Leaderboard ===== */
+.lbrow {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; gap: 12px; align-items: center;
+  padding: 12px 16px; border: 1px solid var(--ln); border-radius: 12px; margin: 8px 0;
+  background: var(--card); transition: transform 0.2s;
+}
+.lbrow:hover { transform: translateX(4px); }
+.lbrow .rk { font-weight: 800; text-align: center; font-size: 1.1rem; }
+.lbrow .who2 { min-width: 0; }
+.lbrow .who2 b { display: block; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lbrow .pts { font-weight: 800; color: var(--ac); font-variant-numeric: tabular-nums; }
+.lbrow .dur { font-variant-numeric: tabular-nums; color: var(--mut); font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
+.lbrow.top1 { border-color: #fbbf24; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent); }
+.lbrow.top2 { border-color: #94a3b8; background: linear-gradient(135deg, rgba(148, 163, 184, 0.1), transparent); }
+.lbrow.top3 { border-color: #d97706; background: linear-gradient(135deg, rgba(217, 119, 6, 0.1), transparent); }
+
+/* ===== Tabs & Pills ===== */
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; background: var(--ln); padding: 4px; border-radius: 12px; }
+.tabbtn {
+  flex: 1; background: transparent; border: none; color: var(--mut); padding: 10px;
+  border-radius: 8px; font-weight: 600; box-shadow: none;
+}
+.tabbtn.active { background: var(--card); color: var(--ac); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.pills { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.pill {
+  padding: 6px 14px; border-radius: 99px; border: 1.5px solid var(--ln); background: var(--card);
+  color: var(--mut); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.pill.active { background: var(--ac); color: #fff; border-color: var(--ac); }
+
+/* ===== Modal & Overlay ===== */
+.mask {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+  display: none; place-items: center; padding: 16px; z-index: 100; opacity: 0; transition: opacity 0.3s;
+}
+.mask.on { display: grid; opacity: 1; }
+.mask .card { max-width: 400px; width: 100%; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+#ov {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px);
+}
+.lbox {
+  background: var(--card); border: 1px solid var(--ln); border-radius: 16px; padding: 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 240px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: popIn 0.3s ease;
+}
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--ln);
+  border-top-color: var(--ac); animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.skel { height: 50px; border-radius: 10px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
+@keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ===== CUTSCENE CỰC XỊN ===== */
+#cutscene {
+  position: fixed; inset: 0; z-index: 999; display: grid; place-items: center;
+  background: #020617; overflow: hidden; cursor: pointer;
+}
+.cs-bg {
+  position: absolute; inset: -20%; pointer-events: none;
+  background: radial-gradient(circle at 30% 40%, rgba(37, 99, 235, 0.4), transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.3), transparent 50%),
+              #020617;
+  animation: csDrift 12s ease-in-out infinite alternate;
+}
+@keyframes csDrift { from { transform: translate(0, 0) scale(1); } to { transform: translate(-5%, 5%) scale(1.1); } }
+.cs-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 20%, transparent 70%);
+  animation: csGridMove 8s linear infinite;
+}
+@keyframes csGridMove { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+
+.cs-content { position: relative; text-align: center; color: #f8fafc; padding: 20px; z-index: 2; }
+.cs-line { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(4px); animation: csReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.cs-1 { font-size: clamp(0.8rem, 2vw, 1rem); letter-spacing: 0.4em; text-transform: uppercase; color: #60a5fa; animation-delay: 0.4s; }
+.cs-2 {
+  font-size: clamp(2.2rem, 8vw, 4.5rem); font-weight: 900; letter-spacing: -0.02em; margin: 16px 0;
+  background: linear-gradient(100deg, #fff 0%, #60a5fa 40%, #34d399 60%, #fff 100%);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: csReveal 0.8s 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, csShine 5s 1.5s linear infinite;
+}
+@keyframes csShine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.cs-3 { font-size: clamp(0.9rem, 2vw, 1.1rem); color: #94a3b8; letter-spacing: 0.1em; animation-delay: 1.4s; }
+@keyframes csReveal { to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+
+.cs-bar { margin: 40px auto 0; width: min(300px, 70vw); height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; opacity: 0; animation: csReveal 0.6s 1.8s forwards; }
+.cs-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #2563eb, #34d399); box-shadow: 0 0 15px #34d399; animation: csFill 1.5s 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+@keyframes csFill { to { width: 100%; } }
+
+.cs-skip {
+  position: absolute; top: 24px; right: 24px; background: rgba(255,255,255,0.05); color: #cbd5e1;
+  border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px);
+  opacity: 0; animation: csReveal 0.6s 1.5s forwards; transition: all 0.2s; z-index: 10;
+}
+.cs-skip:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+/* Hiệu ứng ĐẤM VĂNG (Punch Transition) khi kết thúc cutscene */
+.punch-out { animation: punchOut 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards !important; }
+@keyframes punchOut {
+  0% { transform: scale(1); opacity: 1; filter: blur(0); }
+  40% { transform: scale(1.05); opacity: 1; filter: blur(0); }
+  100% { transform: scale(3); opacity: 0; filter: blur(20px); pointer-events: none; }
+}
+/* Hiệu ứng rung màn hình khi đấm */
+.screen-shake { animation: screenShake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes screenShake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* Hiệu ứng ĐẤM VĂNG ĐIỂM KÉM */
+.punch-low-score { animation: punchLowScore 0.8s cubic-bezier(.36,.07,.19,.97); border: 2px solid var(--bad) !important; box-shadow: 0 0 30px rgba(220, 38, 38, 0.3) !important; }
+@keyframes punchLowScore {
+  0% { transform: translateX(0) rotate(0); }
+  15% { transform: translateX(-15px) rotate(-3deg); }
+  30% { transform: translateX(12px) rotate(2deg); }
+  45% { transform: translateX(-10px) rotate(-1deg); }
+  60% { transform: translateX(8px) rotate(1deg); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0) rotate(0); }
+}
+.low-score-badge {
+  display: inline-block; background: var(--bad); color: white; padding: 4px 12px;
+  border-radius: 6px; font-size: 0.85rem; font-weight: 700; margin-top: 8px;
+  animation: popIn 0.5s 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Animations chung */
+section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+/* Toast Notification */
+.toast {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
+  background: var(--ok); color: white; padding: 12px 24px; border-radius: 99px;
+  font-weight: 600; box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3); z-index: 150;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 600px) {
+  .subjgrid { grid-template-columns: 1fr; }
+  .stats { gap: 16px; }
+  .stats div span { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== CUTSCENE ĐIỆN ẢNH ===== -->
+<div id="cutscene" aria-hidden="true">
+  <div class="cs-bg"></div>
+  <div class="cs-grid"></div>
+  <div class="cs-content">
+    <div class="cs-line cs-1">Trường TH&amp;THCS Tân Trụ</div>
+    <div class="cs-line cs-2">Luyện Đề Trắc Nghiệm</div>
+    <div class="cs-line cs-3">Tin học 9 · GDCD 9 · Năm học 2026–2027</div>
+    <div class="cs-bar"><i></i></div>
+  </div>
+  <button class="cs-skip" id="csSkip" type="button">Bỏ qua ›</button>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">🎉 Đã hoàn thành 100% câu hỏi!</div>
+
+<main>
+<!-- ===== ĐĂNG NHẬP / ĐĂNG KÍ ===== -->
+<section id="auth" class="hide">
+  <div style="display:flex;min-height:70vh;align-items:center;justify-content:center;padding:24px 0">
+  <div class="card" style="max-width:440px;width:100%;text-align:center">
+    <div style="font-size:3rem;margin-bottom:8px">🎮</div>
+    <h1>Luyện Đề Trắc Nghiệm</h1>
+    <div class="mut">Trường TH&amp;THCS Tân Trụ · Năm học 2026–2027</div>
+
+    <div style="display:flex;gap:6px;background:var(--ln);border-radius:10px;padding:4px;margin:20px 0 4px">
+      <button class="tabbtn active" id="atLogin" type="button">Đăng nhập</button>
+      <button class="tabbtn" id="atRegister" type="button">Đăng kí</button>
+    </div>
+
+    <div id="authform" style="text-align:left">
+      <label class="f" for="auUser" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Tên đăng nhập</label>
+      <input type="text" id="auUser" autocomplete="username" placeholder="vd: nam2009">
+      
+      <label class="f" for="auPass" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Mật khẩu</label>
+      <input type="password" id="auPass" autocomplete="current-password" placeholder="Tối thiểu 4 kí tự">
+      
+      <div id="regExtra" class="hide">
+        <label class="f" for="auName" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Họ và tên</label>
+        <input type="text" id="auName" autocomplete="name" placeholder="Nhập họ và tên">
+        <label class="f" for="auCls" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Lớp</label>
+        <input type="text" id="auCls" autocomplete="off" placeholder="vd: 9A1 (không bắt buộc)">
+      </div>
+      
+      <p class="mut" id="auErr" style="min-height:1.2em;margin-top:12px;color:var(--bad);font-weight:600"></p>
+      <button class="p" id="auGo" style="width:100%;margin-top:8px;padding:14px">Đăng nhập</button>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ===== TRANG CHÍNH ===== -->
+<section id="app" class="hide">
+  <div class="card">
+    <div class="top">
+      <div>
+        <strong id="hiName" style="font-size:1.1rem"></strong>
+        <div class="mut" id="hiSub"></div>
+      </div>
+      <button class="g sm" id="logout">Đăng xuất</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tabbtn active" id="tabBtnPractice" type="button">📚 Luyện Tập</button>
+    <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
+  </div>
+
+  <div id="tab-practice">
+    <div class="card">
+      <strong style="display:block;margin-bottom:12px">⚙️ Tùy chọn làm bài</strong>
+      <label class="chk"><input type="checkbox" id="sq" checked> Xáo trộn thứ tự câu hỏi</label>
+      <label class="chk"><input type="checkbox" id="sa" checked> Xáo trộn thứ tự đáp án</label>
+    </div>
+
+    <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:2.5rem;margin-bottom:8px">💻</div>
+        <h2>Tin học 9</h2>
+        <div class="mut" style="margin:8px 0 16px">Giữa học kì I · Bài 1,2,3,4 · 19 câu</div>
+        <button class="p" style="width:100%" id="startTinhoc">Luyện tập ngay</button>
+      </div>
+      <div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:2.5rem;margin-bottom:8px">⚖️</div>
+        <h2>GDCD 9</h2>
+        <div class="mut" style="margin:8px 0 16px">Đề cương giữa kì I · 20 câu</div>
+        <button class="p" style="width:100%" id="startGdcd">Luyện tập ngay</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-leaderboard" class="hide">
+    <div class="card">
+      <div class="top">
+        <strong>🏆 Bảng xếp hạng</strong>
+        <button class="g sm" id="rfMain">Làm mới</button>
+      </div>
+      <div class="mut" style="margin:8px 0">Xếp theo điểm cao nhất → thời gian làm bài nhanh nhất.</div>
+      <div class="pills" id="lbPillsMain"></div>
+      <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LÀM BÀI ===== -->
+<section id="quiz" class="hide">
+  <div class="card">
+    <div class="top">
+      <strong id="who" style="font-size:1rem"></strong>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00</span></span>
+        <button class="g sm" id="exitQuiz" type="button">Thoát</button>
+      </div>
+    </div>
+    <div class="bar"><i id="pb"></i></div>
+  </div>
+  
+  <div class="card" id="qc" style="min-height:200px"></div>
+  
+  <div class="card">
+    <div class="mut" style="margin-bottom:8px;font-weight:600">Danh sách câu hỏi</div>
+    <div class="nav" id="nv"></div>
+    <div class="row">
+      <span class="mut" id="cnt" style="font-weight:600;align-self:center">Đã làm 0/0 câu</span>
+      <button class="p" id="sub" style="background:var(--ok)">Nộp bài</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KẾT QUẢ ===== -->
+<section id="result" class="hide">
+  <div class="card" id="resultCard">
+    <div class="mut" id="rwho" style="font-weight:600"></div>
+    <div class="score"><span id="sc"></span><span class="mut" style="font-size:1.2rem;font-weight:600"> / 10 điểm</span></div>
+    <div id="lowScoreMsg"></div>
+    <div class="stats">
+      <div>Đúng hoàn toàn<span id="rc"></span></div>
+      <div>Chưa đúng<span id="rw"></span></div>
+      <div>Thời gian<span id="rt"></span></div>
+    </div>
+    <div class="row" style="justify-content:flex-start">
+      <button class="p" id="again">Làm lại bài</button>
+      <button class="g" id="home">Về trang chủ</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="top">
+      <strong>🏆 Bảng xếp hạng</strong>
+      <button class="g sm" id="rfResult">Làm mới</button>
+    </div>
+    <div class="pills" id="lbPillsResult"></div>
+    <div id="lbResult"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+  </div>
+
+  <div id="rv"></div>
+</section>
+</main>
+
+<!-- ===== MODAL XÁC NHẬN ===== -->
+<div class="mask" id="mk">
+  <div class="card">
+    <h1 style="font-size:1.3rem;margin-bottom:8px" id="mkTitle">Nộp bài?</h1>
+    <p id="mt" class="mut" style="line-height:1.6"></p>
+    <div class="row">
+      <button class="g" id="no" style="flex:1">Hủy</button>
+      <button class="p" id="yes" style="flex:1;background:var(--ok)">Xác nhận nộp</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div id="ov" class="hide">
+  <div class="lbox">
+    <div class="spinner"></div>
+    <div id="ovtxt" style="font-weight:600">Đang xử lý…</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, get, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ================= Firebase Config ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
+  authDomain: "nightshift-51ded.firebaseapp.com",
+  databaseURL: "https://nightshift-51ded-default-rtdb.firebaseio.com",
+  projectId: "nightshift-51ded",
+  storageBucket: "nightshift-51ded.firebasestorage.app",
+  messagingSenderId: "1239554748",
+  appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9",
+  measurementId: "G-DCZKWE7403"
+};
+let db = null;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+} catch (e) { console.warn("Firebase init error:", e); }
+
+/* ================= Ngân hàng câu hỏi ================= */
+const Q_TINHOC = [
+["Thiết bị nào sau đây có gắn bộ xử lí thông tin?",["Bình đựng nước thông thường.","Ghế nhựa thông thường.","Máy giặt tự động hoạt động theo chương trình.","Ổ khóa cơ dùng chìa."],[2]],
+["Khả năng nào sau đây là của máy tính?",["Xử lí lượng lớn dữ liệu nhanh theo chương trình.","Mọi thông tin trên Internet đều đúng.","Tự quyết định mọi việc mà không cần dữ liệu.","Luôn hiểu đầy đủ cảm xúc của con người."],[0]],
+["Hệ thống tưới tự động dùng cảm biến độ ẩm đất để điều khiển máy bơm. Bộ xử lí có vai trò nào?",["Thay thế nguồn điện cung cấp cho máy bơm.","Chỉ làm giá đỡ cho cảm biến độ ẩm.","Chỉ dẫn nước từ bể đến gốc cây.","Xử lí dữ liệu độ ẩm để điều khiển tưới theo chương trình."],[3]],
+["Nhóm học sinh ở các địa điểm khác nhau cùng chỉnh sửa một tài liệu trực tuyến. Ví dụ này thể hiện tác động nào của công nghệ thông tin?",["Loại bỏ hoàn toàn nhu cầu làm việc nhóm.","Hỗ trợ trao đổi và hợp tác học tập từ xa.","Mọi nội dung trong tài liệu đều chính xác.","Làm cho việc trao đổi thông tin luôn chậm hơn."],[1]],
+["Nhóm tiêu chí nào dùng để đánh giá chất lượng thông tin?",["Màu sắc, cỡ chữ, số hình ảnh, độ dài bài viết.","Lượt thích, lượt chia sẻ, lượt xem, số bình luận.","Tốc độ tải, dung lượng tệp, kiểu chữ, tên tệp.","Tính mới, tính chính xác, tính đầy đủ, tính sử dụng được."],[3]],
+["Tiêu chí nào thể hiện mức độ cập nhật của thông tin?",["Tính mới.","Tính chính xác.","Tính sử dụng được.","Tính đầy đủ."],[0]],
+["Để tìm hiểu tuyển sinh năm học 2026–2027, Nam chỉ đọc thông báo năm học 2022–2023. Tiêu chí nào cần kiểm tra trước tiên?",["Tính chính xác.","Tính mới.","Tính đầy đủ.","Tính sử dụng được."],[1]],
+["Một thông báo tuyển sinh đúng năm học và đúng trường nhưng thiếu thời hạn, cách thức nộp hồ sơ. Hạn chế nổi bật là gì?",["Thông tin không thể đọc được.","Thông tin chắc chắn sai hoàn toàn.","Thông tin chưa đầy đủ.","Thông tin không có tính mới."],[2]],
+["Lan cần tìm thông báo tuyển sinh lớp 10 của Trường THPT X cho năm học 2026–2027. Từ khóa nào phù hợp nhất?",["Tuyển sinh lớp 10 Trường THPT X năm học 2026–2027.","Tuyển sinh lớp 10 Trường THPT X năm học 2022–2023.","Trường học và hoạt động học sinh.","Tuyển sinh đại học Trường X năm 2026."],[0]],
+["Sau khi tìm được thông tin phục vụ chọn trường, cách lưu nào thuận tiện nhất cho việc đánh giá và đối chiếu sau đó?",["Chỉ ghi số lượt thích của bài đăng.","Chỉ nhớ nội dung, không lưu nguồn.","Ghi nội dung cần dùng, tên nguồn, địa chỉ trang web và ngày đăng hoặc cập nhật.","Chỉ lưu một ảnh đã cắt bỏ tên nguồn và thời gian."],[2]],
+["Tác động tiêu cực nào của công nghệ kĩ thuật số liên quan đến môi trường?",["Giúp điều khiển tưới cây tự động.","Làm phát sinh rác thải điện tử khi thiết bị bị thải bỏ.","Giúp trao đổi tài liệu nhanh.","Hỗ trợ học sinh học trực tuyến."],[1]],
+["Hành vi nào xâm phạm quyền riêng tư của người khác?",["Giữ kín thông tin tài khoản của mình.","Gỡ ảnh của bạn khi bạn yêu cầu.","Hỏi ý kiến bạn trước khi đăng ảnh chung.","Công khai địa chỉ, số điện thoại của bạn khi chưa được phép."],[3]],
+["Hành vi nào thể hiện sự tôn trọng quyền sở hữu trí tuệ?",["Gỡ tên tác giả rồi nhận sản phẩm của họ là của mình.","Sao chép toàn bộ bài của bạn để nộp dưới tên mình.","Sử dụng sản phẩm số theo sự cho phép hoặc điều kiện sử dụng của chủ sở hữu.","Chia sẻ phần mềm bị bẻ khóa cho cả lớp."],[2]],
+["Hành vi nào sau đây gây mất an toàn thông tin trong môi trường số?",["Tạo liên kết giả mạo để lấy mật khẩu của người khác.","Cài đặt phần mềm từ nguồn tin cậy.","Không cung cấp mã xác thực cho người lạ.","Báo người lớn khi gặp liên kết đáng ngờ."],[0]],
+["KOL là thuật ngữ viết tắt của Key Opinion Leader có nghĩa là người dẫn dắt dư luận chủ chốt hay người có ảnh hưởng. Khi em thấy một KOL quảng cáo sản phẩm trên mạng, em sẽ ứng xử thế nào?",["Chia sẻ thông tin với người thân vì KOL là một nguồn tin đáng tin cậy.","Sử dụng sản phẩm vì KOL là một đảm bảo cho sản phẩm đã qua kiểm định.","Cân nhắc, đánh giá chất lượng thông tin trước khi sử dụng sản phẩm.","Không sử dụng và cảnh báo người thân về nguồn tin kém chất lượng."],[2]],
+["Phương án nào sau đây không phải là tác động tiêu cực của công nghệ kĩ thuật số đến đời sống con người?",["Nhờ trí tuệ nhân tạo làm bài tập về nhà.","Truy cập mạng xã hội trong nhiều giờ.","Thường xuyên sử dụng phần mềm soạn thảo văn bản để làm báo cáo.","Vừa ăn vừa xem video trên trang YouTube."],[2]],
+["Những phương án nào sau đây là tác động tiêu cực của công nghệ kĩ thuật số đến xã hội?",["Thông tin cá nhân của con người được số hoá.","Sử dụng thiết bị số liên tục trong thời gian dài ảnh hưởng đến sức khoẻ thể chất và tinh thần của lớp trẻ.","Gia tăng ô nhiễm môi trường.","Làm gia tăng tỉ lệ thất nghiệp."],[1,2,3]],
+["Hành vi nào sau đây khi hoạt động trong môi trường số không vi phạm pháp luật, trái đạo đức, thiếu văn hoá?",["Đăng bài hoặc bình luận gây mâu thuẫn vùng miền.","Quảng cáo bán hàng hoá, dịch vụ bị cấm.","Sử dụng trái phép tài khoản mạng của tổ chức, cá nhân khác.","Chia sẻ thông tin về lớp học ngôn ngữ lập trình trực tuyến."],[3]],
+["Em hãy cho biết những cách nào sau đây giúp em tránh được các tác động tiêu cực khi sử dụng công nghệ kĩ thuật số.",["Không sử dụng thiết bị số trong thời gian dài và liên tục.","Không xem các video phản cảm.","Giảm thời gian dùng điện thoại để nói chuyện với gia đình.","Tham gia luyện tập thể dục thể thao."],[0,1,2,3]]
+];
+
+const Q_GDCD = [
+["Sống có lí tưởng là",["xác định được mục đích cao đẹp và có kế hoạch hành động, quyết tâm phấn đấu để đạt được mục đích đó nhằm đóng góp cho lợi ích cộng đồng, quốc gia, nhân loại.","xác định được mục đích cao đẹp và phấn đấu để đạt được mục đích đó nhằm đóng góp cho cộng đồng, quốc gia, nhân loại.","xác định được mục đích, kế hoạch hành động của bản thân và phấn đấu để đạt được mục đích đó nhằm đóng góp cho cộng đồng, quốc gia, nhân loại.","xác định được mục đích cao đẹp, kế hoạch hành động của bản thân nhằm đóng góp cho cộng đồng, quốc gia, nhân loại."],[0]],
+["Biểu hiện sống thiếu lí tưởng của thanh niên hiện nay là",["vượt khó trong học tập.","đấu tranh chống các hiện tượng tiêu cực trong xã hội.","năng động, sáng tạo trong công việc.","sống ỷ lại, thực dụng."],[3]],
+["Biểu hiện của người sống có lí tưởng là",["luôn khắc phục khó khăn để vươn lên trong cuộc sống.","luôn nản chí khi gặp khó, sợ ảnh hưởng đến bản thân.","luôn chạy theo những cám dỗ của cuộc sống.","luôn chạy theo những xu hướng trên mạng xã hội."],[0]],
+["Biểu hiện sống có lí tưởng của thanh niên hiện này là",["sống không có hoài bão và ước mơ.","sống thờ ơ với mọi người.","vận dụng kiến thức đã học vào thực tiễn cuộc sống.","sống vì tiền tài danh vọng."],[2]],
+["Người biết tha thứ cho chính mình và người khác là biểu hiện của:",["Khiêm tốn","Khoan dung","Giản dị","Trung thực"],[1]],
+["Biểu hiện nào sau đây thể hiện người có lòng khoan dung?",["Phê phán tất cả những người mắc lỗi lầm.","Ích kỉ, hẹp hòi với người mình không thích.","Chấp nhận cá tính, sở thích của người khác.","Không bỏ qua lỗi lầm của người khác."],[2]],
+["Loại hoạt động cộng đồng nào tập trung vào việc cải thiện môi trường?",["Hoạt động xã hội.","Hoạt động bảo vệ môi trường.","Hoạt động văn hóa.","Hoạt động quyên góp tiền để hỗ trợ trẻ em có hoàn cảnh khó khăn."],[1]],
+["Hoạt động cộng đồng nào được thực hiện thường xuyên ở trường, lớp?",["Phong trào viếng nghĩa trang liệt sỹ.","Hiến máu nhân đạo.","Phong trào xây nhà tình thương.","Hỗ trợ học sinh có hoàn cảnh khó khăn."],[3]],
+["Ý nào sau đây là đúng khi nói về ý nghĩa của sống có lí tưởng?",["Luôn được mọi người tôn trọng và thành công trong cuộc sống.","Luôn được mọi người hâm mộ và thành người nổi tiếng.","Luôn có nhiều tiền bạc và nổi tiếng.","Luôn giàu có về tâm hồn và tiền bạc."],[0]],
+["Sống có lí tưởng sẽ mang lại ý nghĩa gì cho đất nước?",["Giúp mỗi người có động lực để phấn đấu cho mục tiêu cá nhân.","Góp phần xây dựng đất nước ngày càng giàu mạnh.","Trở thành người có bản lĩnh và năng lực.","Được xã hội công nhận và tôn trọng."],[1]],
+["Lòng khoan dung có thể giúp giảm thiểu:",["Sự xung đột và căng thẳng.","Sự đa dạng.","Sự hiểu biết.","Sự giao tiếp."],[0]],
+["Lòng khoan dung giúp ích gì trong giao tiếp?",["Tạo ra sự tranh cãi và xung đột.","Tăng cường sự tự tin.","Tạo ra sự hiểu biết và tôn trọng.","Bảo vệ ý kiến cá nhân."],[2]],
+["Tại sao cần tích cực tổ chức hoạt động cộng đồng?",["Để tăng cường sự đoàn kết và cùng nhau xây dựng đất nước giàu mạnh.","Chỉ để giữ gìn truyền thống văn hóa dân tộc.","Mang lại lợi ích gì đó cho cá nhân hoặc người thân.","Để tạo lợi nhuận cho cá nhân."],[0]],
+["Ý nghĩa của các hoạt động cộng đồng đối với cộng đồng là gì?",["Nâng cao được giá trị của bản thân.","Xây dựng đất nước văn minh, giàu mạnh.","Rèn luyện các phẩm chất như chăm chỉ, có trách nhiệm.","Hình thành và phát triển các năng lực về kĩ năng sống, trưởng thành và trách nhiệm."],[3]],
+["Câu thành ngữ nào sau đây thể hiện người sống có lí tưởng?",["Thắng không kiêu, bại không nản.","Dễ làm, khó bỏ.","Nước đến chân mới nhảy.","Thân ai người đó lo."],[0]],
+["Điền vào chỗ chấm: \"Khoan dung là một ... tốt đẹp của dân tộc Việt Nam.\"",["biểu hiện","truyền thống","nét đẹp","yếu tố"],[1]],
+["Câu ca dao tục ngữ: \"Chín bỏ làm mười\" nói về điều gì ?",["Lòng khoan dung.","Lòng trung thành.","Tinh thần đoàn kết.","Lòng biết ơn."],[0]],
+["Mục tiêu chính của hoạt động cộng đồng là gì?",["Cải thiện chất lượng cuộc sống.","Nâng cao danh tiếng cá nhân.","Kiếm lợi nhuận từ các hoạt động mua bán.","Có tiếng nói trong tổ chức cộng đồng."],[0]],
+["Hãy bày tỏ quan điểm của em với ý kiến sau: \"Khi có nhiều cá nhân tham gia vào một hoạt động chung thì đó là hoạt động cộng đồng\".",["Đồng ý, vì nhiều người tham gia sẽ mang lại nhiều giá trị cho xã hội.","Đồng ý, vì hoạt động cộng đồng là hoạt động tập thể.","Không đồng ý, vì hoạt động đó còn phải mang những lợi ích thiết thực cho xã hội.","Không đồng ý, vì hoạt động cộng đồng còn được tổ chức bởi cá nhân."],[3]],
+["Bà Q là thành viên của hội Khuyến học, Hội Người cao tuổi và rất tích cực tham gia các hoạt động địa phương. Thấy bà tham gia như vậy, con cháu đã khuyên ngăn. Em có nhận xét gì về trường hợp này?",["Khuyên bà nên dành thời gian nghỉ dưỡng, bên cạnh con cháu.","Để bà Q làm gì tùy thích, không nên nhắc nhở quan tâm.","Ủng hộ bà Q, vì đó là trách nhiệm và niềm vui của bà.","Đồng ý với ý kiến của con cháu, vì bà đã có tuổi, không cần phải tham gia nhiều."],[2]]
+];
+
+const SUBJECTS = {
+  tinhoc: { label:"Tin học 9", icon:"💻", data:Q_TINHOC },
+  gdcd:   { label:"GDCD 9",    icon:"⚖️", data:Q_GDCD }
+};
+
+/* ================= Tiện ích ================= */
+const $ = id => document.getElementById(id);
+const L = "ABCD";
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+
+function show(id){ 
+  ["auth","app","quiz","result"].forEach(s => $(s).classList.toggle("hide", s !== id)); 
+  window.scrollTo({top:0, behavior:'smooth'}); 
+}
+function ovOn(t){ $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
+function ovOff(){ $("ov").classList.add("hide"); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function skeleton(n){ return Array.from({length:n}, () => '<div class="skel"></div>').join(""); }
+
+function showToast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+/* ================= Mật khẩu (SHA-256) ================= */
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function keyOf(u){ return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_"); }
+
+/* ================= Session ================= */
+const SESSION_KEY = "qp_session_v2";
+let session = null;
+function saveSession(s){ session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){ return null; } }
+function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); }
+
+/* ================= Auth ================= */
+let authMode = "login";
+$("atLogin").onclick = function(){
+  authMode = "login";
+  $("atLogin").classList.add("active"); $("atRegister").classList.remove("active");
+  $("regExtra").classList.add("hide"); $("auGo").textContent = "Đăng nhập"; $("auErr").textContent = "";
+};
+$("atRegister").onclick = function(){
+  authMode = "register";
+  $("atRegister").classList.add("active"); $("atLogin").classList.remove("active");
+  $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
+};
+
+async function doRegister(u, p, name, cls){
+  if(!db) throw new Error("Chưa kết nối được máy chủ.");
+  const key = keyOf(u);
+  const passHash = await sha256Hex(p);
+  ovOn("Đang tạo tài khoản…");
+  let result;
+  try{
+    result = await runTransaction(ref(db, "accounts/" + key), function(cur){
+      if(cur === null) return { username: u, passHash, name, cls: cls || "", createdAt: Date.now() };
+      return; 
+    });
+  } finally { ovOff(); }
+  if(!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
+  saveSession({ key, username: u, name, cls: cls || "" });
+}
+
+async function doLogin(u, p){
+  if(!db) throw new Error("Chưa kết nối được máy chủ.");
+  const key = keyOf(u);
+  ovOn("Đang đăng nhập…");
+  let snap;
+  try{ snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
+  if(!snap.exists()) throw new Error("Tài khoản không tồn tại.");
+  const acc = snap.val();
+  const passHash = await sha256Hex(p);
+  if(acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
+  saveSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
+}
+
+$("auGo").onclick = async function(){
+  $("auErr").textContent = "";
+  const u = $("auUser").value.trim(), p = $("auPass").value;
+  if(!u || !p){ $("auErr").textContent = "Vui lòng nhập đầy đủ."; return; }
+  if(p.length < 4){ $("auErr").textContent = "Mật khẩu cần tối thiểu 4 kí tự."; return; }
+  $("auGo").disabled = true;
+  try{
+    if(authMode === "register"){
+      const name = $("auName").value.trim();
+      if(!name){ $("auErr").textContent = "Vui lòng nhập họ và tên."; $("auGo").disabled = false; return; }
+      await doRegister(u, p, name, $("auCls").value.trim());
+    } else { await doLogin(u, p); }
+    enterApp();
+  }catch(e){ $("auErr").textContent = e.message; }
+  $("auGo").disabled = false;
+};
+
+function enterApp(){
+  $("hiName").textContent = "👋 Xin chào, " + session.name;
+  $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+  $("auUser").value = ""; $("auPass").value = "";
+  show("app"); switchTab("practice");
+}
+$("logout").onclick = function(){ clearSession(); show("auth"); };
+
+/* ================= Tabs & Leaderboard ================= */
+function switchTab(name){
+  $("tabBtnPractice").classList.toggle("active", name === "practice");
+  $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
+  $("tab-practice").classList.toggle("hide", name !== "practice");
+  $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
+  if(name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
+}
+$("tabBtnPractice").onclick = () => switchTab("practice");
+$("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
+$("rfMain").onclick = function(){
+  const active = document.querySelector("#lbPillsMain .pill.active");
+  renderLeaderboard("lbMain", active ? active.dataset.f : "all");
+};
+$("rfResult").onclick = function(){
+  const active = document.querySelector("#lbPillsResult .pill.active");
+  renderLeaderboard("lbResult", active ? active.dataset.f : currentSubject);
+};
+
+function wirePills(pillsId, listId, initial){
+  const el = $(pillsId);
+  el.innerHTML = ["all","tinhoc","gdcd"].map(f => {
+    const label = f === "all" ? "Tất cả" : (SUBJECTS[f].icon + " " + SUBJECTS[f].label);
+    return '<button class="pill' + (f === initial ? ' active' : '') + '" data-f="' + f + '">' + label + '</button>';
+  }).join("");
+  el.querySelectorAll(".pill").forEach(b => {
+    b.onclick = function(){
+      el.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      renderLeaderboard(listId, b.dataset.f);
+    };
+  });
+  renderLeaderboard(listId, initial);
+}
+
+async function renderLeaderboard(elId, filter){
+  const el = $(elId);
+  if(!db){ el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
+  el.innerHTML = skeleton(3);
+  try{
+    const snap = await get(ref(db, "results"));
+    const best = new Map();
+    snap.forEach(ch => {
+      const v = ch.val();
+      if(!v || v.type !== "quiz_result") return;
+      if(filter !== "all" && v.subject !== filter) return;
+      const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
+      const prev = best.get(key);
+      if(!prev || v.score > prev.score || (v.score === prev.score && v.duration < prev.duration)) best.set(key, v);
+    });
+    const list = [...best.values()].sort((a, b) => b.score - a.score || a.duration - b.duration || (a.time || 0) - (b.time || 0)).slice(0, 20);
+    if(!list.length){ el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài. Hãy là người đầu tiên!</div>'; return; }
+    
+    el.innerHTML = list.map((v, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+      const clsTop = i < 3 ? " top" + (i+1) : "";
+      const subj = SUBJECTS[v.subject];
+      const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
+      return '<div class="lbrow' + clsTop + '">'
+        + '<span class="rk">' + medal + '</span>'
+        + '<span class="who2"><b>' + esc(v.name || v.username || "?") + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
+        + '<span class="pts">' + String(v.score).replace(".", ",") + 'đ</span>'
+        + '<span class="dur">⏱ ' + fmt(v.duration || 0) + '</span>'
+        + '</div>';
+    }).join("");
+  }catch(e){ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>'; }
+}
+
+/* ================= Quiz Logic ================= */
+let currentSubject, Q, order, opt, ans, cur, t0, tick;
+let maskMode = "submit";
+let autoSubmitTriggered = false;
+
+$("startTinhoc").onclick = () => startQuiz("tinhoc");
+$("startGdcd").onclick = () => startQuiz("gdcd");
+
+function startQuiz(subjectKey){
+  currentSubject = subjectKey;
+  Q = SUBJECTS[subjectKey].data;
+  order = Q.map((_, i) => i);
+  if($("sq").checked) shuffle(order);
+  opt = Q.map(q => { const o = q[1].map((_, i) => i); if($("sa").checked) shuffle(o); return o; });
+  ans = Q.map(() => []);
+  cur = 0;
+  t0 = Date.now();
+  autoSubmitTriggered = false;
+
+  $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS[subjectKey].icon + " " + SUBJECTS[subjectKey].label;
+  clearInterval(tick);
+  tick = setInterval(() => { $("tm").textContent = fmt(Math.floor((Date.now()-t0)/1000)); }, 500);
+  show("quiz");
+  draw();
+}
+
+function draw(){
+  const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
+  let h = "";
+  h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
+  opt[qi].forEach((oi, k) => {
+    const s = ans[qi].indexOf(oi) > -1;
+    h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="o" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
+  });
+  h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
+  $("qc").innerHTML = h;
+
+  $("qc").querySelectorAll("input").forEach(el => {
+    el.onchange = function(){
+      const v = +el.dataset.v, a = ans[qi];
+      if(multi){ const p = a.indexOf(v); p > -1 ? a.splice(p,1) : a.push(v); }
+      else ans[qi] = [v];
+      draw();
+      checkAutoSubmit(); // KIỂM TRA TỰ ĐỘNG NỘP BÀI
+    };
+  });
+  
+  $("pv").onclick = () => { cur--; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
+  $("nx").onclick = () => { cur++; draw(); window.scrollTo({top:0, behavior:'smooth'}); };
+
+  let done = 0, n = "";
+  order.forEach((x, i) => {
+    const d = ans[x].length > 0;
+    if(d) done++;
+    n += '<button class="' + (d ? 'd' : '') + (i === cur ? ' c' : '') + '" data-i="' + i + '">' + (i+1) + '</button>';
+  });
+  $("nv").innerHTML = n;
+  $("nv").querySelectorAll("button").forEach(b => { 
+    b.onclick = function(){ cur = +b.dataset.i; draw(); window.scrollTo({top:0, behavior:'smooth'}); }; 
+  });
+  $("pb").style.width = (done / Q.length * 100) + "%";
+  $("cnt").textContent = "Đã làm " + done + "/" + Q.length + " câu";
+}
+
+// ===== TÍNH NĂNG MỚI: TỰ ĐỘNG GỢI Ý NỘP BÀI KHI ĐỦ 100% =====
+function checkAutoSubmit() {
+  const done = ans.filter(a => a.length > 0).length;
+  if (done === Q.length && !autoSubmitTriggered) {
+    autoSubmitTriggered = true;
+    showToast("🎉 Đã hoàn thành 100% câu hỏi!");
+    setTimeout(() => {
+      maskMode = "submit";
+      $("mkTitle").textContent = "🎯 Hoàn thành xuất sắc!";
+      $("mt").innerHTML = "Bạn đã làm đủ <b>" + Q.length + "</b> câu hỏi.<br>Hệ thống đã sẵn sàng nộp bài. Bạn có muốn xem kết quả ngay không?";
+      $("yes").textContent = "Nộp bài ngay";
+      $("yes").style.background = "var(--ok)";
+      $("mk").classList.add("on");
+    }, 1200);
+  }
+}
+
+/* ================= Modal & Submit ================= */
+$("sub").onclick = function(){
+  maskMode = "submit";
+  $("mkTitle").textContent = "Nộp bài?";
+  const left = ans.filter(a => !a.length).length;
+  $("mt").textContent = left ? "Bạn còn " + left + " câu chưa làm. Bạn có chắc muốn nộp bài không?" : "Bạn đã làm đủ " + Q.length + " câu. Sẵn sàng nộp bài!";
+  $("yes").textContent = "Xác nhận nộp";
+  $("yes").style.background = "var(--ok)";
+  $("mk").classList.add("on");
+};
+$("exitQuiz").onclick = function(){
+  maskMode = "exit";
+  $("mkTitle").textContent = "Thoát bài làm?";
+  $("mt").textContent = "Tiến trình làm bài hiện tại sẽ không được lưu. Bạn có chắc muốn thoát?";
+  $("yes").textContent = "Thoát";
+  $("yes").style.background = "var(--bad)";
+  $("mk").classList.add("on");
+};
+$("no").onclick = () => $("mk").classList.remove("on");
+$("yes").onclick = function(){
+  $("mk").classList.remove("on");
+  if(maskMode === "submit"){ finish(); }
+  else { clearInterval(tick); show("app"); switchTab("practice"); }
+};
+
+/* ================= Chấm điểm & Hiệu ứng Đấm Văng Điểm Kém ================= */
+function finish(){
+  clearInterval(tick);
+  const sec = Math.floor((Date.now() - t0) / 1000);
+  let pts = 0, full = 0, h = "";
+
+  order.forEach((qi, i) => {
+    const q = Q[qi], c = q[2], a = ans[qi];
+    const r = a.filter(x => c.indexOf(x) > -1).length;
+    const w = a.length - r;
+    let p = c.length > 1 ? Math.max(0, (r - w) / c.length) : ((a.length === 1 && r === 1) ? 1 : 0);
+    const ok = (r === c.length && w === 0);
+    pts += p;
+    if(ok) full++;
+
+    let status = ok ? 'Đúng' : (!a.length ? 'Chưa làm' : (c.length > 1 ? 'Chưa đúng (đúng một phần)' : 'Chưa đúng'));
+    h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
+      + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
+      + '<div class="q">' + q[0] + '</div>';
+    opt[qi].forEach((oi, k) => {
+      const isC = c.indexOf(oi) > -1, isA = a.indexOf(oi) > -1;
+      const cl = isC ? 'ok' : (isA ? 'bad' : '');
+      let icon = isC && isA ? '✓' : (isC && !isA ? '✓' : (!isC && isA ? '✗' : L[k]));
+      let note = isC && isA ? ' <em class="mut">(bạn chọn – đúng)</em>' : (isC && !isA ? ' <em class="mut" style="color:var(--ok)">(đúng – bạn chưa chọn)</em>' : (!isC && isA ? ' <em class="mut">(bạn chọn – sai)</em>' : ''));
+      h += '<div class="opt rev ' + cl + '"><b>' + icon + '</b><span>' + L[k] + '. ' + q[1][oi] + note + '</span></div>';
+    });
+    h += '</div>';
+  });
+
+  const sc = Math.round(pts / Q.length * 1000) / 100;
+  $("sc").textContent = String(sc).replace(".", ",");
+  $("rc").textContent = full + "/" + Q.length;
+  $("rw").textContent = (Q.length - full) + "";
+  $("rt").textContent = fmt(sec);
+  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label;
+  $("rv").innerHTML = h;
+  
+  // ===== HIỆU ỨNG ĐẤM VĂNG ĐIỂM KÉM =====
+  const resultCard = $("resultCard");
+  const lowScoreMsg = $("lowScoreMsg");
+  resultCard.classList.remove("punch-low-score");
+  lowScoreMsg.innerHTML = "";
+  
+  if (sc < 5) {
+    // Kích hoạt hiệu ứng rung lắc "đấm văng"
+    setTimeout(() => {
+      resultCard.classList.add("punch-low-score");
+      document.body.classList.add("screen-shake");
+      setTimeout(() => document.body.classList.remove("screen-shake"), 600);
+    }, 300);
+    
+    // Thông điệp hài hước/động viên
+    const msgs = [
+      "💥 ĐẤM VĂNG ĐIỂM KÉM! Cần cù bù thông minh, cố lên nhé!",
+      "🥊 BÙM! Điểm thấp bị đấm văng! Hãy ôn tập lại và quay lại mạnh mẽ hơn!",
+      "⚠️ Cảnh báo: Điểm số này không đủ sức mạnh! Hãy luyện tập thêm!"
+    ];
+    lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
+  }
+
+  show("result");
+  wirePills("lbPillsResult", "lbResult", currentSubject);
+  saveAndRefresh({ subject: currentSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec });
+}
+
+/* ================= Lưu kết quả ================= */
+async function saveAndRefresh(res){
+  if(!db){ $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
+  try{
+    ovOn("Đang lưu kết quả…");
+    const r = push(ref(db, "results"));
+    await set(r, {
+      type: "quiz_result", time: serverTimestamp(), subject: res.subject,
+      username: res.username, name: res.name, cls: res.cls || "",
+      score: res.score, correct: res.correct, total: res.total, duration: res.duration
+    });
+    ovOff();
+  }catch(e){
+    ovOff();
+    $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
+    return;
+  }
+  renderLeaderboard("lbResult", currentSubject);
+}
+
+$("again").onclick = function(){ startQuiz(currentSubject); };
+$("home").onclick = function(){ show("app"); switchTab("practice"); };
+
+/* ================= CUTSCENE CONTROLLER (Hiệu ứng Đấm Văng) ================= */
+(function () {
+  const cs = $("cutscene");
+  if (!cs) return;
+  let dismissed = false;
+
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    
+    // Thêm class punch-out để tạo hiệu ứng "đấm văng" màn hình cutscene
+    cs.classList.add("punch-out");
+    
+    // Rung màn hình chính khi cutscene biến mất
+    setTimeout(() => {
+      document.body.classList.add("screen-shake");
+      setTimeout(() => document.body.classList.remove("screen-shake"), 500);
+    }, 200);
+
+    setTimeout(function () {
+      if (cs.parentNode) cs.parentNode.removeChild(cs);
+      document.body.style.overflow = "";
+      
+      // Kiểm tra session sau khi cutscene kết thúc
+      const existing = loadSession();
+      if(existing){ session = existing; enterApp(); }
+      else { show("auth"); }
+    }, 600);
+  }
+
+  document.body.style.overflow = "hidden";
+  
+  // Tự động kích hoạt sau khi thanh loading đầy (khoảng 3.8s)
+  setTimeout(dismiss, 3800);
+
+  $("csSkip").addEventListener("click", function (e) {
+    e.stopPropagation();
+    dismiss();
+  });
+  
+  cs.addEventListener("click", function () { dismiss(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") dismiss();
+  });
+})();
+</script>
+</body>
+</html>
