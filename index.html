@@ -393,7 +393,11 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <label class="chk"><input type="checkbox" id="sq" checked> Xáo trộn thứ tự câu hỏi</label>
       <label class="chk"><input type="checkbox" id="sa" checked> Xáo trộn thứ tự đáp án</label>
       <label class="chk"><input type="checkbox" id="musicCheck"> Bật nhạc nền (Grateful.mp3)</label>
-      <div class="mut" style="font-size:0.8rem;margin-top:8px">💡 Riêng môn Tiếng Anh: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
+      
+      <div style="background:var(--bads); color:var(--bad); padding:10px 14px; border-radius:8px; font-size:0.85rem; font-weight:600; margin-top:12px; border-left:3px solid var(--bad);">
+        💡 <b>Lưu ý:</b> Chỉ những ai bật <b>CẢ 2</b> tùy chọn xáo trộn mới được tính vào thứ hạng Top 1, 2, 3 trên Bảng Xếp Hạng!
+      </div>
+      <div class="mut" style="font-size:0.8rem;margin-top:8px">* Riêng môn Tiếng Anh: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
     </div>
 
     <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
@@ -424,7 +428,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
         <strong>🏆 Bảng xếp hạng</strong>
         <button class="g sm" id="rfMain">Làm mới</button>
       </div>
-      <div class="mut" style="margin:8px 0">Xếp theo điểm cao nhất → thời gian làm bài nhanh nhất.</div>
+      <div class="mut" style="margin:8px 0">Xếp theo: <b>Đã bật xáo trộn 🎲</b> → Điểm cao nhất → Thời gian nhanh nhất.</div>
       <div class="pills" id="lbPillsMain"></div>
       <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
     </div>
@@ -955,7 +959,6 @@ document.querySelectorAll('.play-video').forEach(btn => {
     const src = this.dataset.src;
     $("video-frame").src = src;
     $("iframe-overlay").classList.remove("hide");
-    // Tạm dừng nhạc nền app chính (nếu có)
     if (isMusicOn && !bgMusic.paused) {
       bgMusic.pause();
       bgMusic.dataset.resume = "true";
@@ -965,8 +968,7 @@ document.querySelectorAll('.play-video').forEach(btn => {
 
 $("btnBack").onclick = function() {
   $("iframe-overlay").classList.add("hide");
-  $("video-frame").src = ""; // Dừng hoàn toàn video/âm thanh bên trong iframe
-  // Phát lại nhạc nền app chính (nếu trước đó đang phát)
+  $("video-frame").src = ""; 
   if (bgMusic.dataset.resume === "true") {
     bgMusic.play().catch(() => {});
     delete bgMusic.dataset.resume;
@@ -1000,20 +1002,51 @@ async function renderLeaderboard(elId, filter){
       const v = ch.val();
       if(!v || v.type !== "quiz_result") return;
       if(filter !== "all" && v.subject !== filter) return;
+      
       const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
       const prev = best.get(key);
-      if(!prev || v.score > prev.score || (v.score === prev.score && v.duration < prev.duration)) best.set(key, v);
+      
+      if(!prev) {
+        best.set(key, v);
+      } else {
+        // Ưu tiên giữ lại kết quả có xáo trộn (isShuffled), nếu bằng nhau thì xét điểm, rồi đến thời gian
+        const prevShuf = prev.isShuffled ? 1 : 0;
+        const vShuf = v.isShuffled ? 1 : 0;
+        if (vShuf > prevShuf) {
+          best.set(key, v);
+        } else if (vShuf === prevShuf) {
+          if (v.score > prev.score || (v.score === prev.score && v.duration < prev.duration)) {
+            best.set(key, v);
+          }
+        }
+      }
     });
-    const list = [...best.values()].sort((a, b) => b.score - a.score || a.duration - b.duration || (a.time || 0) - (b.time || 0)).slice(0, 20);
+    
+    // Sắp xếp: Ưu tiên người bật xáo trộn -> Điểm cao -> Thời gian ngắn
+    const list = [...best.values()].sort((a, b) => {
+      const aShuf = a.isShuffled ? 1 : 0;
+      const bShuf = b.isShuffled ? 1 : 0;
+      if (aShuf !== bShuf) return bShuf - aShuf; // Ai bật xáo trộn sẽ đứng trước
+      if (b.score !== a.score) return b.score - a.score;
+      return a.duration - b.duration;
+    }).slice(0, 20);
+
     if(!list.length){ el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài. Hãy là người đầu tiên!</div>'; return; }
+    
     el.innerHTML = list.map((v, i) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-      const clsTop = i < 3 ? " top" + (i+1) : "";
+      const isShuffled = v.isShuffled === true;
+      
+      // Chỉ ai bật xáo trộn mới được gắn huy chương top 1 2 3
+      const medal = isShuffled ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
+      const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
+      
       const subj = SUBJECTS[v.subject];
       const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
+      const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
+      
       return '<div class="lbrow' + clsTop + '">'
         + '<span class="rk">' + medal + '</span>'
-        + '<span class="who2"><b>' + esc(v.name || v.username || "?") + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
+        + '<span class="who2"><b>' + esc(v.name || v.username || "?") + shuffleBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
         + '<span class="pts">' + String(v.score).replace(".", ",") + 'đ</span>'
         + '<span class="dur">⏱ ' + fmt(v.duration || 0) + '</span>'
         + '</div>';
@@ -1026,6 +1059,7 @@ let currentSubject, Q, order, opt, ans, cur, t0, tick;
 let maskMode = "submit";
 let autoSubmitTriggered = false;
 let allAtOnce = false;
+let isShuffled = false;
 
 $("startTinhoc").onclick = () => startQuiz("tinhoc");
 $("startGdcd").onclick = () => startQuiz("gdcd");
@@ -1035,6 +1069,10 @@ function startQuiz(subjectKey){
   currentSubject = subjectKey;
   Q = SUBJECTS[subjectKey].data;
   allAtOnce = !!SUBJECTS[subjectKey].allAtOnce;
+  
+  // Đánh dấu nếu người dùng chọn xáo trộn CẢ câu hỏi và đáp án
+  isShuffled = $("sq").checked && $("sa").checked;
+
   order = Q.map((_, i) => i);
   if($("sq").checked && !allAtOnce) shuffle(order);
   opt = Q.map(q => { 
@@ -1299,7 +1337,7 @@ function finish(){
 
   show("result");
   wirePills("lbPillsResult", "lbResult", currentSubject);
-  saveAndRefresh({ subject: currentSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec });
+  saveAndRefresh({ subject: currentSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: sec, isShuffled: isShuffled });
 }
 
 async function saveAndRefresh(res){
@@ -1310,7 +1348,8 @@ async function saveAndRefresh(res){
     await set(r, {
       type: "quiz_result", time: serverTimestamp(), subject: res.subject,
       username: res.username, name: res.name, cls: res.cls || "",
-      score: res.score, correct: res.correct, total: res.total, duration: res.duration
+      score: res.score, correct: res.correct, total: res.total, duration: res.duration,
+      isShuffled: res.isShuffled || false
     });
     ovOff();
   }catch(e){
