@@ -308,11 +308,24 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   .stats { gap: 16px; }
   .stats div span { font-size: 1.2rem; }
 }
+
+/* ===== MUSIC MODAL STYLES ===== */
+.song-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 8px; transition: background 0.2s; cursor: pointer;
+  border-bottom: 1px solid var(--ln);
+}
+.song-item:last-child { border-bottom: none; }
+.song-item:hover { background: var(--acs); }
+.song-item input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
+}
+.song-item span { font-weight: 500; font-size: 0.95rem; }
 </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop></audio>
+<audio id="bgMusic"></audio>
 
 <div id="cutscene" aria-hidden="true">
   <canvas id="csCanvas"></canvas>
@@ -392,8 +405,14 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <strong style="display:block;margin-bottom:12px">⚙️ Tùy chọn làm bài</strong>
       <label class="chk"><input type="checkbox" id="sq" checked> Xáo trộn thứ tự câu hỏi</label>
       <label class="chk"><input type="checkbox" id="sa" checked> Xáo trộn thứ tự đáp án</label>
-      <label class="chk"><input type="checkbox" id="musicCheck"> Bật nhạc nền (Grateful.mp3)</label>
+      <label class="chk"><input type="checkbox" id="musicCheck"> Bật nhạc nền</label>
       
+      <!-- Khung chọn nhạc khi bật -->
+      <div id="musicSelectionArea" class="hide" style="margin-left: 32px; margin-top: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span id="currentSongLabel" class="mut" style="font-weight: 500; font-size: 0.9rem;">🎵 Đang phát: <b>Ngẫu nhiên</b></span>
+        <button class="g sm" id="btnChangeMusic" style="padding: 6px 12px; font-size: 0.8rem;">Thay đổi</button>
+      </div>
+
       <div style="background:var(--bads); color:var(--bad); padding:10px 14px; border-radius:8px; font-size:0.85rem; font-weight:600; margin-top:12px; border-left:3px solid var(--bad);">
         💡 <b>Lưu ý:</b> Chỉ những ai bật <b>CẢ 2</b> tùy chọn xáo trộn mới được tính vào thứ hạng Top 1, 2, 3 trên Bảng Xếp Hạng!
       </div>
@@ -550,6 +569,33 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     <div class="row">
       <button class="g" id="no" style="flex:1">Hủy</button>
       <button class="p" id="yes" style="flex:1;background:var(--ok)">Xác nhận nộp</button>
+    </div>
+  </div>
+</div>
+
+<!-- MUSIC MODAL -->
+<div class="mask" id="musicMask">
+  <div class="card" style="max-width: 440px; width: 100%;">
+    <h2 style="margin-bottom: 16px;">🎵 Chọn nhạc nền</h2>
+    
+    <div style="margin-bottom: 16px;">
+      <label class="chk" style="margin: 8px 0;">
+        <input type="radio" name="mMode" value="random" id="mModeRandom"> 
+        <b>Ngẫu nhiên</b> (Mỗi bài phát 1 lần, hết vòng lặp lại)
+      </label>
+      <label class="chk" style="margin: 8px 0;">
+        <input type="radio" name="mMode" value="playlist" id="mModePlaylist"> 
+        <b>Danh sách</b> (Phát lần lượt các bài đã chọn)
+      </label>
+    </div>
+
+    <div id="songListContainer" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; border: 1px solid var(--ln); border-radius: 10px; background: rgba(255,255,255,0.4);">
+      <!-- Tự động điền bằng JS -->
+    </div>
+
+    <div class="row">
+      <button class="g" id="btnCancelMusic" style="flex: 1;">Hủy</button>
+      <button class="p" id="btnSaveMusic" style="flex: 1;">Lưu</button>
     </div>
   </div>
 </div>
@@ -1009,7 +1055,6 @@ async function renderLeaderboard(elId, filter){
       if(!prev) {
         best.set(key, v);
       } else {
-        // Ưu tiên giữ lại kết quả có xáo trộn (isShuffled), nếu bằng nhau thì xét điểm, rồi đến thời gian
         const prevShuf = prev.isShuffled ? 1 : 0;
         const vShuf = v.isShuffled ? 1 : 0;
         if (vShuf > prevShuf) {
@@ -1022,11 +1067,10 @@ async function renderLeaderboard(elId, filter){
       }
     });
     
-    // Sắp xếp: Ưu tiên người bật xáo trộn -> Điểm cao -> Thời gian ngắn
     const list = [...best.values()].sort((a, b) => {
       const aShuf = a.isShuffled ? 1 : 0;
       const bShuf = b.isShuffled ? 1 : 0;
-      if (aShuf !== bShuf) return bShuf - aShuf; // Ai bật xáo trộn sẽ đứng trước
+      if (aShuf !== bShuf) return bShuf - aShuf;
       if (b.score !== a.score) return b.score - a.score;
       return a.duration - b.duration;
     }).slice(0, 20);
@@ -1035,8 +1079,6 @@ async function renderLeaderboard(elId, filter){
     
     el.innerHTML = list.map((v, i) => {
       const isShuffled = v.isShuffled === true;
-      
-      // Chỉ ai bật xáo trộn mới được gắn huy chương top 1 2 3
       const medal = isShuffled ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
       const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
       
@@ -1070,7 +1112,6 @@ function startQuiz(subjectKey){
   Q = SUBJECTS[subjectKey].data;
   allAtOnce = !!SUBJECTS[subjectKey].allAtOnce;
   
-  // Đánh dấu nếu người dùng chọn xáo trộn CẢ câu hỏi và đáp án
   isShuffled = $("sq").checked && $("sa").checked;
 
   order = Q.map((_, i) => i);
@@ -1363,37 +1404,183 @@ async function saveAndRefresh(res){
 $("again").onclick = function(){ startQuiz(currentSubject); };
 $("home").onclick = function(){ show("app"); switchTab("practice"); };
 
+/* ================= Music Logic ================= */
 const bgMusic = $("bgMusic");
-const musicCheck = $("musicCheck");
-const audioPaths = ["Grateful.mp3","./Grateful.mp3","onemore/Grateful.mp3","./onemore/Grateful.mp3","Grateful.MP3","onemore/Grateful.MP3"];
-let pathIndex = 0;
-let isMusicOn = localStorage.getItem("qp_music") === "on";
-musicCheck.checked = isMusicOn;
+// Xóa thuộc tính loop của thẻ audio để tự code logic chuyển bài
+bgMusic.removeAttribute("loop"); 
 
-function tryNextAudioPath() {
-  if (pathIndex < audioPaths.length) {
-    bgMusic.src = audioPaths[pathIndex]; bgMusic.load(); pathIndex++;
-    if (isMusicOn) bgMusic.play().catch(() => {});
+const musicCheck = $("musicCheck");
+const musicSelectionArea = $("musicSelectionArea");
+const currentSongLabel = $("currentSongLabel");
+
+const SONGS = [
+  { id: 'grateful', title: 'Grateful', src: 'onemore/Grateful.mp3' },
+  { id: 'shapeofyou', title: 'Shape of You', src: 'onemore/ShapeofYou.mp3' },
+  { id: 'spencerhillcool', title: 'Spencer Hill Cool', src: 'onemore/Spencerhillcool.mp3' },
+  { id: 'haruharu', title: 'Haru Haru', src: 'onemore/haruharu.mp3' },
+  { id: 'luunien', title: 'Lưu Niên', src: 'onemore/luunien.mp3' },
+  { id: 'nguoidung', title: 'Người Dưng', src: 'onemore/nguoidung.mp3' }
+];
+
+let isMusicOn = localStorage.getItem("qp_music") === "on";
+let musicMode = localStorage.getItem("qp_music_mode") || "random";
+let selectedSongIds = JSON.parse(localStorage.getItem("qp_music_selected")) || SONGS.map(s => s.id);
+
+let currentPlaylist = [];
+let currentPlayIndex = 0;
+
+musicCheck.checked = isMusicOn;
+if (isMusicOn) musicSelectionArea.classList.remove("hide");
+
+function updateMusicUI() {
+  if (musicMode === "random") {
+    currentSongLabel.innerHTML = '🎵 Đang phát: <b>Ngẫu nhiên</b>';
   } else {
-    showToast("⚠️ Lỗi: Không tìm thấy Grateful.mp3. Hãy đảm bảo file nằm CÙNG THƯ MỤC với index.html và đúng tên 'Grateful.mp3' (chú ý viết hoa).", true);
-    musicCheck.checked = false; isMusicOn = false;
-    localStorage.setItem("qp_music", "off");
+    const selected = SONGS.filter(s => selectedSongIds.includes(s.id));
+    if (selected.length === 0) {
+      currentSongLabel.innerHTML = '🎵 Đang phát: <b>Chưa chọn bài</b>';
+    } else if (selected.length === 1) {
+      currentSongLabel.innerHTML = '🎵 Đang phát: <b>' + selected[0].title + '</b>';
+    } else {
+      currentSongLabel.innerHTML = '🎵 Đang phát: <b>Danh sách (' + selected.length + ' bài)</b>';
+    }
   }
 }
-bgMusic.addEventListener("error", tryNextAudioPath);
-bgMusic.src = audioPaths[pathIndex]; pathIndex++;
 
-function playMusic() { if (!isMusicOn) return; bgMusic.play().catch(() => {}); }
+function buildPlaylist() {
+  let list = [];
+  if (musicMode === "random") {
+    // Xáo trộn toàn bộ danh sách
+    list = [...SONGS].sort(() => Math.random() - 0.5);
+  } else {
+    // Chỉ lấy những bài được chọn, giữ nguyên thứ tự
+    list = SONGS.filter(s => selectedSongIds.includes(s.id));
+    if (list.length === 0) list = [SONGS[0]]; // Fallback
+  }
+  return list;
+}
+
+function playCurrentSong() {
+  if (!isMusicOn || currentPlaylist.length === 0) return;
+  const song = currentPlaylist[currentPlayIndex];
+  
+  // Tránh load lại bài nếu đang phát đúng bài đó (giúp resume mượt mà)
+  if (!bgMusic.src.endsWith(song.src)) {
+    bgMusic.src = song.src;
+  }
+  
+  bgMusic.play().catch(() => {});
+  updateMusicUI();
+}
+
+function playNextSong() {
+  if (!isMusicOn) return;
+  
+  if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
+  
+  currentPlayIndex++;
+  if (currentPlayIndex >= currentPlaylist.length) {
+    currentPlayIndex = 0;
+    if (musicMode === "random") {
+      // Hết vòng random -> Xáo trộn lại
+      currentPlaylist = buildPlaylist();
+    }
+  }
+  playCurrentSong();
+}
+
+// Tự động chuyển bài khi hết nhạc
+bgMusic.addEventListener("ended", playNextSong);
+// Bỏ qua nếu file bị lỗi
+bgMusic.addEventListener("error", () => {
+   console.warn("Lỗi tải nhạc: " + bgMusic.src);
+   if (isMusicOn && currentPlaylist.length > 1) playNextSong();
+});
+
+// Bật / Tắt nhạc
 musicCheck.onchange = () => {
   isMusicOn = musicCheck.checked;
   localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
-  if (isMusicOn) playMusic(); else bgMusic.pause();
+  musicSelectionArea.classList.toggle("hide", !isMusicOn);
+  
+  if (isMusicOn) {
+    if (currentPlaylist.length === 0) {
+       currentPlaylist = buildPlaylist();
+       currentPlayIndex = 0;
+    }
+    playCurrentSong();
+  } else {
+    bgMusic.pause();
+  }
 };
-const tryPlayMusicOnInteraction = () => { if (isMusicOn && bgMusic.paused) playMusic(); };
+
+// Mở Modal chọn nhạc
+$("btnChangeMusic").onclick = () => {
+  $("mModeRandom").checked = musicMode === "random";
+  $("mModePlaylist").checked = musicMode === "playlist";
+  
+  let h = "";
+  SONGS.forEach(s => {
+    h += `<label class="song-item"><input type="checkbox" value="${s.id}" ${selectedSongIds.includes(s.id) ? 'checked' : ''}><span>${s.title}</span></label>`;
+  });
+  $("songListContainer").innerHTML = h;
+  
+  toggleSongCheckboxes();
+  $("musicMask").classList.add("on");
+};
+
+function toggleSongCheckboxes() {
+  const isPlaylist = $("mModePlaylist").checked;
+  $("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
+  $("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
+}
+
+$("mModeRandom").onchange = toggleSongCheckboxes;
+$("mModePlaylist").onchange = toggleSongCheckboxes;
+
+$("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
+
+// Lưu cài đặt nhạc
+$("btnSaveMusic").onclick = () => {
+  musicMode = $("mModeRandom").checked ? "random" : "playlist";
+  
+  const checkboxes = $("songListContainer").querySelectorAll("input[type=checkbox]");
+  selectedSongIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+  
+  if (musicMode === "playlist" && selectedSongIds.length === 0) {
+    showToast("Vui lòng chọn ít nhất 1 bài hát!", true);
+    return;
+  }
+
+  localStorage.setItem("qp_music_mode", musicMode);
+  localStorage.setItem("qp_music_selected", JSON.stringify(selectedSongIds));
+  
+  $("musicMask").classList.remove("on");
+  
+  // Reset lại danh sách phát và bắt đầu lại từ đầu
+  currentPlaylist = buildPlaylist();
+  currentPlayIndex = 0;
+  if (isMusicOn) playCurrentSong();
+  else updateMusicUI();
+};
+
+// Khởi tạo trạng thái nhạc
+if (isMusicOn) {
+  currentPlaylist = buildPlaylist();
+  currentPlayIndex = 0;
+  updateMusicUI();
+}
+
+// Mở khóa phát nhạc trên các trình duyệt chặn Autoplay
+const tryPlayMusicOnInteraction = () => { if (isMusicOn && bgMusic.paused) playCurrentSong(); };
 document.body.addEventListener("click", tryPlayMusicOnInteraction);
 document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
 bgMusic.addEventListener("playing", () => {
-  if (!musicCheck.checked) { musicCheck.checked = true; isMusicOn = true; localStorage.setItem("qp_music", "on"); }
+  if (!musicCheck.checked) { 
+    musicCheck.checked = true; isMusicOn = true; 
+    localStorage.setItem("qp_music", "on"); 
+    musicSelectionArea.classList.remove("hide");
+  }
 });
 
 const existing = loadSession();
