@@ -301,7 +301,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--bad); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3); }
 
-/* Ban Screen Styles */
 .ban-screen {
   position: fixed; inset: 0; z-index: 9999; background: #0f172a; color: #fff;
   display: grid; place-items: center; text-align: center; padding: 24px;
@@ -349,7 +348,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   <div class="cs-flash"></div>
 </div>
 
-<!-- IFRAME OVERLAY CHO DEV TAB -->
 <div id="iframe-overlay" class="hide">
   <button class="btn-back-float" id="btnBack">← Back</button>
   <iframe id="video-frame" src="" allow="autoplay"></iframe>
@@ -496,7 +494,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <strong id="who" style="font-size:1rem"></strong>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00</span></span>
-        <!-- Nút Tiếp theo dành riêng cho GDCD -->
         <button class="p sm" id="headerNext" style="display:none;">Tiếp ➔</button>
         <button class="g sm" id="exitQuiz" type="button">Thoát</button>
       </div>
@@ -857,7 +854,7 @@ function normText(s){
     .trim();
 }
 
-const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'Phát'];
+const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'phát'];
 
 function checkProfanity(str) {
   if (!str) return false;
@@ -1414,31 +1411,57 @@ function checkAutoSubmit() {
 }
 
 $("sub").onclick = function(){
-  maskMode = "submit";
-  $("mkTitle").textContent = "Nộp bài?";
-  const left = ans.filter(a => !a.length).length;
-  $("mt").textContent = left ? "Bạn còn " + left + " câu chưa làm. Bạn có chắc muốn nộp bài không?" : "Bạn đã làm đủ " + Q.length + " câu. Sẵn sàng nộp bài!";
-  $("yes").textContent = "Xác nhận nộp";
-  $("yes").style.background = "var(--ok)";
-  $("mk").classList.add("on");
+  finish();
 };
+
 $("exitQuiz").onclick = function(){
   maskMode = "exit";
   $("mkTitle").textContent = "Thoát bài làm?";
   $("mt").textContent = "Tiến trình làm bài hiện tại sẽ không được lưu. Bạn có chắc muốn thoát?";
   $("yes").textContent = "Thoát";
   $("yes").style.background = "var(--bad)";
+  $("no").textContent = "Hủy";
   $("mk").classList.add("on");
 };
+
 $("no").onclick = () => $("mk").classList.remove("on");
+
 $("yes").onclick = function(){
   $("mk").classList.remove("on");
-  if(maskMode === "submit"){ finish(); }
-  else { clearInterval(tick); show("app"); switchTab("practice"); }
+  if(maskMode === "listening_check"){
+    showResults();
+  } else if(maskMode === "submit"){
+    showResults();
+  } else if(maskMode === "exit"){ 
+    clearInterval(tick); 
+    show("app"); 
+    switchTab("practice"); 
+  }
 };
 
 function finish(){
   clearInterval(tick);
+  if (currentSubject === 'english') {
+    maskMode = "listening_check";
+    $("mkTitle").textContent = "⚠️ LƯU Ý ĐỀ NGHE";
+    $("mt").innerHTML = `
+      <div style="background:var(--bads); padding:16px; border-radius:10px; border-left:4px solid var(--bad); margin-bottom:12px;">
+        <strong>Bạn đã kiểm tra kỹ phần đề nghe chưa?</strong><br>
+        <span style="font-size:0.9rem; color:var(--mut);">Hãy đảm bảo đã chọn đáp án cho tất cả câu hỏi nghe hiểu!</span>
+      </div>
+      <div style="font-weight:600; color:var(--ac); margin-top:8px;">Đã chọn / Chưa chọn?</div>
+      <div style="font-size:0.85rem; color:var(--mut); margin-top:4px;">Hãy chắc chắn trước khi nộp bài!</div>
+    `;
+    $("yes").textContent = "Đã chọn - Tiếp tục";
+    $("yes").style.background = "var(--ok)";
+    $("no").textContent = "Chưa chọn - Hủy";
+    $("mk").classList.add("on");
+    return;
+  }
+  showResults();
+}
+
+function showResults(){
   const sec = Math.floor((Date.now() - t0) / 1000);
   let pts = 0, full = 0, h = "";
 
@@ -1519,9 +1542,7 @@ function finish(){
   $("rt").textContent = fmt(sec);
   $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS[currentSubject].icon + " " + SUBJECTS[currentSubject].label + (currentMode === 'manual' ? " (Ghi)" : "");
   
-  // === TIẾNG ANH: CẢNH BÁO ĐỀ NGHE & ĐÁP ÁN GỌN ===
   if (currentSubject === 'english') {
-    let answerKeySummary = "📝 Đáp án tham khảo: ";
     let keyParts = [];
     order.forEach((qi, i) => {
       const q = Q[qi];
@@ -1536,17 +1557,9 @@ function finish(){
       grouped.push(keyParts.slice(i, i+5).join(", "));
     }
     
-    const listeningWarning = `<div class="card" style="background:var(--bads); border-left:4px solid var(--bad); margin-bottom:16px;">
-        <strong>⚠️ LƯU Ý ĐỀ NGHE:</strong><br>
-        Bạn đã kiểm tra kỹ phần đề nghe chưa? <br>
-        <b>Đã chọn</b> / <b>Chưa chọn</b>? Hãy chắc chắn trước khi nộp bài lần sau!
-    </div>`;
-    
     const answerKeyDisplay = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-size:1.05rem; text-align:center; line-height:1.8; background:var(--acs); border-color:var(--ac);">
-        ${listeningWarning}
-        <div style="margin-top:12px; color:var(--ac); font-weight:800;">${grouped.join("<br>")}</div>
+        <div style="margin-top:12px; color:var(--ac); font-weight:800;">📝 Đáp án tham khảo:<br>${grouped.join("<br>")}</div>
     </div>`;
-    
     h = answerKeyDisplay + h;
   }
 
@@ -1563,7 +1576,6 @@ function finish(){
     lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
   }
 
-  // === TÀI TRỢ & NÚT ĐÓNG ===
   const sponsorBlock = `
     <div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
       <div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Được tài trợ bởi</div>
