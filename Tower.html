@@ -71,10 +71,10 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 .shake-screen { animation: shakeScreen 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 @keyframes shakeScreen { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
-#cheat-overlay, #ban-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; place-items: center; text-align: center; padding: 24px; }
-#cheat-overlay.active, #ban-overlay.active { display: grid; animation: glitchBg 0.2s infinite; }
+#cheat-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; place-items: center; text-align: center; padding: 24px; }
+#cheat-overlay.active { display: grid; animation: glitchBg 0.2s infinite; }
 @keyframes glitchBg { 0% { background: #000; } 50% { background: #1a0505; } 100% { background: #000; } }
-#cheat-overlay h1, #ban-overlay h1 { color: var(--bad); font-size: 2rem; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
+#cheat-overlay h1 { color: var(--bad); font-size: 2rem; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
 .glitch-text { color: var(--mut); line-height: 1.6; max-width: 400px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
 .evidence { color: var(--ac); margin: 16px 0; font-weight: bold; }
 
@@ -112,7 +112,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
     <h1 style="margin:0 0 8px;">Chế Độ Tháp</h1>
     <p style="color:var(--mut); margin-bottom:24px; font-size:0.9rem;">
       🇬🇧 Tiếng Anh · ⚖️ GDCD · 🌍 Địa lí<br>
-      <span style="color:var(--bad); font-weight:700;">⚠️ Anti-Bot: Sai là dừng. F5/Thoát tab = Bỏ cuộc.</span>
+      <span style="color:var(--bad); font-weight:700;">⚠️ Lưu ý: F5 hoặc thoát tab giữa chừng sẽ bị tính là bỏ cuộc.</span>
     </p>
 
     <div id="user-greeting" style="font-size:1.2rem; font-weight:700; color:var(--ok); margin-bottom:24px; background:var(--oks); display:inline-block; padding:12px 24px; border-radius:12px;"></div>
@@ -174,23 +174,14 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
   </section>
 </main>
 
-<!-- Màn hình phạt Anti-Cheat -->
+<!-- Màn hình phạt Anti-Cheat (KHÔNG BAN, CHỈ CẢNH BÁO) -->
 <div id="cheat-overlay">
   <div>
-    <h1>🚫 BOT DETECTED</h1>
-    <div class="glitch-text">HỆ THỐNG PHÁT HIỆN HÀNH VI TỰ ĐỘNG</div>
+    <h1>⚠️ VÁN CHƠI BỊ HỦY</h1>
+    <div class="glitch-text">HỆ THỐNG PHÁT HIỆN HÀNH VI BẤT THƯỜNG</div>
     <div class="evidence" id="cheat-evidence"></div>
-    <div class="glitch-text">Ván chơi bị hủy. Điểm không được lưu. Tài khoản có thể bị khóa.</div>
-    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/'">Quay lại</button>
-  </div>
-</div>
-
-<!-- Màn hình Ban -->
-<div id="ban-overlay">
-  <div>
-    <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
-    <div class="glitch-text">Bạn đã vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.</div>
-    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/'">Quay lại</button>
+    <div class="glitch-text">Ván chơi hiện tại bị hủy và không được lưu điểm. Vui lòng chơi lại công bằng.</div>
+    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/'">Quay lại trang chủ</button>
   </div>
 </div>
 
@@ -288,19 +279,6 @@ function normText(s) {
   return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
 }
 
-function nameHash(name) {
-  return normText(name || "").replace(/\s+/g, "_");
-}
-
-function getBanKey(name) {
-  return "qpb3_ban_" + nameHash(name);
-}
-
-function isBanned(name) {
-  try { return localStorage.getItem(getBanKey(name)) === "1"; } 
-  catch(e) { return false; }
-}
-
 const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'lồn', 'cặc', 'cứt', 'ngu', 'khốn nạn', 'sex', 'lol', 'vl', 'vãi', 'địt'];
 function checkProfanity(str) {
   if (!str) return false;
@@ -332,11 +310,10 @@ function fmtTime(ms) {
 
 // ================= XỬ LÝ GAME =================
 async function checkActiveGameOnLoad() {
-  const username = session.username || ("guest_" + nameHash(session.name));
+  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
   const k = keyOf(username);
   let activeRecord = null;
 
-  // 1. Thử đọc từ Firebase
   try {
     const snap = await get(ref(db, "tower_active/" + k));
     if (snap.exists()) activeRecord = snap.val();
@@ -344,7 +321,6 @@ async function checkActiveGameOnLoad() {
     console.warn("Firebase read failed, using localStorage fallback");
   }
 
-  // 2. Fallback localStorage
   if (!activeRecord) {
     const lsData = localStorage.getItem("tower_active_v1");
     if (lsData) {
@@ -352,20 +328,15 @@ async function checkActiveGameOnLoad() {
     }
   }
 
-  // 3. Kiểm tra nếu có ván dở thuộc về người này
   if (activeRecord && activeRecord.username === username) {
-    // TÍNH LÀ BỎ CUỘC
     const score = Math.max(0, activeRecord.floor - 1);
     const time = activeRecord.lastActive - activeRecord.startTime;
     
-    // Xóa bản ghi trước khi lưu điểm để tránh duplicate
     try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
     localStorage.removeItem("tower_active_v1");
     
-    // Lưu điểm và hiện màn hình bỏ cuộc
     await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
   } else {
-    // Không có ván dở, xử lý URL
     if (location.pathname.match(/^\/Tower_\d+$/i)) {
       window.history.replaceState({}, '', '/Tower');
     }
@@ -386,7 +357,7 @@ function startGame() {
   startTime = Date.now();
   isGameActive = true;
   
-  const username = session.username || ("guest_" + nameHash(session.name));
+  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
   const k = keyOf(username);
   const record = {
     gameId,
@@ -398,10 +369,8 @@ function startGame() {
     lastActive: Date.now()
   };
 
-  // Ghi dự phòng localStorage ngay lập tức (đồng bộ)
   localStorage.setItem("tower_active_v1", JSON.stringify(record));
   
-  // Ghi Firebase (bọc try/catch)
   try {
     set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase set failed", e));
   } catch(e) {}
@@ -422,7 +391,7 @@ function startGame() {
 
 function updateActiveRecord() {
   if (!isGameActive) return;
-  const username = session.username || ("guest_" + nameHash(session.name));
+  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
   const k = keyOf(username);
   const record = {
     gameId,
@@ -450,7 +419,6 @@ function checkMultiTab() {
       }
     } catch(e) {}
   } else {
-    // Mất bản ghi localStorage giữa chừng
     triggerCheat("Phát hiện mất dữ liệu phiên làm việc (có thể do tab khác ghi đè).");
   }
 }
@@ -519,7 +487,7 @@ function handleAnswer(selectedIdx, correctIndices, element, event) {
     element.classList.add("ok");
     setTimeout(() => {
       currentFloor++;
-      updateActiveRecord(); // Cập nhật floor trước khi render tầng mới
+      updateActiveRecord();
       renderQuestion();
     }, 350);
   } else {
@@ -533,7 +501,7 @@ function handleAnswer(selectedIdx, correctIndices, element, event) {
 }
 
 async function clearActiveGame() {
-  const username = session.username || ("guest_" + nameHash(session.name));
+  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
   const k = keyOf(username);
   localStorage.removeItem("tower_active_v1");
   try {
@@ -544,13 +512,12 @@ async function clearActiveGame() {
 }
 
 async function endGame(isWin, reason) {
-  if (!isGameActive) return; // Tránh gọi nhiều lần
+  if (!isGameActive) return;
   isGameActive = false;
   clearInterval(timerInterval);
   const finalTime = Date.now() - startTime;
   const score = isWin ? currentFloor - 1 : currentFloor - 1;
 
-  // XÓA bản ghi active TRƯỚC khi lưu điểm
   await clearActiveGame();
 
   $("game-screen").classList.add("hide");
@@ -567,8 +534,9 @@ async function endGame(isWin, reason) {
 }
 
 async function saveScore(score, time, reason, isAbandoned) {
-  if (checkProfanity(session.name) || isBanned(session.name)) {
-    console.warn("Blocked save due to profanity or ban");
+  // CHỈ CHẶN LƯU NẾU TÊN BẬY, KHÔNG KIỂM TRA BAN NỮA
+  if (checkProfanity(session.name)) {
+    console.warn("Blocked save due to profanity in name");
     return;
   }
 
@@ -576,7 +544,7 @@ async function saveScore(score, time, reason, isAbandoned) {
     const newRef = push(ref(db, TOWER_NODE));
     await set(newRef, {
       name: session.name,
-      username: session.username || ("guest_" + nameHash(session.name)),
+      username: session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_")),
       cls: session.cls || "",
       score: score,
       time: time,
@@ -590,19 +558,15 @@ async function saveScore(score, time, reason, isAbandoned) {
 }
 
 function triggerCheat(evidence) {
-  if (!isGameActive && !evidence.includes("nhiều tab")) return; // Tránh spam nếu đã kết thúc
+  if (!isGameActive) return;
   
-  // Ghi ban vào localStorage
-  try {
-    localStorage.setItem(getBanKey(session.name), "1");
-  } catch(e) {}
-
+  // CHỈ HIỆN MÀN HÌNH CHEAT, KHÔNG BAN TÀI KHOẢN
   isGameActive = false;
   clearInterval(timerInterval);
   $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
   $("cheat-overlay").classList.add("active");
   
-  // Không lưu điểm, nhưng vẫn dọn dẹp active game để không bị kẹt
+  // Dọn dẹp ván chơi nhưng KHÔNG lưu điểm và KHÔNG ban
   clearActiveGame();
 }
 
@@ -622,7 +586,8 @@ async function loadLeaderboard() {
 
     const results = [];
     snapshot.forEach(child => results.push(child.val()));
-    const cleanResults = results.filter(r => !checkProfanity(r.name) && !isBanned(r.name));
+    // Lọc bỏ các tên bậy bạ khi hiển thị BXH
+    const cleanResults = results.filter(r => !checkProfanity(r.name));
 
     cleanResults.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
@@ -635,8 +600,8 @@ async function loadLeaderboard() {
     top20.forEach((r, index) => {
       const row = document.createElement("div");
       row.className = "lb-row";
-      const username = r.username || ("guest_" + nameHash(r.name));
-      const sessionUsername = session.username || ("guest_" + nameHash(session.name));
+      const username = r.username || ("guest_" + normText(r.name).replace(/\s+/g, "_"));
+      const sessionUsername = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
       const isMe = username === sessionUsername;
       if (isMe) row.classList.add("me");
       
@@ -665,7 +630,7 @@ function escapeHtml(text) {
 
 // ================= SỰ KIỆN & KHỞI TẠO =================
 $("btn-start-game").onclick = () => {
-  startMusic(); // Bắt đầu nhạc ở tương tác đầu tiên
+  startMusic();
   startGame();
 };
 
@@ -683,7 +648,6 @@ $("btn-giveup").onclick = () => {
 $("btn-home-start").onclick = () => { location.href = "/"; };
 $("btn-home-result").onclick = () => { location.href = "/"; };
 
-// Anti-cheat cơ bản
 document.addEventListener("keydown", e => {
   if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key)) || (e.ctrlKey && /^[us]$/i.test(e.key))) {
     e.preventDefault();
@@ -696,24 +660,21 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// Phát hiện multi-tab qua sự kiện storage
 window.addEventListener("storage", (e) => {
   if (e.key === "tower_active_v1" && isGameActive) {
     checkMultiTab();
   }
 });
 
-// Đồng bộ lastActive khi đóng tab (dự phòng)
 window.addEventListener("pagehide", () => {
   if (isGameActive) {
-    const username = session.username || ("guest_" + nameHash(session.name));
+    const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
     const k = keyOf(username);
     const record = {
       gameId, name: session.name, cls: session.cls || "", username,
       floor: currentFloor, startTime, lastActive: Date.now()
     };
     localStorage.setItem("tower_active_v1", JSON.stringify(record));
-    // Không dùng await ở đây vì tab đang đóng, chỉ ghi sync localStorage là đủ để lần mở sau phát hiện
   }
 });
 
@@ -799,13 +760,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   session = existing;
 
-  // Kiểm tra Ban
-  if (checkProfanity(session.name) || isBanned(session.name)) {
-    $("ban-overlay").classList.add("active");
+  // CHỈ CHẶN NẾU TÊN BẬY, KHÔNG KIỂM TRA BAN NỮA
+  if (checkProfanity(session.name)) {
+    $("cheat-overlay").querySelector("h1").textContent = "🚫 TÊN KHÔNG HỢP LỆ";
+    $("cheat-overlay").querySelector(".glitch-text").textContent = "Tên tài khoản chứa từ ngữ không phù hợp. Vui lòng đổi tên ở trang chủ.";
+    $("cheat-evidence").textContent = `> NAME: ${session.name}`;
+    $("cheat-overlay").classList.add("active");
     return;
   }
 
-  // Kiểm tra ván dở
   await checkActiveGameOnLoad();
 });
 </script>
