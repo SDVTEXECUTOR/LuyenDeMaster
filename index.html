@@ -490,7 +490,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 
   <!-- TAB GAMEPLAY ĐÃ CẬP NHẬT -->
   <div id="tab-gameplay" class="hide">
-    <div class="card" style="text-align:center; padding: 40px 24px;">
+    <div class="card" style="text-align: center; padding: 40px 24px;">
       <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
       <h2 style="margin-bottom: 8px;">Tower Defense</h2>
       <p class="mut" style="margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
@@ -510,6 +510,17 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       </p>
       <div class="mut" id="adminStatus" style="margin-bottom:16px;font-weight:600">Đang tải…</div>
       <button class="p" id="btnUnbanAll" style="width:100%;background:var(--ok)">🔓 Unban All</button>
+    </div>
+
+    <div class="card">
+      <div class="top">
+        <h2 style="margin:0">👥 Quản lí tài khoản</h2>
+        <button class="g sm" id="btnRefreshAccounts">Làm mới</button>
+      </div>
+      <p class="mut" style="margin:8px 0 16px;line-height:1.6">
+        Xoá tài khoản sẽ xoá vĩnh viễn tài khoản đó và toàn bộ điểm số liên quan trên bảng xếp hạng.
+      </p>
+      <div id="accountsListContainer"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
     </div>
   </div>
 
@@ -895,7 +906,7 @@ const ENGLISH_SECTIONS = [
   ]},
   { title: "IV. WRITING – B. Sentence Arrangement", questions: [
       [`Arrange the sentences to make a meaningful letter:<br>Dear Lan,<br>a. We can discuss our ideas for the science project and divide the tasks together.<br>b. I'm writing to invite you to a group meeting this Saturday afternoon.<br>c. Please let me know if you can come.<br>d. Sorry I haven't contacted you for a few days because I was busy preparing for exams.<br>e. The meeting will start at 2 p.m. at my house.<br>Best wishes!`, ["b - e - d - a - c","b - d - e - a - c","d - a - b - e - c","d - b - e - a - c"], [3]],
-      [`Arrange the sentences to make a meaningful paragraph:<br>a. Finally, it makes our planet a better place to live for future generations.<br>b. Moreover, by saving the environment, we are protecting our ecosystem and other natural resources.<br>c. Firstly, when we protect the environment, we are saving ourselves from the problems that will arise in the future. Also, the effects of climate change can also be reduced greatly.<br>d. It is important to save the environment for the survival of the planet and the living beings in it.<br>e. In conclusion, it is vital to preserve and protect life on Earth.`, ["d - c - b - e - a","d - c - b - a - e","d - b - c - e - a","d - c - e - b - a"], [1]],
+      [`Arrange the sentences to make a meaningful paragraph:<br>a. Finally, it makes our planet a better place to live for future generations.<br>b. Moreover, by saving the environment, we are protecting our ecosystem and other natural resources.<br>c. Firstly, when we protect the environment, we are saving ourselves from the problems that will arise in the future. Also, the effects of climate change can also be reduced greatly.<br>d. It is important to save the environment for the survival of the planet and the living beings in it.<br>e. In conclusion, it is vital to preserve and protect life on Earth.`, ["d - c - b - e - a","d - c - b - a - e","d - c - b - a - e","d - c - e - b - a"], [1]],
       [`Arrange the sentences to make a meaningful letter:<br>Dear Anna,<br>a. We are going to prepare some traditional dishes and enjoy music together.<br>b. Please reply soon and tell me if you can join us. I'm looking forward to seeing you!<br>c. I'm very happy to invite you to our school camping trip next Sunday at Green Park.<br>d. Besides outdoor games, we will also have a talent show in the evening.<br>e. Don't forget to bring a hat and some comfortable clothes for outdoor activities.<br>Best,<br>Linda`, ["a - e - c - d - b","b - d - a - e - c","c - d - e - b - a","c - a - d - e - b"], [3]],
       [`Arrange the sentences to make a meaningful paragraph:<br>a. Furthermore, online learning allows students to access lessons and materials anytime and anywhere with an Internet connection.<br>b. In short, online learning offers many advantages and has become an important part of modern education.<br>c. Online learning is becoming increasingly popular among students around the world.<br>d. First of all, it provides flexibility, helping learners study at their own pace and manage their time effectively.<br>e. Last but not least, students can join virtual classes and interact with teachers and classmates easily through online platforms.`, ["c - d - a - e - b","d - c - a - e - b","c - a - d - e - b","c - d - e - b - a"], [0]]
   ]},
@@ -1010,7 +1021,7 @@ function checkTextAnswer(userStr, correctList, keywords = null) {
   return false;
 }
 
-const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'phát'];
+const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'đĩ', 'lồn', 'buồi', 'cặc', 'cứt', 'đít', 'đái', 'ỉa', 'ngu', 'khốn nạn', 'mất dạy', 'cave', 'điếm', 'phò', 'óc chó', 'súc vật', 'thằng khùng', 'con điên', 'sex', 'lol', 'cmm', 'vl', 'vãi', 'địt', 'djt', 'dkm', 'phát', 'tuất dog'];
 
 function checkProfanity(str) {
   if (!str) return false;
@@ -1194,6 +1205,64 @@ async function adminUnbanAll() {
   }
 }
 
+/* ================= QUẢN LÍ TÀI KHOẢN (ADMIN) ================= */
+async function loadAllAccounts() {
+  const el = $("accountsListContainer");
+  if (!el) return;
+  el.innerHTML = skeleton(3);
+  if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
+  try {
+    const snap = await get(ref(db, "accounts"));
+    if (!snap.exists()) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có tài khoản nào.</div>'; return; }
+    const accounts = [];
+    snap.forEach(ch => accounts.push({ key: ch.key, ...ch.val() }));
+    accounts.sort((a, b) => String(a.name || a.username || "").localeCompare(String(b.name || b.username || ""), "vi"));
+
+    el.innerHTML = accounts.map(a => {
+      const safeKey = esc(a.key), safeUser = esc(a.username || ""), safeName = esc(a.name || a.username || "");
+      return '<div class="lbrow" style="grid-template-columns:1fr auto">'
+        + '<span class="who2"><b>' + safeName + '</b><span class="mut" style="font-size:0.8rem">@' + safeUser + (a.cls ? ' · ' + esc(a.cls) : '') + '</span></span>'
+        + '<button class="sm" style="background:var(--bad)" data-key="' + safeKey + '" data-username="' + safeUser + '" data-name="' + safeName + '">🗑️ Xoá</button>'
+        + '</div>';
+    }).join("");
+
+    el.querySelectorAll("button[data-key]").forEach(btn => {
+      btn.onclick = () => deleteAccountAndResults(btn.dataset.key, btn.dataset.username, btn.dataset.name);
+    });
+  } catch (e) {
+    el.innerHTML = '<div class="mut">Không tải được danh sách tài khoản.</div>';
+  }
+}
+
+async function deleteAccountAndResults(key, username, name) {
+  if (!isAdminSession()) return;
+  if (!confirm('Xoá tài khoản "' + name + '" (@' + username + ')?\n\nTài khoản và TOÀN BỘ điểm số của học sinh này trên bảng xếp hạng sẽ bị xoá vĩnh viễn. Không thể hoàn tác.')) return;
+  try {
+    ovOn("Đang xoá tài khoản…");
+    await remove(ref(db, "accounts/" + key));
+
+    const snap = await get(ref(db, "results"));
+    const uNorm = String(username || "").trim().toLowerCase();
+    const dels = [];
+    if (snap.exists()) {
+      snap.forEach(ch => {
+        const v = ch.val();
+        if (v && String(v.username || "").trim().toLowerCase() === uNorm) dels.push(ch.key);
+      });
+    }
+    await Promise.all(dels.map(k => remove(ref(db, "results/" + k)).catch(() => {})));
+
+    ovOff();
+    showToast('✅ Đã xoá tài khoản "' + name + '" và ' + dels.length + ' kết quả liên quan.');
+    loadAllAccounts();
+    const activePills = document.querySelector("#lbPillsMain .pill.active");
+    renderLeaderboard("lbMain", activePills ? activePills.dataset.f : "all");
+  } catch (e) {
+    ovOff();
+    showToast("Lỗi khi xoá tài khoản: " + e.message, true);
+  }
+}
+
 function saveSession(s){ session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){ return null; } }
 function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); }
@@ -1316,7 +1385,7 @@ function switchTab(name){
   $("tab-admin").classList.toggle("hide", name !== "admin");
 
   if(name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
-  if(name === "admin") loadAdminStatus();
+  if(name === "admin") { loadAdminStatus(); loadAllAccounts(); }
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
@@ -1324,6 +1393,7 @@ $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
 $("btnUnbanAll").onclick = adminUnbanAll;
+$("btnRefreshAccounts").onclick = loadAllAccounts;
 
 $("rfMain").onclick = function(){
   const active = document.querySelector("#lbPillsMain .pill.active");
