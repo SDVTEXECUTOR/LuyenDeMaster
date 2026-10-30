@@ -43,12 +43,12 @@ button.g { background: transparent; color: var(--fg); border: 1.5px solid var(--
 button.g:hover { background: var(--acs); border-color: var(--ac); }
 button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
-input[type="text"], input[type="password"], textarea {
+input[type="text"] {
   width: 100%; padding: 14px 16px; font: inherit; border: 1.5px solid var(--ln);
   border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--fg);
   margin-bottom: 16px; transition: border-color 0.2s; text-align: center;
 }
-input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
+input:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
 
 .tower-header { text-align: center; margin-bottom: 24px; position: relative; }
 .tower-floor { font-size: 4rem; font-weight: 900; color: var(--ac); letter-spacing: -0.05em; text-shadow: 0 0 30px rgba(59, 130, 246, 0.4); line-height: 1; }
@@ -122,9 +122,8 @@ input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow
       <span style="color:var(--bad); font-weight:700;">⚠️ Anti-Bot: Sai là dừng. Auto-click là BAN.</span>
     </p>
 
-    <div style="text-align:left; margin-bottom:20px;">
-      <label style="font-size:0.9rem; font-weight:600; color:var(--mut);">Tên hiển thị (lưu BXH):</label>
-      <input type="text" id="player-name-input" placeholder="Nhập tên của bạn..." maxlength="20" style="margin-top:8px;">
+    <div id="user-greeting" style="font-size:1.2rem; font-weight:700; color:var(--ok); margin-bottom:24px; background:var(--oks); display:inline-block; padding:12px 24px; border-radius:12px;">
+      <!-- Sẽ được điền bằng JS -->
     </div>
 
     <button id="btn-start-game" style="font-size:1.1rem; padding:16px; background:var(--ok); box-shadow: 0 4px 16px rgba(34,197,94,0.3);">▶ Bắt Đầu Leo Tháp</button>
@@ -189,7 +188,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow
     <div class="glitch-text">HỆ THỐNG PHÁT HIỆN HÀNH VI TỰ ĐỘNG</div>
     <div class="evidence" id="cheat-evidence"></div>
     <div class="glitch-text">Ván chơi bị hủy. Điểm không được lưu.</div>
-    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/Tower_'">Quay lại</button>
+    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/'">Quay lại</button>
   </div>
 </div>
 
@@ -210,7 +209,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const TOWER_NODE = "tower";
 
-/* ================= FULL DỮ LIỆU CÂU HỎI 3 MÔN (Bỏ Tiếng Anh) ================= */
+/* ================= FULL DỮ LIỆU CÂU HỎI 3 MÔN ================= */
 const Q_TINHOC = [
 ["Thiết bị nào sau đây có gắn bộ xử lí thông tin?",["Bình đựng nước thông thường.","Ghế nhựa thông thường.","Máy giặt tự động hoạt động theo chương trình.","Ổ khóa cơ dùng chìa."],[2]],
 ["Khả năng nào sau đây là của máy tính?",["Xử lí lượng lớn dữ liệu nhanh theo chương trình.","Mọi thông tin trên Internet đều đúng.","Tự quyết định mọi việc mà không cần dữ liệu.","Luôn hiểu đầy đủ cảm xúc của con người."],[0]],
@@ -303,8 +302,18 @@ function shuffle(array) {
   return array;
 }
 
-/* ================= TIỆN ÍCH & BẢO MẬT ================= */
+/* ================= SESSION & BẢO MẬT ================= */
 const $ = id => document.getElementById(id);
+const SESSION_KEY = "qp_session_v2";
+let session = null;
+
+function loadSession() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+  } catch(e) {
+    return null;
+  }
+}
 
 function normText(s) {
   return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
@@ -319,7 +328,6 @@ function checkProfanity(str) {
 }
 
 /* ================= BIẾN TOÀN CỤC & TRẠNG THÁI ================= */
-let session = { name: "Người chơi", username: "guest", cls: "" };
 let currentFloor = 1;
 let gameQuestions = [];
 let startTime = 0;
@@ -352,25 +360,11 @@ function showToast(msg, isError = false) {
   }, 3000);
 }
 
-/* ================= XỬ LÝ SỰ KIỆN BẮT ĐẦU ================= */
+/* ================= XỬ LÝ SỰ KIỆN ================= */
 $("btn-start-game").onclick = () => {
-  const inputName = $("player-name-input").value.trim();
-  if (!inputName) {
-    showToast("Vui lòng nhập tên của bạn để lưu BXH!", true);
-    return;
-  }
-  if (checkProfanity(inputName)) {
-    showToast("Tên chứa từ ngữ không phù hợp!", true);
-    return;
-  }
-  
-  session.name = inputName;
-  session.username = "guest_" + Date.now(); // Dummy ID
-  
   $("start-screen").classList.add("hide");
   $("game-screen").classList.remove("hide");
   $("display-name").textContent = session.name;
-  
   startGame();
 };
 
@@ -414,7 +408,6 @@ function triggerCheat(evidence) {
 /* ================= GAME LOGIC ================= */
 function startGame() {
   currentFloor = 1;
-  // Đổi URL theo tầng
   window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
   
   gameQuestions = shuffle([...POOL]);
@@ -434,7 +427,6 @@ function renderQuestion() {
     return;
   }
 
-  // Đổi URL liên tục theo tầng hiện tại
   window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
 
   const item = gameQuestions[currentFloor - 1];
@@ -525,7 +517,7 @@ async function saveScore(score, time) {
     const newRef = push(ref(db, TOWER_NODE));
     await set(newRef, {
       name: session.name,
-      username: session.username,
+      username: session.username || ("guest_" + Date.now()),
       cls: session.cls || "",
       score: score,
       time: time,
@@ -593,8 +585,30 @@ function escapeHtml(text) {
 
 /* ================= KHỞI TẠO ================= */
 window.addEventListener('DOMContentLoaded', () => {
-  // Hiển thị màn hình bắt đầu
+  const existing = loadSession();
+  
+  // Kiểm tra xem đã đăng nhập ở index.html chưa
+  if (!existing || !existing.name) {
+    // Chưa đăng nhập
+    $("start-screen").innerHTML = `
+      <div style="text-align:center; padding:40px 20px;">
+        <div style="font-size:5rem; margin-bottom:16px;">🔒</div>
+        <h2 style="margin:0 0 12px;">Yêu cầu đăng nhập</h2>
+        <p style="color:var(--mut); margin-bottom:32px; line-height:1.6;">Vui lòng quay lại trang chủ để đăng nhập trước khi tham gia leo tháp.</p>
+        <a href="../index.html" style="display:inline-block; padding:16px 32px; background:var(--ac); color:#fff; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 16px rgba(59,130,246,0.3);">← Về trang chủ</a>
+      </div>
+    `;
+    $("start-screen").classList.remove("hide");
+    return;
+  }
+
+  // Đã đăng nhập -> Lấy thông tin
+  session = existing;
+  
+  // Cập nhật giao diện Start Screen
+  $("user-greeting").innerHTML = `👤 Xin chào, <b>${session.name}</b>${session.cls ? ' (' + session.cls + ')' : ''}!`;
   $("start-screen").classList.remove("hide");
+  
   // Load trước BXH cho màn hình kết quả
   loadLeaderboard();
 });
