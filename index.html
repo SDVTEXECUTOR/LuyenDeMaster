@@ -370,7 +370,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 </div>
 
 <div id="iframe-overlay" class="hide">
-  <button class="btn-back-float" id="btnBack">← Back</button>
+  <button class="btn-back-float" id="btnBack">← Quay lại</button>
   <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
 
@@ -391,12 +391,12 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
 
     <div id="authform" style="text-align:left">
       <label class="f" for="auUser" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Tên đăng nhập</label>
-      <input type="text" id="auUser" autocomplete="username" placeholder="vd: nam2009">
+      <input type="text" id="auUser" autocomplete="off" placeholder="vd: nam2009">
       <label class="f" for="auPass" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Mật khẩu</label>
-      <input type="password" id="auPass" autocomplete="current-password" placeholder="Tối thiểu 4 kí tự">
+      <input type="password" id="auPass" autocomplete="off" placeholder="Tối thiểu 4 kí tự">
       <div id="regExtra" class="hide">
         <label class="f" for="auName" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Họ và tên</label>
-        <input type="text" id="auName" autocomplete="name" placeholder="Nhập họ và tên">
+        <input type="text" id="auName" autocomplete="off" placeholder="Nhập họ và tên">
         <label class="f" for="auCls" style="display:block;margin:16px 0 6px;font-weight:600;font-size:0.9rem">Lớp</label>
         <input type="text" id="auCls" autocomplete="off" placeholder="vd: 9A1 (không bắt buộc)">
       </div>
@@ -422,6 +422,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   <div class="tabs">
     <button class="tabbtn active" id="tabBtnPractice" type="button">📚 Luyện Tập</button>
     <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
+    <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
     <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
   </div>
 
@@ -483,6 +484,18 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
       <div class="mut" style="margin:8px 0">Xếp theo: <b>Đã bật xáo trộn 🎲</b> → Điểm cao nhất → Thời gian nhanh nhất.</div>
       <div class="pills" id="lbPillsMain"></div>
       <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+  </div>
+
+  <!-- TAB GAMEPLAY MỚI -->
+  <div id="tab-gameplay" class="hide">
+    <div class="card" style="text-align:center; padding: 40px 24px;">
+      <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
+      <h2 style="margin-bottom: 8px;">Tower Defense</h2>
+      <p class="mut" style="margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+        Thư giãn một chút với mini-game Tower! Nhạc nền sẽ vẫn tiếp tục phát trong khi bạn chơi.
+      </p>
+      <button class="p" id="btnPlayTower" style="font-size: 1.1rem; padding: 14px 32px;">▶ Chơi Tower Ngay</button>
     </div>
   </div>
 
@@ -684,7 +697,7 @@ if (window.__STOLEN__) {
   throw new Error("STOLEN_DOMAIN");
 }
 
-/* ===== Anti-cheat: chặn F12 / Ctrl+Shift+I / Ctrl+U / chuột phải ===== */
+/* ===== ANTI-CHEAT V2: Chặn F12 / DevTools / Auto-Click / Tab Switch ===== */
 (function(){
   document.addEventListener("keydown", function(e){
     var k = e.key || "";
@@ -713,6 +726,20 @@ if (window.__STOLEN__) {
       console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
     }
   }, 1500);
+
+  let tabSwitchCount = 0;
+  document.addEventListener("visibilitychange", function() {
+    const quizEl = document.getElementById("quiz");
+    if (document.hidden && quizEl && !quizEl.classList.contains("hide")) {
+      tabSwitchCount++;
+      if (tabSwitchCount >= 2) {
+        showToast("⚠️ Cảnh báo: Chuyển tab/ứng dụng khi đang làm bài!", true);
+        if (typeof recordViolation === "function" && typeof session !== "undefined" && session) {
+          recordViolation(session.name);
+        }
+      }
+    }
+  });
 })();
 
 /* ================= Dữ liệu câu hỏi ================= */
@@ -902,7 +929,6 @@ const $ = id => document.getElementById(id);
 const L = "ABCD";
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-// Định dạng thời gian có mili giây: MM:SS.mmm (đồng hồ chạy)
 function fmtMs(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
@@ -910,11 +936,10 @@ function fmtMs(totalMs) {
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
 }
 
-// ✅ Định dạng gọn cho BẢNG XẾP HẠNG: MM:SS,CC (ví dụ 00:00,00)
 function fmtMsShort(totalMs) {
   const m = Math.floor(totalMs / 60000);
   const s = Math.floor((totalMs % 60000) / 1000);
-  const ms = Math.floor((totalMs % 1000) / 10); // 2 số mili giây
+  const ms = Math.floor((totalMs % 1000) / 10);
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(2,'0')}`;
 }
 
@@ -927,7 +952,6 @@ function normText(s){
     .trim();
 }
 
-// ✅ Thuật toán tính khoảng cách Levenshtein để chấm điểm mềm dẻo (cho phép sai 1-2 chữ)
 function levenshtein(a, b) {
   if(a.length === 0) return b.length;
   if(b.length === 0) return a.length;
@@ -946,7 +970,6 @@ function levenshtein(a, b) {
   return matrix[b.length][a.length];
 }
 
-// ✅ Hàm chấm điểm tự luận thông minh
 function checkTextAnswer(userStr, correctList, keywords = null) {
   if (!userStr) return false;
   const uNorm = normText(userStr);
@@ -991,17 +1014,13 @@ function checkProfanity(str) {
 /* ================================================================
    ANTI-NAME v3 — CHỈ BAN TÀI KHOẢN (theo tên) — KHÔNG BAN IP
    ================================================================ */
-// Migration: xoá sạch key anti-cheat phiên bản cũ
 (function(){
   try {
     var oldKeys = [];
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
       if (!k) continue;
-      if (k === "banned_ip_sim" ||
-          k.indexOf("ban_") === 0 ||
-          k.indexOf("banned_") === 0 ||
-          k.indexOf("violations_") === 0) {
+      if (k === "banned_ip_sim" || k.indexOf("ban_") === 0 || k.indexOf("banned_") === 0 || k.indexOf("violations_") === 0) {
         oldKeys.push(k);
       }
     }
@@ -1012,9 +1031,7 @@ function checkProfanity(str) {
 })();
 
 var _BAN_V3 = "qpb3_";
-function _nameHash(name) {
-  return normText(name || "").replace(/\s+/g, "_");
-}
+function _nameHash(name) { return normText(name || "").replace(/\s+/g, "_"); }
 function getBanKey(name)       { return _BAN_V3 + "ban_" + _nameHash(name); }
 function getViolationKey(name) { return _BAN_V3 + "vio_" + _nameHash(name); }
 
@@ -1037,7 +1054,7 @@ function showBanScreen(name) {
   document.body.innerHTML =
     '<div class="ban-screen">' +
       '<h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>' +
-      '<p>Bạn đã vi phạm quy tắc ứng xử (sử dụng từ ngữ không phù hợp).<br>' +
+      '<p>Bạn đã vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.<br>' +
       'Tài khoản <b>"' + esc(name) + '"</b> đã bị chặn.<br><br>' +
       'Vui lòng liên hệ quản trị nếu có khiếu nại.</p>' +
       '<button class="p" style="margin-top:24px" id="banReload">Tải lại trang</button>' +
@@ -1088,12 +1105,10 @@ $("atRegister").onclick = function(){
 
 async function doRegister(u, p, name, cls){
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
-  
   if (checkProfanity(u) || checkProfanity(name)) {
     recordViolation(name);
     throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
   }
-  
   const key = keyOf(u);
   const passHash = await sha256Hex(p);
   ovOn("Đang tạo tài khoản…");
@@ -1174,16 +1189,19 @@ $("logout").onclick = function(){ clearSession(); show("auth"); };
 function switchTab(name){
   $("tabBtnPractice").classList.toggle("active", name === "practice");
   $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
+  $("tabBtnGameplay").classList.toggle("active", name === "gameplay"); // NEW
   $("tabBtnDev").classList.toggle("active", name === "dev");
   
   $("tab-practice").classList.toggle("hide", name !== "practice");
   $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
+  $("tab-gameplay").classList.toggle("hide", name !== "gameplay"); // NEW
   $("tab-dev").classList.toggle("hide", name !== "dev");
   
   if(name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
+$("tabBtnGameplay").onclick = () => switchTab("gameplay"); // NEW
 $("tabBtnDev").onclick = () => switchTab("dev");
 
 $("rfMain").onclick = function(){
@@ -1195,25 +1213,28 @@ $("rfResult").onclick = function(){
   renderLeaderboard("lbResult", active ? active.dataset.f : currentSubject);
 };
 
+// Hàm mở iframe chung (KHÔNG dừng nhạc theo yêu cầu)
+function openFrameOverlay(src) {
+  $("video-frame").src = src;
+  $("iframe-overlay").classList.remove("hide");
+  // Nhạc nền vẫn tiếp tục phát, không có lệnh pause() ở đây
+}
+
 document.querySelectorAll('.play-video').forEach(btn => {
   btn.onclick = function() {
-    const src = this.dataset.src;
-    $("video-frame").src = src;
-    $("iframe-overlay").classList.remove("hide");
-    if (isMusicOn && !bgMusic.paused) {
-      bgMusic.pause();
-      bgMusic.dataset.resume = "true";
-    }
+    openFrameOverlay(this.dataset.src);
   };
 });
+
+// Nút chơi Tower
+$("btnPlayTower").onclick = function() {
+  openFrameOverlay("Tower.html");
+};
 
 $("btnBack").onclick = function() {
   $("iframe-overlay").classList.add("hide");
   $("video-frame").src = ""; 
-  if (bgMusic.dataset.resume === "true") {
-    bgMusic.play().catch(() => {});
-    delete bgMusic.dataset.resume;
-  }
+  // Không cần resume nhạc vì nhạc chưa từng bị dừng
 };
 
 function wirePills(pillsId, listId, initial){
@@ -1286,7 +1307,6 @@ async function renderLeaderboard(elId, filter){
       }
     });
     
-    // Xoá record vi phạm khỏi Firebase (fire & forget)
     if (toDelete.length > 0) {
       toDelete.forEach(function(k){
         try { remove(ref(db, "results/" + k)).catch(function(){}); }
@@ -1345,7 +1365,6 @@ async function renderLeaderboard(elId, filter){
           + '<div style="font-weight:800; color:var(--ac); font-variant-numeric:tabular-nums;">' + (isBanned ? '-' : String(v.score).replace(".", ",") + 'đ') + '</div>'
           + (timeStr && !isBanned ? '<div style="font-size:0.7rem; color:var(--mut); font-weight:500; white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
         + '</span>'
-        // ✅ SỬ DỤNG HÀM THỜI GIAN CHI TIẾT (PHÚT:GIÂY,MILI GIÂY)
         + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span>'
         + '</div>';
     }).join("");
@@ -1449,7 +1468,13 @@ function draw(){
   $("qc").innerHTML = h;
 
   $("qc").querySelectorAll("input").forEach(el => {
-    el.onchange = function(){
+    el.onchange = function(e){
+      if (!e.isTrusted) {
+        showToast("⚠️ Phát hiện công cụ tự động chọn đáp án!", true);
+        recordViolation(session.name);
+        showBanScreen(session.name);
+        return;
+      }
       const v = +el.dataset.v, a = ans[qi];
       if(multi){ const p = a.indexOf(v); p > -1 ? a.splice(p,1) : a.push(v); }
       else ans[qi] = [v];
@@ -1497,7 +1522,7 @@ function renderQItem(flatIdx, q) {
     h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
     h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
     h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
-    h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ')">📥 Điền đoạn bôi đen</button>';
+    h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ', event)">📥 Điền đoạn bôi đen</button>';
     h += '</div>';
   } else {
     const multi = q[2].length > 1;
@@ -1510,7 +1535,13 @@ function renderQItem(flatIdx, q) {
   return h;
 }
 
-window.fillSelectedText = function(flatIdx) {
+window.fillSelectedText = function(flatIdx, event) {
+  if (!event || !event.isTrusted) {
+    showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
+    recordViolation(session.name);
+    showBanScreen(session.name);
+    return;
+  }
   const sel = window.getSelection().toString().trim();
   if (!sel) {
     showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true);
@@ -1520,7 +1551,7 @@ window.fillSelectedText = function(flatIdx) {
   const ta = document.getElementById("txt-" + flatIdx);
   if (ta) {
     ta.value = cleanText;
-    ta.dispatchEvent(new Event('input'));
+    ta.dispatchEvent(new Event('input', { isTrusted: true }));
     showToast("✅ Đã điền đáp án!");
   }
 };
@@ -1553,7 +1584,13 @@ function attachAllHandlers() {
       const container = $("q-" + flatIdx);
       if (!container) return;
       container.querySelectorAll("input").forEach(el => {
-        el.onchange = function() {
+        el.onchange = function(e) {
+          if (!e.isTrusted) {
+            showToast("⚠️ Phát hiện công cụ tự động chọn đáp án!", true);
+            recordViolation(session.name);
+            showBanScreen(session.name);
+            return;
+          }
           const v = +el.dataset.v;
           const multi = q[2].length > 1;
           if (multi) {
@@ -1646,6 +1683,15 @@ function finish(){
 
 function showResults(){
   const ms = Date.now() - t0;
+  
+  const minTimeMs = Math.max(5000, Q.length * 1200);
+  if (ms < minTimeMs) {
+    showToast("⚠️ Thời gian làm bài bất thường (quá nhanh), nghi vấn sử dụng tool auto!", true);
+    recordViolation(session.name);
+    showBanScreen(session.name);
+    return;
+  }
+
   let pts = 0, full = 0, h = "";
 
   order.forEach((qi, i) => {
