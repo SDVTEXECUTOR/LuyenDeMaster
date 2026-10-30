@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/Tower_(.*)", "destination": "/Tower.html" }
+  ]
+}
