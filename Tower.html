@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🏰 Tower Mode - Chế Độ Tháp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #020617; --card: rgba(15, 23, 42, 0.85); --fg: #f8fafc; --mut: #64748b;
+  --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); 
+  --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15); 
+  --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); 
+  --ln: rgba(148, 163, 184, 0.15); --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --glass: blur(20px) saturate(180%);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
+  background-attachment: fixed; min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+}
+main { width: 100%; max-width: 650px; padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
+.hide { display: none !important; }
+.card {
+  background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--ln); border-radius: 20px; padding: 24px;
+  box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s;
+}
+button {
+  font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 14px 24px;
+  cursor: pointer; background: var(--ac); color: #fff; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3); width: 100%;
+}
+button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
+button:active { transform: translateY(1px); }
+button.g { background: transparent; color: var(--fg); border: 1.5px solid var(--ln); box-shadow: none; }
+button.g:hover { background: var(--acs); border-color: var(--ac); }
+button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
+
+input[type="text"], input[type="password"], textarea {
+  width: 100%; padding: 14px 16px; font: inherit; border: 1.5px solid var(--ln);
+  border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--fg);
+  margin-bottom: 16px; transition: border-color 0.2s;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
+
+.auth-tabs { display: flex; gap: 6px; background: var(--ln); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+.auth-tab { flex: 1; background: transparent; border: none; color: var(--mut); padding: 10px; border-radius: 8px; font-weight: 600; box-shadow: none; }
+.auth-tab.active { background: var(--card); color: var(--ac); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+.tower-header { text-align: center; margin-bottom: 24px; position: relative; }
+.tower-floor { font-size: 4rem; font-weight: 900; color: var(--ac); letter-spacing: -0.05em; text-shadow: 0 0 30px rgba(59, 130, 246, 0.4); line-height: 1; }
+.tower-label { font-size: 0.85rem; color: var(--mut); font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+.tower-timer { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--fg); margin-top: 8px; background: var(--ln); display: inline-block; padding: 6px 16px; border-radius: 99px; }
+.player-info { text-align: center; margin-bottom: 16px; color: var(--mut); font-size: 0.9rem; }
+.player-info b { color: var(--fg); }
+
+.q-text { font-size: 1.1rem; font-weight: 700; line-height: 1.5; margin-bottom: 20px; text-align: center; }
+.q-subject-tag { display: inline-block; background: var(--acs); color: var(--ac); padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.05em; }
+
+.opt {
+  display: flex; gap: 12px; align-items: center; border: 1.5px solid var(--ln);
+  border-radius: 14px; padding: 16px; margin: 10px 0; cursor: pointer;
+  background: rgba(255,255,255,0.03); transition: all 0.15s; position: relative;
+}
+.opt:hover { border-color: var(--ac); background: var(--acs); transform: translateX(4px); }
+.opt b { flex: none; width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--ln); display: grid; place-items: center; font-weight: 800; background: rgba(255,255,255,0.05); }
+.opt span { flex: 1; line-height: 1.4; }
+.opt.ok { border-color: var(--ok); background: var(--oks); animation: flashGreen 0.4s ease; }
+.opt.ok b { background: var(--ok); border-color: var(--ok); color: #fff; }
+.opt.bad { border-color: var(--bad); background: var(--bads); animation: flashRed 0.5s ease; }
+.opt.bad b { background: var(--bad); border-color: var(--bad); color: #fff; }
+
+@keyframes flashGreen { 0% { background: var(--oks); transform: scale(1.02); } 100% { background: rgba(255,255,255,0.03); transform: scale(1); } }
+@keyframes flashRed { 0% { background: var(--bads); transform: translateX(-5px); } 25% { transform: translateX(5px); } 50% { transform: translateX(-5px); } 100% { background: rgba(255,255,255,0.03); transform: translateX(0); } }
+.shake-screen { animation: shakeScreen 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shakeScreen { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+
+#cheat-overlay, #ban-overlay { position: fixed; inset: 0; z-index: 9999; background: #000; display: none; place-items: center; text-align: center; padding: 24px; }
+#cheat-overlay.active, #ban-overlay.active { display: grid; animation: glitchBg 0.2s infinite; }
+@keyframes glitchBg { 0% { background: #000; } 50% { background: #1a0505; } 100% { background: #000; } }
+#cheat-overlay h1, #ban-overlay h1 { color: var(--bad); font-size: 2rem; margin-bottom: 16px; font-family: 'JetBrains Mono', monospace; }
+.glitch-text { color: var(--mut); line-height: 1.6; max-width: 400px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+.evidence { color: var(--ac); margin: 16px 0; font-weight: bold; }
+
+.lb-row { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-bottom: 1px solid var(--ln); font-size: 0.95rem; }
+.lb-row:last-child { border-bottom: none; }
+.lb-row.me { background: var(--acs); border-radius: 10px; }
+.lb-rk { font-weight: 800; color: var(--ac); text-align: center; font-size: 1.1rem; }
+.lb-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-sub { font-size: 0.75rem; color: var(--mut); }
+.lb-score { font-weight: 800; color: var(--ok); font-variant-numeric: tabular-nums; text-align: right; }
+.lb-time { font-size: 0.75rem; color: var(--mut); font-variant-numeric: tabular-nums; text-align: right; font-family: 'JetBrains Mono', monospace; }
+
+.skel { height: 40px; border-radius: 8px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
+@keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.back-link { display: inline-block; margin-bottom: 16px; color: var(--mut); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+.back-link:hover { color: var(--ac); }
+</style>
+</head>
+<body>
+
+<main>
+  <a href="../index.html" class="back-link">← Quay về trang chính</a>
+
+  <!-- Màn hình Đăng nhập / Đăng ký -->
+  <section id="auth-screen" class="card hide" style="text-align:center; margin-top:6vh;">
+    <div style="font-size:3rem; margin-bottom:12px;">🏰</div>
+    <h1 style="margin:0 0 8px;">Chế Độ Tháp</h1>
+    <p style="color:var(--mut); margin-bottom:20px; font-size:0.9rem;">
+      Tin học (19) · GDCD (20) · Tiếng Anh (52) · Địa lí (30)<br>
+      <span style="color:var(--bad); font-weight:700;">⚠️ Anti-Bot: Sai là dừng. Auto-click là BAN.</span>
+    </p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin">Đăng nhập</button>
+      <button class="auth-tab" id="tabRegister">Đăng kí</button>
+    </div>
+
+    <input type="text" id="authUser" placeholder="Tên đăng nhập" autocomplete="off">
+    <input type="password" id="authPass" placeholder="Mật khẩu (tối thiểu 4 kí tự)" autocomplete="off">
+    
+    <div id="regExtra" class="hide">
+      <input type="text" id="authName" placeholder="Họ và tên" autocomplete="off">
+      <input type="text" id="authCls" placeholder="Lớp (vd: 9A1 - không bắt buộc)" autocomplete="off">
+    </div>
+
+    <p id="auth-err" style="color:var(--bad); font-size:0.9rem; min-height:1.2em; margin-top:-8px; margin-bottom:16px;"></p>
+    <button id="btnAuthGo">Đăng nhập</button>
+  </section>
+
+  <!-- Màn hình chơi game -->
+  <section id="game-screen" class="hide">
+    <div class="player-info">
+      👤 <b id="display-name">?</b> <span id="display-cls" style="color:var(--mut)"></span>
+      <br>
+      <button class="g sm" id="btn-logout" style="margin-top:8px;">Đăng xuất</button>
+    </div>
+    <div class="card tower-header">
+      <div class="tower-label">Đang ở tầng</div>
+      <div class="tower-floor" id="floor-display">1</div>
+      <div class="tower-timer" id="timer-display">00:00.00</div>
+    </div>
+    <div class="card" id="question-card">
+      <div style="text-align:center;"><span class="q-subject-tag" id="q-subject">?</span></div>
+      <div class="q-text" id="q-text"></div>
+      <div id="options-container"></div>
+    </div>
+  </section>
+
+  <!-- Màn hình kết quả -->
+  <section id="result-screen" class="hide">
+    <div class="card" style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:3rem; margin-bottom:8px;" id="result-icon">💀</div>
+      <h2 style="margin:0 0 4px;" id="result-title">BẠN ĐÃ GÃY THÁP!</h2>
+      <p style="color:var(--mut); margin:0 0 20px;" id="result-reason"></p>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+        <div style="background:var(--ln); padding:16px; border-radius:12px;">
+          <div style="font-size:0.8rem; color:var(--mut); font-weight:600;">Tầng đạt được</div>
+          <div style="font-size:2rem; font-weight:900; color:var(--ac);" id="final-floor">0</div>
+        </div>
+        <div style="background:var(--ln); padding:16px; border-radius:12px;">
+          <div style="font-size:0.8rem; color:var(--mut); font-weight:600;">Thời gian</div>
+          <div style="font-size:1.5rem; font-weight:800; color:var(--fg); margin-top:4px;" id="final-time">00:00</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button id="btn-retry" style="flex:1;">Chơi Lại</button>
+        <button class="g" id="btn-home" style="flex:1;">Về trang chính</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 16px; display:flex; align-items:center; gap:8px;">🏆 Bảng Xếp Hạng Tháp</h3>
+      <div id="leaderboard-container">
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Màn hình phạt Anti-Cheat -->
+<div id="cheat-overlay">
+  <div>
+    <h1>🚫 BOT DETECTED</h1>
+    <div class="glitch-text">HỆ THỐNG PHÁT HIỆN HÀNH VI TỰ ĐỘNG</div>
+    <div class="evidence" id="cheat-evidence"></div>
+    <div class="glitch-text">Ván chơi bị hủy. Điểm không được lưu.</div>
+    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.reload()">Quay lại</button>
+  </div>
+</div>
+
+<!-- Màn hình Ban -->
+<div id="ban-overlay">
+  <div>
+    <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
+    <div class="glitch-text" id="ban-reason"></div>
+    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.reload()">Tải lại trang</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, get, serverTimestamp, query, orderByChild, limitToLast, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
+  authDomain: "nightshift-51ded.firebaseapp.com",
+  databaseURL: "https://nightshift-51ded-default-rtdb.firebaseio.com",
+  projectId: "nightshift-51ded",
+  storageBucket: "nightshift-51ded.firebasestorage.app",
+  messagingSenderId: "1239554748",
+  appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const TOWER_NODE = "tower";
+
+/* ================= FULL DỮ LIỆU CÂU HỎI 4 MÔN ================= */
+const Q_TINHOC = [
+["Thiết bị nào sau đây có gắn bộ xử lí thông tin?",["Bình đựng nước thông thường.","Ghế nhựa thông thường.","Máy giặt tự động hoạt động theo chương trình.","Ổ khóa cơ dùng chìa."],[2]],
+["Khả năng nào sau đây là của máy tính?",["Xử lí lượng lớn dữ liệu nhanh theo chương trình.","Mọi thông tin trên Internet đều đúng.","Tự quyết định mọi việc mà không cần dữ liệu.","Luôn hiểu đầy đủ cảm xúc của con người."],[0]],
+["Hệ thống tưới tự động dùng cảm biến độ ẩm đất để điều khiển máy bơm. Bộ xử lí có vai trò nào?",["Thay thế nguồn điện cung cấp cho máy bơm.","Chỉ làm giá đỡ cho cảm biến độ ẩm.","Chỉ dẫn nước từ bể đến gốc cây.","Xử lí dữ liệu độ ẩm để điều khiển tưới theo chương trình."],[3]],
+["Nhóm học sinh ở các địa điểm khác nhau cùng chỉnh sửa một tài liệu trực tuyến. Ví dụ này thể hiện tác động nào của công nghệ thông tin?",["Loại bỏ hoàn toàn nhu cầu làm việc nhóm.","Hỗ trợ trao đổi và hợp tác học tập từ xa.","Mọi nội dung trong tài liệu đều chính xác.","Làm cho việc trao đổi thông tin luôn chậm hơn."],[1]],
+["Nhóm tiêu chí nào dùng để đánh giá chất lượng thông tin?",["Màu sắc, cỡ chữ, số hình ảnh, độ dài bài viết.","Lượt thích, lượt chia sẻ, lượt xem, số bình luận.","Tốc độ tải, dung lượng tệp, kiểu chữ, tên tệp.","Tính mới, tính chính xác, tính đầy đủ, tính sử dụng được."],[3]],
+["Tiêu chí nào thể hiện mức độ cập nhật của thông tin?",["Tính mới.","Tính chính xác.","Tính sử dụng được.","Tính đầy đủ."],[0]],
+["Để tìm hiểu tuyển sinh năm học 2026–2027, Nam chỉ đọc thông báo năm học 2022–2023. Tiêu chí nào cần kiểm tra trước tiên?",["Tính chính xác.","Tính mới.","Tính đầy đủ.","Tính sử dụng được."],[1]],
+["Một thông báo tuyển sinh đúng năm học và đúng trường nhưng thiếu thời hạn, cách thức nộp hồ sơ. Hạn chế nổi bật là gì?",["Thông tin không thể đọc được.","Thông tin chắc chắn sai hoàn toàn.","Thông tin chưa đầy đủ.","Thông tin không có tính mới."],[2]],
+["Lan cần tìm thông báo tuyển sinh lớp 10 của Trường THPT X cho năm học 2026–2027. Từ khóa nào phù hợp nhất?",["Tuyển sinh lớp 10 Trường THPT X năm học 2026–2027.","Tuyển sinh lớp 10 Trường THPT X năm học 2022–2023.","Trường học và hoạt động học sinh.","Tuyển sinh đại học Trường X năm 2026."],[0]],
+["Sau khi tìm được thông tin phục vụ chọn trường, cách lưu nào thuận tiện nhất cho việc đánh giá và đối chiếu sau đó?",["Chỉ ghi số lượt thích của bài đăng.","Chỉ nhớ nội dung, không lưu nguồn.","Ghi nội dung cần dùng, tên nguồn, địa chỉ trang web và ngày đăng hoặc cập nhật.","Chỉ lưu một ảnh đã cắt bỏ tên nguồn và thời gian."],[2]],
+["Tác động tiêu cực nào của công nghệ kĩ thuật số liên quan đến môi trường?",["Giúp điều khiển tưới cây tự động.","Làm phát sinh rác thải điện tử khi thiết bị bị thải bỏ.","Giúp trao đổi tài liệu nhanh.","Hỗ trợ học sinh học trực tuyến."],[1]],
+["Hành vi nào xâm phạm quyền riêng tư của người khác?",["Giữ kín thông tin tài khoản của mình.","Gỡ ảnh của bạn khi bạn yêu cầu.","Hỏi ý kiến bạn trước khi đăng ảnh chung.","Công khai địa chỉ, số điện thoại của bạn khi chưa được phép."],[3]],
+["Hành vi nào thể hiện sự tôn trọng quyền sở hữu trí tuệ?",["Gỡ tên tác giả rồi nhận sản phẩm của họ là của mình.","Sao chép toàn bộ bài của bạn để nộp dưới tên mình.","Sử dụng sản phẩm số theo sự cho phép hoặc điều kiện sử dụng của chủ sở hữu.","Chia sẻ phần mềm bị bẻ khóa cho cả lớp."],[2]],
+["Hành vi nào sau đây gây mất an toàn thông tin trong môi trường số?",["Tạo liên kết giả mạo để lấy mật khẩu của người khác.","Cài đặt phần mềm từ nguồn tin cậy.","Không cung cấp mã xác thực cho người lạ.","Báo người lớn khi gặp liên kết đáng ngờ."],[0]],
+["KOL là thuật ngữ viết tắt của Key Opinion Leader có nghĩa là người dẫn dắt dư luận chủ chốt hay người có ảnh hưởng. Khi em thấy một KOL quảng cáo sản phẩm trên mạng, em sẽ ứng xử thế nào?",["Chia sẻ thông tin với người thân vì KOL là một nguồn tin đáng tin cậy.","Sử dụng sản phẩm vì KOL là một đảm bảo cho sản phẩm đã qua kiểm định.","Cân nhắc, đánh giá chất lượng thông tin trước khi sử dụng sản phẩm.","Không sử dụng và cảnh báo người thân về nguồn tin kém chất lượng."],[2]],
+["Phương án nào sau đây không phải là tác động tiêu cực của công nghệ kĩ thuật số đến đời sống con người?",["Nhờ trí tuệ nhân tạo làm bài tập về nhà.","Truy cập mạng xã hội trong nhiều giờ.","Thường xuyên sử dụng phần mềm soạn thảo văn bản để làm báo cáo.","Vừa ăn vừa xem video trên trang YouTube."],[2]],
+["Những phương án nào sau đây là tác động tiêu cực của công nghệ kĩ thuật số đến xã hội?",["Thông tin cá nhân của con người được số hoá.","Sử dụng thiết bị số liên tục trong thời gian dài ảnh hưởng đến sức khoẻ thể chất và tinh thần của lớp trẻ.","Gia tăng ô nhiễm môi trường.","Làm gia tăng tỉ lệ thất nghiệp."],[1,2,3]],
+["Hành vi nào sau đây khi hoạt động trong môi trường số không vi phạm pháp luật, trái đạo đức, thiếu văn hoá?",["Đăng bài hoặc bình luận gây mâu thuẫn vùng miền.","Quảng cáo bán hàng hoá, dịch vụ bị cấm.","Sử dụng trái phép tài khoản mạng của tổ chức, cá nhân khác.","Chia sẻ thông tin về lớp học ngôn ngữ lập trình trực tuyến."],[3]],
+["Em hãy cho biết những cách nào sau đây giúp em tránh được các tác động tiêu cực khi sử dụng công nghệ kĩ thuật số.",["Không sử dụng thiết bị số trong thời gian dài và liên tục.","Không xem các video phản cảm.","Giảm thời gian dùng điện thoại để nói chuyện với gia đình.","Tham gia luyện tập thể dục thể thao."],[0,1,2,3]]
+];
+
+const Q_GDCD = [
+["Sống có lí tưởng là",["xác định được mục đích cao đẹp và có kế hoạch hành động, quyết tâm phấn đấu để đạt được mục đích đó nhằm đóng góp cho lợi ích cộng đồng, quốc gia, nhân loại.","xác định được mục đích cao đẹp và phấn đấu để đạt được mục đích đó nhằm đóng góp cho cộng đồng, quốc gia, nhân loại.","xác định được mục đích, kế hoạch hành động của bản thân và phấn đấu để đạt được mục đích đó nhằm đóng góp cho cộng đồng, quốc gia, nhân loại.","xác định được mục đích cao đẹp, kế hoạch hành động của bản thân nhằm đóng góp cho cộng đồng, quốc gia, nhân loại."],[0]],
+["Biểu hiện sống thiếu lí tưởng của thanh niên hiện nay là",["vượt khó trong học tập.","đấu tranh chống các hiện tượng tiêu cực trong xã hội.","năng động, sáng tạo trong công việc.","sống ỷ lại, thực dụng."],[3]],
+["Biểu hiện của người sống có lí tưởng là",["luôn khắc phục khó khăn để vươn lên trong cuộc sống.","luôn nản chí khi gặp khó, sợ ảnh hưởng đến bản thân.","luôn chạy theo những cám dỗ của cuộc sống.","luôn chạy theo những xu hướng trên mạng xã hội."],[0]],
+["Biểu hiện sống có lí tưởng của thanh niên hiện này là",["sống không có hoài bão và ước mơ.","sống thờ ơ với mọi người.","vận dụng kiến thức đã học vào thực tiễn cuộc sống.","sống vì tiền tài danh vọng."],[2]],
+["Người biết tha thứ cho chính mình và người khác là biểu hiện của:",["Khiêm tốn","Khoan dung","Giản dị","Trung thực"],[1]],
+["Biểu hiện nào sau đây thể hiện người có lòng khoan dung?",["Phê phán tất cả những người mắc lỗi lầm.","Ích kỉ, hẹp hòi với người mình không thích.","Chấp nhận cá tính, sở thích của người khác.","Không bỏ qua lỗi lầm của người khác."],[2]],
+["Loại hoạt động cộng đồng nào tập trung vào việc cải thiện môi trường?",["Hoạt động xã hội.","Hoạt động bảo vệ môi trường.","Hoạt động văn hóa.","Hoạt động quyên góp tiền để hỗ trợ trẻ em có hoàn cảnh khó khăn."],[1]],
+["Hoạt động cộng đồng nào được thực hiện thường xuyên ở trường, lớp?",["Phong trào viếng nghĩa trang liệt sỹ.","Hiến máu nhân đạo.","Phong trào xây nhà tình thương.","Hỗ trợ học sinh có hoàn cảnh khó khăn."],[3]],
+["Ý nào sau đây là đúng khi nói về ý nghĩa của sống có lí tưởng?",["Luôn được mọi người tôn trọng và thành công trong cuộc sống.","Luôn được mọi người hâm mộ và thành người nổi tiếng.","Luôn có nhiều tiền bạc và nổi tiếng.","Luôn giàu có về tâm hồn và tiền bạc."],[0]],
+["Sống có lí tưởng sẽ mang lại ý nghĩa gì cho đất nước?",["Giúp mỗi người có động lực để phấn đấu cho mục tiêu cá nhân.","Góp phần xây dựng đất nước ngày càng giàu mạnh.","Trở thành người có bản lĩnh và năng lực.","Được xã hội công nhận và tôn trọng."],[1]],
+["Lòng khoan dung có thể giúp giảm thiểu:",["Sự xung đột và căng thẳng.","Sự đa dạng.","Sự hiểu biết.","Sự giao tiếp."],[0]],
+["Lòng khoan dung giúp ích gì trong giao tiếp?",["Tạo ra sự tranh cãi và xung đột.","Tăng cường sự tự tin.","Tạo ra sự hiểu biết và tôn trọng.","Bảo vệ ý kiến cá nhân."],[2]],
+["Tại sao cần tích cực tổ chức hoạt động cộng đồng?",["Để tăng cường sự đoàn kết và cùng nhau xây dựng đất nước giàu mạnh.","Chỉ để giữ gìn truyền thống văn hóa dân tộc.","Mang lại lợi ích gì đó cho cá nhân hoặc người thân.","Để tạo lợi nhuận cho cá nhân."],[0]],
+["Ý nghĩa của các hoạt động cộng đồng đối với cộng đồng là gì?",["Nâng cao được giá trị của bản thân.","Xây dựng đất nước văn minh, giàu mạnh.","Rèn luyện các phẩm chất như chăm chỉ, có trách nhiệm.","Hình thành và phát triển các năng lực về kĩ năng sống, trưởng thành và trách nhiệm."],[3]],
+["Câu thành ngữ nào sau đây thể hiện người sống có lí tưởng?",["Thắng không kiêu, bại không nản.","Dễ làm, khó bỏ.","Nước đến chân mới nhảy.","Thân ai người đó lo."],[0]],
+["Điền vào chỗ chấm: \"Khoan dung là một ... tốt đẹp của dân tộc Việt Nam.\"",["biểu hiện","truyền thống","nét đẹp","yếu tố"],[1]],
+["Câu ca dao tục ngữ: \"Chín bỏ làm mười\" nói về điều gì ?",["Lòng khoan dung.","Lòng trung thành.","Tinh thần đoàn kết.","Lòng biết ơn."],[0]],
+["Mục tiêu chính của hoạt động cộng đồng là gì?",["Cải thiện chất lượng cuộc sống.","Nâng cao danh tiếng cá nhân.","Kiếm lợi nhuận từ các hoạt động mua bán.","Có tiếng nói trong tổ chức cộng đồng."],[0]],
+["Hãy bày tỏ quan điểm của em với ý kiến sau: \"Khi có nhiều cá nhân tham gia vào một hoạt động chung thì đó là hoạt động cộng đồng\".",["Đồng ý, vì nhiều người tham gia sẽ mang lại nhiều giá trị cho xã hội.","Đồng ý, vì hoạt động cộng đồng là hoạt động tập thể.","Không đồng ý, vì hoạt động đó còn phải mang những lợi ích thiết thực cho xã hội.","Không đồng ý, vì hoạt động cộng đồng còn được tổ chức bởi cá nhân."],[3]],
+["Bà Q là thành viên của hội Khuyến học, Hội Người cao tuổi và rất tích cực tham gia các hoạt động địa phương. Thấy bà tham gia như vậy, con cháu đã khuyên ngăn. Em có nhận xét gì về trường hợp này?",["Khuyên bà nên dành thời gian nghỉ dưỡng, bên cạnh con cháu.","Để bà Q làm gì tùy thích, không nên nhắc nhở quan tâm.","Ủng hộ bà Q, vì đó là trách nhiệm và niềm vui của bà.","Đồng ý với ý kiến của con cháu, vì bà đã có tuổi, không cần phải tham gia nhiều."],[2]]
+];
+
+const Q_DIALI = [
+["Các dân tộc thiểu số ở Việt Nam sinh sống chủ yếu ở",["đồng bằng châu thổ","vùng đồi núi và cao nguyên","vùng ven biển","các đô thị lớn"],[1]],
+["Người Kinh (Việt) ở nước ta sinh sống chủ yếu ở khu vực nào?",["Vùng núi cao phía Bắc","Vùng cao nguyên Tây Nguyên","Đồng bằng, ven biển và trung du","Vùng biên giới"],[2]],
+["Các dân tộc Tày, Thái, Dao sinh sống chủ yếu ở khu vực nào của nước ta?",["Trung du và miền núi phía Bắc","Tây Nguyên","Đồng bằng sông Cửu Long","Duyên hải Nam Trung Bộ"],[0]],
+["Các dân tộc thiểu số như Gia-rai, Ê-đê, Ba-na phân bố tập trung ở vùng nào?",["Trung du và miền núi phía Bắc","Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Duyên hải Nam Trung Bộ và Tây Nguyên"],[3]],
+["Cơ cấu dân số theo nhóm tuổi ở nước ta hiện nay đang chuyển dịch theo hướng nào?",["Tỉ lệ nhóm 0–14 tuổi tăng, tỉ lệ nhóm từ 65 tuổi trở lên giảm","Tỉ lệ nhóm 0–14 tuổi giảm, tỉ lệ nhóm từ 65 tuổi trở lên tăng","Tỉ lệ cả hai nhóm tuổi đều tăng","Tỉ lệ cả hai nhóm tuổi đều giảm"],[1]],
+["Việc nước ta bước vào thời kì \"cơ cấu dân số vàng\" mang lại cơ hội chủ yếu nào?",["Nguồn lao động dồi dào, giảm gánh nặng chi phí cho người phụ thuộc","Tỉ lệ người già tăng nhanh","Gánh nặng phụ thuộc tăng lên","Nguồn lao động thiếu hụt"],[0]],
+["Đặc điểm nào sau đây đúng với quần cư thành thị ở nước ta?",["Dân cư thưa thớt, sống phân tán","Hoạt động kinh tế chủ yếu là nông nghiệp","Dân cư tập trung mật độ cao, hoạt động kinh tế chủ yếu là công nghiệp, dịch vụ","Nhà ở chủ yếu là nhà sàn"],[2]],
+["Tỉ lệ gia tăng tự nhiên của dân số nước ta có xu hướng giảm chủ yếu là do",["chiến tranh kéo dài","thiên tai xảy ra thường xuyên","di dân ra nước ngoài tăng","thực hiện tốt chính sách dân số, kế hoạch hóa gia đình và nâng cao chất lượng cuộc sống"],[3]],
+["Sự khác biệt cơ bản giữa quần cư thành thị và quần cư nông thôn ở nước ta thể hiện chủ yếu ở",["màu da của người dân","mật độ dân số, chức năng kinh tế và cấu trúc quần cư","ngôn ngữ sử dụng","phong tục tập quán"],[1]],
+["Tình hình gia tăng dân số ở nước ta hiện nay có đặc điểm là",["tỉ lệ gia tăng tự nhiên đã giảm đáng kể nhưng quy mô dân số vẫn tiếp tục tăng","tỉ lệ gia tăng tự nhiên tăng nhanh, quy mô dân số giảm","cả tỉ lệ gia tăng tự nhiên và quy mô dân số đều giảm mạnh","dân số không thay đổi qua các năm"],[0]],
+["Ở nước ta, tình trạng thiếu việc làm diễn ra gay gắt nhất ở khu vực nào?",["Thành thị","Miền núi","Ven biển","Nông thôn"],[3]],
+["Hạn chế lớn nhất của nguồn lao động nước ta hiện nay là",["thiếu kinh nghiệm sản xuất nông nghiệp","số lượng lao động ít","tỉ lệ lao động đã qua đào tạo còn thấp, thiếu lao động tay nghề cao","lao động không cần cù"],[2]],
+["Sự chuyển dịch cơ cấu lao động theo thành phần kinh tế ở nước ta diễn ra theo hướng nào?",["Tăng tỉ trọng lao động khu vực Nhà nước và ngoài Nhà nước, giảm khu vực có vốn đầu tư nước ngoài","Giảm tỉ trọng lao động ở khu vực Nhà nước và ngoài Nhà nước, tăng khu vực có vốn đầu tư nước ngoài","Chỉ tăng tỉ trọng lao động khu vực Nhà nước","Tỉ trọng các khu vực không thay đổi"],[1]],
+["Giải pháp quan trọng nhất để giải quyết vấn đề việc làm ở nước ta hiện nay là",["đa dạng hóa ngành nghề, đẩy mạnh đào tạo nghề và chuyển dịch cơ cấu kinh tế","hạn chế phát triển công nghiệp","giảm đầu tư nước ngoài","chỉ tập trung phát triển nông nghiệp"],[0]],
+["Thế mạnh nổi bật của nguồn lao động nước ta là",["có trình độ chuyên môn cao hoàn toàn","số lượng ít nhưng chất lượng cao","chủ yếu làm việc trong ngành công nghệ cao","dồi dào, cần cù, tỉ lệ lao động qua đào tạo ngày càng được nâng cao"],[3]],
+["Cơ cấu sử dụng nguồn lao động theo ngành kinh tế ở nước ta đang chuyển dịch theo hướng nào?",["Tăng tỉ trọng lao động nông, lâm, thủy sản; giảm công nghiệp và xây dựng","Giữ nguyên tỉ trọng các ngành","Giảm tỉ trọng lao động nông, lâm, thủy sản; tăng tỉ trọng công nghiệp và xây dựng, dịch vụ","Giảm tỉ trọng lao động dịch vụ"],[2]],
+["Hai vùng trồng lúa trọng điểm lớn nhất nước ta là",["Trung du và miền núi phía Bắc và Tây Nguyên","Đồng bằng sông Hồng và Đồng bằng sông Cửu Long","Bắc Trung Bộ và Duyên hải Nam Trung Bộ","Đông Nam Bộ và Tây Nguyên"],[1]],
+["Các cây công nghiệp lâu năm như cà phê, cao su, hồ tiêu ở nước ta được trồng tập trung nhiều nhất ở",["Tây Nguyên và Đông Nam Bộ","Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Trung du và miền núi phía Bắc"],[0]],
+["Đàn trâu, bò ở nước ta được nuôi chủ yếu ở vùng nào?",["Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Đông Nam Bộ","Trung du và miền núi phía Bắc, Bắc Trung Bộ, Duyên hải Nam Trung Bộ và Tây Nguyên"],[3]],
+["Vùng có sản lượng nuôi trồng thủy sản lớn nhất cả nước là",["Đồng bằng sông Hồng","Duyên hải Nam Trung Bộ","Đồng bằng sông Cửu Long","Bắc Trung Bộ"],[2]],
+["Ngành lâm nghiệp ở nước ta gồm hai hoạt động chính là",["trồng rừng, khoanh nuôi và bảo vệ rừng; khai thác, chế biến lâm sản","đánh bắt và nuôi trồng thủy sản","trồng trọt và chăn nuôi","khai thác khoáng sản và sản xuất điện"],[0]],
+["Vùng dẫn đầu cả nước về diện tích, sản lượng lúa và sản lượng thủy sản nuôi trồng là",["Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Đông Nam Bộ","Bắc Trung Bộ"],[1]],
+["Hoạt động nuôi trồng thủy sản nước lợ và nước mặn (tôm, cua, hải sản) phát triển mạnh nhất ở vùng nào?",["Trung du và miền núi phía Bắc","Tây Nguyên","Đồng bằng sông Cửu Long và Duyên hải Nam Trung Bộ","Đồng bằng sông Hồng"],[2]],
+["Việc bảo vệ và trồng rừng phòng hộ ở nước ta có tác dụng quan trọng nhất là",["cung cấp gỗ cho xuất khẩu","cung cấp nguyên liệu cho công nghiệp giấy","phát triển du lịch sinh thái","chắn gió cát, chống xói mòn, hạn chế lũ lụt và bảo vệ nguồn nước"],[3]],
+["Các nhà máy thủy điện lớn nhất nước ta (Hòa Bình, Sơn La, Lai Châu) tập trung ở vùng nào?",["Trung du và miền núi phía Bắc","Đồng bằng sông Cửu Long","Đông Nam Bộ","Duyên hải Nam Trung Bộ"],[0]],
+["Các trung tâm công nghiệp chế biến lương thực, thực phẩm lớn nhất nước ta phát triển mạnh ở đâu?",["Vùng núi cao","Các đô thị lớn","Vùng hải đảo","Vùng biên giới"],[1]],
+["Ngành công nghiệp khai thác dầu khí ở nước ta phân bố tập trung chủ yếu ở",["vùng núi Tây Bắc","đồng bằng sông Hồng","vùng biển Đông Nam Bộ","vùng ven biển Bắc Trung Bộ"],[2]],
+["Các trung tâm dệt và sản xuất trang phục; sản xuất giày, dép của cả nước là",["Cần Thơ, Huế, Vinh, Quy Nhơn","Thái Nguyên, Lạng Sơn, Cao Bằng, Sơn La","Buôn Ma Thuột, Plei Ku, Đà Lạt, Kon Tum","Thành phố Hồ Chí Minh, Hà Nội, Đà Nẵng, Nam Định"],[3]],
+["Điều kiện khí hậu thuận lợi nào giúp nước ta phát triển điện Mặt Trời, điện gió?",["Số giờ nắng cao, lượng bức xạ lớn, gió quanh năm","Lượng mưa lớn, độ ẩm cao","Nhiệt độ thấp quanh năm","Có mùa đông lạnh kéo dài"],[0]],
+["Người Kinh chiếm tỉ lệ bao nhiêu phần trăm trong tổng số dân của nước ta?",["54%","85%","70%","95%"],[1]]
+];
+
+const P_LONDON = "London is Britain's biggest city. It is a very old city and dates to the Romans. It is a city of historic buildings and churches, and it has many beautiful parks. It also has some of the (1) _______ museums in the world. London is very crowded (2) _______ summer. It is a popular city with foreign tourists and has more than eight million (3) _______ a year. The city is (4) _______ for its shopping and department stores. London has an excellent underground railway system, so it is easy for tourists to (5) _______.";
+const P_HALONG = "Hạ Long Bay (Descending Dragon) is popular with both Vietnamese and international (1) _______. One of the attractions of Hạ Long is the bay's calm water with limestone mountains. The bay's water is (2) _______ during the spring and early summer. Upon arriving in Hạ Long City, visitors can (3) _______ Bãi Cháy Beach. From the beach, they can hire a boat and go out to the bay. It is heard that visitors can find some of Southeast Asia's most beautiful sites. Dấu Gỗ Cave is one of the (4) _______ beautiful caves at Hạ Long. It was the cave in which General Trần Hưng Đạo hid wooden stakes to beat the Mongols on Bạch Đằng (5) _______ in 1288.";
+const P_QUATDONG = "There are many existing villages in Việt Nam, but Quất Động Village in Hà Nội is widely known for its products of high quality. Embroidery has been developing around here since the seventeenth century. In the past, local skilled artisans were chosen to make sophisticated, embroidered costumes for the Vietnamese King, Queen and other Royal family members. The first man who taught the local people how to embroider was Dr. Lê Công Hành, who lived during the Le Dynasty. He learned how to embroider while on a trip to China as an envoy and taught the villagers of Quất Động upon his return. Although these skills eventually spread across the country, the Quất Động artisans' creations are still the most appreciated. To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands. Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries.";
+const P_DONGHO = "Đông Hồ Folk Painting Village is the place that will surprise many art lovers. As its name suggests, the main product of the village is impressive folk paintings. The village is quite small and there are no more than two hundred households here. Villagers get their main income from making paintings. Looking at their products, you will surely get a deeper insight into the beauty of Vietnam as well as the traditional customs and Vietnamese festivals. These paintings used to be precious decorations during the Tết holiday. Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees). There are 5 main colors used in paintings, including green, red, yellow, black and indigo. They are mostly created from natural materials like bricks, flowers, straw, and different trees, ...";
+
+const ENGLISH_SECTIONS = [
+{ title: "II. READING – A. London", passage: P_LONDON, questions: [
+["Question 1: Choose the best word for blank (1).", ["good","well","better","best"], [3]],
+["Question 2: Choose the best word for blank (2).", ["on","in","at","for"], [1]],
+["Question 3: Choose the best word for blank (3).", ["visitors","villagers","artisans","workers"], [0]],
+["Question 4: Choose the best word for blank (4).", ["good","amazing","well-known","interesting"], [2]],
+["Question 5: Choose the best word for blank (5).", ["go out","take care of","hand down","get around"], [3]]
+]},
+{ title: "II. READING – A. Hạ Long Bay", passage: P_HALONG, questions: [
+["Question 1: Choose the best word for blank (1).", ["tourists","leaders","famous people","festival goers"], [0]],
+["Question 2: Choose the best word for blank (2).", ["blue","white","clear","liquid"], [2]],
+["Question 3: Choose the best word for blank (3).", ["go along","hand down","go out","come back"], [0]],
+["Question 4: Choose the best word for blank (4).", ["more","best","most","better"], [2]],
+["Question 5: Choose the best word for blank (5).", ["Mountain","Village","Cave","River"], [3]]
+]},
+{ title: "II. READING – B. Quất Động Village", passage: P_QUATDONG, questions: [
+["Question 1: What is the main topic of the passage?", ["The history and development of embroidery in Quất Động Village","The life of Vietnamese kings and queens","How to travel to Quất Động Village","The history of villages in Việt Nam"], [0]],
+["Question 2: When did embroidery begin developing in Quất Động village?", ["In the 15th century","In the 16th century","In the 17th century","In the 18th century"], [2]],
+["Question 3: The word \"He\" refers to _______.", ["the Vietnamese King","Dr. Lê Công Hành","a local artisan","a member of the Royal family"], [1]],
+["Question 4: Answer in full:<br><b>What qualities must an artisan have to create beautiful embroideries?</b>", ["patient","careful","design","clever hands"], "keys", "To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands."],
+["Question 5: Answer in full:<br><b>What products are made in Quất Động Village nowadays?</b>", ["clothes","bags","pillowcases","paintings","decorations"], "keys", "Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries."]
+]},
+{ title: "II. READING – B. Đông Hồ Folk Painting Village", passage: P_DONGHO, questions: [
+["Question 1: What is the main topic of the passage?", ["The history of Vietnamese festivals","Đông Hồ Folk Painting Village and its traditional paintings","The life of people in Vietnamese villages","Different types of paper in Việt Nam"], [1]],
+["Question 2: How many households are there in Đông Hồ Village?", ["More than 100 households","Exactly 200 households","No more than 200 households","About 500 households"], [2]],
+["Question 3: The word \"their\" in the passage refers to _______.", ["paintings'","villagers'","the main colors'","products'"], [1]],
+["Question 4: Answer in full:<br><b>Why are Đông Hồ Paintings so unique?</b>", ["poonah","paper"], "keys", "Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees)."],
+["Question 5: Answer in full:<br><b>What are the main colors used in Đông Hồ Paintings mostly created from?</b>", ["natural","bricks","flowers","straw","trees"], "keys", "They are mostly created from natural materials like bricks, flowers, straw, and different trees, ..."]
+]},
+{ title: "III. LANGUAGE FOCUS – A. Pronunciation", questions: [
+["Choose the word whose underlined part differs from the others. (1) house / mouse / country / about", ["house","mouse","country","about"], [2]],
+["Choose the word whose underlined part differs from the others. (2) walk / talk / calm / water", ["walk","talk","calm","water"], [2]]
+]},
+{ title: "III. LANGUAGE FOCUS – B. Word Stress", questions: [
+["Choose the word that differs from the other three in the position of stress. (1)", ["suburb","neighbor","useful","remind"], [3]],
+["Choose the word that differs from the other three in the position of stress. (2)", ["traffic","protect","plumber","lifeguard"], [1]]
+]},
+{ title: "III. LANGUAGE FOCUS – C. Multiple Choice", questions: [
+["My hometown is _______ for handicrafts, such as paper fans and lanterns.", ["famously","famous","fame","infamous"], [1]],
+["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.", ["handicrafts","festivals","dishes","costumes"], [0]],
+["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"", ["That would be great!","Sure","Here you are.","Yes, I am"], [1]],
+["– Ann: \"Do you mind if I borrow your pencil?\" – Lisa: \"_______\"", ["Not at all","Yes, I do","I'm sorry","Yes, I would"], [0]],
+["In their community, the eldest child is usually _______ for his or her parents.", ["responsibility","responsibly","responsible","irresponsible"], [2]],
+["Our _______ help keep law and order in our community.", ["artisans","police officers","craftsmen","electricians"], [1]],
+["– Tom: \"I can show you how to open this smart door if you want.\" – Anna: \"_______\"", ["That would be great, thanks!","So do I","The card? Why's that?","I don't think so."], [0]],
+["– Tim: \"Thanks a lot for lending me an interesting book.\" – Mary: \"_______\"", ["Sure, here you are.","You're welcome.","The book? OK.","OK, I'll think about that."], [1]]
+]},
+{ title: "IV. WRITING – A. Find the error", questions: [
+["The more carefully students listen, the good they understand the lesson.", ["carefully","good","understand","lesson"], [1]],
+["Can you decide where to start the project: on Monday or on Tuesday?", ["decide","where","on Monday","on Tuesday"], [1]],
+["The more trees we plant, the more green the environment will become.", ["more trees","plant","more green","will become"], [2]],
+["Do you know who to choose for the school competition: a song or a dance?", ["know","who","for","a song or a dance"], [1]]
+]},
+{ title: "IV. WRITING – B. Sentence Arrangement", questions: [
+[`Arrange the sentences to make a meaningful letter:<br>Dear Lan,<br>a. We can discuss our ideas for the science project and divide the tasks together.<br>b. I'm writing to invite you to a group meeting this Saturday afternoon.<br>c. Please let me know if you can come.<br>d. Sorry I haven't contacted you for a few days because I was busy preparing for exams.<br>e. The meeting will start at 2 p.m. at my house.<br>Best wishes!`, ["b - e - d - a - c","b - d - e - a - c","d - a - b - e - c","d - b - e - a - c"], [3]],
+[`Arrange the sentences to make a meaningful paragraph:<br>a. Finally, it makes our planet a better place to live for future generations.<br>b. Moreover, by saving the environment, we are protecting our ecosystem and other natural resources.<br>c. Firstly, when we protect the environment, we are saving ourselves from the problems that will arise in the future. Also, the effects of climate change can also be reduced greatly.<br>d. It is important to save the environment for the survival of the planet and the living beings in it.<br>e. In conclusion, it is vital to preserve and protect life on Earth.`, ["d - c - b - e - a","d - c - b - a - e","d - b - c - e - a","d - c - e - b - a"], [1]],
+[`Arrange the sentences to make a meaningful letter:<br>Dear Anna,<br>a. We are going to prepare some traditional dishes and enjoy music together.<br>b. Please reply soon and tell me if you can join us. I'm looking forward to seeing you!<br>c. I'm very happy to invite you to our school camping trip next Sunday at Green Park.<br>d. Besides outdoor games, we will also have a talent show in the evening.<br>e. Don't forget to bring a hat and some comfortable clothes for outdoor activities.<br>Best,<br>Linda`, ["a - e - c - d - b","b - d - a - e - c","c - d - e - b - a","c - a - d - e - b"], [3]],
+[`Arrange the sentences to make a meaningful paragraph:<br>a. Furthermore, online learning allows students to access lessons and materials anytime and anywhere with an Internet connection.<br>b. In short, online learning offers many advantages and has become an important part of modern education.<br>c. Online learning is becoming increasingly popular among students around the world.<br>d. First of all, it provides flexibility, helping learners study at their own pace and manage their time effectively.<br>e. Last but not least, students can join virtual classes and interact with teachers and classmates easily through online platforms.`, ["c - d - a - e - b","d - c - a - e - b","c - a - d - e - b","c - d - e - b - a"], [0]]
+]},
+{ title: "IV. WRITING – C. Rewrite sentences", questions: [
+["Rewrite the sentence so that it has the same meaning:<br><i>Young people are discussing how they can help the poor and the elderly in their local community.</i><br>→ Young people are discussing ___", ["how to help the poor and the elderly in their local community"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me when I should hand in the assignment?</i><br>→ Could you tell me ___", ["when to hand in the assignment"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>The community is friendly. People feel happy.</i><br>→ The friendlier ___", ["the community is, the happier people feel"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>The city becomes crowded. Traffic is bad.</i><br>→ The more ___", ["crowded the city becomes, the worse the traffic is", "crowded the city becomes, the worse traffic is"], "text"],
+["Rewrite the sentence using the word in brackets:<br><i>The city government is making efforts to reduce the amount of rubbish.</i> (cut down on)<br>→ The city government ___", ["is making efforts to cut down on the amount of rubbish"], "text"],
+["Rewrite the sentence using the word in brackets:<br><i>Whenever teenagers have free time, they enjoy spending time exploring the city centre.</i> (look around)<br>→ Whenever teenagers have free time, they enjoy ___", ["looking around the city centre", "spending time looking around the city centre"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>The students are wondering how they can make their neighbourhood a better place.</i><br>→ The students are wondering ___", ["how to make their neighbourhood a better place"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me where I can buy fresh food in the local market?</i><br>→ Could you tell me ___", ["where to buy fresh food in the local market"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>The streets are busy. It is difficult to travel around the city.</i><br>→ The busier ___", ["the streets are, the more difficult it is to travel around the city"], "text"],
+["Rewrite the sentence so that it has the same meaning:<br><i>Teenagers exercise regularly. They are strong.</i><br>→ The more ___", ["regularly teenagers exercise, the stronger they are"], "text"],
+["Rewrite the sentence using the word in brackets:<br><i>People try to save water because they sometimes have no clean water left during the dry season.</i> (run out of)<br>→ People try to save water because ___", ["they sometimes run out of clean water during the dry season", "they sometimes run out of clean water in the dry season", "they sometimes run out of clean water left during the dry season", "they sometimes run out of clean water left in the dry season"], "text"],
+["Rewrite the sentence using the word in brackets:<br><i>Many traditional crafts and customs in our local community have been passed from older generations to younger ones.</i> (hand down)<br>→ Many traditional crafts and customs in our local community ___", ["have been handed down from older generations to younger ones", "have been handed down from older to younger generations"], "text"]
+]}
+];
+
+const Q_ENGLISH = [];
+const ENGLISH_QMETA = [];
+ENGLISH_SECTIONS.forEach((b, bi) => {
+  b.startIdx = Q_ENGLISH.length;
+  b.questions.forEach((q, qi) => {
+    Q_ENGLISH.push(q);
+    ENGLISH_QMETA.push({ blockIdx: bi, qIdx: qi });
+  });
+});
+
+const POOL = [
+  ...Q_TINHOC.map(q => ({ q, subject: "💻 Tin học" })),
+  ...Q_GDCD.map(q => ({ q, subject: "⚖️ GDCD" })),
+  ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" })),
+  ...Q_ENGLISH.map((q, idx) => ({ q, subject: "🇬🇧 Tiếng Anh", meta: ENGLISH_QMETA[idx] }))
+];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+/* ================= AUTH & SESSION ================= */
+const SESSION_KEY = "qp_session_v2";
+let session = null;
+
+function saveSession(s) { session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function loadSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e) { return null; } }
+function clearSession() { session = null; localStorage.removeItem(SESSION_KEY); }
+
+function normText(s) {
+  return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'lồn', 'cặc', 'cứt', 'ngu', 'khốn nạn', 'sex', 'lol', 'vl', 'vãi', 'địt'];
+function checkProfanity(str) {
+  if (!str) return false;
+  const lowerStr = String(str).toLowerCase();
+  const noAccentStr = normText(str);
+  return BAD_WORDS.some(w => noAccentStr.includes(w) || lowerStr.includes(w));
+}
+
+var _BAN_V3 = "qpb3_";
+function getBanKey(name) { return _BAN_V3 + "ban_" + normText(name || "").replace(/\s+/g, "_"); }
+function getViolationKey(name) { return _BAN_V3 + "vio_" + normText(name || "").replace(/\s+/g, "_"); }
+function checkBanStatus(name) { try { return localStorage.getItem(getBanKey(name)) === "1"; } catch(e) { return false; } }
+function recordViolation(name) {
+  try {
+    var vk = getViolationKey(name);
+    var c = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
+    localStorage.setItem(vk, String(c));
+    localStorage.setItem(getBanKey(name), "1");
+  } catch(e) {}
+}
+
+function showBanScreen(name, reason = "Vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.") {
+  document.getElementById("ban-reason").innerHTML = `Bạn đã vi phạm: <br><b style="color:var(--bad)">${reason}</b><br><br>Tài khoản <b>"${name}"</b> đã bị chặn.`;
+  document.getElementById("ban-overlay").classList.add("active");
+}
+
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function keyOf(u) { return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_"); }
+
+/* ================= AUTH UI ================= */
+let authMode = "login";
+const $ = id => document.getElementById(id);
+
+$("tabLogin").onclick = () => {
+  authMode = "login";
+  $("tabLogin").classList.add("active"); $("tabRegister").classList.remove("active");
+  $("regExtra").classList.add("hide"); $("btnAuthGo").textContent = "Đăng nhập"; $("auth-err").textContent = "";
+};
+$("tabRegister").onclick = () => {
+  authMode = "register";
+  $("tabRegister").classList.add("active"); $("tabLogin").classList.remove("active");
+  $("regExtra").classList.remove("hide"); $("btnAuthGo").textContent = "Đăng kí"; $("auth-err").textContent = "";
+};
+
+$("btnAuthGo").onclick = async () => {
+  $("auth-err").textContent = "";
+  const u = $("authUser").value.trim(), p = $("authPass").value;
+  if (!u || !p) { $("auth-err").textContent = "Vui lòng nhập đầy đủ."; return; }
+  if (p.length < 4) { $("auth-err").textContent = "Mật khẩu cần tối thiểu 4 kí tự."; return; }
+  
+  $("btnAuthGo").disabled = true;
+  $("btnAuthGo").textContent = "Đang xử lý...";
+
+  try {
+    if (authMode === "register") {
+      const name = $("authName").value.trim();
+      if (!name) throw new Error("Vui lòng nhập họ và tên.");
+      if (checkProfanity(u) || checkProfanity(name)) {
+        recordViolation(name);
+        throw new Error("🚫 Tên chứa từ ngữ không phù hợp. Tài khoản đã bị khóa.");
+      }
+      const key = keyOf(u);
+      const passHash = await sha256Hex(p);
+      const result = await runTransaction(ref(db, "accounts/" + key), function(cur) {
+        if (cur === null) return { username: u, passHash, name, cls: $("authCls").value.trim() || "", createdAt: Date.now() };
+        return; 
+      });
+      if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
+      saveSession({ key, username: u, name, cls: $("authCls").value.trim() || "" });
+    } else {
+      const key = keyOf(u);
+      const snap = await get(ref(db, "accounts/" + key));
+      if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
+      const acc = snap.val();
+      
+      if (checkProfanity(acc.name) || checkBanStatus(acc.name)) {
+        clearSession();
+        showBanScreen(acc.name, "Tài khoản đã bị khóa do vi phạm quy tắc.");
+        throw new Error("Tài khoản đã bị khóa.");
+      }
+      
+      const passHash = await sha256Hex(p);
+      if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
+      saveSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
+    }
+    enterGame();
+  } catch (e) {
+    $("auth-err").textContent = e.message;
+  }
+  $("btnAuthGo").disabled = false;
+  $("btnAuthGo").textContent = authMode === "login" ? "Đăng nhập" : "Đăng kí";
+};
+
+$("btn-logout").onclick = () => { clearSession(); location.reload(); };
+$("btn-home").onclick = () => { window.location.href = "../index.html"; };
+
+function enterGame() {
+  if (!session) return;
+  $("display-name").textContent = session.name;
+  $("display-cls").textContent = session.cls ? `(${session.cls})` : "";
+  $("auth-screen").classList.add("hide");
+  $("game-screen").classList.remove("hide");
+  startGame();
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const existing = loadSession();
+  if (existing) {
+    try {
+      const key = keyOf(existing.username);
+      const snap = await get(ref(db, "accounts/" + key));
+      if (snap.exists()) {
+        const acc = snap.val();
+        if (checkProfanity(acc.name) || checkBanStatus(acc.name)) {
+          clearSession();
+          showBanScreen(acc.name, "Tài khoản đã bị khóa.");
+          return;
+        }
+        session = existing;
+        enterGame();
+        return;
+      }
+    } catch(e) { console.warn("Auto-login check failed", e); }
+  }
+  $("auth-screen").classList.remove("hide");
+});
+
+/* ================= GAME STATE & ANTI-CHEAT ================= */
+let currentFloor = 1;
+let gameQuestions = [];
+let startTime = 0;
+let timerInterval = null;
+let isGameActive = false;
+let questionRenderTime = 0;
+let hoveredOptions = new Set();
+
+function fmtTime(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const cs = Math.floor((ms % 1000) / 10);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+}
+
+function showToast(msg, isError = false) {
+  let toast = document.getElementById("toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    toast.style.cssText = "position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--ok); color:white; padding:12px 24px; border-radius:99px; font-weight:600; box-shadow:0 8px 24px rgba(34,197,94,0.3); z-index:150; transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = isError ? "var(--bad)" : "var(--ok)";
+  toast.style.boxShadow = isError ? "0 8px 24px rgba(239,68,68,0.3)" : "0 8px 24px rgba(34,197,94,0.3)";
+  toast.style.transform = "translateX(-50%) translateY(0)";
+  setTimeout(() => {
+    toast.style.transform = "translateX(-50%) translateY(-100px)";
+  }, 3000);
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key)) || (e.ctrlKey && /^[us]$/i.test(e.key))) {
+    e.preventDefault();
+  }
+});
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("visibilitychange", () => {
+  if (isGameActive && document.hidden) {
+    triggerCheat("Phát hiện chuyển tab / ẩn cửa sổ trình duyệt.");
+  }
+});
+
+function triggerCheat(evidence) {
+  if (!isGameActive) return;
+  isGameActive = false;
+  clearInterval(timerInterval);
+  $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
+  $("cheat-overlay").classList.add("active");
+}
+
+/* ================= GAME LOGIC ================= */
+function startGame() {
+  currentFloor = 1;
+  gameQuestions = shuffle([...POOL]);
+  startTime = Date.now();
+  isGameActive = true;
+  $("result-screen").classList.add("hide");
+  $("game-screen").classList.remove("hide");
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (isGameActive) $("timer-display").textContent = fmtTime(Date.now() - startTime);
+  }, 50);
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (currentFloor > gameQuestions.length) {
+    endGame(true, "Bạn đã chinh phục toàn bộ tháp!");
+    return;
+  }
+
+  const item = gameQuestions[currentFloor - 1];
+  const q = item.q;
+  const isText = typeof q[2] === "string";
+  
+  $("floor-display").textContent = currentFloor;
+  $("q-subject").textContent = item.subject;
+  $("q-text").innerHTML = q[0];
+  
+  const container = $("options-container");
+  container.innerHTML = "";
+
+  if (item.subject === "🇬🇧 Tiếng Anh" && item.meta) {
+    const block = ENGLISH_SECTIONS[item.meta.blockIdx];
+    if (block && block.passage) {
+      const passageDiv = document.createElement("div");
+      passageDiv.className = "passage";
+      passageDiv.style.cssText = "background:rgba(255,255,255,0.05); border:1px solid var(--ln); border-radius:10px; padding:16px; margin-bottom:16px; font-size:0.95rem; line-height:1.6; font-style:italic; color:var(--mut);";
+      passageDiv.textContent = block.passage;
+      container.appendChild(passageDiv);
+    }
+  }
+
+  questionRenderTime = Date.now();
+
+  if (isText) {
+    const input = document.createElement("textarea");
+    input.className = "txt-input";
+    input.placeholder = "Nhập đáp án của bạn...";
+    input.style.cssText = "width:100%; padding:14px; border-radius:12px; border:1.5px solid var(--ln); background:rgba(255,255,255,0.05); color:var(--fg); font:inherit; min-height:80px; resize:vertical; margin-top:8px;";
+    input.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste)!", true); };
+    
+    const submitBtn = document.createElement("button");
+    submitBtn.textContent = "Nộp đáp án";
+    submitBtn.style.marginTop = "12px";
+    submitBtn.onclick = () => handleTextAnswer(input.value, q, submitBtn);
+    
+    container.appendChild(input);
+    container.appendChild(submitBtn);
+    setTimeout(() => input.focus(), 100);
+  } else {
+    hoveredOptions.clear();
+    const labels = ["A", "B", "C", "D"];
+    q[1].forEach((optText, idx) => {
+      const div = document.createElement("div");
+      div.className = "opt";
+      div.innerHTML = `<b>${labels[idx]}</b><span>${optText}</span>`;
+      div.addEventListener("pointerenter", () => {
+        if (isGameActive) hoveredOptions.add(idx);
+      });
+      div.onclick = (e) => handleAnswer(idx, q[2], div, e);
+      container.appendChild(div);
+    });
+  }
+}
+
+function handleTextAnswer(userStr, q, btnElement) {
+  if (!isGameActive) return;
+  if (!userStr || !userStr.trim()) {
+    showToast("Vui lòng nhập đáp án!", true);
+    return;
+  }
+
+  let isCorrect = false;
+  if (q[2] === "keys") {
+    const keywords = q[1];
+    const uNorm = normText(userStr);
+    isCorrect = keywords.every(k => uNorm.includes(normText(k)));
+  } else {
+    const uNorm = normText(userStr);
+    isCorrect = q[1].some(acc => {
+      const aNorm = normText(acc);
+      if (uNorm === aNorm) return true;
+      if (uNorm.length > aNorm.length && uNorm.includes(aNorm)) return true;
+      if (aNorm.length > uNorm.length && aNorm.includes(uNorm)) return true;
+      return false;
+    });
+  }
+
+  btnElement.disabled = true;
+  const allInputs = $("options-container").querySelectorAll("textarea, button");
+  allInputs.forEach(el => el.style.pointerEvents = "none");
+
+  if (isCorrect) {
+    btnElement.style.background = "var(--ok)";
+    btnElement.textContent = "Chính xác! ✓";
+    setTimeout(() => {
+      currentFloor++;
+      renderQuestion();
+    }, 500);
+  } else {
+    btnElement.style.background = "var(--bad)";
+    btnElement.textContent = "Sai rồi! ✗";
+    document.body.classList.add("shake-screen");
+    setTimeout(() => {
+      document.body.classList.remove("shake-screen");
+      endGame(false, "Bạn đã nhập sai đáp án.");
+    }, 800);
+  }
+}
+
+function handleAnswer(selectedIdx, correctIndices, element, event) {
+  if (!isGameActive) return;
+  if (!event.isTrusted) {
+    triggerCheat("Phát hiện click ảo (event.isTrusted = false). Script auto-click bị chặn.");
+    return;
+  }
+  const reactionTime = Date.now() - questionRenderTime;
+  if (reactionTime < 80) {
+    triggerCheat(`Tốc độ phản xạ: ${reactionTime}ms. Con người không thể nhìn và click nhanh hơn 80ms.`);
+    return;
+  }
+  if (reactionTime < 250 && !hoveredOptions.has(selectedIdx)) {
+    triggerCheat(`Click không có dấu vết di chuột (Hover Trace). Phản xạ: ${reactionTime}ms.`);
+    return;
+  }
+
+  const allOpts = document.querySelectorAll(".opt");
+  allOpts.forEach(el => { el.style.pointerEvents = "none"; el.style.opacity = "0.7"; });
+  element.style.opacity = "1";
+
+  const isCorrect = correctIndices.includes(selectedIdx);
+  if (isCorrect) {
+    element.classList.add("ok");
+    setTimeout(() => {
+      currentFloor++;
+      renderQuestion();
+    }, 350);
+  } else {
+    element.classList.add("bad");
+    document.body.classList.add("shake-screen");
+    setTimeout(() => {
+      document.body.classList.remove("shake-screen");
+      endGame(false, "Bạn đã chọn sai đáp án.");
+    }, 500);
+  }
+}
+
+function endGame(isWin, reason) {
+  isGameActive = false;
+  clearInterval(timerInterval);
+  const finalTime = Date.now() - startTime;
+  const score = isWin ? currentFloor - 1 : currentFloor - 1;
+
+  $("game-screen").classList.add("hide");
+  $("result-screen").classList.remove("hide");
+
+  $("result-icon").textContent = isWin ? "👑" : "💀";
+  $("result-title").textContent = isWin ? "CHIẾN THẮNG!" : "GÃY THÁP!";
+  $("result-title").style.color = isWin ? "var(--ok)" : "var(--bad)";
+  $("result-reason").textContent = reason;
+  $("final-floor").textContent = score;
+  $("final-time").textContent = fmtTime(finalTime);
+
+  saveScore(score, finalTime);
+}
+
+$("btn-retry").onclick = () => {
+  $("result-screen").classList.add("hide");
+  startGame();
+};
+
+/* ================= FIREBASE & LEADERBOARD ================= */
+async function saveScore(score, time) {
+  if (!session) return;
+  try {
+    const newRef = push(ref(db, TOWER_NODE));
+    await set(newRef, {
+      name: session.name,
+      username: session.username,
+      cls: session.cls || "",
+      score: score,
+      time: time,
+      timestamp: serverTimestamp()
+    });
+    loadLeaderboard();
+  } catch (e) {
+    console.error("Lỗi lưu điểm:", e);
+  }
+}
+
+async function loadLeaderboard() {
+  const container = $("leaderboard-container");
+  container.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+
+  try {
+    const qRef = query(ref(db, TOWER_NODE), orderByChild("timestamp"), limitToLast(100));
+    const snapshot = await get(qRef);
+    
+    if (!snapshot.exists()) {
+      container.innerHTML = '<div style="text-align:center; color:var(--mut); padding:20px;">Chưa có ai leo tháp.</div>';
+      return;
+    }
+
+    const results = [];
+    snapshot.forEach(child => results.push(child.val()));
+    const cleanResults = results.filter(r => !checkProfanity(r.name));
+
+    cleanResults.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.time - b.time;
+    });
+
+    const top20 = cleanResults.slice(0, 20);
+    container.innerHTML = "";
+
+    top20.forEach((r, index) => {
+      const row = document.createElement("div");
+      row.className = "lb-row";
+      const isMe = session && r.username === session.username;
+      if (isMe) row.classList.add("me");
+      
+      const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : (index + 1);
+      
+      row.innerHTML = `
+        <div class="lb-rk">${medal}</div>
+        <div>
+          <div class="lb-name">${escapeHtml(r.name)} ${r.cls ? '<span class="lb-sub">('+escapeHtml(r.cls)+')</span>' : ''}</div>
+          <div class="lb-time">${fmtTime(r.time)}</div>
+        </div>
+        <div class="lb-score">${r.score} tầng</div>
+      `;
+      container.appendChild(row);
+    });
+
+  } catch (e) {
+    container.innerHTML = '<div style="text-align:center; color:var(--bad); padding:20px;">Không thể tải bảng xếp hạng.</div>';
+  }
+}
+
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return String(text || "").replace(/[&<>"']/g, m => map[m]);
+}
+
+loadLeaderboard();
+</script>
+</body>
+</html>
