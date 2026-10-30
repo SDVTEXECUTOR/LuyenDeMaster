@@ -1,6 +1,6 @@
 {
   "rewrites": [
     { "source": "/Tower", "destination": "/tower.html" },
-    { "source": "/Tower_(\\d+)", "destination": "/tower.html" }
+    { "source": "/Tower_:floor(\\d+)", "destination": "/tower.html" }
   ]
 }
