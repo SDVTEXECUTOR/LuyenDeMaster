@@ -85,7 +85,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 .lb-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lb-sub { font-size: 0.75rem; color: var(--mut); }
 .lb-score { font-weight: 800; color: var(--ok); font-variant-numeric: tabular-nums; text-align: right; }
-.lb-time { font-size: 0.75rem; color: var(--mut); font-variant-numeric: tabular-nums; text-align: right; font-family: 'JetBrains Mono', monospace; }
+.lb-time { font-size: 0.75rem; color: var(--mut); font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
 
 .skel { height: 40px; border-radius: 8px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -119,6 +119,12 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
     <button id="btn-start-game" style="font-size:1.1rem; padding:16px; background:var(--ok); box-shadow: 0 4px 16px rgba(34,197,94,0.3);">▶ Bắt Đầu Leo Tháp</button>
     <button id="btn-home-start" class="g" style="margin-top: 12px;">🏠 Trang chủ</button>
+
+    <!-- MỚI: bảng xếp hạng ở màn hình bắt đầu -->
+    <div style="margin-top:28px; text-align:left;">
+      <h3 style="margin:0 0 12px;">🏆 Bảng Xếp Hạng Tháp</h3>
+      <div id="leaderboard-container-start"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
   </section>
 
   <!-- Màn hình chơi game -->
@@ -189,7 +195,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, get, remove, serverTimestamp, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, push, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // ================= CẤU HÌNH & KHỞI TẠO =================
 const firebaseConfig = {
@@ -264,14 +270,13 @@ function shuffle(array) {
   }
   return array;
 }
-
 // ================= TIỆN ÍCH & BẢO MẬT =================
 const $ = id => document.getElementById(id);
 const SESSION_KEY = "qp_session_v2";
 let session = null;
 
 function loadSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } 
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
   catch(e) { return null; }
 }
 
@@ -291,6 +296,15 @@ function keyOf(u) {
   return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
 }
 
+function getUsername() {
+  return session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
+}
+
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return String(text || "").replace(/[&<>"']/g, m => map[m]);
+}
+
 // ================= BIẾN TRẠNG THÁI GAME =================
 let currentFloor = 1;
 let gameQuestions = [];
@@ -302,6 +316,7 @@ let hoveredOptions = new Set();
 let gameId = "";
 
 function fmtTime(ms) {
+  ms = Math.max(0, ms || 0);
   const m = Math.floor(ms / 60000);
   const s = Math.floor((ms % 60000) / 1000);
   const cs = Math.floor((ms % 1000) / 10);
@@ -310,7 +325,7 @@ function fmtTime(ms) {
 
 // ================= XỬ LÝ GAME =================
 async function checkActiveGameOnLoad() {
-  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
+  const username = getUsername();
   const k = keyOf(username);
   let activeRecord = null;
 
@@ -329,12 +344,14 @@ async function checkActiveGameOnLoad() {
   }
 
   if (activeRecord && activeRecord.username === username) {
-    const score = Math.max(0, activeRecord.floor - 1);
-    const time = activeRecord.lastActive - activeRecord.startTime;
-    
+    const score = Math.max(0, (activeRecord.floor || 1) - 1);
+    const time = (activeRecord.lastActive || 0) - (activeRecord.startTime || 0);
+
     try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
     localStorage.removeItem("tower_active_v1");
-    
+
+    // ĐÃ SỬA: hiện màn hình kết quả (trước đây F5 bị trang trắng)
+    showAbandonedResult(score, time);
     await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
   } else {
     if (location.pathname.match(/^\/Tower_\d+$/i)) {
@@ -344,8 +361,21 @@ async function checkActiveGameOnLoad() {
   }
 }
 
+function showAbandonedResult(score, time) {
+  $("start-screen").classList.add("hide");
+  $("game-screen").classList.add("hide");
+  $("result-screen").classList.remove("hide");
+  $("result-icon").textContent = "🏳️";
+  $("result-title").textContent = "ĐÃ BỎ CUỘC";
+  $("result-title").style.color = "var(--bad)";
+  $("result-reason").textContent = "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.";
+  $("final-floor").textContent = score;
+  $("final-time").textContent = fmtTime(time);
+  window.history.replaceState({}, '', '/Tower');
+}
+
 function showStartScreen() {
-  $("user-greeting").innerHTML = `👤 Xin chào, <b>${session.name}</b>${session.cls ? ' (' + session.cls + ')' : ''}!`;
+  $("user-greeting").innerHTML = `👤 Xin chào, <b>${escapeHtml(session.name)}</b>${session.cls ? ' (' + escapeHtml(session.cls) + ')' : ''}!`;
   $("start-screen").classList.remove("hide");
   loadLeaderboard();
 }
@@ -356,8 +386,8 @@ function startGame() {
   gameQuestions = shuffle([...POOL]);
   startTime = Date.now();
   isGameActive = true;
-  
-  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
+
+  const username = getUsername();
   const k = keyOf(username);
   const record = {
     gameId,
@@ -370,28 +400,28 @@ function startGame() {
   };
 
   localStorage.setItem("tower_active_v1", JSON.stringify(record));
-  
   try {
     set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase set failed", e));
   } catch(e) {}
 
   $("start-screen").classList.add("hide");
+  $("result-screen").classList.add("hide");
   $("game-screen").classList.remove("hide");
   $("display-name").textContent = session.name;
-  
+
   window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
-  
+
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     if (isGameActive) $("timer-display").textContent = fmtTime(Date.now() - startTime);
   }, 50);
-  
+
   renderQuestion();
 }
 
 function updateActiveRecord() {
   if (!isGameActive) return;
-  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
+  const username = getUsername();
   const k = keyOf(username);
   const record = {
     gameId,
@@ -402,7 +432,7 @@ function updateActiveRecord() {
     startTime: startTime,
     lastActive: Date.now()
   };
-  
+
   localStorage.setItem("tower_active_v1", JSON.stringify(record));
   try {
     set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase update failed", e));
@@ -426,6 +456,7 @@ function checkMultiTab() {
 function renderQuestion() {
   if (!isGameActive) return;
   checkMultiTab();
+  if (!isGameActive) return;
 
   if (currentFloor > gameQuestions.length) {
     endGame(true, "Bạn đã chinh phục toàn bộ tháp!");
@@ -436,17 +467,17 @@ function renderQuestion() {
 
   const item = gameQuestions[currentFloor - 1];
   const q = item.q;
-  
+
   $("floor-display").textContent = currentFloor;
   $("q-subject").textContent = item.subject;
   $("q-text").innerHTML = q[0];
-  
+
   const container = $("options-container");
   container.innerHTML = "";
 
   questionRenderTime = Date.now();
   hoveredOptions.clear();
-  
+
   const labels = ["A", "B", "C", "D"];
   q[1].forEach((optText, idx) => {
     const div = document.createElement("div");
@@ -463,6 +494,7 @@ function renderQuestion() {
 function handleAnswer(selectedIdx, correctIndices, element, event) {
   if (!isGameActive) return;
   checkMultiTab();
+  if (!isGameActive) return;
 
   if (!event.isTrusted) {
     triggerCheat("Phát hiện click ảo (event.isTrusted = false). Script auto-click bị chặn.");
@@ -486,6 +518,7 @@ function handleAnswer(selectedIdx, correctIndices, element, event) {
   if (isCorrect) {
     element.classList.add("ok");
     setTimeout(() => {
+      if (!isGameActive) return;
       currentFloor++;
       updateActiveRecord();
       renderQuestion();
@@ -501,8 +534,7 @@ function handleAnswer(selectedIdx, correctIndices, element, event) {
 }
 
 async function clearActiveGame() {
-  const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
-  const k = keyOf(username);
+  const k = keyOf(getUsername());
   localStorage.removeItem("tower_active_v1");
   try {
     await remove(ref(db, "tower_active/" + k));
@@ -516,7 +548,7 @@ async function endGame(isWin, reason) {
   isGameActive = false;
   clearInterval(timerInterval);
   const finalTime = Date.now() - startTime;
-  const score = isWin ? currentFloor - 1 : currentFloor - 1;
+  const score = Math.max(0, currentFloor - 1);
 
   await clearActiveGame();
 
@@ -525,8 +557,8 @@ async function endGame(isWin, reason) {
   $("game-screen").classList.add("hide");
   $("result-screen").classList.remove("hide");
 
-  $("result-icon").textContent = isWin ? "👑" : "💀";
-  $("result-title").textContent = isWin ? "CHIẾN THẮNG!" : "GÃY THÁP!";
+  $("result-icon").textContent = isWin ? "👑" : (reason.indexOf("bỏ cuộc") > -1 ? "🏳️" : "💀");
+  $("result-title").textContent = isWin ? "CHIẾN THẮNG!" : (reason.indexOf("bỏ cuộc") > -1 ? "ĐÃ BỎ CUỘC" : "GÃY THÁP!");
   $("result-title").style.color = isWin ? "var(--ok)" : "var(--bad)";
   $("result-reason").textContent = reason;
   $("final-floor").textContent = score;
@@ -536,9 +568,15 @@ async function endGame(isWin, reason) {
 }
 
 async function saveScore(score, time, reason, isAbandoned) {
-  // CHỈ CHẶN LƯU NẾU TÊN BẬY, KHÔNG KIỂM TRA BAN NỮA
+  // Chặn lưu nếu tên bậy
   if (checkProfanity(session.name)) {
     console.warn("Blocked save due to profanity in name");
+    return;
+  }
+
+  // Ván 0 tầng không có giá trị xếp hạng -> không lưu, chỉ tải lại bảng
+  if (score < 1) {
+    loadLeaderboard();
     return;
   }
 
@@ -546,23 +584,23 @@ async function saveScore(score, time, reason, isAbandoned) {
     const newRef = push(ref(db, TOWER_NODE));
     await set(newRef, {
       name: session.name,
-      username: session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_")),
+      username: getUsername(),
       cls: session.cls || "",
       score: score,
       time: time,
       isAbandoned: isAbandoned || false,
       timestamp: serverTimestamp()
     });
-    loadLeaderboard();
   } catch (e) {
     console.error("Lỗi lưu điểm:", e);
   }
+  loadLeaderboard();
 }
 
 function triggerCheat(evidence) {
   if (!isGameActive) return;
-  
-  // CHỈ HIỆN MÀN HÌNH CHEAT, KHÔNG BAN TÀI KHOẢN
+
+  // Chỉ hiện màn hình cảnh báo, KHÔNG ban tài khoản, KHÔNG lưu điểm
   isGameActive = false;
   clearInterval(timerInterval);
 
@@ -570,70 +608,64 @@ function triggerCheat(evidence) {
 
   $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
   $("cheat-overlay").classList.add("active");
-  
-  // Dọn dẹp ván chơi nhưng KHÔNG lưu điểm và KHÔNG ban
+
   clearActiveGame();
 }
 
-// ================= LEADERBOARD =================
+// ================= LEADERBOARD (ĐÃ SỬA) =================
+// - Mỗi người chỉ hiện 1 dòng (ván tốt nhất: nhiều tầng nhất, rồi thời gian ngắn nhất)
+// - Đọc toàn bộ dữ liệu (không còn mất điểm cao cũ)
+// - Có ở cả màn hình bắt đầu và màn hình kết quả
+// - Người chơi ngoài top 20 vẫn thấy hạng của mình ở cuối bảng
 async function loadLeaderboard() {
-  const container = $("leaderboard-container");
-  container.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  const targets = ["leaderboard-container", "leaderboard-container-start"].map(id => $(id)).filter(Boolean);
+  const setAll = html => targets.forEach(c => { c.innerHTML = html; });
+  setAll('<div class="skel"></div><div class="skel"></div><div class="skel"></div>');
 
   try {
-    const qRef = query(ref(db, TOWER_NODE), orderByChild("timestamp"), limitToLast(100));
-    const snapshot = await get(qRef);
-    
-    if (!snapshot.exists()) {
-      container.innerHTML = '<div style="text-align:center; color:var(--mut); padding:20px;">Chưa có ai leo tháp.</div>';
+    const snapshot = await get(ref(db, TOWER_NODE));
+    const best = new Map();
+
+    snapshot.forEach(child => {
+      const r = child.val();
+      if (!r || typeof r.score !== "number" || typeof r.time !== "number") return;
+      if (r.score < 1 || checkProfanity(r.name)) return;
+      const u = String(r.username || ("guest_" + normText(r.name).replace(/\s+/g, "_"))).toLowerCase();
+      const prev = best.get(u);
+      if (!prev || r.score > prev.score || (r.score === prev.score && r.time < prev.time)) {
+        best.set(u, { ...r, u });
+      }
+    });
+
+    const list = [...best.values()].sort((a, b) => b.score - a.score || a.time - b.time);
+
+    if (!list.length) {
+      setAll('<div style="text-align:center;color:var(--mut);padding:20px;">Chưa có ai leo tháp.</div>');
       return;
     }
 
-    const results = [];
-    snapshot.forEach(child => results.push(child.val()));
-    // Lọc bỏ các tên bậy bạ khi hiển thị BXH
-    const cleanResults = results.filter(r => !checkProfanity(r.name));
+    const me = getUsername().toLowerCase();
+    const row = (r, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+      return '<div class="lb-row' + (r.u === me ? ' me' : '') + '">'
+        + '<div class="lb-rk">' + medal + '</div>'
+        + '<div><div class="lb-name">' + escapeHtml(r.name) + (r.cls ? ' <span class="lb-sub">(' + escapeHtml(r.cls) + ')</span>' : '') + '</div>'
+        + '<div class="lb-time">' + fmtTime(r.time) + '</div></div>'
+        + '<div class="lb-score">' + r.score + ' tầng</div></div>';
+    };
 
-    cleanResults.sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      return a.time - b.time;
-    });
-
-    const top20 = cleanResults.slice(0, 20);
-    container.innerHTML = "";
-
-    top20.forEach((r, index) => {
-      const row = document.createElement("div");
-      row.className = "lb-row";
-      const username = r.username || ("guest_" + normText(r.name).replace(/\s+/g, "_"));
-      const sessionUsername = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
-      const isMe = username === sessionUsername;
-      if (isMe) row.classList.add("me");
-      
-      const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : (index + 1);
-      
-      row.innerHTML = `
-        <div class="lb-rk">${medal}</div>
-        <div>
-          <div class="lb-name">${escapeHtml(r.name)} ${r.cls ? '<span class="lb-sub">('+escapeHtml(r.cls)+')</span>' : ''}</div>
-          <div class="lb-time">${fmtTime(r.time)}</div>
-        </div>
-        <div class="lb-score">${r.score} tầng</div>
-      `;
-      container.appendChild(row);
-    });
-
+    let html = list.slice(0, 20).map(row).join("");
+    const myIdx = list.findIndex(r => r.u === me);
+    if (myIdx >= 20) {
+      html += '<div style="text-align:center;color:var(--mut);padding:4px 0;">···</div>' + row(list[myIdx], myIdx);
+    }
+    setAll(html);
   } catch (e) {
-    container.innerHTML = '<div style="text-align:center; color:var(--bad); padding:20px;">Không thể tải bảng xếp hạng.</div>';
+    setAll('<div style="text-align:center;color:var(--bad);padding:20px;">Không thể tải bảng xếp hạng.</div>');
   }
 }
 
-function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return String(text || "").replace(/[&<>"']/g, m => map[m]);
-}
-
-// ================= SỰ KIỆN & KHỞI TẠO =================
+// ================= SỰ KIỆN =================
 $("btn-start-game").onclick = () => {
   startMusic();
   startGame();
@@ -641,6 +673,7 @@ $("btn-start-game").onclick = () => {
 
 $("btn-retry").onclick = () => {
   $("result-screen").classList.add("hide");
+  startMusic();
   startGame();
 };
 
@@ -673,10 +706,8 @@ window.addEventListener("storage", (e) => {
 
 window.addEventListener("pagehide", () => {
   if (isGameActive) {
-    const username = session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
-    const k = keyOf(username);
     const record = {
-      gameId, name: session.name, cls: session.cls || "", username,
+      gameId, name: session.name, cls: session.cls || "", username: getUsername(),
       floor: currentFloor, startTime, lastActive: Date.now()
     };
     localStorage.setItem("tower_active_v1", JSON.stringify(record));
@@ -700,8 +731,9 @@ let currentPlayIndex = 0;
 
 function buildPlaylist() {
   const mode = localStorage.getItem("qp_music_mode") || "random";
-  const selected = JSON.parse(localStorage.getItem("qp_music_selected") || "[]");
-  
+  let selected = [];
+  try { selected = JSON.parse(localStorage.getItem("qp_music_selected") || "[]"); } catch(e) {}
+
   if (mode === "random") {
     return shuffle([...SONGS]);
   } else {
@@ -713,7 +745,7 @@ function buildPlaylist() {
 function playCurrentSong() {
   if (localStorage.getItem("qp_music") !== "on") return;
   if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
-  
+
   const song = currentPlaylist[currentPlayIndex];
   if (bgMusic.src !== location.origin + song.src) {
     bgMusic.src = song.src;
@@ -749,7 +781,7 @@ function startMusic() {
 // ================= KHỞI TẠO TRANG =================
 window.addEventListener('DOMContentLoaded', async () => {
   const existing = loadSession();
-  
+
   if (!existing || !existing.name) {
     $("start-screen").innerHTML = `
       <div style="text-align:center; padding:40px 20px;">
@@ -765,7 +797,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   session = existing;
 
-  // CHỈ CHẶN NẾU TÊN BẬY, KHÔNG KIỂM TRA BAN NỮA
   if (checkProfanity(session.name)) {
     $("cheat-overlay").querySelector("h1").textContent = "🚫 TÊN KHÔNG HỢP LỆ";
     $("cheat-overlay").querySelector(".glitch-text").textContent = "Tên tài khoản chứa từ ngữ không phù hợp. Vui lòng đổi tên ở trang chủ.";
