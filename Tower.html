@@ -520,6 +520,8 @@ async function endGame(isWin, reason) {
 
   await clearActiveGame();
 
+  window.history.replaceState({}, '', '/Tower');
+
   $("game-screen").classList.add("hide");
   $("result-screen").classList.remove("hide");
 
@@ -563,6 +565,9 @@ function triggerCheat(evidence) {
   // CHỈ HIỆN MÀN HÌNH CHEAT, KHÔNG BAN TÀI KHOẢN
   isGameActive = false;
   clearInterval(timerInterval);
+
+  window.history.replaceState({}, '', '/Tower');
+
   $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
   $("cheat-overlay").classList.add("active");
   
