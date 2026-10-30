@@ -424,6 +424,7 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
     <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
     <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
+    <button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
   </div>
 
   <div id="tab-practice">
@@ -497,6 +498,18 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
         <span style="font-size: 0.85rem; color: var(--ac);">Nhạc nền theo cài đặt của bạn sẽ tự phát ở trang Tower.</span>
       </p>
       <button class="p" id="btnPlayTower" style="font-size: 1.1rem; padding: 14px 32px;">▶ Chơi Tower Ngay</button>
+    </div>
+  </div>
+
+  <div id="tab-admin" class="hide">
+    <div class="card">
+      <h2 style="margin-bottom:8px">🛡️ Admin Panel</h2>
+      <p class="mut" style="margin-bottom:16px;line-height:1.6">
+        <b>Unban All</b> mở khóa toàn bộ tài khoản đang bị ban (theo tên) và các khóa IP cũ.
+        Mỗi học sinh sẽ được gỡ ban ở lần mở trang tiếp theo trên máy của họ.
+      </p>
+      <div class="mut" id="adminStatus" style="margin-bottom:16px;font-weight:600">Đang tải…</div>
+      <button class="p" id="btnUnbanAll" style="width:100%;background:var(--ok)">🔓 Unban All</button>
     </div>
   </div>
 
@@ -1029,6 +1042,22 @@ function checkProfanity(str) {
       try { localStorage.removeItem(oldKeys[j]); } catch(e){}
     }
   } catch(e){}
+
+  // MỞ BAN HẾT: lần đầu mỗi máy mở trang này sẽ xóa mọi khóa ban/vi phạm cũ (qpb3_*).
+  // Muốn mở ban lần nữa sau này thì đổi "qp_unban_v1" thành "qp_unban_v2"...
+  try {
+    if (localStorage.getItem("qp_unban_v1") !== "done") {
+      var banKeys = [];
+      for (var a = 0; a < localStorage.length; a++) {
+        var kk = localStorage.key(a);
+        if (kk && kk.indexOf("qpb3_") === 0) banKeys.push(kk);
+      }
+      for (var b = 0; b < banKeys.length; b++) {
+        try { localStorage.removeItem(banKeys[b]); } catch(e){}
+      }
+      localStorage.setItem("qp_unban_v1", "done");
+    }
+  } catch(e){}
 })();
 
 var _BAN_V3 = "qpb3_";
@@ -1042,6 +1071,7 @@ function checkBanStatus(name) {
 }
 
 function recordViolation(name) {
+  if (isAdminSession()) return false; // admin không bị ban
   try {
     var vk = getViolationKey(name);
     var c = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
@@ -1052,6 +1082,7 @@ function recordViolation(name) {
 }
 
 function showBanScreen(name) {
+  if (isAdminSession()) return; // admin không bị ban
   document.body.innerHTML =
     '<div class="ban-screen">' +
       '<h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>' +
@@ -1088,6 +1119,81 @@ function keyOf(u){ return encodeURIComponent(String(u).trim().toLowerCase()).rep
 
 const SESSION_KEY = "qp_session_v2";
 let session = null;
+
+/* ================= ADMIN & UNBAN ALL ================= */
+const ADMIN_USER = "phamgiabao";
+const ADMIN_PASS_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; // sha256("1234")
+const ADMIN_PROFILE = { username: "PhamGiaBao", name: "Phạm Gia Bảo", cls: "Admin" };
+const UNBAN_NODE = "config/unbanEpoch";
+const UNBAN_LOCAL_KEY = "qp_unban_epoch";
+
+function isAdminSession() { return !!(session && session.isAdmin === true); }
+
+// Xóa mọi khóa ban (theo tên) và khóa IP cũ trên máy này. Trả về số khóa đã xóa.
+function clearAllLocalBans() {
+  var ks = [];
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.indexOf("qpb3_") === 0 || k === "banned_ip_sim" || k.indexOf("ban_") === 0 ||
+          k.indexOf("banned_") === 0 || k.indexOf("violations_") === 0) ks.push(k);
+    }
+    ks.forEach(function(x){ try { localStorage.removeItem(x); } catch(e){} });
+  } catch(e){}
+  return ks.length;
+}
+
+// Mỗi máy kiểm tra mốc "unban" do admin đặt trên Firebase; mốc mới hơn thì gỡ ban trên máy.
+async function syncUnban() {
+  if (!db) return;
+  try {
+    const snap = await Promise.race([
+      get(ref(db, UNBAN_NODE)),
+      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 3000))
+    ]);
+    if (!snap.exists()) return;
+    const remote = Number(snap.val()) || 0;
+    const local = Number(localStorage.getItem(UNBAN_LOCAL_KEY) || 0);
+    if (remote > local) {
+      clearAllLocalBans();
+      localStorage.setItem(UNBAN_LOCAL_KEY, String(remote));
+    }
+  } catch (e) { /* lỗi mạng thì bỏ qua */ }
+}
+
+async function loadAdminStatus() {
+  const el = $("adminStatus");
+  if (!el) return;
+  el.textContent = "Đang tải…";
+  if (!db) { el.textContent = "Chưa kết nối được máy chủ."; return; }
+  try {
+    const snap = await get(ref(db, UNBAN_NODE));
+    if (!snap.exists()) { el.textContent = "Chưa từng bấm Unban All."; return; }
+    const d = new Date(Number(snap.val()));
+    el.textContent = "Lần Unban All gần nhất: " + d.toLocaleString("vi-VN");
+  } catch (e) { el.textContent = "Không đọc được trạng thái."; }
+}
+
+async function adminUnbanAll() {
+  if (!isAdminSession()) return;
+  if (!confirm("Mở ban cho TẤT CẢ học sinh (kể cả khóa IP cũ)?\nHọ sẽ được gỡ ban ở lần mở trang tiếp theo.")) return;
+  const n = clearAllLocalBans();
+  if (!db) { showToast("Đã gỡ " + n + " khóa trên máy này. Chưa kết nối máy chủ nên chưa áp dụng cho máy khác.", true); return; }
+  try {
+    ovOn("Đang mở ban…");
+    await set(ref(db, UNBAN_NODE), serverTimestamp());
+    const snap = await get(ref(db, UNBAN_NODE));
+    localStorage.setItem(UNBAN_LOCAL_KEY, String(snap.val()));
+    ovOff();
+    showToast("✅ Đã Unban All cho toàn bộ học sinh!");
+    loadAdminStatus();
+  } catch (e) {
+    ovOff();
+    showToast("Không ghi được lên máy chủ: " + e.message, true);
+  }
+}
+
 function saveSession(s){ session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){ return null; } }
 function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); }
@@ -1106,6 +1212,7 @@ $("atRegister").onclick = function(){
 
 async function doRegister(u, p, name, cls){
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
+  if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
   if (checkProfanity(u) || checkProfanity(name)) {
     recordViolation(name);
     throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
@@ -1125,6 +1232,13 @@ async function doRegister(u, p, name, cls){
 }
 
 async function doLogin(u, p){
+  // Tài khoản admin: kiểm tra tại chỗ, không cần Firebase
+  if (String(u).trim().toLowerCase() === ADMIN_USER) {
+    const h = await sha256Hex(p);
+    if (h !== ADMIN_PASS_HASH) throw new Error("Sai mật khẩu.");
+    saveSession({ key: keyOf(ADMIN_PROFILE.username), username: ADMIN_PROFILE.username, name: ADMIN_PROFILE.name, cls: ADMIN_PROFILE.cls, isAdmin: true });
+    return;
+  }
   if(!db) throw new Error("Chưa kết nối được máy chủ.");
   const key = keyOf(u);
   ovOn("Đang đăng nhập…");
@@ -1169,17 +1283,18 @@ $("auGo").onclick = async function(){
 
 function enterApp(){
   if (!session) { show("auth"); return; }
-  if (checkProfanity(session.name) || checkProfanity(session.username)) {
+  if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
     recordViolation(session.name);
     clearSession();
     showBanScreen(session.name);
     return;
   }
-  if (checkBanStatus(session.name)) {
+  if (!isAdminSession() && checkBanStatus(session.name)) {
     clearSession();
     showBanScreen(session.name);
     return;
   }
+  $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
   $("hiName").textContent = "👋 Xin chào, " + session.name;
   $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
   $("auUser").value = ""; $("auPass").value = "";
@@ -1192,18 +1307,23 @@ function switchTab(name){
   $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
   $("tabBtnGameplay").classList.toggle("active", name === "gameplay");
   $("tabBtnDev").classList.toggle("active", name === "dev");
-  
+  $("tabBtnAdmin").classList.toggle("active", name === "admin");
+
   $("tab-practice").classList.toggle("hide", name !== "practice");
   $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
   $("tab-gameplay").classList.toggle("hide", name !== "gameplay");
   $("tab-dev").classList.toggle("hide", name !== "dev");
-  
+  $("tab-admin").classList.toggle("hide", name !== "admin");
+
   if(name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
+  if(name === "admin") loadAdminStatus();
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
+$("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
+$("btnUnbanAll").onclick = adminUnbanAll;
 
 $("rfMain").onclick = function(){
   const active = document.querySelector("#lbPillsMain .pill.active");
@@ -1683,14 +1803,6 @@ function finish(){
 function showResults(){
   const ms = Date.now() - t0;
   
-  const minTimeMs = Math.max(5000, Q.length * 1200);
-  if (ms < minTimeMs) {
-    showToast("⚠️ Thời gian làm bài bất thường (quá nhanh), nghi vấn sử dụng tool auto!", true);
-    recordViolation(session.name);
-    showBanScreen(session.name);
-    return;
-  }
-
   let pts = 0, full = 0, h = "";
 
   order.forEach((qi, i) => {
@@ -1767,6 +1879,15 @@ function showResults(){
   });
 
   const sc = Math.round(pts / Q.length * 1000) / 100;
+
+  // Chỉ ban khi được 10 điểm mà làm dưới 15 giây (nghi dùng tool auto)
+  if (sc >= 10 && ms < 15000 && !isAdminSession()) {
+    showToast("⚠️ 10 điểm trong dưới 15 giây, nghi vấn sử dụng tool auto!", true);
+    recordViolation(session.name);
+    showBanScreen(session.name);
+    return;
+  }
+
   $("sc").textContent = String(sc).replace(".", ",");
   $("rc").textContent = full + "/" + Q.length;
   $("rw").textContent = (Q.length - full) + "";
@@ -2015,22 +2136,28 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-const existing = loadSession();
-if (existing) {
-  if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
-    recordViolation(existing.name);
-    clearSession();
-    showBanScreen(existing.name);
-  } else if (checkBanStatus(existing.name)) {
-    clearSession();
-    showBanScreen(existing.name);
+(async function init() {
+  await syncUnban(); // gỡ ban nếu admin đã bấm Unban All
+  const existing = loadSession();
+  if (existing) {
+    if (existing.isAdmin === true && String(existing.username || "").toLowerCase() === ADMIN_USER) {
+      session = existing;
+      enterApp();
+    } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
+      recordViolation(existing.name);
+      clearSession();
+      showBanScreen(existing.name);
+    } else if (checkBanStatus(existing.name)) {
+      clearSession();
+      showBanScreen(existing.name);
+    } else {
+      session = existing;
+      enterApp();
+    }
   } else {
-    session = existing;
-    enterApp();
+    show("auth");
   }
-} else {
-  show("auth");
-}
+})();
 </script>
 </body>
 </html>
