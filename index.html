@@ -487,13 +487,14 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     </div>
   </div>
 
-  <!-- TAB GAMEPLAY MỚI -->
+  <!-- TAB GAMEPLAY ĐÃ CẬP NHẬT -->
   <div id="tab-gameplay" class="hide">
     <div class="card" style="text-align:center; padding: 40px 24px;">
       <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
       <h2 style="margin-bottom: 8px;">Tower Defense</h2>
       <p class="mut" style="margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
-        Thư giãn một chút với mini-game Tower! Nhạc nền sẽ vẫn tiếp tục phát trong khi bạn chơi.
+        Bạn sẽ được chuyển sang trang Tower riêng. Cần đăng nhập trước khi chơi.<br>
+        <span style="font-size: 0.85rem; color: var(--ac);">Nhạc nền theo cài đặt của bạn sẽ tự phát ở trang Tower.</span>
       </p>
       <button class="p" id="btnPlayTower" style="font-size: 1.1rem; padding: 14px 32px;">▶ Chơi Tower Ngay</button>
     </div>
@@ -1189,19 +1190,19 @@ $("logout").onclick = function(){ clearSession(); show("auth"); };
 function switchTab(name){
   $("tabBtnPractice").classList.toggle("active", name === "practice");
   $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
-  $("tabBtnGameplay").classList.toggle("active", name === "gameplay"); // NEW
+  $("tabBtnGameplay").classList.toggle("active", name === "gameplay");
   $("tabBtnDev").classList.toggle("active", name === "dev");
   
   $("tab-practice").classList.toggle("hide", name !== "practice");
   $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
-  $("tab-gameplay").classList.toggle("hide", name !== "gameplay"); // NEW
+  $("tab-gameplay").classList.toggle("hide", name !== "gameplay");
   $("tab-dev").classList.toggle("hide", name !== "dev");
   
   if(name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
-$("tabBtnGameplay").onclick = () => switchTab("gameplay"); // NEW
+$("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 
 $("rfMain").onclick = function(){
@@ -1217,7 +1218,6 @@ $("rfResult").onclick = function(){
 function openFrameOverlay(src) {
   $("video-frame").src = src;
   $("iframe-overlay").classList.remove("hide");
-  // Nhạc nền vẫn tiếp tục phát, không có lệnh pause() ở đây
 }
 
 document.querySelectorAll('.play-video').forEach(btn => {
@@ -1226,15 +1226,14 @@ document.querySelectorAll('.play-video').forEach(btn => {
   };
 });
 
-// Nút chơi Tower
+// Nút chơi Tower - ĐÃ CẬP NHẬT
 $("btnPlayTower").onclick = function() {
-  openFrameOverlay("Tower.html");
+  location.href = "/Tower";
 };
 
 $("btnBack").onclick = function() {
   $("iframe-overlay").classList.add("hide");
   $("video-frame").src = ""; 
-  // Không cần resume nhạc vì nhạc chưa từng bị dừng
 };
 
 function wirePills(pillsId, listId, initial){
@@ -1871,13 +1870,15 @@ const musicCheck = $("musicCheck");
 const musicSelectionArea = $("musicSelectionArea");
 const currentSongLabel = $("currentSongLabel");
 
+// ĐÃ CẬP NHẬT: Thêm bài Tam Thái Tử
 const SONGS = [
   { id: 'grateful', title: 'Grateful', src: 'onemore/Grateful.mp3' },
   { id: 'shapeofyou', title: 'Shape of You', src: 'onemore/ShapeofYou.mp3' },
   { id: 'spencerhillcool', title: 'Spencer Hill Cool', src: 'onemore/Spencerhillcool.mp3' },
   { id: 'haruharu', title: 'Haru Haru', src: 'onemore/haruharu.mp3' },
   { id: 'luunien', title: 'Lưu Niên', src: 'onemore/luunien.mp3' },
-  { id: 'nguoidung', title: 'Người Dưng', src: 'onemore/nguoidung.mp3' }
+  { id: 'nguoidung', title: 'Người Dưng', src: 'onemore/nguoidung.mp3' },
+  { id: 'tamthaitu', title: 'Tam Thái Tử', src: 'onemore/tamthaitu.mp3' }
 ];
 
 let isMusicOn = localStorage.getItem("qp_music") === "on";
