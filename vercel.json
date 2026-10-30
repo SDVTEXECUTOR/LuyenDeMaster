@@ -1,6 +1,6 @@
 {
-  "cleanUrls": true,
   "rewrites": [
-    { "source": "/Tower_(.*)", "destination": "/Tower.html" }
+    { "source": "/Tower", "destination": "/tower.html" },
+    { "source": "/Tower_(\\d+)", "destination": "/tower.html" }
   ]
 }
