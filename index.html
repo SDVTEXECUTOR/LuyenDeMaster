@@ -1273,6 +1273,17 @@ async function deleteAccountAndResults(key, username, name) {
     }
     await Promise.all(dels.map(k => remove(ref(db, "results/" + k)).catch(() => {})));
 
+    // MỚI: xóa luôn điểm Tower của tài khoản này
+    const tSnap = await get(ref(db, "tower"));
+    const tDels = [];
+    if (tSnap.exists()) {
+      tSnap.forEach(ch => {
+        const v = ch.val();
+        if (v && String(v.username || "").trim().toLowerCase() === uNorm) tDels.push(ch.key);
+      });
+    }
+    await Promise.all(tDels.map(k => remove(ref(db, "tower/" + k)).catch(() => {})));
+
     ovOff();
     showToast('✅ Đã xoá tài khoản "' + name + '" và ' + dels.length + ' kết quả liên quan.');
     loadAllAccounts();
