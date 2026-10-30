@@ -327,6 +327,19 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 .song-item span { font-weight: 500; font-size: 0.95rem; }
+
+/* ===== MỚI: nút Lắc + video ===== */
+#shake-overlay{position:fixed;inset:0;z-index:1100;background:#000;display:flex;align-items:center;justify-content:center}
+#shake-overlay video{width:100%;height:100%;object-fit:contain;background:#000}
+.shaking{animation:shakeAnim .6s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakeAnim{
+  0%,100%{transform:translateX(0) rotate(0)}
+  15%{transform:translateX(-14px) rotate(-2deg)}
+  30%{transform:translateX(12px) rotate(2deg)}
+  45%{transform:translateX(-10px) rotate(-1deg)}
+  60%{transform:translateX(8px) rotate(1deg)}
+  80%{transform:translateX(-4px)}
+}
 </style>
 <style id="__dl">html{display:none!important}</style>
 </head>
@@ -374,6 +387,12 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
 
+<!-- MỚI: khung video nút Lắc -->
+<div id="shake-overlay" class="hide">
+  <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
+  <video id="shakeVideo" playsinline controls></video>
+</div>
+
 <div class="toast" id="toast">🎉 Đã hoàn thành 100% câu hỏi!</div>
 
 <main>
@@ -411,7 +430,11 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   <div class="card">
     <div class="top">
       <div>
-        <strong id="hiName" style="font-size:1.1rem"></strong>
+        <!-- MỚI: tên + nút Lắc -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <strong id="hiName" style="font-size:1.1rem"></strong>
+          <button class="sm" id="btnShake" type="button">📳 Lắc</button>
+        </div>
         <div class="mut" id="hiSub"></div>
         <div class="mut" id="liveClock" style="font-size:0.85rem; margin-top:4px; font-weight:600; color: var(--ac);"></div>
       </div>
@@ -488,7 +511,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
     </div>
   </div>
 
-  <!-- TAB GAMEPLAY ĐÃ CẬP NHẬT -->
   <div id="tab-gameplay" class="hide">
     <div class="card" style="text-align: center; padding: 40px 24px;">
       <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
@@ -696,7 +718,6 @@ section > .card, .subjgrid { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2,
   setTimeout(dismiss,5200);
 })();
 </script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set, get, serverTimestamp, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -841,7 +862,7 @@ const Q_DIALI = [
 ["Các nhà máy thủy điện lớn nhất nước ta (Hòa Bình, Sơn La, Lai Châu) tập trung ở vùng nào?",["Trung du và miền núi phía Bắc","Đồng bằng sông Cửu Long","Đông Nam Bộ","Duyên hải Nam Trung Bộ"],[0]],
 ["Các trung tâm công nghiệp chế biến lương thực, thực phẩm lớn nhất nước ta phát triển mạnh ở đâu?",["Vùng núi cao","Các đô thị lớn","Vùng hải đảo","Vùng biên giới"],[1]],
 ["Ngành công nghiệp khai thác dầu khí ở nước ta phân bố tập trung chủ yếu ở",["vùng núi Tây Bắc","đồng bằng sông Hồng","vùng biển Đông Nam Bộ","vùng ven biển Bắc Trung Bộ"],[2]],
-["Các trung tâm dệt và sản xuất trang phục; sản xuất giày, dép của cả nước là",["Cần Thơ, Huế, Vinh, Quy Nhơn","Thái Nguyên, Lạng Sơn, Cao Bằng, Sơn La","Buôn Ma Thuột, Plei Ku, Đà Lạt, Kon Tum","Thành phố Hồ Chí Minh, Hà Nội, Đà Nẵng, Nam Định"],[3]],
+["Các trung tâm dệt và sản xuất trang phục; sản xuất giày, dép của cả nước là",["Cần Thơ, Huế, Vinh, Nam Định","Thái Nguyên, Lạng Sơn, Cao Bằng, Sơn La","Buôn Ma Thuột, Plei Ku, Đà Lạt, Kon Tum","Thành phố Hồ Chí Minh, Hà Nội, Đà Nẵng, Nam Định"],[3]],
 ["Điều kiện khí hậu thuận lợi nào giúp nước ta phát triển điện Mặt Trời, điện gió?",["Số giờ nắng cao, lượng bức xạ lớn, gió quanh năm","Lượng mưa lớn, độ ẩm cao","Nhiệt độ thấp quanh năm","Có mùa đông lạnh kéo dài"],[0]],
 ["Người Kinh chiếm tỉ lệ bao nhiêu phần trăm trong tổng số dân của nước ta?",["54%","85%","70%","95%"],[1]]
 ];
@@ -1416,7 +1437,7 @@ document.querySelectorAll('.play-video').forEach(btn => {
   };
 });
 
-// Nút chơi Tower - ĐÃ CẬP NHẬT
+// Nút chơi Tower
 $("btnPlayTower").onclick = function() {
   location.href = "/Tower";
 };
@@ -1838,6 +1859,50 @@ function checkAutoSubmit() {
   }
 }
 
+/* ===== MỚI: Phím Enter = sang câu tiếp theo (máy tính) ===== */
+document.addEventListener("keydown", function(e){
+  if (e.key !== "Enter") return;
+  if ($("quiz").classList.contains("hide")) return;      // chỉ khi đang làm bài
+  if (allAtOnce) return;                                  // Tiếng Anh: đề cuộn, không áp dụng
+  if ($("mk").classList.contains("on")) return;           // đang mở hộp thoại nộp/thoát
+  if (e.target && e.target.tagName === "TEXTAREA") return;
+  e.preventDefault();
+  if (cur < Q.length - 1) {
+    cur++; draw();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+});
+
+/* ===== MỚI: Nút Lắc = phát video cutscene ===== */
+const SHAKE_VIDEO = "cutscene/AQMI7DIxFk7q9lxI2gnd1m8Y0pmQCfuMn5qoVlbgxDMGDRaWxYDKGAkC90r4u6TKOa41UY9OHomNh_4qIO2aeUIHG6K70vDNkO0uH5TzdA.mp4";
+let musicWasPlaying = false;
+
+function openShakeVideo(){
+  const v = $("shakeVideo");
+  musicWasPlaying = !bgMusic.paused;
+  bgMusic.pause();                       // tắt nhạc nền để nghe rõ tiếng video
+  v.src = SHAKE_VIDEO;
+  $("shake-overlay").classList.remove("hide");
+  v.play().catch(()=>{});
+}
+function closeShakeVideo(){
+  const v = $("shakeVideo");
+  v.pause(); v.removeAttribute("src"); v.load();
+  $("shake-overlay").classList.add("hide");
+  if (musicWasPlaying && isMusicOn) bgMusic.play().catch(()=>{});
+  musicWasPlaying = false;
+}
+$("btnShake").onclick = function(){
+  const m = document.querySelector("main");
+  m.classList.add("shaking");
+  setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
+};
+$("btnShakeClose").onclick = closeShakeVideo;
+$("shakeVideo").addEventListener("ended", closeShakeVideo);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo();
+});
+
 $("sub").onclick = function(){
   finish();
 };
@@ -2061,7 +2126,6 @@ const musicCheck = $("musicCheck");
 const musicSelectionArea = $("musicSelectionArea");
 const currentSongLabel = $("currentSongLabel");
 
-// ĐÃ CẬP NHẬT: Thêm bài Tam Thái Tử
 const SONGS = [
   { id: 'grateful', title: 'Grateful', src: 'onemore/Grateful.mp3' },
   { id: 'shapeofyou', title: 'Shape of You', src: 'onemore/ShapeofYou.mp3' },
@@ -2180,7 +2244,11 @@ if (isMusicOn) {
   updateMusicUI();
 }
 
-const tryPlayMusicOnInteraction = () => { if (isMusicOn && bgMusic.paused) playCurrentSong(); };
+// ĐÃ SỬA: không bật lại nhạc nền khi đang xem video nút Lắc
+const tryPlayMusicOnInteraction = () => {
+  if (!$("shake-overlay").classList.contains("hide")) return;
+  if (isMusicOn && bgMusic.paused) playCurrentSong();
+};
 document.body.addEventListener("click", tryPlayMusicOnInteraction);
 document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
 bgMusic.addEventListener("playing", () => {
