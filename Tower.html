@@ -46,13 +46,9 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 input[type="text"], input[type="password"], textarea {
   width: 100%; padding: 14px 16px; font: inherit; border: 1.5px solid var(--ln);
   border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--fg);
-  margin-bottom: 16px; transition: border-color 0.2s;
+  margin-bottom: 16px; transition: border-color 0.2s; text-align: center;
 }
 input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
-
-.auth-tabs { display: flex; gap: 6px; background: var(--ln); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
-.auth-tab { flex: 1; background: transparent; border: none; color: var(--mut); padding: 10px; border-radius: 8px; font-weight: 600; box-shadow: none; }
-.auth-tab.active { background: var(--card); color: var(--ac); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
 .tower-header { text-align: center; margin-bottom: 24px; position: relative; }
 .tower-floor { font-size: 4rem; font-weight: 900; color: var(--ac); letter-spacing: -0.05em; text-shadow: 0 0 30px rgba(59, 130, 246, 0.4); line-height: 1; }
@@ -101,47 +97,47 @@ input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow
 .skel { height: 40px; border-radius: 8px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-.back-link { display: inline-block; margin-bottom: 16px; color: var(--mut); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-.back-link:hover { color: var(--ac); }
+.giveup-btn {
+  background: transparent !important;
+  color: var(--bad) !important;
+  border: 1.5px solid var(--bad) !important;
+  box-shadow: none !important;
+  width: auto !important;
+}
+.giveup-btn:hover {
+  background: var(--bads) !important;
+  transform: translateY(-2px);
+}
 </style>
 </head>
 <body>
 
 <main>
-  <a href="../index.html" class="back-link">← Quay về trang chính</a>
-
-  <!-- Màn hình Đăng nhập / Đăng ký -->
-  <section id="auth-screen" class="card hide" style="text-align:center; margin-top:6vh;">
-    <div style="font-size:3rem; margin-bottom:12px;">🏰</div>
+  <!-- Màn hình Bắt Đầu (Start Screen) -->
+  <section id="start-screen" class="card hide" style="text-align:center; margin-top:10vh;">
+    <div style="font-size:4rem; margin-bottom:12px;">🏰</div>
     <h1 style="margin:0 0 8px;">Chế Độ Tháp</h1>
-    <p style="color:var(--mut); margin-bottom:20px; font-size:0.9rem;">
-      Tin học (19) · GDCD (20) · Tiếng Anh (52) · Địa lí (30)<br>
+    <p style="color:var(--mut); margin-bottom:24px; font-size:0.9rem;">
+      💻 Tin học (19) · ⚖️ GDCD (20) · 🌍 Địa lí (30)<br>
       <span style="color:var(--bad); font-weight:700;">⚠️ Anti-Bot: Sai là dừng. Auto-click là BAN.</span>
     </p>
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin">Đăng nhập</button>
-      <button class="auth-tab" id="tabRegister">Đăng kí</button>
+    <div style="text-align:left; margin-bottom:20px;">
+      <label style="font-size:0.9rem; font-weight:600; color:var(--mut);">Tên hiển thị (lưu BXH):</label>
+      <input type="text" id="player-name-input" placeholder="Nhập tên của bạn..." maxlength="20" style="margin-top:8px;">
     </div>
 
-    <input type="text" id="authUser" placeholder="Tên đăng nhập" autocomplete="off">
-    <input type="password" id="authPass" placeholder="Mật khẩu (tối thiểu 4 kí tự)" autocomplete="off">
-    
-    <div id="regExtra" class="hide">
-      <input type="text" id="authName" placeholder="Họ và tên" autocomplete="off">
-      <input type="text" id="authCls" placeholder="Lớp (vd: 9A1 - không bắt buộc)" autocomplete="off">
-    </div>
-
-    <p id="auth-err" style="color:var(--bad); font-size:0.9rem; min-height:1.2em; margin-top:-8px; margin-bottom:16px;"></p>
-    <button id="btnAuthGo">Đăng nhập</button>
+    <button id="btn-start-game" style="font-size:1.1rem; padding:16px; background:var(--ok); box-shadow: 0 4px 16px rgba(34,197,94,0.3);">▶ Bắt Đầu Leo Tháp</button>
   </section>
 
   <!-- Màn hình chơi game -->
   <section id="game-screen" class="hide">
     <div class="player-info">
-      👤 <b id="display-name">?</b> <span id="display-cls" style="color:var(--mut)"></span>
+      👤 <b id="display-name">Người chơi</b>
       <br>
-      <button class="g sm" id="btn-logout" style="margin-top:8px;">Đăng xuất</button>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
+        <button class="sm giveup-btn" id="btn-giveup">🏳️ Bỏ cuộc</button>
+      </div>
     </div>
     <div class="card tower-header">
       <div class="tower-label">Đang ở tầng</div>
@@ -173,8 +169,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow
         </div>
       </div>
       <div style="display:flex; gap:8px;">
-        <button id="btn-retry" style="flex:1;">Chơi Lại</button>
-        <button class="g" id="btn-home" style="flex:1;">Về trang chính</button>
+        <button id="btn-retry" style="flex:1;">Chơi Lại Từ Đầu</button>
       </div>
     </div>
 
@@ -194,22 +189,13 @@ input:focus, textarea:focus { outline: none; border-color: var(--ac); box-shadow
     <div class="glitch-text">HỆ THỐNG PHÁT HIỆN HÀNH VI TỰ ĐỘNG</div>
     <div class="evidence" id="cheat-evidence"></div>
     <div class="glitch-text">Ván chơi bị hủy. Điểm không được lưu.</div>
-    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.reload()">Quay lại</button>
-  </div>
-</div>
-
-<!-- Màn hình Ban -->
-<div id="ban-overlay">
-  <div>
-    <h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>
-    <div class="glitch-text" id="ban-reason"></div>
-    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.reload()">Tải lại trang</button>
+    <button class="g" style="margin-top:24px; max-width:250px;" onclick="location.href='/Tower_'">Quay lại</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, get, serverTimestamp, query, orderByChild, limitToLast, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, push, set, get, serverTimestamp, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
@@ -224,7 +210,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const TOWER_NODE = "tower";
 
-/* ================= FULL DỮ LIỆU CÂU HỎI 4 MÔN ================= */
+/* ================= FULL DỮ LIỆU CÂU HỎI 3 MÔN (Bỏ Tiếng Anh) ================= */
 const Q_TINHOC = [
 ["Thiết bị nào sau đây có gắn bộ xử lí thông tin?",["Bình đựng nước thông thường.","Ghế nhựa thông thường.","Máy giặt tự động hoạt động theo chương trình.","Ổ khóa cơ dùng chìa."],[2]],
 ["Khả năng nào sau đây là của máy tính?",["Xử lí lượng lớn dữ liệu nhanh theo chương trình.","Mọi thông tin trên Internet đều đúng.","Tự quyết định mọi việc mà không cần dữ liệu.","Luôn hiểu đầy đủ cảm xúc của con người."],[0]],
@@ -303,101 +289,10 @@ const Q_DIALI = [
 ["Người Kinh chiếm tỉ lệ bao nhiêu phần trăm trong tổng số dân của nước ta?",["54%","85%","70%","95%"],[1]]
 ];
 
-const P_LONDON = "London is Britain's biggest city. It is a very old city and dates to the Romans. It is a city of historic buildings and churches, and it has many beautiful parks. It also has some of the (1) _______ museums in the world. London is very crowded (2) _______ summer. It is a popular city with foreign tourists and has more than eight million (3) _______ a year. The city is (4) _______ for its shopping and department stores. London has an excellent underground railway system, so it is easy for tourists to (5) _______.";
-const P_HALONG = "Hạ Long Bay (Descending Dragon) is popular with both Vietnamese and international (1) _______. One of the attractions of Hạ Long is the bay's calm water with limestone mountains. The bay's water is (2) _______ during the spring and early summer. Upon arriving in Hạ Long City, visitors can (3) _______ Bãi Cháy Beach. From the beach, they can hire a boat and go out to the bay. It is heard that visitors can find some of Southeast Asia's most beautiful sites. Dấu Gỗ Cave is one of the (4) _______ beautiful caves at Hạ Long. It was the cave in which General Trần Hưng Đạo hid wooden stakes to beat the Mongols on Bạch Đằng (5) _______ in 1288.";
-const P_QUATDONG = "There are many existing villages in Việt Nam, but Quất Động Village in Hà Nội is widely known for its products of high quality. Embroidery has been developing around here since the seventeenth century. In the past, local skilled artisans were chosen to make sophisticated, embroidered costumes for the Vietnamese King, Queen and other Royal family members. The first man who taught the local people how to embroider was Dr. Lê Công Hành, who lived during the Le Dynasty. He learned how to embroider while on a trip to China as an envoy and taught the villagers of Quất Động upon his return. Although these skills eventually spread across the country, the Quất Động artisans' creations are still the most appreciated. To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands. Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries.";
-const P_DONGHO = "Đông Hồ Folk Painting Village is the place that will surprise many art lovers. As its name suggests, the main product of the village is impressive folk paintings. The village is quite small and there are no more than two hundred households here. Villagers get their main income from making paintings. Looking at their products, you will surely get a deeper insight into the beauty of Vietnam as well as the traditional customs and Vietnamese festivals. These paintings used to be precious decorations during the Tết holiday. Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees). There are 5 main colors used in paintings, including green, red, yellow, black and indigo. They are mostly created from natural materials like bricks, flowers, straw, and different trees, ...";
-
-const ENGLISH_SECTIONS = [
-{ title: "II. READING – A. London", passage: P_LONDON, questions: [
-["Question 1: Choose the best word for blank (1).", ["good","well","better","best"], [3]],
-["Question 2: Choose the best word for blank (2).", ["on","in","at","for"], [1]],
-["Question 3: Choose the best word for blank (3).", ["visitors","villagers","artisans","workers"], [0]],
-["Question 4: Choose the best word for blank (4).", ["good","amazing","well-known","interesting"], [2]],
-["Question 5: Choose the best word for blank (5).", ["go out","take care of","hand down","get around"], [3]]
-]},
-{ title: "II. READING – A. Hạ Long Bay", passage: P_HALONG, questions: [
-["Question 1: Choose the best word for blank (1).", ["tourists","leaders","famous people","festival goers"], [0]],
-["Question 2: Choose the best word for blank (2).", ["blue","white","clear","liquid"], [2]],
-["Question 3: Choose the best word for blank (3).", ["go along","hand down","go out","come back"], [0]],
-["Question 4: Choose the best word for blank (4).", ["more","best","most","better"], [2]],
-["Question 5: Choose the best word for blank (5).", ["Mountain","Village","Cave","River"], [3]]
-]},
-{ title: "II. READING – B. Quất Động Village", passage: P_QUATDONG, questions: [
-["Question 1: What is the main topic of the passage?", ["The history and development of embroidery in Quất Động Village","The life of Vietnamese kings and queens","How to travel to Quất Động Village","The history of villages in Việt Nam"], [0]],
-["Question 2: When did embroidery begin developing in Quất Động village?", ["In the 15th century","In the 16th century","In the 17th century","In the 18th century"], [2]],
-["Question 3: The word \"He\" refers to _______.", ["the Vietnamese King","Dr. Lê Công Hành","a local artisan","a member of the Royal family"], [1]],
-["Question 4: Answer in full:<br><b>What qualities must an artisan have to create beautiful embroideries?</b>", ["patient","careful","design","clever hands"], "keys", "To create beautiful embroideries, an artisan must be patient, careful and have an eye for design, along with clever hands."],
-["Question 5: Answer in full:<br><b>What products are made in Quất Động Village nowadays?</b>", ["clothes","bags","pillowcases","paintings","decorations"], "keys", "Nowadays, Quất Động products may range from clothes, bags, pillowcases, to paintings and decorations, which are exported to many countries."]
-]},
-{ title: "II. READING – B. Đông Hồ Folk Painting Village", passage: P_DONGHO, questions: [
-["Question 1: What is the main topic of the passage?", ["The history of Vietnamese festivals","Đông Hồ Folk Painting Village and its traditional paintings","The life of people in Vietnamese villages","Different types of paper in Việt Nam"], [1]],
-["Question 2: How many households are there in Đông Hồ Village?", ["More than 100 households","Exactly 200 households","No more than 200 households","About 500 households"], [2]],
-["Question 3: The word \"their\" in the passage refers to _______.", ["paintings'","villagers'","the main colors'","products'"], [1]],
-["Question 4: Answer in full:<br><b>Why are Đông Hồ Paintings so unique?</b>", ["poonah","paper"], "keys", "Đông Hồ paintings are so unique as they are printed on Poonah or Dó paper (made from the powders of Dó trees)."],
-["Question 5: Answer in full:<br><b>What are the main colors used in Đông Hồ Paintings mostly created from?</b>", ["natural","bricks","flowers","straw","trees"], "keys", "They are mostly created from natural materials like bricks, flowers, straw, and different trees, ..."]
-]},
-{ title: "III. LANGUAGE FOCUS – A. Pronunciation", questions: [
-["Choose the word whose underlined part differs from the others. (1) house / mouse / country / about", ["house","mouse","country","about"], [2]],
-["Choose the word whose underlined part differs from the others. (2) walk / talk / calm / water", ["walk","talk","calm","water"], [2]]
-]},
-{ title: "III. LANGUAGE FOCUS – B. Word Stress", questions: [
-["Choose the word that differs from the other three in the position of stress. (1)", ["suburb","neighbor","useful","remind"], [3]],
-["Choose the word that differs from the other three in the position of stress. (2)", ["traffic","protect","plumber","lifeguard"], [1]]
-]},
-{ title: "III. LANGUAGE FOCUS – C. Multiple Choice", questions: [
-["My hometown is _______ for handicrafts, such as paper fans and lanterns.", ["famously","famous","fame","infamous"], [1]],
-["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.", ["handicrafts","festivals","dishes","costumes"], [0]],
-["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"", ["That would be great!","Sure","Here you are.","Yes, I am"], [1]],
-["– Ann: \"Do you mind if I borrow your pencil?\" – Lisa: \"_______\"", ["Not at all","Yes, I do","I'm sorry","Yes, I would"], [0]],
-["In their community, the eldest child is usually _______ for his or her parents.", ["responsibility","responsibly","responsible","irresponsible"], [2]],
-["Our _______ help keep law and order in our community.", ["artisans","police officers","craftsmen","electricians"], [1]],
-["– Tom: \"I can show you how to open this smart door if you want.\" – Anna: \"_______\"", ["That would be great, thanks!","So do I","The card? Why's that?","I don't think so."], [0]],
-["– Tim: \"Thanks a lot for lending me an interesting book.\" – Mary: \"_______\"", ["Sure, here you are.","You're welcome.","The book? OK.","OK, I'll think about that."], [1]]
-]},
-{ title: "IV. WRITING – A. Find the error", questions: [
-["The more carefully students listen, the good they understand the lesson.", ["carefully","good","understand","lesson"], [1]],
-["Can you decide where to start the project: on Monday or on Tuesday?", ["decide","where","on Monday","on Tuesday"], [1]],
-["The more trees we plant, the more green the environment will become.", ["more trees","plant","more green","will become"], [2]],
-["Do you know who to choose for the school competition: a song or a dance?", ["know","who","for","a song or a dance"], [1]]
-]},
-{ title: "IV. WRITING – B. Sentence Arrangement", questions: [
-[`Arrange the sentences to make a meaningful letter:<br>Dear Lan,<br>a. We can discuss our ideas for the science project and divide the tasks together.<br>b. I'm writing to invite you to a group meeting this Saturday afternoon.<br>c. Please let me know if you can come.<br>d. Sorry I haven't contacted you for a few days because I was busy preparing for exams.<br>e. The meeting will start at 2 p.m. at my house.<br>Best wishes!`, ["b - e - d - a - c","b - d - e - a - c","d - a - b - e - c","d - b - e - a - c"], [3]],
-[`Arrange the sentences to make a meaningful paragraph:<br>a. Finally, it makes our planet a better place to live for future generations.<br>b. Moreover, by saving the environment, we are protecting our ecosystem and other natural resources.<br>c. Firstly, when we protect the environment, we are saving ourselves from the problems that will arise in the future. Also, the effects of climate change can also be reduced greatly.<br>d. It is important to save the environment for the survival of the planet and the living beings in it.<br>e. In conclusion, it is vital to preserve and protect life on Earth.`, ["d - c - b - e - a","d - c - b - a - e","d - b - c - e - a","d - c - e - b - a"], [1]],
-[`Arrange the sentences to make a meaningful letter:<br>Dear Anna,<br>a. We are going to prepare some traditional dishes and enjoy music together.<br>b. Please reply soon and tell me if you can join us. I'm looking forward to seeing you!<br>c. I'm very happy to invite you to our school camping trip next Sunday at Green Park.<br>d. Besides outdoor games, we will also have a talent show in the evening.<br>e. Don't forget to bring a hat and some comfortable clothes for outdoor activities.<br>Best,<br>Linda`, ["a - e - c - d - b","b - d - a - e - c","c - d - e - b - a","c - a - d - e - b"], [3]],
-[`Arrange the sentences to make a meaningful paragraph:<br>a. Furthermore, online learning allows students to access lessons and materials anytime and anywhere with an Internet connection.<br>b. In short, online learning offers many advantages and has become an important part of modern education.<br>c. Online learning is becoming increasingly popular among students around the world.<br>d. First of all, it provides flexibility, helping learners study at their own pace and manage their time effectively.<br>e. Last but not least, students can join virtual classes and interact with teachers and classmates easily through online platforms.`, ["c - d - a - e - b","d - c - a - e - b","c - a - d - e - b","c - d - e - b - a"], [0]]
-]},
-{ title: "IV. WRITING – C. Rewrite sentences", questions: [
-["Rewrite the sentence so that it has the same meaning:<br><i>Young people are discussing how they can help the poor and the elderly in their local community.</i><br>→ Young people are discussing ___", ["how to help the poor and the elderly in their local community"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me when I should hand in the assignment?</i><br>→ Could you tell me ___", ["when to hand in the assignment"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>The community is friendly. People feel happy.</i><br>→ The friendlier ___", ["the community is, the happier people feel"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>The city becomes crowded. Traffic is bad.</i><br>→ The more ___", ["crowded the city becomes, the worse the traffic is", "crowded the city becomes, the worse traffic is"], "text"],
-["Rewrite the sentence using the word in brackets:<br><i>The city government is making efforts to reduce the amount of rubbish.</i> (cut down on)<br>→ The city government ___", ["is making efforts to cut down on the amount of rubbish"], "text"],
-["Rewrite the sentence using the word in brackets:<br><i>Whenever teenagers have free time, they enjoy spending time exploring the city centre.</i> (look around)<br>→ Whenever teenagers have free time, they enjoy ___", ["looking around the city centre", "spending time looking around the city centre"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>The students are wondering how they can make their neighbourhood a better place.</i><br>→ The students are wondering ___", ["how to make their neighbourhood a better place"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>Could you tell me where I can buy fresh food in the local market?</i><br>→ Could you tell me ___", ["where to buy fresh food in the local market"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>The streets are busy. It is difficult to travel around the city.</i><br>→ The busier ___", ["the streets are, the more difficult it is to travel around the city"], "text"],
-["Rewrite the sentence so that it has the same meaning:<br><i>Teenagers exercise regularly. They are strong.</i><br>→ The more ___", ["regularly teenagers exercise, the stronger they are"], "text"],
-["Rewrite the sentence using the word in brackets:<br><i>People try to save water because they sometimes have no clean water left during the dry season.</i> (run out of)<br>→ People try to save water because ___", ["they sometimes run out of clean water during the dry season", "they sometimes run out of clean water in the dry season", "they sometimes run out of clean water left during the dry season", "they sometimes run out of clean water left in the dry season"], "text"],
-["Rewrite the sentence using the word in brackets:<br><i>Many traditional crafts and customs in our local community have been passed from older generations to younger ones.</i> (hand down)<br>→ Many traditional crafts and customs in our local community ___", ["have been handed down from older generations to younger ones", "have been handed down from older to younger generations"], "text"]
-]}
-];
-
-const Q_ENGLISH = [];
-const ENGLISH_QMETA = [];
-ENGLISH_SECTIONS.forEach((b, bi) => {
-  b.startIdx = Q_ENGLISH.length;
-  b.questions.forEach((q, qi) => {
-    Q_ENGLISH.push(q);
-    ENGLISH_QMETA.push({ blockIdx: bi, qIdx: qi });
-  });
-});
-
 const POOL = [
   ...Q_TINHOC.map(q => ({ q, subject: "💻 Tin học" })),
   ...Q_GDCD.map(q => ({ q, subject: "⚖️ GDCD" })),
-  ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" })),
-  ...Q_ENGLISH.map((q, idx) => ({ q, subject: "🇬🇧 Tiếng Anh", meta: ENGLISH_QMETA[idx] }))
+  ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" }))
 ];
 
 function shuffle(array) {
@@ -408,13 +303,8 @@ function shuffle(array) {
   return array;
 }
 
-/* ================= AUTH & SESSION ================= */
-const SESSION_KEY = "qp_session_v2";
-let session = null;
-
-function saveSession(s) { session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
-function loadSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e) { return null; } }
-function clearSession() { session = null; localStorage.removeItem(SESSION_KEY); }
+/* ================= TIỆN ÍCH & BẢO MẬT ================= */
+const $ = id => document.getElementById(id);
 
 function normText(s) {
   return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
@@ -428,129 +318,8 @@ function checkProfanity(str) {
   return BAD_WORDS.some(w => noAccentStr.includes(w) || lowerStr.includes(w));
 }
 
-var _BAN_V3 = "qpb3_";
-function getBanKey(name) { return _BAN_V3 + "ban_" + normText(name || "").replace(/\s+/g, "_"); }
-function getViolationKey(name) { return _BAN_V3 + "vio_" + normText(name || "").replace(/\s+/g, "_"); }
-function checkBanStatus(name) { try { return localStorage.getItem(getBanKey(name)) === "1"; } catch(e) { return false; } }
-function recordViolation(name) {
-  try {
-    var vk = getViolationKey(name);
-    var c = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
-    localStorage.setItem(vk, String(c));
-    localStorage.setItem(getBanKey(name), "1");
-  } catch(e) {}
-}
-
-function showBanScreen(name, reason = "Vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.") {
-  document.getElementById("ban-reason").innerHTML = `Bạn đã vi phạm: <br><b style="color:var(--bad)">${reason}</b><br><br>Tài khoản <b>"${name}"</b> đã bị chặn.`;
-  document.getElementById("ban-overlay").classList.add("active");
-}
-
-async function sha256Hex(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-function keyOf(u) { return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_"); }
-
-/* ================= AUTH UI ================= */
-let authMode = "login";
-const $ = id => document.getElementById(id);
-
-$("tabLogin").onclick = () => {
-  authMode = "login";
-  $("tabLogin").classList.add("active"); $("tabRegister").classList.remove("active");
-  $("regExtra").classList.add("hide"); $("btnAuthGo").textContent = "Đăng nhập"; $("auth-err").textContent = "";
-};
-$("tabRegister").onclick = () => {
-  authMode = "register";
-  $("tabRegister").classList.add("active"); $("tabLogin").classList.remove("active");
-  $("regExtra").classList.remove("hide"); $("btnAuthGo").textContent = "Đăng kí"; $("auth-err").textContent = "";
-};
-
-$("btnAuthGo").onclick = async () => {
-  $("auth-err").textContent = "";
-  const u = $("authUser").value.trim(), p = $("authPass").value;
-  if (!u || !p) { $("auth-err").textContent = "Vui lòng nhập đầy đủ."; return; }
-  if (p.length < 4) { $("auth-err").textContent = "Mật khẩu cần tối thiểu 4 kí tự."; return; }
-  
-  $("btnAuthGo").disabled = true;
-  $("btnAuthGo").textContent = "Đang xử lý...";
-
-  try {
-    if (authMode === "register") {
-      const name = $("authName").value.trim();
-      if (!name) throw new Error("Vui lòng nhập họ và tên.");
-      if (checkProfanity(u) || checkProfanity(name)) {
-        recordViolation(name);
-        throw new Error("🚫 Tên chứa từ ngữ không phù hợp. Tài khoản đã bị khóa.");
-      }
-      const key = keyOf(u);
-      const passHash = await sha256Hex(p);
-      const result = await runTransaction(ref(db, "accounts/" + key), function(cur) {
-        if (cur === null) return { username: u, passHash, name, cls: $("authCls").value.trim() || "", createdAt: Date.now() };
-        return; 
-      });
-      if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
-      saveSession({ key, username: u, name, cls: $("authCls").value.trim() || "" });
-    } else {
-      const key = keyOf(u);
-      const snap = await get(ref(db, "accounts/" + key));
-      if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
-      const acc = snap.val();
-      
-      if (checkProfanity(acc.name) || checkBanStatus(acc.name)) {
-        clearSession();
-        showBanScreen(acc.name, "Tài khoản đã bị khóa do vi phạm quy tắc.");
-        throw new Error("Tài khoản đã bị khóa.");
-      }
-      
-      const passHash = await sha256Hex(p);
-      if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
-      saveSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
-    }
-    enterGame();
-  } catch (e) {
-    $("auth-err").textContent = e.message;
-  }
-  $("btnAuthGo").disabled = false;
-  $("btnAuthGo").textContent = authMode === "login" ? "Đăng nhập" : "Đăng kí";
-};
-
-$("btn-logout").onclick = () => { clearSession(); location.reload(); };
-$("btn-home").onclick = () => { window.location.href = "../index.html"; };
-
-function enterGame() {
-  if (!session) return;
-  $("display-name").textContent = session.name;
-  $("display-cls").textContent = session.cls ? `(${session.cls})` : "";
-  $("auth-screen").classList.add("hide");
-  $("game-screen").classList.remove("hide");
-  startGame();
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const existing = loadSession();
-  if (existing) {
-    try {
-      const key = keyOf(existing.username);
-      const snap = await get(ref(db, "accounts/" + key));
-      if (snap.exists()) {
-        const acc = snap.val();
-        if (checkProfanity(acc.name) || checkBanStatus(acc.name)) {
-          clearSession();
-          showBanScreen(acc.name, "Tài khoản đã bị khóa.");
-          return;
-        }
-        session = existing;
-        enterGame();
-        return;
-      }
-    } catch(e) { console.warn("Auto-login check failed", e); }
-  }
-  $("auth-screen").classList.remove("hide");
-});
-
-/* ================= GAME STATE & ANTI-CHEAT ================= */
+/* ================= BIẾN TOÀN CỤC & TRẠNG THÁI ================= */
+let session = { name: "Người chơi", username: "guest", cls: "" };
 let currentFloor = 1;
 let gameQuestions = [];
 let startTime = 0;
@@ -583,6 +352,45 @@ function showToast(msg, isError = false) {
   }, 3000);
 }
 
+/* ================= XỬ LÝ SỰ KIỆN BẮT ĐẦU ================= */
+$("btn-start-game").onclick = () => {
+  const inputName = $("player-name-input").value.trim();
+  if (!inputName) {
+    showToast("Vui lòng nhập tên của bạn để lưu BXH!", true);
+    return;
+  }
+  if (checkProfanity(inputName)) {
+    showToast("Tên chứa từ ngữ không phù hợp!", true);
+    return;
+  }
+  
+  session.name = inputName;
+  session.username = "guest_" + Date.now(); // Dummy ID
+  
+  $("start-screen").classList.add("hide");
+  $("game-screen").classList.remove("hide");
+  $("display-name").textContent = session.name;
+  
+  startGame();
+};
+
+$("btn-retry").onclick = () => {
+  $("result-screen").classList.add("hide");
+  $("game-screen").classList.remove("hide");
+  startGame();
+};
+
+$("btn-giveup").onclick = () => {
+  if (!isGameActive) return;
+  const ok = confirm(
+    "Bạn có chắc muốn bỏ cuộc?\n\n" +
+    "• Điểm số tầng hiện tại sẽ được lưu vào bảng xếp hạng.\n" +
+    "• Bạn sẽ không thể tiếp tục ván này."
+  );
+  if (ok) endGame(false, "Bạn đã bỏ cuộc.");
+};
+
+/* ================= ANTI-CHEAT ================= */
 document.addEventListener("keydown", e => {
   if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key)) || (e.ctrlKey && /^[us]$/i.test(e.key))) {
     e.preventDefault();
@@ -606,11 +414,13 @@ function triggerCheat(evidence) {
 /* ================= GAME LOGIC ================= */
 function startGame() {
   currentFloor = 1;
+  // Đổi URL theo tầng
+  window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
+  
   gameQuestions = shuffle([...POOL]);
   startTime = Date.now();
   isGameActive = true;
-  $("result-screen").classList.add("hide");
-  $("game-screen").classList.remove("hide");
+  
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     if (isGameActive) $("timer-display").textContent = fmtTime(Date.now() - startTime);
@@ -624,9 +434,11 @@ function renderQuestion() {
     return;
   }
 
+  // Đổi URL liên tục theo tầng hiện tại
+  window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
+
   const item = gameQuestions[currentFloor - 1];
   const q = item.q;
-  const isText = typeof q[2] === "string";
   
   $("floor-display").textContent = currentFloor;
   $("q-subject").textContent = item.subject;
@@ -635,93 +447,20 @@ function renderQuestion() {
   const container = $("options-container");
   container.innerHTML = "";
 
-  if (item.subject === "🇬🇧 Tiếng Anh" && item.meta) {
-    const block = ENGLISH_SECTIONS[item.meta.blockIdx];
-    if (block && block.passage) {
-      const passageDiv = document.createElement("div");
-      passageDiv.className = "passage";
-      passageDiv.style.cssText = "background:rgba(255,255,255,0.05); border:1px solid var(--ln); border-radius:10px; padding:16px; margin-bottom:16px; font-size:0.95rem; line-height:1.6; font-style:italic; color:var(--mut);";
-      passageDiv.textContent = block.passage;
-      container.appendChild(passageDiv);
-    }
-  }
-
   questionRenderTime = Date.now();
-
-  if (isText) {
-    const input = document.createElement("textarea");
-    input.className = "txt-input";
-    input.placeholder = "Nhập đáp án của bạn...";
-    input.style.cssText = "width:100%; padding:14px; border-radius:12px; border:1.5px solid var(--ln); background:rgba(255,255,255,0.05); color:var(--fg); font:inherit; min-height:80px; resize:vertical; margin-top:8px;";
-    input.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste)!", true); };
-    
-    const submitBtn = document.createElement("button");
-    submitBtn.textContent = "Nộp đáp án";
-    submitBtn.style.marginTop = "12px";
-    submitBtn.onclick = () => handleTextAnswer(input.value, q, submitBtn);
-    
-    container.appendChild(input);
-    container.appendChild(submitBtn);
-    setTimeout(() => input.focus(), 100);
-  } else {
-    hoveredOptions.clear();
-    const labels = ["A", "B", "C", "D"];
-    q[1].forEach((optText, idx) => {
-      const div = document.createElement("div");
-      div.className = "opt";
-      div.innerHTML = `<b>${labels[idx]}</b><span>${optText}</span>`;
-      div.addEventListener("pointerenter", () => {
-        if (isGameActive) hoveredOptions.add(idx);
-      });
-      div.onclick = (e) => handleAnswer(idx, q[2], div, e);
-      container.appendChild(div);
+  hoveredOptions.clear();
+  
+  const labels = ["A", "B", "C", "D"];
+  q[1].forEach((optText, idx) => {
+    const div = document.createElement("div");
+    div.className = "opt";
+    div.innerHTML = `<b>${labels[idx]}</b><span>${optText}</span>`;
+    div.addEventListener("pointerenter", () => {
+      if (isGameActive) hoveredOptions.add(idx);
     });
-  }
-}
-
-function handleTextAnswer(userStr, q, btnElement) {
-  if (!isGameActive) return;
-  if (!userStr || !userStr.trim()) {
-    showToast("Vui lòng nhập đáp án!", true);
-    return;
-  }
-
-  let isCorrect = false;
-  if (q[2] === "keys") {
-    const keywords = q[1];
-    const uNorm = normText(userStr);
-    isCorrect = keywords.every(k => uNorm.includes(normText(k)));
-  } else {
-    const uNorm = normText(userStr);
-    isCorrect = q[1].some(acc => {
-      const aNorm = normText(acc);
-      if (uNorm === aNorm) return true;
-      if (uNorm.length > aNorm.length && uNorm.includes(aNorm)) return true;
-      if (aNorm.length > uNorm.length && aNorm.includes(uNorm)) return true;
-      return false;
-    });
-  }
-
-  btnElement.disabled = true;
-  const allInputs = $("options-container").querySelectorAll("textarea, button");
-  allInputs.forEach(el => el.style.pointerEvents = "none");
-
-  if (isCorrect) {
-    btnElement.style.background = "var(--ok)";
-    btnElement.textContent = "Chính xác! ✓";
-    setTimeout(() => {
-      currentFloor++;
-      renderQuestion();
-    }, 500);
-  } else {
-    btnElement.style.background = "var(--bad)";
-    btnElement.textContent = "Sai rồi! ✗";
-    document.body.classList.add("shake-screen");
-    setTimeout(() => {
-      document.body.classList.remove("shake-screen");
-      endGame(false, "Bạn đã nhập sai đáp án.");
-    }, 800);
-  }
+    div.onclick = (e) => handleAnswer(idx, q[2], div, e);
+    container.appendChild(div);
+  });
 }
 
 function handleAnswer(selectedIdx, correctIndices, element, event) {
@@ -780,14 +519,8 @@ function endGame(isWin, reason) {
   saveScore(score, finalTime);
 }
 
-$("btn-retry").onclick = () => {
-  $("result-screen").classList.add("hide");
-  startGame();
-};
-
 /* ================= FIREBASE & LEADERBOARD ================= */
 async function saveScore(score, time) {
-  if (!session) return;
   try {
     const newRef = push(ref(db, TOWER_NODE));
     await set(newRef, {
@@ -858,7 +591,13 @@ function escapeHtml(text) {
   return String(text || "").replace(/[&<>"']/g, m => map[m]);
 }
 
-loadLeaderboard();
+/* ================= KHỞI TẠO ================= */
+window.addEventListener('DOMContentLoaded', () => {
+  // Hiển thị màn hình bắt đầu
+  $("start-screen").classList.remove("hide");
+  // Load trước BXH cho màn hình kết quả
+  loadLeaderboard();
+});
 </script>
 </body>
 </html>
