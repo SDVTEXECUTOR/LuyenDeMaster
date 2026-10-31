@@ -348,7 +348,7 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 <div class="cs-line cs-1">Trường TH&amp;THCS Tân Trụ</div>
 <h2 class="cs-2" id="csTitle">Luyện Đề Trắc Nghiệm</h2>
 <div class="cs-line cs-3">Tin học 9 · GDCD 9 · Tiếng Anh 9 · Địa lí 9</div>
-<div class="cs-line cs-quote">“Mỗi câu đúng là một bước gần hơn tới điểm 10”</div>
+<div class="cs-line cs-quote">"Mỗi câu đúng là một bước gần hơn tới điểm 10"</div>
 <div class="cs-load"><i></i></div>
 <div class="cs-pct" id="csPct">0%</div>
 </div>
@@ -917,7 +917,7 @@ return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).p
 function fmtMsShort(totalMs) {
 const m = Math.floor(totalMs / 60000);
 const s = Math.floor((totalMs % 60000) / 1000);
-const ms = Math.floor((totalMs % 1000) / 10);
+const ms = Math.floor(totalMs % 1000) / 10;
 return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(2,'0')}`;
 }
 function normText(s){
@@ -1019,16 +1019,6 @@ function checkBanStatus(name) {
 try { return localStorage.getItem(getBanKey(name)) === "1"; }
 catch(e) { return false; }
 }
-function recordViolation(name) {
-if (isAdminSession()) return false;
-try {
-var vk = getViolationKey(name);
-var c = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
-localStorage.setItem(vk, String(c));
-localStorage.setItem(getBanKey(name), "1");
-return true;
-} catch(e) { return false; }
-}
 function showBanScreen(name) {
 if (isAdminSession()) return;
 document.body.innerHTML =
@@ -1129,30 +1119,156 @@ ovOff();
 showToast("Không ghi được lên máy chủ: " + e.message, true);
 }
 }
-/* ================= QUẢN LÍ TÀI KHOẢN (ADMIN) ================= */
+/* ================= KIỂM TRA & GHI NHẬN VI PHẠM FIREBASE ================= */
+async function checkBanStatusFirebase(username) {
+if (!db) return false;
+try {
+const snap = await get(ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase())));
+if (snap.exists()) {
+const data = snap.val();
+if (data.isBanned) return true;
+}
+} catch (e) { console.warn("Lỗi kiểm tra ban:", e); }
+return false;
+}
+async function recordViolationFirebase(username) {
+if (isAdminSession() || !db) return false;
+try {
+const banRef = ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase()));
+const snap = await get(banRef);
+const currentVio = snap.exists() ? (snap.val().violations || 0) : 0;
+await set(banRef, {
+isBanned: true,
+violations: currentVio + 1,
+timestamp: serverTimestamp()
+});
+return true;
+} catch (e) { console.warn("Lỗi ghi vi phạm:", e); return false; }
+}
+function recordViolation(nameOrUsername) {
+try {
+var vk = getViolationKey(nameOrUsername);
+var c = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
+localStorage.setItem(vk, String(c));
+localStorage.setItem(getBanKey(nameOrUsername), "1");
+} catch(e) {}
+if (session && session.username) {
+recordViolationFirebase(session.username);
+}
+}
+/* ================= QUẢN LÍ TÀI KHOẢN & BAN (ADMIN) ================= */
 async function loadAllAccounts() {
 const el = $("accountsListContainer");
 if (!el) return;
 el.innerHTML = skeleton(3);
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
 try {
-const snap = await get(ref(db, "accounts"));
-if (!snap.exists()) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có tài khoản nào.</div>'; return; }
+const accSnap = await get(ref(db, "accounts"));
 const accounts = [];
-snap.forEach(ch => accounts.push({ key: ch.key, ...ch.val() }));
-accounts.sort((a, b) => String(a.name || a.username || "").localeCompare(String(b.name || b.username || ""), "vi"));
-el.innerHTML = accounts.map(a => {
-const safeKey = esc(a.key), safeUser = esc(a.username || ""), safeName = esc(a.name || a.username || "");
-return '<div class="lbrow" style="grid-template-columns:1fr auto">'
-+ '<span class="who2"><b>' + safeName + '</b><span class="mut" style="font-size:0.8rem">@' + safeUser + (a.cls ? ' · ' + esc(a.cls) : '') + '</span></span>'
-+ '<button class="sm" style="background:var(--bad)" data-key="' + safeKey + '" data-username="' + safeUser + '" data-name="' + safeName + '">🗑️ Xoá</button>'
-+ '</div>';
-}).join("");
-el.querySelectorAll("button[data-key]").forEach(btn => {
+if (accSnap.exists()) {
+accSnap.forEach(ch => accounts.push({ key: ch.key, ...ch.val() }));
+}
+const banSnap = await get(ref(db, "bans"));
+const bans = {};
+if (banSnap.exists()) {
+banSnap.forEach(ch => { bans[ch.key] = ch.val(); });
+}
+const merged = accounts.map(acc => {
+const banInfo = bans[acc.username] || { isBanned: false, violations: 0, timestamp: 0 };
+return { ...acc, isBanned: banInfo.isBanned, violations: banInfo.violations, banTime: banInfo.timestamp };
+});
+merged.sort((a, b) => {
+if (a.isBanned !== b.isBanned) return a.isBanned ? -1 : 1;
+if (b.violations !== a.violations) return b.violations - a.violations;
+return String(a.name || a.username || "").localeCompare(String(b.name || b.username || ""), "vi");
+});
+if (merged.length === 0) {
+el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có tài khoản nào.</div>';
+return;
+}
+el.innerHTML = `
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+<thead>
+<tr style="background: var(--acs); color: var(--ac);">
+<th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--ln);">Tên đăng nhập</th>
+<th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--ln);">Họ và tên</th>
+<th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--ln);">Lớp</th>
+<th style="padding: 10px; text-align: center; border-bottom: 2px solid var(--ln);">Cảnh báo</th>
+<th style="padding: 10px; text-align: center; border-bottom: 2px solid var(--ln);">Trạng thái</th>
+<th style="padding: 10px; text-align: center; border-bottom: 2px solid var(--ln);">Hành động</th>
+</tr>
+</thead>
+<tbody>
+${merged.map(a => {
+const safeKey = esc(a.key);
+const safeUser = esc(a.username || "");
+const safeName = esc(a.name || a.username || "");
+const safeCls = esc(a.cls || "—");
+const isBanned = a.isBanned;
+const vioCount = a.violations || 0;
+const statusBadge = isBanned
+? '<span style="background:var(--bads); color:var(--bad); padding:4px 8px; border-radius:6px; font-weight:700; font-size:0.8rem;">🔴 Bị ban</span>'
+: '<span style="background:var(--oks); color:var(--ok); padding:4px 8px; border-radius:6px; font-weight:700; font-size:0.8rem;">🟢 Hoạt động</span>';
+const banBtnText = isBanned ? "Unban" : "Ban";
+const banBtnClass = isBanned ? "background:var(--ok); color:#fff;" : "background:var(--bad); color:#fff;";
+return `
+<tr style="border-bottom: 1px solid var(--ln); transition: background 0.2s;" onmouseover="this.style.background='var(--acs)'" onmouseout="this.style.background='transparent'">
+<td style="padding: 10px; font-weight: 600;">@${safeUser}</td>
+<td style="padding: 10px;">${safeName}</td>
+<td style="padding: 10px;">${safeCls}</td>
+<td style="padding: 10px; text-align: center; font-weight: 800; color: ${vioCount > 0 ? 'var(--bad)' : 'var(--mut)'};">${vioCount}</td>
+<td style="padding: 10px; text-align: center;">${statusBadge}</td>
+<td style="padding: 10px; text-align: center; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+<button class="sm" style="${banBtnClass} border:none; border-radius:6px; cursor:pointer; padding: 6px 12px;"
+data-action="toggle-ban" data-username="${safeUser}" data-name="${safeName}" data-banned="${isBanned}">
+${banBtnText}
+</button>
+<button class="sm" style="background:var(--bad); color:#fff; border:none; border-radius:6px; cursor:pointer; padding: 6px 12px;"
+data-action="delete" data-key="${safeKey}" data-username="${safeUser}" data-name="${safeName}">
+🗑️ Xóa
+</button>
+</td>
+</tr>
+`;
+}).join("")}
+</tbody>
+</table>
+</div>
+`;
+el.querySelectorAll("button[data-action='toggle-ban']").forEach(btn => {
+btn.onclick = () => toggleBanUser(btn.dataset.username, btn.dataset.name, btn.dataset.banned === "true");
+});
+el.querySelectorAll("button[data-action='delete']").forEach(btn => {
 btn.onclick = () => deleteAccountAndResults(btn.dataset.key, btn.dataset.username, btn.dataset.name);
 });
 } catch (e) {
+console.error(e);
 el.innerHTML = '<div class="mut">Không tải được danh sách tài khoản.</div>';
+}
+}
+async function toggleBanUser(username, name, isCurrentlyBanned) {
+if (!isAdminSession()) return;
+const action = isCurrentlyBanned ? "gỡ ban" : "ban";
+if (!confirm(`Bạn có chắc muốn ${action} tài khoản "${name}" (@${username})?`)) return;
+try {
+ovOn(`Đang ${action}...`);
+const banRef = ref(db, "bans/" + encodeURIComponent(username.toLowerCase()));
+if (isCurrentlyBanned) {
+await set(banRef, { isBanned: false, violations: 0, timestamp: serverTimestamp() });
+await set(ref(db, UNBAN_NODE), serverTimestamp());
+showToast(`✅ Đã gỡ ban cho ${name}!`);
+} else {
+const snap = await get(banRef);
+const currentVio = snap.exists() ? (snap.val().violations || 0) : 0;
+await set(banRef, { isBanned: true, violations: currentVio + 1, timestamp: serverTimestamp() });
+showToast(`✅ Đã ban tài khoản ${name}!`);
+}
+ovOff();
+loadAllAccounts();
+} catch (e) {
+ovOff();
+showToast("Lỗi: " + e.message, true);
 }
 }
 async function deleteAccountAndResults(key, username, name) {
@@ -1180,6 +1296,7 @@ if (v && String(v.username || "").trim().toLowerCase() === uNorm) tDels.push(ch.
 });
 }
 await Promise.all(tDels.map(k => remove(ref(db, "tower/" + k)).catch(() => {})));
+await remove(ref(db, "bans/" + encodeURIComponent(username.toLowerCase())));
 ovOff();
 showToast('✅ Đã xoá tài khoản "' + name + '" và ' + dels.length + ' kết quả liên quan.');
 loadAllAccounts();
@@ -1239,12 +1356,13 @@ try{ snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
 if(!snap.exists()) throw new Error("Tài khoản không tồn tại.");
 const acc = snap.val();
 if (checkProfanity(acc.name) || checkProfanity(acc.username)) {
-recordViolation(acc.name);
+await recordViolationFirebase(acc.username);
 clearSession();
 showBanScreen(acc.name);
 throw new Error("Tài khoản đã bị khóa do vi phạm quy tắc ứng xử.");
 }
-if (checkBanStatus(acc.name)) {
+const isBanned = await checkBanStatusFirebase(acc.username);
+if (isBanned || checkBanStatus(acc.name)) {
 clearSession();
 showBanScreen(acc.name);
 throw new Error("Tài khoản đã bị khóa.");
@@ -2148,15 +2266,18 @@ if (existing.isAdmin === true && String(existing.username || "").toLowerCase() =
 session = existing;
 enterApp();
 } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
-recordViolation(existing.name);
+recordViolation(existing.username);
 clearSession();
 showBanScreen(existing.name);
-} else if (checkBanStatus(existing.name)) {
+} else {
+const isBanned = await checkBanStatusFirebase(existing.username);
+if (isBanned || checkBanStatus(existing.name)) {
 clearSession();
 showBanScreen(existing.name);
 } else {
 session = existing;
 enterApp();
+}
 }
 } else {
 show("auth");
