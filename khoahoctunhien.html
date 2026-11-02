@@ -77,20 +77,24 @@ a.back:hover{background:var(--acs);border-color:var(--ac)}
 .toast.show{transform:translateX(-50%) translateY(0)}.toast.error{background:var(--bad)}
 .ban-screen{position:fixed;inset:0;z-index:9999;background:#0f172a;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
 .ban-screen h1{color:var(--bad);font-size:2.2rem}.ban-screen p{color:#94a3b8;max-width:500px}
-.chk{display:flex;gap:12px;align-items:center;margin:12px 0;cursor:pointer;font-weight:500}
-.chk input{width:20px;height:20px;accent-color:var(--ac);cursor:pointer}
-.song-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;transition:background .2s;cursor:pointer;border-bottom:1px solid var(--ln)}
-.song-item:last-child{border-bottom:none}
-.song-item:hover{background:var(--acs)}
-.song-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--ac);cursor:pointer;flex:none}
-.song-item span{font-weight:500;font-size:.95rem}
+/* ===== Nhạc nền + đồng hồ ===== */
+.xm-box{margin:4px auto 16px;max-width:360px;text-align:left}
+.xm-chk{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:600;justify-content:center}
+.xm-chk input{width:20px;height:20px;accent-color:var(--ac);cursor:pointer}
+.xm-area{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.xm-song{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--ln);cursor:pointer}
+.xm-song:last-child{border-bottom:0}.xm-song:hover{background:var(--acs)}
+.xm-song input{width:18px;height:18px;accent-color:var(--ac);flex:none}
+#xmFab{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:90;width:48px;height:48px;padding:0;border-radius:50%;font-size:1.3rem;line-height:1}
+#xmFab.off{background:var(--card);color:var(--fg);border:1.5px solid var(--ln)}
+#liveClock{font-size:.85rem;margin-top:4px;font-weight:600;color:var(--ac)}
 @media(max-width:600px){.lbrow{grid-template-columns:36px minmax(0,1fr) auto}.lbrow .dur{display:none}.score{font-size:2.8rem}}
 </style>
 <style id="__dl">html{display:none!important}</style>
 </head>
 <body>
 <script>
-/* Khoá tên miền */
+/* Khoá tên miền: giữ nguyên như index.html */
 (function(){
 var _e=[108,117,121,101,110,100,101,109,97,115,116,101,114,46,118,101,114,99,101,108,46,97,112,112];
 var _h=""; for(var i=0;i<_e.length;i++)_h+=String.fromCharCode(_e[i]);
@@ -108,10 +112,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 }
 })();
 </script>
-
-<!-- Audio cho nhạc nền -->
-<audio id="bgMusic"></audio>
-
 <div class="toast" id="toast"></div>
 <main>
   <!-- Thanh trên -->
@@ -122,7 +122,7 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
         <div class="mut" id="hiSub"></div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00,00</span></span>
+        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00.000</span></span>
         <a class="back" id="homeLink" href="index.html">← Trang chủ</a>
       </div>
     </div>
@@ -143,14 +143,10 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
         <button class="pill" id="mShuf" type="button">🎲 Đề xáo trộn</button>
       </div>
       <div class="mut" id="modeHint" style="margin-bottom:16px"></div>
-      
-      <!-- Tùy chọn nhạc nền -->
-      <label class="chk" style="justify-content:center;margin-top:16px"><input type="checkbox" id="musicCheck"> Bật nhạc nền</label>
-      <div id="musicSelectionArea" class="hide" style="justify-content:center;margin:8px 0 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <span id="currentSongLabel" class="mut" style="font-weight:500;font-size:.9rem">🎵 Đang phát: <b>Ngẫu nhiên</b></span>
-        <button class="g sm" id="btnChangeMusic" style="padding:6px 12px;font-size:.8rem">Thay đổi</button>
+      <div class="xm-box">
+        <label class="xm-chk"><input type="checkbox" id="xmChk"> Bật nhạc nền</label>
+        <div class="xm-area" id="xmArea" style="display:none"><span class="mut" id="xmLabel" style="font-weight:500"></span><button class="g sm" id="xmChange" type="button">Thay đổi</button></div>
       </div>
-
       <button id="btnStart" style="width:100%;max-width:320px;padding:14px">Bắt đầu làm bài</button>
     </div>
     <div class="card">
@@ -166,7 +162,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     <div class="card">
       <div class="mut" style="font-weight:600">Danh sách câu hỏi (nhấn để chuyển tới)</div>
       <div class="nav" id="nv"></div>
-      <!-- Nút Nộp bài luôn hiển thị ở đây -->
       <div class="row" style="justify-content:flex-end; margin-top:16px">
         <button class="p" id="subAlways" style="background:var(--ok)">Nộp bài</button>
       </div>
@@ -199,7 +194,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
   </section>
 </main>
 
-<!-- Modal xác nhận nộp bài -->
 <div class="mask" id="mk">
   <div class="card">
     <h1 style="font-size:1.3rem;margin-bottom:8px">Nộp bài?</h1>
@@ -210,23 +204,18 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     </div>
   </div>
 </div>
-
-<!-- Modal chọn nhạc -->
-<div class="mask" id="musicMask">
-  <div class="card" style="max-width:440px;width:100%">
+<div class="mask" id="xmMask">
+  <div class="card">
     <h2 style="margin-bottom:16px">🎵 Chọn nhạc nền</h2>
-    <div style="margin-bottom:16px">
-      <label class="chk" style="margin:8px 0"><input type="radio" name="mMode" value="random" id="mModeRandom"> <b>Ngẫu nhiên</b></label>
-      <label class="chk" style="margin:8px 0"><input type="radio" name="mMode" value="playlist" id="mModePlaylist"> <b>Danh sách</b></label>
+    <div style="margin-bottom:12px">
+      <label class="xm-chk" style="justify-content:flex-start;margin:8px 0"><input type="radio" name="xmMode" id="xmRandom"> <b>Ngẫu nhiên</b></label>
+      <label class="xm-chk" style="justify-content:flex-start;margin:8px 0"><input type="radio" name="xmMode" id="xmList"> <b>Danh sách</b></label>
     </div>
-    <div id="songListContainer" style="margin-bottom:20px;max-height:250px;overflow-y:auto;border:1px solid var(--ln);border-radius:10px;background:rgba(255,255,255,.4)"></div>
-    <div class="row">
-      <button class="g" id="btnCancelMusic" style="flex:1">Hủy</button>
-      <button class="p" id="btnSaveMusic" style="flex:1">Lưu</button>
-    </div>
+    <div id="xmSongs" style="max-height:250px;overflow-y:auto;border:1px solid var(--ln);border-radius:10px;margin-bottom:20px"></div>
+    <div class="row"><button class="g" id="xmCancel" style="flex:1" type="button">Hủy</button><button id="xmSave" style="flex:1" type="button">Lưu</button></div>
   </div>
 </div>
-
+<button id="xmFab" type="button" title="Bật/tắt nhạc nền">🎵</button>
 <div id="ov" class="hide"><div class="lbox"><div class="spinner"></div><div id="ovtxt" style="font-weight:600">Đang xử lý…</div></div></div>
 
 <script type="module">
@@ -315,7 +304,7 @@ const L = "ABCD";
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function normText(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim(); }
-function fmtMs(ms){ const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=Math.floor(ms%1000/10); return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+","+String(c).padStart(2,"0"); }
+function fmtMs(ms){ const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=Math.floor(ms%1000); return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+"."+String(c).padStart(3,"0"); }
 function fmtScore(x){ return String(x).replace(".", ","); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function showToast(msg, err){ const t=$("toast"); t.textContent=msg; t.className="toast show"+(err?" error":""); clearTimeout(showToast._t); showToast._t=setTimeout(()=>t.classList.remove("show"),3500); }
@@ -384,7 +373,8 @@ beginTimer(); showScreen("quiz"); draw();
 }
 function beginTimer(){
 clearInterval(tick);
-tick = setInterval(() => { if (S && !S.done) $("tm").textContent = fmtMs(Date.now() - S.t0); }, 40);
+let _seenAt = 0;
+tick = setInterval(() => { if (S && !S.done) { const n = Date.now(); $("tm").textContent = fmtMs(n - S.t0); if (n - _seenAt > 1000) { _seenAt = n; S.seen = n; saveState(); } } }, 30);
 }
 
 /* ================= Hiển thị câu hỏi ================= */
@@ -453,7 +443,7 @@ $("sc").textContent = fmtScore(r.score);
 $("rc").textContent = r.correct + "/" + r.total;
 $("rw").textContent = (r.total - r.correct) + "";
 $("rt").textContent = fmtMs(S.dur);
-$("flagMsg").textContent = (flagged || S.vio > MAX_VIO) ? "⚠️ Bài được nộp tự động do vi phạm quy chế quá " + MAX_VIO + " lần." : "";
+$("flagMsg").textContent = S.left ? "⚠️ Bài được nộp tự động vì bạn đã rời khỏi trang khi đang làm bài." : ((flagged || S.vio > MAX_VIO) ? "⚠️ Bài được nộp tự động do vi phạm quy chế quá " + MAX_VIO + " lần." : "");
 $("rnv").innerHTML = gridHTML(true);
 $("rv").classList.add("hide"); $("btnReview").textContent = "Xem lại bài";
 buildReview();
@@ -480,9 +470,9 @@ return h + '</div>';
 }).join("");
 }
 $("btnReview").onclick = () => { const v = $("rv").classList.toggle("hide"); $("btnReview").textContent = v ? "Xem lại bài" : "Ẩn bài xem lại"; };
-$("again").onclick = () => { clearState(); S = null; $("tm").textContent = "00:00,00"; showScreen("start"); renderLeaderboard("lbStart"); };
+$("again").onclick = () => { clearState(); S = null; $("tm").textContent = "00:00.000"; showScreen("start"); renderLeaderboard("lbStart"); };
 $("home").onclick = () => { location.href = "index.html"; };
-$("homeLink").onclick = e => { if (quizActive() && !confirm("Bài làm đang dở sẽ vẫn chạy đồng hồ. Rời khỏi trang?")) e.preventDefault(); };
+$("homeLink").onclick = e => { if (quizActive() && !confirm("Rời khỏi trang sẽ được tính là NỘP BÀI ngay (các câu chưa làm tính là sai). Bạn chắc chắn muốn rời đi?")) e.preventDefault(); };
 
 /* ================= Firebase: nộp kết quả & bảng xếp hạng ================= */
 async function pushResult(){
@@ -570,142 +560,183 @@ if (k === "F12" || ((e.ctrlKey || e.metaKey) && (/^[cu]$/i.test(k) || (e.shiftKe
 if (!quizActive() || $("mk").classList.contains("on") || e.ctrlKey || e.metaKey || e.altKey) return;
 if (e.key === "ArrowRight") { e.preventDefault(); go(S.cur + 1); return; }
 if (e.key === "ArrowLeft") { e.preventDefault(); go(S.cur - 1); return; }
+if (e.key === "Enter") { if (e.target && e.target.tagName === "BUTTON") return; e.preventDefault(); go(S.cur + 1); return; }
 const m = "1234".indexOf(k) > -1 && k ? "1234".indexOf(k) : "abcd".indexOf(k.toLowerCase());
 if (k.length === 1 && m > -1) { e.preventDefault(); choose(S.perm[S.order[S.cur]][m]); }
 }, true);
 
-/* ================= Nhạc nền ================= */
-const bgMusic = $("bgMusic");
-bgMusic.removeAttribute("loop");
-const musicCheck = $("musicCheck");
-const musicSelectionArea = $("musicSelectionArea");
-const currentSongLabel = $("currentSongLabel");
-const SONGS = [
-{ id: 'grateful', title: 'Grateful', src: 'onemore/Grateful.mp3' },
-{ id: 'shapeofyou', title: 'Shape of You', src: 'onemore/ShapeofYou.mp3' },
-{ id: 'spencerhillcool', title: 'Spencer Hill Cool', src: 'onemore/Spencerhillcool.mp3' },
-{ id: 'haruharu', title: 'Haru Haru', src: 'onemore/haruharu.mp3' },
-{ id: 'luunien', title: 'Lưu Niên', src: 'onemore/luunien.mp3' },
-{ id: 'nguoidung', title: 'Người Dưng', src: 'onemore/nguoidung.mp3' },
-{ id: 'tamthaitu', title: 'Tam Thái Tử', src: 'onemore/tamthaitu.mp3' }
-];
-let isMusicOn = localStorage.getItem("qp_music") === "on";
-let musicMode = localStorage.getItem("qp_music_mode") || "random";
-let selectedSongIds = JSON.parse(localStorage.getItem("qp_music_selected")) || SONGS.map(s => s.id);
-let currentPlaylist = [];
-let currentPlayIndex = 0;
-
-musicCheck.checked = isMusicOn;
-if (isMusicOn) musicSelectionArea.classList.remove("hide");
-
-function updateMusicUI() {
-if (musicMode === "random") {
-currentSongLabel.innerHTML = '🎵 Đang phát: <b>Ngẫu nhiên</b>';
-} else {
-const selected = SONGS.filter(s => selectedSongIds.includes(s.id));
-if (selected.length === 0) currentSongLabel.innerHTML = '🎵 Đang phát: <b>Chưa chọn bài</b>';
-else if (selected.length === 1) currentSongLabel.innerHTML = '🎵 Đang phát: <b>' + selected[0].title + '</b>';
-else currentSongLabel.innerHTML = '🎵 Đang phát: <b>Danh sách (' + selected.length + ' bài)</b>';
+/* ================= Rời khỏi trang = nộp bài ================= */
+function leaveSubmit(){
+if (!quizActive()) return;
+S.done = true; S.left = true; S.dur = Date.now() - S.t0;
+clearInterval(tick); saveState();
+if (!db) return;
+const r = calc();
+try {
+fetch(firebaseConfig.databaseURL + "/results_khtn.json", {
+method: "POST", keepalive: true, headers: {"Content-Type": "application/json"},
+body: JSON.stringify({ type: "quiz_result", subject: SUBJECT, username: session.username, name: session.name, cls: session.cls || "",
+score: r.score, correct: r.correct, total: r.total, duration: S.dur, isShuffled: S.shuffled === true, createdAt: {".sv": "timestamp"} })
+}).catch(() => {});
+} catch (e) {}
 }
-}
-function buildPlaylist() {
-let list = [];
-if (musicMode === "random") {
-list = [...SONGS].sort(() => Math.random() - 0.5);
-} else {
-list = SONGS.filter(s => selectedSongIds.includes(s.id));
-if (list.length === 0) list = [SONGS[0]];
-}
-return list;
-}
-function playCurrentSong() {
-if (!isMusicOn || currentPlaylist.length === 0) return;
-const song = currentPlaylist[currentPlayIndex];
-if (!bgMusic.src.endsWith(song.src)) bgMusic.src = song.src;
-bgMusic.play().catch(() => {});
-updateMusicUI();
-}
-function playNextSong() {
-if (!isMusicOn) return;
-if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
-currentPlayIndex++;
-if (currentPlayIndex >= currentPlaylist.length) {
-currentPlayIndex = 0;
-if (musicMode === "random") currentPlaylist = buildPlaylist();
-}
-playCurrentSong();
-}
-bgMusic.addEventListener("ended", playNextSong);
-bgMusic.addEventListener("error", () => { if (isMusicOn && currentPlaylist.length > 1) playNextSong(); });
-
-musicCheck.onchange = () => {
-isMusicOn = musicCheck.checked;
-localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
-musicSelectionArea.classList.toggle("hide", !isMusicOn);
-if (isMusicOn) {
-if (currentPlaylist.length === 0) { currentPlaylist = buildPlaylist(); currentPlayIndex = 0; }
-playCurrentSong();
-} else { bgMusic.pause(); }
-};
-
-$("btnChangeMusic").onclick = () => {
-$("mModeRandom").checked = musicMode === "random";
-$("mModePlaylist").checked = musicMode === "playlist";
-let h = "";
-SONGS.forEach(s => {
-h += '<label class="song-item"><input type="checkbox" value="'+s.id+'" '+(selectedSongIds.includes(s.id) ? 'checked' : '')+'><span>'+s.title+'</span></label>';
-});
-$("songListContainer").innerHTML = h;
-toggleSongCheckboxes();
-$("musicMask").classList.add("on");
-};
-
-function toggleSongCheckboxes() {
-const isPlaylist = $("mModePlaylist").checked;
-$("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
-$("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
-}
-$("mModeRandom").onchange = toggleSongCheckboxes;
-$("mModePlaylist").onchange = toggleSongCheckboxes;
-
-$("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
-$("btnSaveMusic").onclick = () => {
-musicMode = $("mModeRandom").checked ? "random" : "playlist";
-const checkboxes = $("songListContainer").querySelectorAll("input[type=checkbox]");
-selectedSongIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-if (musicMode === "playlist" && selectedSongIds.length === 0) {
-showToast("Vui lòng chọn ít nhất 1 bài hát!", true);
-return;
-}
-localStorage.setItem("qp_music_mode", musicMode);
-localStorage.setItem("qp_music_selected", JSON.stringify(selectedSongIds));
-$("musicMask").classList.remove("on");
-currentPlaylist = buildPlaylist();
-currentPlayIndex = 0;
-if (isMusicOn) playCurrentSong();
-else updateMusicUI();
-};
-
-const tryPlayMusicOnInteraction = () => {
-if (isMusicOn && bgMusic.paused) playCurrentSong();
-};
-document.body.addEventListener("click", tryPlayMusicOnInteraction);
-document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
-
-if (isMusicOn) {
-currentPlaylist = buildPlaylist();
-currentPlayIndex = 0;
-updateMusicUI();
-}
+window.addEventListener("pagehide", leaveSubmit);
+window.addEventListener("beforeunload", e => { if (quizActive()) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ================= Khởi động ================= */
 (function init(){
 const saved = loadState();
 if (saved) {
 S = saved;
+if (!S.done) { S.done = true; S.left = true; S.dur = Math.max(0, (S.seen || Date.now()) - S.t0); saveState(); }
 if (S.done) { clearInterval(tick); $("tm").textContent = fmtMs(S.dur); showResult(S.vio > MAX_VIO); if (!S.pushed) pushResult(); }
 else { beginTimer(); showScreen("quiz"); draw(); }
 } else { showScreen("start"); renderLeaderboard("lbStart"); }
+})();
+</script>
+
+<script>
+/* ================= Nhạc nền + đồng hồ trực tiếp (giống index.html) ================= */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var SONGS = [
+    { id: "grateful", title: "Grateful", src: "onemore/Grateful.mp3" },
+    { id: "shapeofyou", title: "Shape of You", src: "onemore/ShapeofYou.mp3" },
+    { id: "spencerhillcool", title: "Spencer Hill Cool", src: "onemore/Spencerhillcool.mp3" },
+    { id: "haruharu", title: "Haru Haru", src: "onemore/haruharu.mp3" },
+    { id: "luunien", title: "Lưu Niên", src: "onemore/luunien.mp3" },
+    { id: "nguoidung", title: "Người Dưng", src: "onemore/nguoidung.mp3" },
+    { id: "tamthaitu", title: "Tam Thái Tử", src: "onemore/tamthaitu.mp3" }
+  ];
+  var POS_KEY = "khtn_music_pos";
+  var isOn = localStorage.getItem("qp_music") === "on";
+  var mode = localStorage.getItem("qp_music_mode") || "random";
+  var sel = null;
+  try { sel = JSON.parse(localStorage.getItem("qp_music_selected")); } catch (e) {}
+  if (!Array.isArray(sel)) sel = SONGS.map(function (s) { return s.id; });
+  var playlist = [], idx = 0, pendingTime = 0;
+
+  var bg = document.createElement("audio");
+  bg.id = "bgMusic";
+  document.body.appendChild(bg);
+
+  function build() {
+    var l;
+    if (mode === "random") {
+      l = SONGS.slice().sort(function () { return Math.random() - 0.5; });
+    } else {
+      l = SONGS.filter(function (s) { return sel.indexOf(s.id) > -1; });
+      if (!l.length) l = [SONGS[0]];
+    }
+    return l;
+  }
+  function label() {
+    var el = $("xmLabel"); if (!el) return;
+    if (mode === "random") el.innerHTML = "🎵 Đang phát: <b>Ngẫu nhiên</b>";
+    else {
+      var n = SONGS.filter(function (s) { return sel.indexOf(s.id) > -1; });
+      el.innerHTML = n.length === 1 ? "🎵 Đang phát: <b>" + n[0].title + "</b>" : "🎵 Đang phát: <b>Danh sách (" + n.length + " bài)</b>";
+    }
+  }
+  function playCur() {
+    if (!isOn || !playlist.length) return;
+    var s = playlist[idx];
+    if (!bg.src || !bg.src.endsWith(s.src)) bg.src = s.src;
+    if (pendingTime > 0) {
+      var t = pendingTime; pendingTime = 0;
+      bg.addEventListener("loadedmetadata", function f() { bg.removeEventListener("loadedmetadata", f); try { bg.currentTime = t; } catch (e) {} });
+    }
+    bg.play().catch(function () {});
+    label();
+  }
+  function next() {
+    if (!isOn) return;
+    if (!playlist.length) playlist = build();
+    idx++;
+    if (idx >= playlist.length) { idx = 0; if (mode === "random") playlist = build(); }
+    playCur();
+  }
+  bg.addEventListener("ended", next);
+  bg.addEventListener("error", function () { if (isOn && playlist.length > 1) next(); });
+
+  function setOn(v) {
+    isOn = v;
+    localStorage.setItem("qp_music", v ? "on" : "off");
+    $("xmChk").checked = v;
+    $("xmArea").style.display = v ? "flex" : "none";
+    $("xmFab").classList.toggle("off", !v);
+    $("xmFab").textContent = v ? "🎵" : "🔇";
+    if (v) { if (!playlist.length) { playlist = build(); idx = 0; } playCur(); }
+    else bg.pause();
+  }
+
+  var mask = $("xmMask");
+  function toggleList() {
+    var on = $("xmList").checked, c = $("xmSongs");
+    c.style.opacity = on ? "1" : ".5";
+    c.style.pointerEvents = on ? "auto" : "none";
+  }
+  $("xmChk").onchange = function () { setOn(this.checked); };
+  $("xmChange").onclick = function () {
+    $("xmRandom").checked = mode === "random";
+    $("xmList").checked = mode === "playlist";
+    $("xmSongs").innerHTML = SONGS.map(function (s) {
+      return '<label class="xm-song"><input type="checkbox" value="' + s.id + '"' + (sel.indexOf(s.id) > -1 ? " checked" : "") + "><span>" + s.title + "</span></label>";
+    }).join("");
+    toggleList();
+    mask.classList.add("on");
+  };
+  $("xmRandom").onchange = toggleList;
+  $("xmList").onchange = toggleList;
+  $("xmCancel").onclick = function () { mask.classList.remove("on"); };
+  $("xmSave").onclick = function () {
+    var m = $("xmRandom").checked ? "random" : "playlist";
+    var ids = Array.prototype.slice.call($("xmSongs").querySelectorAll("input:checked")).map(function (c) { return c.value; });
+    if (m === "playlist" && !ids.length) { alert("Vui lòng chọn ít nhất 1 bài hát!"); return; }
+    mode = m; sel = ids;
+    localStorage.setItem("qp_music_mode", mode);
+    localStorage.setItem("qp_music_selected", JSON.stringify(sel));
+    mask.classList.remove("on");
+    playlist = build(); idx = 0; pendingTime = 0;
+    if (isOn) playCur(); else label();
+  };
+  $("xmFab").onclick = function (e) { e.stopPropagation(); setOn(!isOn); };
+
+  /* Tiếp tục bài đang nghe khi chuyển từ trang chủ sang */
+  playlist = build();
+  try {
+    var saved = JSON.parse(sessionStorage.getItem(POS_KEY) || "null");
+    if (saved && isOn) {
+      var k = playlist.findIndex(function (s) { return s.id === saved.id; });
+      if (k > -1) { idx = k; pendingTime = saved.t || 0; }
+    }
+  } catch (e) {}
+  window.addEventListener("pagehide", function () {
+    try {
+      if (isOn && playlist[idx]) sessionStorage.setItem(POS_KEY, JSON.stringify({ id: playlist[idx].id, t: bg.currentTime || 0 }));
+    } catch (e) {}
+  });
+
+  /* Trình duyệt chặn tự phát: bắt đầu phát ở lần chạm/nhấn đầu tiên */
+  function kick() { if (isOn && bg.paused && !mask.classList.contains("on")) playCur(); }
+  document.body.addEventListener("click", kick);
+  document.body.addEventListener("touchstart", kick, { passive: true });
+  document.body.addEventListener("keydown", kick);
+  setOn(isOn);
+
+  /* Đồng hồ trực tiếp */
+  var sub = $("hiSub");
+  if (sub) {
+    var clk = document.createElement("div");
+    clk.id = "liveClock";
+    sub.parentNode.insertBefore(clk, sub.nextSibling);
+    var days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+    var upd = function () {
+      var n = new Date();
+      clk.textContent = "📅 " + days[n.getDay()] + ", " + n.toLocaleDateString("vi-VN") + " · ⏰ " + n.toLocaleTimeString("vi-VN");
+    };
+    upd(); setInterval(upd, 1000);
+  }
 })();
 </script>
 </body>
