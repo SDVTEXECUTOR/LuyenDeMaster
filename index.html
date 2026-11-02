@@ -316,6 +316,9 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 60%{transform:translateX(8px) rotate(1deg)}
 80%{transform:translateX(-4px)}
 }
+.card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
+.card.link:hover{transform:translateY(-4px)}
+.card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
 </style>
 <style id="__dl">html{display:none!important}</style>
 </head>
@@ -431,25 +434,25 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 <div class="mut" style="font-size:0.8rem;margin-top:8px">* Riêng môn Tiếng Anh và Địa lí: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
 </div>
 <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
-<div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+<div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">💻</div>
 <h2>Tin học 9</h2>
 <div class="mut" style="margin:8px 0 16px">Giữa học kì I · Bài 1,2,3,4 · 19 câu</div>
 <button class="p" style="width:100%" id="startTinhoc">Luyện tập ngay</button>
 </div>
-<div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+<div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">⚖️</div>
 <h2>GDCD 9</h2>
 <div class="mut" style="margin:8px 0 16px">Đề cương giữa kì I · 20 câu</div>
 <button class="p" style="width:100%" id="startGdcd">Luyện tập ngay</button>
 </div>
-<div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+<div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">🇬🇧</div>
 <h2>Tiếng Anh 9</h2>
 <div class="mut" style="margin:8px 0 16px">Đề cương giữa kì I · 52 câu</div>
 <button class="p" style="width:100%" id="startEnglish">Luyện tập ngay</button>
 </div>
-<div class="card" style="text-align:center;margin:0;cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+<div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">🌍</div>
 <h2>Địa lí 9</h2>
 <div class="mut" style="margin:8px 0 16px">Giữa học kì I · 30 câu</div>
@@ -458,6 +461,12 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 <button class="g" style="flex:1; min-width:80px" id="startDialyViet">Ghi thủ công</button>
 <button class="g" style="flex:1; min-width:80px; background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; border-color:transparent;" id="startDialyNho">🧠 Ghi nhớ</button>
 </div>
+</div>
+<div class="card link" id="cardKhtn" role="link" tabindex="0" style="text-align:center;margin:0" onclick="location.href='khoahoctunhien.html'" onkeydown="if(event.key==='Enter'){location.href='khoahoctunhien.html'}">
+<div style="font-size:2.5rem;margin-bottom:8px">🧪</div>
+<h2>Khoa Học Tự Nhiên 9</h2>
+<div class="mut" style="margin:8px 0 16px">Giữa học kì I · 58 câu</div>
+<button class="p" style="width:100%" id="startKhtn" type="button" onclick="event.stopPropagation();location.href='khoahoctunhien.html'">Vào bài thi ngay</button>
 </div>
 </div>
 </div>
@@ -917,7 +926,7 @@ return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).p
 function fmtMsShort(totalMs) {
 const m = Math.floor(totalMs / 60000);
 const s = Math.floor((totalMs % 60000) / 1000);
-const ms = Math.floor(totalMs % 1000) / 10;
+const ms = Math.floor((totalMs % 1000) / 10);
 return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')},${String(ms).padStart(2,'0')}`;
 }
 function normText(s){
@@ -1309,7 +1318,7 @@ showToast("Lỗi khi xoá tài khoản: " + e.message, true);
 }
 function saveSession(s){ session = s; localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }catch(e){ return null; } }
-function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); }
+function clearSession(){ session = null; localStorage.removeItem(SESSION_KEY); try{ localStorage.removeItem("qp_session_khtn_v1"); }catch(e){} }
 let authMode = "login";
 $("atLogin").onclick = function(){
 authMode = "login";
@@ -1400,6 +1409,7 @@ clearSession();
 showBanScreen(session.name);
 return;
 }
+try{ localStorage.setItem("qp_session_khtn_v1", JSON.stringify(session)); }catch(e){}
 $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 $("hiName").textContent = "👋 Xin chào, " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
@@ -1459,6 +1469,7 @@ const filters = [
 { id: "tinhoc", label: "💻 Tin học 9" },
 { id: "gdcd", label: "⚖️ GDCD 9" },
 { id: "english", label: "🇬🇧 Tiếng Anh 9" },
+{ id: "khoahoctunhien", label: "🧪 KHTN 9" },
 { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
 { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
 { id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" }
@@ -1480,7 +1491,8 @@ const el = $(elId);
 if(!db){ el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
 el.innerHTML = skeleton(3);
 try{
-const snap = await get(ref(db, "results"));
+const rPath = filter === "khoahoctunhien" ? "results_khtn" : "results";
+const snap = await get(ref(db, rPath));
 const best = new Map();
 const toDelete = [];
 snap.forEach(ch => {
@@ -1519,7 +1531,7 @@ best.set(key, v);
 });
 if (toDelete.length > 0) {
 toDelete.forEach(function(k){
-try { remove(ref(db, "results/" + k)).catch(function(){}); }
+try { remove(ref(db, rPath + "/" + k)).catch(function(){}); }
 catch(e){}
 });
 }
@@ -1549,6 +1561,7 @@ const clsTop = isShuffled && i < 3 ? " top" + (i+1) : "";
 const subj = LEADERBOARD_SUBJECTS[v.subject];
 const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
 const shuffleBadge = isShuffled ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
+if (!v.time && v.createdAt) v.time = v.createdAt;
 let timeStr = '';
 if (v.time) {
 let d;
@@ -1573,6 +1586,15 @@ return '<div class="lbrow' + clsTop + '">'
 }).join("");
 }catch(e){ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>'; }
 }
+/* lbAutoRefresh: tự làm mới bảng xếp hạng khi quay lại tab */
+document.addEventListener("visibilitychange", function(){
+if (document.hidden || !session) return;
+const tb = $("tab-leaderboard");
+if (tb && !tb.classList.contains("hide") && !$("app").classList.contains("hide")) {
+const a = document.querySelector("#lbPillsMain .pill.active");
+renderLeaderboard("lbMain", a ? a.dataset.f : "all");
+}
+});
 /* ================= Quiz Logic ================= */
 let currentSubject, Q, order, opt, ans, cur, t0, tick, currentMode = 'choice';
 let maskMode = "submit";
