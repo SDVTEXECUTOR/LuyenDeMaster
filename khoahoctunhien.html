@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KHTN 9 – Giữa học kì I · Luyện Đề Trắc Nghiệm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4f8;--card:rgba(255,255,255,.85);--fg:#0f172a;--mut:#64748b;--ac:#2563eb;--acs:#dbeafe;--ok:#16a34a;--oks:#dcfce7;--bad:#dc2626;--bads:#fee2e2;--ln:rgba(148,163,184,.3);--shadow:0 8px 32px rgba(0,0,0,.06);--glass:blur(12px) saturate(180%);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1120;--card:rgba(30,41,59,.75);--fg:#f1f5f9;--mut:#94a3b8;--ac:#3b82f6;--acs:rgba(59,130,246,.15);--ok:#22c55e;--oks:rgba(34,197,94,.15);--bad:#ef4444;--bads:rgba(239,68,68,.15);--ln:rgba(148,163,184,.15);--shadow:0 8px 32px rgba(0,0,0,.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1120;--card:rgba(30,41,59,.75);--fg:#f1f5f9;--mut:#94a3b8;--ac:#3b82f6;--acs:rgba(59,130,246,.15);--ok:#22c55e;--oks:rgba(34,197,94,.15);--bad:#ef4444;--bads:rgba(239,68,68,.15);--ln:rgba(148,163,184,.15);--shadow:0 8px 32px rgba(0,0,0,.3);color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.6;background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.05) 0%,transparent 40%),radial-gradient(circle at 90% 80%,rgba(16,185,129,.05) 0%,transparent 40%);background-attachment:fixed}
+main{max-width:800px;margin:0 auto;padding:20px 16px}
+h1{font-size:1.5rem;font-weight:800;margin:0 0 8px;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:700;margin:0}
+.card{background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--ln);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.mut{color:var(--mut);font-size:.9rem}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;background:var(--ac);color:#fff;transition:all .2s;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+button:hover{transform:translateY(-1px)}button:active{transform:translateY(1px)}
+button.g{background:transparent;color:var(--fg);border:1.5px solid var(--ln);box-shadow:none}
+button.g:hover{background:var(--acs);border-color:var(--ac)}
+button.sm{padding:8px 14px;font-size:.85rem}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+a.back{text-decoration:none;display:inline-block;font:inherit;font-weight:600;font-size:.85rem;padding:8px 14px;border-radius:10px;border:1.5px solid var(--ln);color:var(--fg)}
+a.back:hover{background:var(--acs);border-color:var(--ac)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.row{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.hide{display:none!important}
+.bar{height:8px;background:var(--ln);border-radius:4px;overflow:hidden;margin:12px 0 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),#60a5fa);width:0;transition:width .4s}
+.q{font-size:1.1rem;font-weight:600;margin:8px 0 16px;line-height:1.5}
+.tag{display:inline-block;background:var(--acs);color:var(--ac);border-radius:6px;padding:4px 10px;font-size:.8rem;font-weight:700;margin-bottom:8px}
+.opt{display:flex;gap:14px;align-items:flex-start;border:1.5px solid var(--ln);border-radius:12px;padding:14px;margin:10px 0;cursor:pointer;background:rgba(255,255,255,.4);transition:all .2s}
+.opt:hover{border-color:var(--ac);background:var(--acs)}
+.opt b{flex:none;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--ln);display:grid;place-items:center;font-size:.9rem;font-weight:700;transition:all .2s}
+.opt.sel{border-color:var(--ac);background:var(--acs)}
+.opt.sel b{background:var(--ac);border-color:var(--ac);color:#fff;transform:scale(1.05)}
+.opt.ok{border-color:var(--ok);background:var(--oks)}.opt.bad{border-color:var(--bad);background:var(--bads)}
+.opt.ok b{background:var(--ok);border-color:var(--ok);color:#fff}.opt.bad b{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.rev{cursor:default}
+.nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px;margin-top:12px}
+.nav button{padding:10px 0;background:var(--card);color:var(--fg);border:1.5px solid var(--ln);font-weight:600;border-radius:8px;box-shadow:none}
+.nav button.d{background:var(--acs);border-color:var(--ac);color:var(--ac)}
+.nav button.c{border-color:var(--ac);color:var(--ac);box-shadow:0 0 0 2px var(--acs);font-weight:800}
+.nav button.ok{background:var(--oks);border-color:var(--ok);color:var(--ok)}
+.nav button.bad{background:var(--bads);border-color:var(--bad);color:var(--bad)}
+.score{font-size:3.5rem;font-weight:800;line-height:1.1;letter-spacing:-.03em}
+.stats{display:flex;gap:24px;flex-wrap:wrap;margin-top:16px}
+.stats div span{display:block;font-size:1.5rem;font-weight:800;color:var(--ac)}
+.rv{border-left:4px solid var(--ln)}.rv.ok{border-left-color:var(--ok)}.rv.bad{border-left-color:var(--bad)}
+.expl{background:var(--acs);color:var(--ac);border-radius:10px;padding:10px 14px;font-size:.9rem;margin-top:8px}
+.lbrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--ln);border-radius:12px;margin:8px 0;background:var(--card)}
+.lbrow .rk{font-weight:800;text-align:center;font-size:1.1rem}
+.lbrow .who2{min-width:0}.lbrow .who2 b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .pts{font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;text-align:right;line-height:1.3}
+.lbrow .dur{font-variant-numeric:tabular-nums;color:var(--mut);font-size:.85rem}
+.lbrow.top1{border-color:#fbbf24;background:linear-gradient(135deg,rgba(251,191,36,.1),transparent)}
+.lbrow.top2{border-color:#94a3b8;background:linear-gradient(135deg,rgba(148,163,184,.1),transparent)}
+.lbrow.top3{border-color:#d97706;background:linear-gradient(135deg,rgba(217,119,6,.1),transparent)}
+.pills{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.pill{padding:8px 16px;border-radius:99px;border:1.5px solid var(--ln);background:var(--card);color:var(--mut);font-size:.9rem;font-weight:600;cursor:pointer;box-shadow:none}
+.pill:hover{border-color:var(--ac);transform:none}
+.pill.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+.mask{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);display:none;place-items:center;padding:16px;z-index:100}
+.mask.on{display:grid}.mask .card{max-width:400px;width:100%}
+#ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(15,23,42,.7);backdrop-filter:blur(6px)}
+.lbox{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:32px;display:flex;flex-direction:column;align-items:center;gap:16px;min-width:240px}
+.spinner{width:40px;height:40px;border-radius:50%;border:3px solid var(--ln);border-top-color:var(--ac);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skel{height:50px;border-radius:10px;margin:8px 0;background:linear-gradient(90deg,var(--ln) 25%,var(--acs) 50%,var(--ln) 75%);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--ok);color:#fff;padding:12px 24px;border-radius:99px;font-weight:600;z-index:150;transition:transform .4s;max-width:92vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.error{background:var(--bad)}
+.ban-screen{position:fixed;inset:0;z-index:9999;background:#0f172a;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
+.ban-screen h1{color:var(--bad);font-size:2.2rem}.ban-screen p{color:#94a3b8;max-width:500px}
+@media(max-width:600px){.lbrow{grid-template-columns:36px minmax(0,1fr) auto}.lbrow .dur{display:none}.score{font-size:2.8rem}}
+</style>
+<style id="__dl">html{display:none!important}</style>
+</head>
+<body>
+<script>
+/* Khoá tên miền: giữ nguyên như index.html */
+(function(){
+var _e=[108,117,121,101,110,100,101,109,97,115,116,101,114,46,118,101,114,99,101,108,46,97,112,112];
+var _h=""; for(var i=0;i<_e.length;i++)_h+=String.fromCharCode(_e[i]);
+var _cur=String(location.hostname||"").toLowerCase();
+if(_cur!==_h){
+window.__STOLEN__=true;
+var s0=document.getElementById("__dl"); if(s0&&s0.parentNode)s0.parentNode.removeChild(s0);
+var warn=document.createElement("div");
+warn.style.cssText="position:fixed;inset:0;z-index:2147483647;background:linear-gradient(135deg,#0f172a,#1e1b4b);color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box";
+warn.innerHTML='<div style="max-width:640px"><div style="font-size:5.5rem;line-height:1;margin-bottom:16px">🚨</div><h1 style="font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 16px;font-weight:900;color:#f87171">ĐỪNG CÓ ĂN CẮP MÀ BROOOOO!</h1><p style="color:#cbd5e1;font-size:clamp(0.95rem,2.5vw,1.15rem);line-height:1.7;margin:16px 0">Trang web này chỉ được phép hoạt động tại:<br><b style="color:#60a5fa;font-size:1.15em;display:inline-block;margin-top:8px;word-break:break-all">https://luyendemaster.vercel.app</b></p><p style="color:#64748b;margin-top:32px;font-size:0.85rem;line-height:1.6">⚠️ Hành vi sao chép &amp; triển khai trái phép mã nguồn là vi phạm bản quyền.</p></div>';
+if(document.body){document.body.innerHTML="";document.body.appendChild(warn);}
+else{document.addEventListener("DOMContentLoaded",function(){document.body.innerHTML="";document.body.appendChild(warn);});}
+} else {
+var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChild(s);
+}
+})();
+</script>
+<div class="toast" id="toast"></div>
+<main>
+  <!-- Thanh trên -->
+  <div class="card" style="position:sticky;top:0;z-index:10;padding:16px 20px">
+    <div class="top">
+      <div>
+        <strong id="hiName" style="font-size:1.05rem"></strong>
+        <div class="mut" id="hiSub"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="mut" style="font-variant-numeric:tabular-nums;font-weight:700;font-size:1.1rem">⏱ <span id="tm">00:00,00</span></span>
+        <a class="back" id="homeLink" href="index.html">← Trang chủ</a>
+      </div>
+    </div>
+    <div id="prog" class="hide">
+      <div class="bar"><i id="pb"></i></div>
+      <div class="mut" id="cnt" style="font-weight:600;margin-top:8px;font-size:.85rem"></div>
+    </div>
+  </div>
+
+  <!-- Màn hình chọn chế độ -->
+  <section id="start">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem">🧪</div>
+      <h1>Khoa học tự nhiên 9</h1>
+      <div class="mut">Giữa học kì I · Năm học 2026–2027 · <span id="nq"></span> câu trắc nghiệm</div>
+      <div class="pills" style="justify-content:center;margin-top:20px">
+        <button class="pill active" id="mOrig" type="button">📄 Đề gốc</button>
+        <button class="pill" id="mShuf" type="button">🎲 Đề xáo trộn</button>
+      </div>
+      <div class="mut" id="modeHint" style="margin-bottom:16px"></div>
+      <button id="btnStart" style="width:100%;max-width:320px;padding:14px">Bắt đầu làm bài</button>
+    </div>
+    <div class="card">
+      <div class="top"><strong>🏆 Bảng xếp hạng</strong><button class="g sm" id="rfStart">Làm mới</button></div>
+      <div class="mut" style="margin:8px 0">Xếp theo: <b>Đề xáo trộn 🎲</b> → Điểm cao nhất → Thời gian nhanh nhất.</div>
+      <div id="lbStart"></div>
+    </div>
+  </section>
+
+  <!-- Màn hình làm bài -->
+  <section id="quiz" class="hide">
+    <div class="card" id="qc" style="min-height:200px"></div>
+    <div class="card">
+      <div class="mut" style="font-weight:600">Danh sách câu hỏi (nhấn để chuyển tới)</div>
+      <div class="nav" id="nv"></div>
+    </div>
+  </section>
+
+  <!-- Màn hình kết quả -->
+  <section id="result" class="hide">
+    <div class="card">
+      <div class="mut" id="rwho" style="font-weight:600"></div>
+      <div class="score"><span id="sc"></span><span class="mut" style="font-size:1.2rem;font-weight:600"> / 10 điểm</span></div>
+      <div id="flagMsg" class="mut" style="color:var(--bad);font-weight:600"></div>
+      <div class="stats">
+        <div>Câu đúng<span id="rc"></span></div>
+        <div>Câu sai<span id="rw"></span></div>
+        <div>Thời gian<span id="rt"></span></div>
+      </div>
+      <div class="nav" id="rnv"></div>
+      <div class="row" style="justify-content:flex-start;flex-wrap:wrap">
+        <button id="btnReview">Xem lại bài</button>
+        <button class="g" id="again">Làm lại</button>
+        <button class="g" id="home">Về trang chủ</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="top"><strong>🏆 Bảng xếp hạng top 20</strong><button class="g sm" id="rfResult">Làm mới</button></div>
+      <div id="lbResult"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+    <div id="rv" class="hide"></div>
+  </section>
+</main>
+
+<div class="mask" id="mk">
+  <div class="card">
+    <h1 style="font-size:1.3rem;margin-bottom:8px">Nộp bài?</h1>
+    <p id="mt" class="mut" style="line-height:1.6"></p>
+    <div class="row">
+      <button class="g" id="no" style="flex:1">Hủy</button>
+      <button id="yes" style="flex:1;background:var(--ok)">Xác nhận nộp</button>
+    </div>
+  </div>
+</div>
+<div id="ov" class="hide"><div class="lbox"><div class="spinner"></div><div id="ovtxt" style="font-weight:600">Đang xử lý…</div></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const firebaseConfig = {
+apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
+authDomain: "nightshift-51ded.firebaseapp.com",
+databaseURL: "https://nightshift-51ded-default-rtdb.firebaseio.com",
+projectId: "nightshift-51ded",
+storageBucket: "nightshift-51ded.firebasestorage.app",
+messagingSenderId: "1239554748",
+appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9",
+measurementId: "G-DCZKWE7403"
+};
+if (window.__STOLEN__) throw new Error("STOLEN_DOMAIN");
+let db = null;
+try { db = getDatabase(initializeApp(firebaseConfig)); } catch (e) { console.warn("Firebase init error:", e); }
+
+/* ================= Dữ liệu câu hỏi (trích từ On_tap_KHTN9_trac_nghiem.docx) ================= */
+const QUESTIONS = [{"id": 1,"q": "Dụng cụ nào phù hợp nhất để đo thể tích khoảng 25 mL nước trong thí nghiệm?","options": ["Cốc thủy tinh","Ống nhỏ giọt","Đũa thủy tinh","Ống đong"],"answer": 3},
+{"id": 2,"q": "Khi cần lấy từng giọt dung dịch vào ống nghiệm, nên dùng dụng cụ nào?","options": ["Ống nhỏ giọt","Ống đong","Phễu","Kẹp gỗ"],"answer": 0},
+{"id": 3,"q": "Dụng cụ nào giúp bảo vệ mắt khi thao tác với hóa chất có nguy cơ bắn tóe?","options": ["Găng tay","Kính bảo hộ","Khẩu trang","Áo blouse"],"answer": 1},
+{"id": 4,"q": "Việc đầu tiên khi viết báo cáo khoa học là gì?","options": ["Viết phần kết luận","Vẽ hình minh họa","Xác định mục đích và nội dung báo cáo","Xử lí số liệu"],"answer": 2},
+{"id": 5,"q": "Muốn đo nhiệt độ của một dung dịch trong thí nghiệm, dùng dụng cụ nào?","options": ["Cân điện tử","Ống đong","Đồng hồ bấm giây","Nhiệt kế"],"answer": 3},
+{"id": 6,"q": "Dụng cụ nào thích hợp để khuấy nhẹ dung dịch trong cốc?","options": ["Đũa thủy tinh","Kẹp gỗ","Ống nhỏ giọt","Phễu"],"answer": 0},
+{"id": 7,"q": "Khi cần cân chính xác một mẫu chất rắn, nên sử dụng dụng cụ nào?","options": ["Ống đong","Cân điện tử","Nhiệt kế","Cốc chia vạch"],"answer": 1},
+{"id": 8,"q": "Khi trình bày báo cáo thực hành trước lớp, cần làm gì để báo cáo có tính khoa học?","options": ["Chỉ nêu kết luận","Chỉ trình bày kết quả","Nêu rõ mục đích, phương pháp, kết quả có minh chứng và kết luận","Đọc nguyên văn sách giáo khoa"],"answer": 2},
+{"id": 9,"q": "Đơn vị của công cơ học trong hệ SI là gì?","options": ["Oát (W)","Niutơn (N)","Mét (m)","Jun (J)"],"answer": 3},
+{"id": 10,"q": "Đơn vị thường dùng để đo công suất là gì?","options": ["Oát (W)","Jun (J)","Pascal (Pa)","Niutơn (N)"],"answer": 0},
+{"id": 11,"q": "Một lực không đổi tác dụng lên vật nhưng vật không dịch chuyển. Công của lực đó bằng bao nhiêu?","options": ["Bằng 1 J","Bằng 0 J","Bằng giá trị của lực","Bằng trọng lượng của vật"],"answer": 1},
+{"id": 12,"q": "Công cơ học của lực không đổi cùng hướng chuyển động được tính bằng công thức nào?","options": ["A = F/s","A = F + s","A = F.s","A = s/F"],"answer": 2},
+{"id": 13,"q": "Công suất cho biết đại lượng gì? (P = A/t)","options": ["Độ lớn của lực tác dụng","Quãng đường vật đi được","Khối lượng của vật","Tốc độ thực hiện công"],"answer": 3},
+{"id": 14,"q": "Công thức tính động năng của vật khối lượng m, chuyển động với tốc độ v là gì?","options": ["Wđ = ½mv²","Wđ = mv","Wđ = mgh","Wđ = 2mv²"],"answer": 0},
+{"id": 15,"q": "Công thức tính thế năng hấp dẫn của vật khối lượng m ở độ cao h gần mặt đất là gì?","options": ["Wt = ½mv²","Wt = mgh","Wt = mg/h","Wt = mh/g"],"answer": 1},
+{"id": 20,"q": "Nguồn năng lượng nào sau đây là năng lượng hóa thạch?","options": ["Gió","Ánh sáng Mặt Trời","Than đá","Sóng biển"],"answer": 2},
+{"id": 21,"q": "Dạng năng lượng nào nhận được trực tiếp từ bức xạ Mặt Trời?","options": ["Năng lượng hạt nhân","Năng lượng địa nhiệt","Năng lượng thủy triều","Năng lượng Mặt Trời"],"answer": 3},
+{"id": 22,"q": "Đốt than trong nhà máy nhiệt điện có thể gây ô nhiễm không khí chủ yếu do đâu?","options": ["Do phát thải khí và bụi","Do tiếng ồn","Do nhiệt độ nước tăng","Do ánh sáng"],"answer": 0},
+{"id": 23,"q": "Một lợi ích quan trọng của năng lượng gió so với than đá là gì?","options": ["Trữ lượng hữu hạn","Là nguồn năng lượng tái tạo và ít phát thải khi vận hành","Phát thải nhiều khí nhà kính","Không phụ thuộc vào thời tiết"],"answer": 1},
+{"id": 24,"q": "Ví dụ nào là sử dụng năng lượng tái tạo?","options": ["Đốt than để sưởi ấm","Chạy máy phát điện bằng dầu diesel","Dùng pin Mặt Trời tạo điện","Đốt xăng chạy xe"],"answer": 2},
+{"id": 25,"q": "Năng lượng trong vòng tuần hoàn nước trên Trái Đất chủ yếu bắt nguồn từ đâu?","options": ["Lõi Trái Đất","Mặt Trăng","Gió","Mặt Trời"],"answer": 3},
+{"id": 26,"q": "Một hạn chế của năng lượng Mặt Trời là gì?","options": ["Phụ thuộc vào điều kiện thời tiết","Gây ô nhiễm nặng","Trữ lượng rất ít","Không thể chuyển hóa thành điện"],"answer": 0},
+{"id": 27,"q": "Biện pháp nào góp phần sử dụng năng lượng hiệu quả ở trường học?","options": ["Bật đèn cả ngày","Tắt thiết bị điện khi không sử dụng","Để quạt chạy khi ra khỏi lớp","Mở điều hòa và mở cửa"],"answer": 1},
+{"id": 28,"q": "Vì sao không nên coi than đá là nguồn năng lượng tái tạo?","options": ["Vì than đá không cháy được","Vì than đá có giá rẻ","Vì than đá hình thành trong thời gian địa chất rất dài, trữ lượng hữu hạn và bị tiêu thụ nhanh hơn nhiều so với tốc độ hình thành","Vì than đá là chất khí"],"answer": 2},
+{"id": 29,"q": "Chiết suất của một môi trường trong suốt được xác định bằng tỉ số nào?","options": ["n = v/c","n = c.v","n = c − v","n = c/v (tốc độ ánh sáng trong chân không chia cho tốc độ ánh sáng trong môi trường)"],"answer": 3},
+{"id": 30,"q": "Định luật khúc xạ ánh sáng mô tả mối quan hệ giữa những đại lượng nào?","options": ["Góc tới và góc khúc xạ khi tia sáng đi qua mặt phân cách giữa hai môi trường","Góc tới và góc phản xạ","Tốc độ và thời gian của ánh sáng","Khối lượng và chiết suất"],"answer": 0},
+{"id": 31,"q": "Khi ánh sáng truyền xiên từ không khí vào nước, hiện tượng thường xảy ra là gì?","options": ["Tia sáng truyền thẳng, không đổi hướng","Tia sáng bị khúc xạ tại mặt phân cách","Tia sáng bị hấp thụ hoàn toàn","Tia sáng bị phản xạ toàn phần"],"answer": 1},
+{"id": 32,"q": "Khi ánh sáng truyền từ nước ra không khí với góc tới nhỏ, tia khúc xạ thường lệch về phía nào so với pháp tuyến?","options": ["Lệch lại gần pháp tuyến","Trùng với pháp tuyến","Lệch ra xa pháp tuyến","Vuông góc với pháp tuyến"],"answer": 2},
+{"id": 35,"q": "Khi tia sáng truyền từ không khí vào môi trường có chiết suất lớn hơn, tốc độ ánh sáng trong môi trường thay đổi thế nào?","options": ["Tốc độ ánh sáng tăng; tia khúc xạ lệch ra xa pháp tuyến","Tốc độ ánh sáng giảm; tia khúc xạ lệch về phía pháp tuyến nếu truyền xiên","Tốc độ ánh sáng không đổi; tia sáng không bị lệch","Tốc độ ánh sáng tăng; tia khúc xạ lệch về phía pháp tuyến"],"answer": 1},
+{"id": 36,"q": "Vật màu đỏ được chiếu bằng ánh sáng trắng thường nhìn thấy màu đỏ vì sao?","options": ["Vật hấp thụ ánh sáng đỏ và phản xạ các màu khác","Vật tự phát ra ánh sáng đỏ","Vật phản xạ chủ yếu ánh sáng đỏ và hấp thụ phần lớn các thành phần màu khác","Vật cho ánh sáng trắng truyền qua hoàn toàn"],"answer": 2},
+{"id": 37,"q": "Khi chiếu chùm ánh sáng trắng qua lăng kính, dải màu thu được là kết quả của hiện tượng nào?","options": ["Phản xạ ánh sáng","Phản xạ toàn phần","Truyền thẳng ánh sáng","Tán sắc ánh sáng"],"answer": 3},
+{"id": 38,"q": "Vì sao ánh sáng trắng qua lăng kính tạo thành nhiều màu?","options": ["Vì các thành phần màu trong ánh sáng trắng bị khúc xạ khác nhau","Vì lăng kính có nhiều màu","Vì lăng kính hấp thụ ánh sáng trắng","Vì ánh sáng trắng bị phản xạ trên lăng kính"],"answer": 0},
+{"id": 39,"q": "Một tấm lọc màu xanh được chiếu bằng ánh sáng trắng, ánh sáng truyền qua chủ yếu có màu gì?","options": ["Màu đỏ","Màu xanh","Màu vàng","Màu trắng"],"answer": 1},
+{"id": 40,"q": "Tia sáng song song với trục chính đi qua thấu kính hội tụ, sau khi khúc xạ sẽ đi qua đâu?","options": ["Quang tâm O","Điểm cách thấu kính 2f","Tiêu điểm ảnh chính","Truyền song song với trục chính"],"answer": 2},
+{"id": 41,"q": "Tia sáng đi qua quang tâm của thấu kính mỏng truyền như thế nào?","options": ["Bị khúc xạ lệch mạnh","Bị phản xạ trở lại","Luôn đi qua tiêu điểm","Truyền gần như thẳng, không đổi hướng đáng kể"],"answer": 3},
+{"id": 42,"q": "Khi vẽ ảnh qua thấu kính hội tụ, có thể sử dụng hai tia đặc biệt nào?","options": ["Tia tới song song trục chính cho tia ló đi qua tiêu điểm ảnh; tia đi qua quang tâm truyền thẳng","Tia tới qua quang tâm cho tia ló đi qua tiêu điểm; tia tới song song trục chính truyền thẳng","Hai tia tới đều song song với trục chính","Hai tia tới đều bị phản xạ tại thấu kính"],"answer": 0},
+{"id": 43,"q": "Vật cao 2 cm đặt cách thấu kính hội tụ 30 cm, tiêu cự 10 cm. Ảnh cách thấu kính bao xa và cao bao nhiêu?","options": ["Ảnh ảo, cùng chiều; cách thấu kính 15 cm; cao 1 cm","Ảnh thật, ngược chiều; cách thấu kính 15 cm; cao 1 cm","Ảnh thật, ngược chiều; cách thấu kính 30 cm; cao 2 cm","Ảnh thật, ngược chiều; cách thấu kính 7,5 cm; cao 0,5 cm"],"answer": 1},
+{"id": 44,"q": "Với vật ở câu trên, giữ vật cố định và dịch chuyển thấu kính lại gần vật 5 cm. Ảnh mới cách thấu kính bao xa và cao bao nhiêu?","options": ["Ảnh thật, ngược chiều, cách thấu kính 25 cm, cao 2 cm","Ảnh ảo, cùng chiều, cách thấu kính 16,67 cm, cao 1,33 cm","Khoảng cách vật mới 25 cm; ảnh thật, ngược chiều, cách thấu kính khoảng 16,67 cm, cao khoảng 1,33 cm","Ảnh thật, ngược chiều, cách thấu kính 15 cm, cao 1 cm"],"answer": 2},
+{"id": 45,"q": "Vật đặt cách thấu kính hội tụ tiêu cự 12 cm một khoảng 36 cm. Ảnh có tính chất và kích thước thế nào?","options": ["Ảnh ảo, cùng chiều, cách thấu kính 18 cm và bằng một nửa vật","Ảnh thật, ngược chiều, cách thấu kính 36 cm và bằng vật","Ảnh thật, ngược chiều, cách thấu kính 9 cm và gấp đôi vật","Ảnh thật, ngược chiều, cách thấu kính 18 cm và có kích thước bằng một nửa vật"],"answer": 3},
+{"id": 46,"q": "Vật đặt trước thấu kính hội tụ ở khoảng cách lớn hơn 2f thì ảnh có đặc điểm gì?","options": ["Ảnh thật, ngược chiều, nhỏ hơn vật và nằm giữa f và 2f ở phía bên kia thấu kính","Ảnh ảo, cùng chiều, lớn hơn vật","Ảnh thật, ngược chiều, lớn hơn vật","Ảnh thật, ngược chiều, bằng vật và nằm tại 2f"],"answer": 0},
+{"id": 47,"q": "Hiện tượng truyền đạt các tính trạng của bố mẹ, tổ tiên cho con cháu được gọi là gì?","options": ["Biến dị","Di truyền","Đột biến","Chọn lọc tự nhiên"],"answer": 1},
+{"id": 48,"q": "Trong quá trình nghiên cứu, để phát hiện ra các quy luật di truyền, Mendel đã sử dụng đối tượng nào?","options": ["Ruồi giấm","Cây ngô","Đậu Hà Lan","Chuột bạch"],"answer": 2},
+{"id": 49,"q": "Theo quan niệm của Mendel, nhân tố di truyền hiện đại xác định là gì?","options": ["Nhiễm sắc thể","Protein","Nucleotide","Gene"],"answer": 3},
+{"id": 50,"q": "Cho hai cây đậu có kiểu gene là Aa và aa giao phấn với nhau. Tỉ lệ kiểu gene ở đời con sẽ là:","options": ["1 Aa : 1 aa","100% Aa","1 AA : 1 aa","3 Aa : 1 aa"],"answer": 0},
+{"id": 51,"q": "Phép lai nào dưới đây có thể tạo ra đời con có kiểu gene AaBb?","options": ["AABB × AABB","AABB × aabb","AAbb × AAbb","aabb × aabb"],"answer": 1},
+{"id": 52,"q": "Vì sao gene được xem là trung tâm của di truyền học?","options": ["Vì gene chỉ có ở con người","Vì gene là protein","Vì gene quy định sự di truyền và biến dị ở sinh vật","Vì gene không bao giờ thay đổi"],"answer": 2},
+{"id": 53,"q": "Các loại nucleotide nào sau đây cấu tạo nên phân tử RNA?","options": ["Adenine, Thymine, Guanine, Cytosine","Adenine, Uracil, Thymine, Cytosine","Uracil, Thymine, Guanine, Cytosine","Adenine, Uracil, Guanine, Cytosine"],"answer": 3},
+{"id": 54,"q": "Nguyên tắc bổ sung trong cấu trúc của DNA dẫn đến hệ quả nào?","options": ["A + G = T + C","A + T = G + C","A = G và T = C","A + C = T + A"],"answer": 0},
+{"id": 55,"q": "Một gene có 70 chu kì xoắn, số lượng nucleotide của gene đó là:","options": ["700","1400","1050","2100"],"answer": 1},
+{"id": 56,"q": "DNA rất đa dạng là bởi DNA có đặc điểm nào?","options": ["Chỉ có 2 loại nucleotide","Chỉ có một mạch","Có nhiều cách sắp xếp các nucleotide","Mọi phân tử DNA có kích thước giống nhau"],"answer": 2},
+{"id": 57,"q": "Nucleic acid là từ chung dùng để chỉ cấu trúc nào?","options": ["Chỉ DNA","Chỉ RNA","Protein và DNA","DNA và RNA"],"answer": 3},
+{"id": 58,"q": "Hiện tượng con sinh ra khác nhau và khác với bố mẹ được gọi là:","options": ["Biến dị","Di truyền","Thoái hóa","Sinh sản"],"answer": 0},
+{"id": 59,"q": "Khi Mendel cho lai giữa các giống đậu Hà Lan thuần chủng khác nhau về một cặp tính trạng tương phản thì tỉ lệ kiểu hình thu được ở thế hệ F2 là:","options": ["1 : 1","3 : 1","1 : 2 : 1","9 : 3 : 3 : 1"],"answer": 1},
+{"id": 60,"q": "Một cơ thể có kiểu gene AaBB. Sau khi giảm phân, cơ thể đó sẽ tạo ra những loại giao tử nào?","options": ["Aa, BB","AB, ab","AB, aB","AaBB"],"answer": 2},
+{"id": 61,"q": "Đơn phân cấu tạo nên nucleic acid là gì?","options": ["Amino acid","Glucose","Acid béo","Nucleotide"],"answer": 3},
+{"id": 62,"q": "Nếu trên một mạch đơn của phân tử DNA có trật tự là –A–T–G–C–A– thì trật tự của đoạn mạch bổ sung tại vị trí đó là:","options": ["–T–A–C–G–T–","–U–A–C–G–U–","–T–A–G–C–T–","–A–T–G–C–A–"],"answer": 0},
+{"id": 63,"q": "Một gene có chiều dài 5100 Å, chu kì xoắn của gene là:","options": ["75","150","100","300"],"answer": 1},
+{"id": 64,"q": "Chức năng của DNA là gì?","options": ["Cung cấp năng lượng cho tế bào","Xúc tác các phản ứng hóa học","Mang, bảo quản và truyền đạt thông tin di truyền","Vận chuyển oxygen"],"answer": 2}];
+const SUBJECT = "khoahoctunhien";
+const SESSION_KEY = "qp_session_khtn_v1";
+const STATE_KEY = "khtn_state_v1";
+const MAX_VIO = 3;
+const L = "ABCD";
+
+/* ================= Tiện ích ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function normText(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim(); }
+function fmtMs(ms){ const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=Math.floor(ms%1000/10); return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+","+String(c).padStart(2,"0"); }
+function fmtScore(x){ return String(x).replace(".", ","); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; } // Fisher-Yates
+function showToast(msg, err){ const t=$("toast"); t.textContent=msg; t.className="toast show"+(err?" error":""); clearTimeout(showToast._t); showToast._t=setTimeout(()=>t.classList.remove("show"),3500); }
+function ovOn(t){ $("ovtxt").textContent=t||"Đang xử lý…"; $("ov").classList.remove("hide"); }
+function ovOff(){ $("ov").classList.add("hide"); }
+function showScreen(id){ ["start","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id)); $("prog").classList.toggle("hide",id!=="quiz"); window.scrollTo({top:0,behavior:"smooth"}); }
+
+/* ================= Phiên đăng nhập & khoá tài khoản ================= */
+let session = null;
+try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem("qp_session_v2") || "null"); } catch(e){} // dự phòng khoá session cũ của index.html
+if (!session || !session.username) { location.replace("index.html"); throw new Error("NO_SESSION"); }
+const isAdmin = session.isAdmin === true;
+const nameHash = n => normText(n).replace(/\s+/g, "_");
+const banKey = "qpb3_ban_" + nameHash(session.name);
+function showBanScreen(){
+document.body.innerHTML = '<div class="ban-screen"><div><h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1><p>Tài khoản <b>"'+esc(session.name)+'"</b> đã bị chặn do vi phạm quy tắc hoặc dùng công cụ gian lận.<br><br>Vui lòng liên hệ quản trị nếu có khiếu nại.</p><button id="banReload" style="margin-top:24px">Tải lại trang</button></div></div>';
+$("banReload").onclick = () => location.reload();
+}
+let banned = false;
+try { banned = localStorage.getItem(banKey) === "1"; } catch(e){}
+if (banned && !isAdmin) { showBanScreen(); throw new Error("BANNED"); }
+// Kiểm tra thêm ban trên Firebase (bất đồng bộ, giống index.html)
+(async function(){
+if (!db || isAdmin) return;
+try {
+const snap = await get(ref(db, "bans/" + encodeURIComponent(String(session.username).toLowerCase())));
+if (snap.exists() && snap.val().isBanned) { try{ localStorage.setItem(banKey,"1"); }catch(e){} showBanScreen(); }
+} catch(e){}
+})();
+
+$("hiName").textContent = "👋 " + session.name;
+$("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "") + " · 🧪 KHTN 9";
+$("nq").textContent = QUESTIONS.length;
+
+/* ================= Trạng thái bài làm (lưu sessionStorage để F5 không mất) =================
+S = { order:[chỉ số câu], perm:[[thứ tự đáp án theo câu]], ans:[đáp án gốc đã chọn hoặc -1],
+      cur, t0, shuffled, vio, done, dur, pushed } */
+let S = null, tick = null, mode = false; // mode: false = đề gốc, true = xáo trộn
+const saveState = () => { try { sessionStorage.setItem(STATE_KEY, JSON.stringify({u:session.username, S})); } catch(e){} };
+const clearState = () => { try { sessionStorage.removeItem(STATE_KEY); } catch(e){} };
+function loadState(){
+try { const o = JSON.parse(sessionStorage.getItem(STATE_KEY) || "null"); if (o && o.u === session.username && o.S && o.S.order && o.S.order.length === QUESTIONS.length) return o.S; } catch(e){}
+return null;
+}
+const quizActive = () => S && !S.done && !$("quiz").classList.contains("hide");
+
+/* ================= Chọn chế độ ================= */
+function setMode(m){
+mode = m;
+$("mOrig").classList.toggle("active", !m); $("mShuf").classList.toggle("active", m);
+$("modeHint").textContent = m ? "Xáo trộn thứ tự câu và đáp án — được ưu tiên xếp hạng cao hơn." : "Giữ nguyên thứ tự câu hỏi và đáp án như đề ôn tập.";
+}
+$("mOrig").onclick = () => setMode(false);
+$("mShuf").onclick = () => setMode(true);
+setMode(true);
+$("btnStart").onclick = () => startQuiz(mode);
+
+function startQuiz(shuffled){
+const idx = QUESTIONS.map((_, i) => i);
+if (shuffled) shuffle(idx);
+S = {
+order: idx,
+perm: QUESTIONS.map(q => { const p = q.options.map((_, i) => i); if (shuffled) shuffle(p); return p; }),
+ans: QUESTIONS.map(() => -1),
+cur: 0, t0: Date.now(), shuffled: !!shuffled, vio: 0, done: false, dur: 0, pushed: false
+};
+saveState();
+beginTimer(); showScreen("quiz"); draw();
+}
+function beginTimer(){
+clearInterval(tick);
+tick = setInterval(() => { if (S && !S.done) $("tm").textContent = fmtMs(Date.now() - S.t0); }, 40);
+}
+
+/* ================= Hiển thị câu hỏi ================= */
+function gridHTML(review){
+return S.order.map((qi, i) => {
+let c = "";
+if (review) c = S.ans[qi] === QUESTIONS[qi].answer ? "ok" : "bad";
+else c = (S.ans[qi] > -1 ? "d" : "") + (i === S.cur ? " c" : "");
+return '<button class="'+c+'" data-i="'+i+'">'+(i+1)+'</button>';
+}).join("");
+}
+function updateProgress(){
+const done = S.ans.filter(a => a > -1).length;
+$("pb").style.width = (done / QUESTIONS.length * 100) + "%";
+$("cnt").textContent = "Đã làm " + done + "/" + QUESTIONS.length + " câu";
+$("nv").innerHTML = gridHTML(false);
+}
+function draw(){
+const qi = S.order[S.cur], q = QUESTIONS[qi], last = S.cur === QUESTIONS.length - 1;
+let h = '<span class="tag">Câu '+(S.cur+1)+'/'+QUESTIONS.length+'</span><div class="q">'+esc(q.q)+'</div>';
+S.perm[qi].forEach((oi, k) => {
+h += '<label class="opt'+(S.ans[qi]===oi?' sel':'')+'" data-v="'+oi+'"><b>'+L[k]+'</b><span>'+esc(q.options[oi])+'</span></label>';
+});
+h += '<div class="row"><button class="g" id="pv"'+(S.cur?'':' disabled')+'>← Câu trước</button>'
+  + (last ? '<button id="sub" style="background:var(--ok)">Nộp bài</button>' : '<button id="nx">Câu sau →</button>') + '</div>';
+$("qc").innerHTML = h;
+$("qc").querySelectorAll(".opt").forEach(el => { el.onclick = e => { if (e.isTrusted) choose(+el.dataset.v); }; });
+$("pv").onclick = () => go(S.cur - 1);
+if (last) $("sub").onclick = askSubmit; else $("nx").onclick = () => go(S.cur + 1);
+updateProgress();
+}
+function choose(oi){ S.ans[S.order[S.cur]] = oi; saveState(); draw(); }
+function go(i){ if (i < 0 || i >= QUESTIONS.length) return; S.cur = i; saveState(); draw(); window.scrollTo({top:0,behavior:"smooth"}); }
+$("nv").onclick = e => { const b = e.target.closest("button"); if (b && quizActive()) go(+b.dataset.i); };
+
+/* ================= Nộp bài ================= */
+function askSubmit(){
+const left = S.ans.filter(a => a < 0).length;
+$("mt").innerHTML = left ? 'Bạn còn <b>'+left+'</b> câu chưa làm (tính là sai). Vẫn nộp bài?' : 'Bạn đã làm đủ <b>'+QUESTIONS.length+'</b> câu. Nộp bài ngay?';
+$("mk").classList.add("on");
+}
+$("no").onclick = () => $("mk").classList.remove("on");
+$("yes").onclick = () => { $("mk").classList.remove("on"); submit(); };
+
+let submitting = false; // chống bấm nộp 2 lần
+async function submit(flagged){
+if (!S || S.done || submitting) return;
+submitting = true;
+S.done = true; S.dur = Date.now() - S.t0;
+clearInterval(tick); $("tm").textContent = fmtMs(S.dur);
+saveState();
+showResult(!!flagged);
+await pushResult();
+submitting = false;
+}
+function calc(){
+const correct = QUESTIONS.reduce((n, q, i) => n + (S.ans[i] === q.answer ? 1 : 0), 0);
+const total = QUESTIONS.length;
+return { correct, total, score: Math.round(correct / total * 1000) / 100 };
+}
+function showResult(flagged){
+const r = calc();
+$("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · 🧪 KHTN 9 · " + (S.shuffled ? "🎲 Đề xáo trộn" : "📄 Đề gốc");
+$("sc").textContent = fmtScore(r.score);
+$("rc").textContent = r.correct + "/" + r.total;
+$("rw").textContent = (r.total - r.correct) + "";
+$("rt").textContent = fmtMs(S.dur);
+$("flagMsg").textContent = (flagged || S.vio > MAX_VIO) ? "⚠️ Bài được nộp tự động do vi phạm quy chế quá " + MAX_VIO + " lần." : "";
+$("rnv").innerHTML = gridHTML(true);
+$("rv").classList.add("hide"); $("btnReview").textContent = "Xem lại bài";
+buildReview();
+showScreen("result");
+renderLeaderboard("lbResult");
+}
+$("rnv").onclick = e => {
+const b = e.target.closest("button"); if (!b) return;
+$("rv").classList.remove("hide"); $("btnReview").textContent = "Ẩn bài xem lại";
+const t = $("rv-" + b.dataset.i); if (t) t.scrollIntoView({behavior:"smooth", block:"center"});
+};
+function buildReview(){
+$("rv").innerHTML = S.order.map((qi, i) => {
+const q = QUESTIONS[qi], a = S.ans[qi], ok = a === q.answer;
+const st = ok ? "Đúng" : (a < 0 ? "Chưa làm" : "Sai");
+let h = '<div class="card rv '+(ok?'ok':'bad')+'" id="rv-'+i+'"><span style="color:var(--'+(ok?'ok':'bad')+');font-weight:700">Câu '+(i+1)+' · '+st+'</span><div class="q">'+esc(q.q)+'</div>';
+S.perm[qi].forEach((oi, k) => {
+const isC = oi === q.answer, isA = oi === a;
+const note = isC ? (isA ? ' <em class="mut">(bạn chọn – đúng)</em>' : ' <em class="mut" style="color:var(--ok)">(đáp án đúng)</em>') : (isA ? ' <em class="mut">(bạn chọn – sai)</em>' : '');
+h += '<div class="opt rev '+(isC?'ok':(isA?'bad':''))+'"><b>'+(isC?'✓':(isA?'✗':L[k]))+'</b><span>'+L[k]+'. '+esc(q.options[oi])+note+'</span></div>';
+});
+if (q.explain) h += '<div class="expl">💡 '+esc(q.explain)+'</div>';
+return h + '</div>';
+}).join("");
+}
+$("btnReview").onclick = () => { const v = $("rv").classList.toggle("hide"); $("btnReview").textContent = v ? "Xem lại bài" : "Ẩn bài xem lại"; };
+$("again").onclick = () => { clearState(); S = null; $("tm").textContent = "00:00,00"; showScreen("start"); renderLeaderboard("lbStart"); };
+$("home").onclick = () => { location.href = "index.html"; };
+$("homeLink").onclick = e => { if (quizActive() && !confirm("Bài làm đang dở sẽ vẫn chạy đồng hồ. Rời khỏi trang?")) e.preventDefault(); };
+
+/* ================= Firebase: nộp kết quả & bảng xếp hạng ================= */
+async function pushResult(){
+if (!S || S.pushed) return; // mỗi lượt làm chỉ nộp 1 lần
+if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
+const r = calc();
+try {
+ovOn("Đang lưu kết quả…");
+await set(push(ref(db, "results_khtn")), {
+type: "quiz_result", subject: SUBJECT, username: session.username, name: session.name, cls: session.cls || "",
+score: r.score, correct: r.correct, total: r.total, duration: S.dur, isShuffled: S.shuffled === true, createdAt: serverTimestamp()
+});
+S.pushed = true; saveState(); ovOff();
+} catch (e) {
+ovOff();
+$("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: '+esc(e.message)+'</div>';
+return;
+}
+renderLeaderboard("lbResult");
+}
+async function renderLeaderboard(elId){
+const el = $(elId);
+if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
+el.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+try {
+const snap = await get(ref(db, "results_khtn"));
+const best = new Map();
+snap.forEach(ch => {
+const v = ch.val();
+if (!v || v.type !== "quiz_result" || v.subject !== SUBJECT) return;
+const k = String(v.username || v.name || "").toLowerCase();
+const p = best.get(k);
+if (!p) { best.set(k, v); return; }
+const ps = p.isShuffled ? 1 : 0, vs = v.isShuffled ? 1 : 0;
+// Ưu tiên: xáo trộn → điểm cao → thời gian ngắn
+if (vs > ps || (vs === ps && (v.score > p.score || (v.score === p.score && v.duration < p.duration)))) best.set(k, v);
+});
+const list = [...best.values()].sort((a, b) => {
+const as = a.isShuffled ? 1 : 0, bs = b.isShuffled ? 1 : 0;
+if (as !== bs) return bs - as;
+if (b.score !== a.score) return b.score - a.score;
+return a.duration - b.duration;
+}).slice(0, 20);
+if (!list.length) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
+el.innerHTML = list.map((v, i) => {
+const shuf = v.isShuffled === true;
+const medal = shuf ? (i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)) : (i+1);
+const clsTop = shuf && i < 3 ? " top"+(i+1) : "";
+let ts = "";
+if (typeof v.createdAt === "number") ts = new Date(v.createdAt).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
+return '<div class="lbrow'+clsTop+'"><span class="rk">'+medal+'</span>'
++ '<span class="who2"><b>'+esc(v.name || v.username || "?")+(shuf?' <span title="Đề xáo trộn">🎲</span>':'')+'</b><span class="mut" style="font-size:.8rem">'+(v.cls?'· '+esc(v.cls):'')+'</span></span>'
++ '<span class="pts"><div>'+fmtScore(v.score)+'đ</div>'+(ts?'<div style="font-size:.7rem;color:var(--mut);font-weight:500;white-space:nowrap">📅 '+ts+'</div>':'')+'</span>'
++ '<span class="dur">⏱ '+fmtMs(v.duration || 0)+'</span></div>';
+}).join("");
+} catch (e) { el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>'; }
+}
+$("rfStart").onclick = () => renderLeaderboard("lbStart");
+$("rfResult").onclick = () => renderLeaderboard("lbResult");
+
+/* ================= Chống gian lận ================= */
+// Ghi cờ vi phạm: tăng bộ đếm cục bộ + Firebase (không tự ban, chỉ cộng số lần cảnh báo)
+async function flagViolation(){
+try { const k = "qpb3_vio_" + nameHash(session.name); localStorage.setItem(k, String((parseInt(localStorage.getItem(k) || "0", 10)) + 1)); } catch(e){}
+if (!db || isAdmin) return;
+try {
+const r = ref(db, "bans/" + encodeURIComponent(String(session.username).toLowerCase()));
+const snap = await get(r), cur = snap.exists() ? snap.val() : {};
+await set(r, { isBanned: !!cur.isBanned, violations: (cur.violations || 0) + 1, timestamp: serverTimestamp() });
+} catch(e){}
+}
+let lastVio = 0;
+function violation(){
+if (!quizActive() || isAdmin) return;
+const now = Date.now(); if (now - lastVio < 1500) return; lastVio = now; // tránh đếm trùng blur + visibilitychange
+S.vio++; saveState();
+if (S.vio > MAX_VIO) { showToast("🚫 Vi phạm quá " + MAX_VIO + " lần — bài được nộp tự động!", true); flagViolation(); submit(true); }
+else showToast("⚠️ Cảnh báo " + S.vio + "/" + MAX_VIO + ": không chuyển tab / rời khỏi trang khi đang làm bài!", true);
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) violation(); });
+window.addEventListener("blur", violation);
+document.addEventListener("contextmenu", e => e.preventDefault());
+["copy","cut","selectstart","dragstart"].forEach(t => document.addEventListener(t, e => e.preventDefault()));
+document.addEventListener("keydown", function(e){
+const k = e.key || "";
+if (k === "F12" || ((e.ctrlKey || e.metaKey) && (/^[cu]$/i.test(k) || (e.shiftKey && /^[ijc]$/i.test(k))))) { e.preventDefault(); e.stopPropagation(); return false; }
+// Phím tắt: 1-4 / A-D chọn đáp án, ←/→ chuyển câu
+if (!quizActive() || $("mk").classList.contains("on") || e.ctrlKey || e.metaKey || e.altKey) return;
+if (e.key === "ArrowRight") { e.preventDefault(); go(S.cur + 1); return; }
+if (e.key === "ArrowLeft") { e.preventDefault(); go(S.cur - 1); return; }
+const m = "1234".indexOf(k) > -1 && k ? "1234".indexOf(k) : "abcd".indexOf(k.toLowerCase());
+if (k.length === 1 && m > -1) { e.preventDefault(); choose(S.perm[S.order[S.cur]][m]); }
+}, true);
+
+/* ================= Khởi động ================= */
+(function init(){
+const saved = loadState();
+if (saved) {
+S = saved;
+if (S.done) { clearInterval(tick); $("tm").textContent = fmtMs(S.dur); showResult(S.vio > MAX_VIO); if (!S.pushed) pushResult(); }
+else { beginTimer(); showScreen("quiz"); draw(); }
+} else { showScreen("start"); renderLeaderboard("lbStart"); }
+})();
+</script>
+</body>
+</html>
