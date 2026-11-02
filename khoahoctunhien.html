@@ -77,13 +77,20 @@ a.back:hover{background:var(--acs);border-color:var(--ac)}
 .toast.show{transform:translateX(-50%) translateY(0)}.toast.error{background:var(--bad)}
 .ban-screen{position:fixed;inset:0;z-index:9999;background:#0f172a;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
 .ban-screen h1{color:var(--bad);font-size:2.2rem}.ban-screen p{color:#94a3b8;max-width:500px}
+.chk{display:flex;gap:12px;align-items:center;margin:12px 0;cursor:pointer;font-weight:500}
+.chk input{width:20px;height:20px;accent-color:var(--ac);cursor:pointer}
+.song-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;transition:background .2s;cursor:pointer;border-bottom:1px solid var(--ln)}
+.song-item:last-child{border-bottom:none}
+.song-item:hover{background:var(--acs)}
+.song-item input[type="checkbox"]{width:18px;height:18px;accent-color:var(--ac);cursor:pointer;flex:none}
+.song-item span{font-weight:500;font-size:.95rem}
 @media(max-width:600px){.lbrow{grid-template-columns:36px minmax(0,1fr) auto}.lbrow .dur{display:none}.score{font-size:2.8rem}}
 </style>
 <style id="__dl">html{display:none!important}</style>
 </head>
 <body>
 <script>
-/* Khoá tên miền: giữ nguyên như index.html */
+/* Khoá tên miền */
 (function(){
 var _e=[108,117,121,101,110,100,101,109,97,115,116,101,114,46,118,101,114,99,101,108,46,97,112,112];
 var _h=""; for(var i=0;i<_e.length;i++)_h+=String.fromCharCode(_e[i]);
@@ -101,6 +108,10 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 }
 })();
 </script>
+
+<!-- Audio cho nhạc nền -->
+<audio id="bgMusic"></audio>
+
 <div class="toast" id="toast"></div>
 <main>
   <!-- Thanh trên -->
@@ -132,6 +143,14 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
         <button class="pill" id="mShuf" type="button">🎲 Đề xáo trộn</button>
       </div>
       <div class="mut" id="modeHint" style="margin-bottom:16px"></div>
+      
+      <!-- Tùy chọn nhạc nền -->
+      <label class="chk" style="justify-content:center;margin-top:16px"><input type="checkbox" id="musicCheck"> Bật nhạc nền</label>
+      <div id="musicSelectionArea" class="hide" style="justify-content:center;margin:8px 0 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span id="currentSongLabel" class="mut" style="font-weight:500;font-size:.9rem">🎵 Đang phát: <b>Ngẫu nhiên</b></span>
+        <button class="g sm" id="btnChangeMusic" style="padding:6px 12px;font-size:.8rem">Thay đổi</button>
+      </div>
+
       <button id="btnStart" style="width:100%;max-width:320px;padding:14px">Bắt đầu làm bài</button>
     </div>
     <div class="card">
@@ -147,7 +166,7 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     <div class="card">
       <div class="mut" style="font-weight:600">Danh sách câu hỏi (nhấn để chuyển tới)</div>
       <div class="nav" id="nv"></div>
-      <!-- Nút Nộp bài luôn hiển thị ở đây giống index.html -->
+      <!-- Nút Nộp bài luôn hiển thị ở đây -->
       <div class="row" style="justify-content:flex-end; margin-top:16px">
         <button class="p" id="subAlways" style="background:var(--ok)">Nộp bài</button>
       </div>
@@ -180,6 +199,7 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
   </section>
 </main>
 
+<!-- Modal xác nhận nộp bài -->
 <div class="mask" id="mk">
   <div class="card">
     <h1 style="font-size:1.3rem;margin-bottom:8px">Nộp bài?</h1>
@@ -190,6 +210,23 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     </div>
   </div>
 </div>
+
+<!-- Modal chọn nhạc -->
+<div class="mask" id="musicMask">
+  <div class="card" style="max-width:440px;width:100%">
+    <h2 style="margin-bottom:16px">🎵 Chọn nhạc nền</h2>
+    <div style="margin-bottom:16px">
+      <label class="chk" style="margin:8px 0"><input type="radio" name="mMode" value="random" id="mModeRandom"> <b>Ngẫu nhiên</b></label>
+      <label class="chk" style="margin:8px 0"><input type="radio" name="mMode" value="playlist" id="mModePlaylist"> <b>Danh sách</b></label>
+    </div>
+    <div id="songListContainer" style="margin-bottom:20px;max-height:250px;overflow-y:auto;border:1px solid var(--ln);border-radius:10px;background:rgba(255,255,255,.4)"></div>
+    <div class="row">
+      <button class="g" id="btnCancelMusic" style="flex:1">Hủy</button>
+      <button class="p" id="btnSaveMusic" style="flex:1">Lưu</button>
+    </div>
+  </div>
+</div>
+
 <div id="ov" class="hide"><div class="lbox"><div class="spinner"></div><div id="ovtxt" style="font-weight:600">Đang xử lý…</div></div></div>
 
 <script type="module">
@@ -371,7 +408,6 @@ let h = '<span class="tag">Câu '+(S.cur+1)+'/'+QUESTIONS.length+'</span><div cl
 S.perm[qi].forEach((oi, k) => {
 h += '<label class="opt'+(S.ans[qi]===oi?' sel':'')+'" data-v="'+oi+'"><b>'+L[k]+'</b><span>'+esc(q.options[oi])+'</span></label>';
 });
-// Luôn hiển thị "Câu trước" và "Câu sau", nút "Nộp bài" đã có ở dưới cùng
 h += '<div class="row"><button class="g" id="pv"'+(S.cur?'':' disabled')+'>← Câu trước</button>'
   + '<button id="nx"'+(S.cur === QUESTIONS.length - 1 ? ' disabled' : '')+'>Câu sau →</button></div>';
 $("qc").innerHTML = h;
@@ -392,7 +428,6 @@ $("mk").classList.add("on");
 }
 $("no").onclick = () => $("mk").classList.remove("on");
 $("yes").onclick = () => { $("mk").classList.remove("on"); submit(); };
-// Gán sự kiện cho nút Nộp bài luôn hiển thị ở dưới cùng
 $("subAlways").onclick = askSubmit;
 
 let submitting = false;
@@ -538,6 +573,130 @@ if (e.key === "ArrowLeft") { e.preventDefault(); go(S.cur - 1); return; }
 const m = "1234".indexOf(k) > -1 && k ? "1234".indexOf(k) : "abcd".indexOf(k.toLowerCase());
 if (k.length === 1 && m > -1) { e.preventDefault(); choose(S.perm[S.order[S.cur]][m]); }
 }, true);
+
+/* ================= Nhạc nền ================= */
+const bgMusic = $("bgMusic");
+bgMusic.removeAttribute("loop");
+const musicCheck = $("musicCheck");
+const musicSelectionArea = $("musicSelectionArea");
+const currentSongLabel = $("currentSongLabel");
+const SONGS = [
+{ id: 'grateful', title: 'Grateful', src: 'onemore/Grateful.mp3' },
+{ id: 'shapeofyou', title: 'Shape of You', src: 'onemore/ShapeofYou.mp3' },
+{ id: 'spencerhillcool', title: 'Spencer Hill Cool', src: 'onemore/Spencerhillcool.mp3' },
+{ id: 'haruharu', title: 'Haru Haru', src: 'onemore/haruharu.mp3' },
+{ id: 'luunien', title: 'Lưu Niên', src: 'onemore/luunien.mp3' },
+{ id: 'nguoidung', title: 'Người Dưng', src: 'onemore/nguoidung.mp3' },
+{ id: 'tamthaitu', title: 'Tam Thái Tử', src: 'onemore/tamthaitu.mp3' }
+];
+let isMusicOn = localStorage.getItem("qp_music") === "on";
+let musicMode = localStorage.getItem("qp_music_mode") || "random";
+let selectedSongIds = JSON.parse(localStorage.getItem("qp_music_selected")) || SONGS.map(s => s.id);
+let currentPlaylist = [];
+let currentPlayIndex = 0;
+
+musicCheck.checked = isMusicOn;
+if (isMusicOn) musicSelectionArea.classList.remove("hide");
+
+function updateMusicUI() {
+if (musicMode === "random") {
+currentSongLabel.innerHTML = '🎵 Đang phát: <b>Ngẫu nhiên</b>';
+} else {
+const selected = SONGS.filter(s => selectedSongIds.includes(s.id));
+if (selected.length === 0) currentSongLabel.innerHTML = '🎵 Đang phát: <b>Chưa chọn bài</b>';
+else if (selected.length === 1) currentSongLabel.innerHTML = '🎵 Đang phát: <b>' + selected[0].title + '</b>';
+else currentSongLabel.innerHTML = '🎵 Đang phát: <b>Danh sách (' + selected.length + ' bài)</b>';
+}
+}
+function buildPlaylist() {
+let list = [];
+if (musicMode === "random") {
+list = [...SONGS].sort(() => Math.random() - 0.5);
+} else {
+list = SONGS.filter(s => selectedSongIds.includes(s.id));
+if (list.length === 0) list = [SONGS[0]];
+}
+return list;
+}
+function playCurrentSong() {
+if (!isMusicOn || currentPlaylist.length === 0) return;
+const song = currentPlaylist[currentPlayIndex];
+if (!bgMusic.src.endsWith(song.src)) bgMusic.src = song.src;
+bgMusic.play().catch(() => {});
+updateMusicUI();
+}
+function playNextSong() {
+if (!isMusicOn) return;
+if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
+currentPlayIndex++;
+if (currentPlayIndex >= currentPlaylist.length) {
+currentPlayIndex = 0;
+if (musicMode === "random") currentPlaylist = buildPlaylist();
+}
+playCurrentSong();
+}
+bgMusic.addEventListener("ended", playNextSong);
+bgMusic.addEventListener("error", () => { if (isMusicOn && currentPlaylist.length > 1) playNextSong(); });
+
+musicCheck.onchange = () => {
+isMusicOn = musicCheck.checked;
+localStorage.setItem("qp_music", isMusicOn ? "on" : "off");
+musicSelectionArea.classList.toggle("hide", !isMusicOn);
+if (isMusicOn) {
+if (currentPlaylist.length === 0) { currentPlaylist = buildPlaylist(); currentPlayIndex = 0; }
+playCurrentSong();
+} else { bgMusic.pause(); }
+};
+
+$("btnChangeMusic").onclick = () => {
+$("mModeRandom").checked = musicMode === "random";
+$("mModePlaylist").checked = musicMode === "playlist";
+let h = "";
+SONGS.forEach(s => {
+h += '<label class="song-item"><input type="checkbox" value="'+s.id+'" '+(selectedSongIds.includes(s.id) ? 'checked' : '')+'><span>'+s.title+'</span></label>';
+});
+$("songListContainer").innerHTML = h;
+toggleSongCheckboxes();
+$("musicMask").classList.add("on");
+};
+
+function toggleSongCheckboxes() {
+const isPlaylist = $("mModePlaylist").checked;
+$("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
+$("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
+}
+$("mModeRandom").onchange = toggleSongCheckboxes;
+$("mModePlaylist").onchange = toggleSongCheckboxes;
+
+$("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
+$("btnSaveMusic").onclick = () => {
+musicMode = $("mModeRandom").checked ? "random" : "playlist";
+const checkboxes = $("songListContainer").querySelectorAll("input[type=checkbox]");
+selectedSongIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+if (musicMode === "playlist" && selectedSongIds.length === 0) {
+showToast("Vui lòng chọn ít nhất 1 bài hát!", true);
+return;
+}
+localStorage.setItem("qp_music_mode", musicMode);
+localStorage.setItem("qp_music_selected", JSON.stringify(selectedSongIds));
+$("musicMask").classList.remove("on");
+currentPlaylist = buildPlaylist();
+currentPlayIndex = 0;
+if (isMusicOn) playCurrentSong();
+else updateMusicUI();
+};
+
+const tryPlayMusicOnInteraction = () => {
+if (isMusicOn && bgMusic.paused) playCurrentSong();
+};
+document.body.addEventListener("click", tryPlayMusicOnInteraction);
+document.body.addEventListener("touchstart", tryPlayMusicOnInteraction);
+
+if (isMusicOn) {
+currentPlaylist = buildPlaylist();
+currentPlayIndex = 0;
+updateMusicUI();
+}
 
 /* ================= Khởi động ================= */
 (function init(){
