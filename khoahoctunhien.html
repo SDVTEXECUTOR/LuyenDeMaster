@@ -147,6 +147,10 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     <div class="card">
       <div class="mut" style="font-weight:600">Danh sách câu hỏi (nhấn để chuyển tới)</div>
       <div class="nav" id="nv"></div>
+      <!-- Nút Nộp bài luôn hiển thị ở đây giống index.html -->
+      <div class="row" style="justify-content:flex-end; margin-top:16px">
+        <button class="p" id="subAlways" style="background:var(--ok)">Nộp bài</button>
+      </div>
     </div>
   </section>
 
@@ -205,7 +209,7 @@ if (window.__STOLEN__) throw new Error("STOLEN_DOMAIN");
 let db = null;
 try { db = getDatabase(initializeApp(firebaseConfig)); } catch (e) { console.warn("Firebase init error:", e); }
 
-/* ================= Dữ liệu câu hỏi (trích từ On_tap_KHTN9_trac_nghiem.docx) ================= */
+/* ================= Dữ liệu câu hỏi ================= */
 const QUESTIONS = [{"id": 1,"q": "Dụng cụ nào phù hợp nhất để đo thể tích khoảng 25 mL nước trong thí nghiệm?","options": ["Cốc thủy tinh","Ống nhỏ giọt","Đũa thủy tinh","Ống đong"],"answer": 3},
 {"id": 2,"q": "Khi cần lấy từng giọt dung dịch vào ống nghiệm, nên dùng dụng cụ nào?","options": ["Ống nhỏ giọt","Ống đong","Phễu","Kẹp gỗ"],"answer": 0},
 {"id": 3,"q": "Dụng cụ nào giúp bảo vệ mắt khi thao tác với hóa chất có nguy cơ bắn tóe?","options": ["Găng tay","Kính bảo hộ","Khẩu trang","Áo blouse"],"answer": 1},
@@ -276,7 +280,7 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp
 function normText(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim(); }
 function fmtMs(ms){ const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000), c=Math.floor(ms%1000/10); return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+","+String(c).padStart(2,"0"); }
 function fmtScore(x){ return String(x).replace(".", ","); }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; } // Fisher-Yates
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function showToast(msg, err){ const t=$("toast"); t.textContent=msg; t.className="toast show"+(err?" error":""); clearTimeout(showToast._t); showToast._t=setTimeout(()=>t.classList.remove("show"),3500); }
 function ovOn(t){ $("ovtxt").textContent=t||"Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff(){ $("ov").classList.add("hide"); }
@@ -284,7 +288,7 @@ function showScreen(id){ ["start","quiz","result"].forEach(s=>$(s).classList.tog
 
 /* ================= Phiên đăng nhập & khoá tài khoản ================= */
 let session = null;
-try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem("qp_session_v2") || "null"); } catch(e){} // dự phòng khoá session cũ của index.html
+try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem("qp_session_v2") || "null"); } catch(e){}
 if (!session || !session.username) { location.replace("index.html"); throw new Error("NO_SESSION"); }
 const isAdmin = session.isAdmin === true;
 const nameHash = n => normText(n).replace(/\s+/g, "_");
@@ -296,7 +300,6 @@ $("banReload").onclick = () => location.reload();
 let banned = false;
 try { banned = localStorage.getItem(banKey) === "1"; } catch(e){}
 if (banned && !isAdmin) { showBanScreen(); throw new Error("BANNED"); }
-// Kiểm tra thêm ban trên Firebase (bất đồng bộ, giống index.html)
 (async function(){
 if (!db || isAdmin) return;
 try {
@@ -309,10 +312,8 @@ $("hiName").textContent = "👋 " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "") + " · 🧪 KHTN 9";
 $("nq").textContent = QUESTIONS.length;
 
-/* ================= Trạng thái bài làm (lưu sessionStorage để F5 không mất) =================
-S = { order:[chỉ số câu], perm:[[thứ tự đáp án theo câu]], ans:[đáp án gốc đã chọn hoặc -1],
-      cur, t0, shuffled, vio, done, dur, pushed } */
-let S = null, tick = null, mode = false; // mode: false = đề gốc, true = xáo trộn
+/* ================= Trạng thái bài làm ================= */
+let S = null, tick = null, mode = false;
 const saveState = () => { try { sessionStorage.setItem(STATE_KEY, JSON.stringify({u:session.username, S})); } catch(e){} };
 const clearState = () => { try { sessionStorage.removeItem(STATE_KEY); } catch(e){} };
 function loadState(){
@@ -365,17 +366,18 @@ $("cnt").textContent = "Đã làm " + done + "/" + QUESTIONS.length + " câu";
 $("nv").innerHTML = gridHTML(false);
 }
 function draw(){
-const qi = S.order[S.cur], q = QUESTIONS[qi], last = S.cur === QUESTIONS.length - 1;
+const qi = S.order[S.cur], q = QUESTIONS[qi];
 let h = '<span class="tag">Câu '+(S.cur+1)+'/'+QUESTIONS.length+'</span><div class="q">'+esc(q.q)+'</div>';
 S.perm[qi].forEach((oi, k) => {
 h += '<label class="opt'+(S.ans[qi]===oi?' sel':'')+'" data-v="'+oi+'"><b>'+L[k]+'</b><span>'+esc(q.options[oi])+'</span></label>';
 });
+// Luôn hiển thị "Câu trước" và "Câu sau", nút "Nộp bài" đã có ở dưới cùng
 h += '<div class="row"><button class="g" id="pv"'+(S.cur?'':' disabled')+'>← Câu trước</button>'
-  + (last ? '<button id="sub" style="background:var(--ok)">Nộp bài</button>' : '<button id="nx">Câu sau →</button>') + '</div>';
+  + '<button id="nx"'+(S.cur === QUESTIONS.length - 1 ? ' disabled' : '')+'>Câu sau →</button></div>';
 $("qc").innerHTML = h;
 $("qc").querySelectorAll(".opt").forEach(el => { el.onclick = e => { if (e.isTrusted) choose(+el.dataset.v); }; });
 $("pv").onclick = () => go(S.cur - 1);
-if (last) $("sub").onclick = askSubmit; else $("nx").onclick = () => go(S.cur + 1);
+$("nx").onclick = () => go(S.cur + 1);
 updateProgress();
 }
 function choose(oi){ S.ans[S.order[S.cur]] = oi; saveState(); draw(); }
@@ -390,8 +392,10 @@ $("mk").classList.add("on");
 }
 $("no").onclick = () => $("mk").classList.remove("on");
 $("yes").onclick = () => { $("mk").classList.remove("on"); submit(); };
+// Gán sự kiện cho nút Nộp bài luôn hiển thị ở dưới cùng
+$("subAlways").onclick = askSubmit;
 
-let submitting = false; // chống bấm nộp 2 lần
+let submitting = false;
 async function submit(flagged){
 if (!S || S.done || submitting) return;
 submitting = true;
@@ -447,7 +451,7 @@ $("homeLink").onclick = e => { if (quizActive() && !confirm("Bài làm đang d�
 
 /* ================= Firebase: nộp kết quả & bảng xếp hạng ================= */
 async function pushResult(){
-if (!S || S.pushed) return; // mỗi lượt làm chỉ nộp 1 lần
+if (!S || S.pushed) return;
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
 const r = calc();
 try {
@@ -478,7 +482,6 @@ const k = String(v.username || v.name || "").toLowerCase();
 const p = best.get(k);
 if (!p) { best.set(k, v); return; }
 const ps = p.isShuffled ? 1 : 0, vs = v.isShuffled ? 1 : 0;
-// Ưu tiên: xáo trộn → điểm cao → thời gian ngắn
 if (vs > ps || (vs === ps && (v.score > p.score || (v.score === p.score && v.duration < p.duration)))) best.set(k, v);
 });
 const list = [...best.values()].sort((a, b) => {
@@ -505,7 +508,6 @@ $("rfStart").onclick = () => renderLeaderboard("lbStart");
 $("rfResult").onclick = () => renderLeaderboard("lbResult");
 
 /* ================= Chống gian lận ================= */
-// Ghi cờ vi phạm: tăng bộ đếm cục bộ + Firebase (không tự ban, chỉ cộng số lần cảnh báo)
 async function flagViolation(){
 try { const k = "qpb3_vio_" + nameHash(session.name); localStorage.setItem(k, String((parseInt(localStorage.getItem(k) || "0", 10)) + 1)); } catch(e){}
 if (!db || isAdmin) return;
@@ -518,7 +520,7 @@ await set(r, { isBanned: !!cur.isBanned, violations: (cur.violations || 0) + 1, 
 let lastVio = 0;
 function violation(){
 if (!quizActive() || isAdmin) return;
-const now = Date.now(); if (now - lastVio < 1500) return; lastVio = now; // tránh đếm trùng blur + visibilitychange
+const now = Date.now(); if (now - lastVio < 1500) return; lastVio = now;
 S.vio++; saveState();
 if (S.vio > MAX_VIO) { showToast("🚫 Vi phạm quá " + MAX_VIO + " lần — bài được nộp tự động!", true); flagViolation(); submit(true); }
 else showToast("⚠️ Cảnh báo " + S.vio + "/" + MAX_VIO + ": không chuyển tab / rời khỏi trang khi đang làm bài!", true);
@@ -530,7 +532,6 @@ document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("keydown", function(e){
 const k = e.key || "";
 if (k === "F12" || ((e.ctrlKey || e.metaKey) && (/^[cu]$/i.test(k) || (e.shiftKey && /^[ijc]$/i.test(k))))) { e.preventDefault(); e.stopPropagation(); return false; }
-// Phím tắt: 1-4 / A-D chọn đáp án, ←/→ chuyển câu
 if (!quizActive() || $("mk").classList.contains("on") || e.ctrlKey || e.metaKey || e.altKey) return;
 if (e.key === "ArrowRight") { e.preventDefault(); go(S.cur + 1); return; }
 if (e.key === "ArrowLeft") { e.preventDefault(); go(S.cur - 1); return; }
