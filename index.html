@@ -319,9 +319,54 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
+
+<!-- ═══ BOOT SPINNER ═══ -->
+<div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#f0f4f8;z-index:99999;text-align:center;padding:24px">
+  <div>
+    <div style="width:50px;height:50px;border:4px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
+    <div style="font-weight:600;color:#64748b">Đang tải Luyện Đề Master…</div>
+  </div>
+</div>
+
+<!-- ═══ ERROR SCREEN ═══ -->
+<div id="errorScreen" style="display:none;position:fixed;inset:0;background:#f0f4f8;z-index:99999;place-items:center;text-align:center;padding:24px;font-family:system-ui,sans-serif">
+  <div style="max-width:600px">
+    <div style="font-size:5rem;margin-bottom:12px">⚠️</div>
+    <h1 style="color:#dc2626;font-size:2rem;margin-bottom:12px">Có lỗi xảy ra</h1>
+    <pre id="errMsg" style="color:#991b1b;background:#fee2e2;padding:16px;border-radius:8px;text-align:left;overflow:auto;font-size:0.85rem;white-space:pre-wrap;line-height:1.6;max-height:50vh;margin-bottom:24px"></pre>
+    <p style="color:#64748b;font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
+    <button onclick="location.reload()" style="padding:12px 24px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem">🔄 Tải lại</button>
+    <button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px">🏠 Trang chủ</button>
+  </div>
+</div>
+
+<script>
+window.__showFatalError = function(msg) {
+  try {
+    var boot = document.getElementById('boot');
+    if (boot) boot.style.display = 'none';
+    var err = document.getElementById('errorScreen');
+    var errMsg = document.getElementById('errMsg');
+    if (err && errMsg) {
+      errMsg.textContent = msg;
+      err.style.display = 'grid';
+    }
+  } catch(e) {}
+};
+window.addEventListener('error', function(e) {
+  console.error('[index] Uncaught:', e.error || e.message);
+  window.__showFatalError((e.error && e.error.stack) || e.message || 'Lỗi không xác định');
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[index] Unhandled:', e.reason);
+  var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject';
+  window.__showFatalError(msg);
+});
+</script>
 
 <audio id="bgMusic"></audio>
 
@@ -613,100 +658,136 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 
 <!-- ═══════════ CUTSCENE SCRIPT ═══════════ -->
 <script type="module">
-import { CUTSCENE_DURATION_MS } from '/js/config.js';
-(function(){
-  var cs=document.getElementById("cutscene"); if(!cs) return;
-  var done=false,ready=false,raf;
-  var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-  document.body.style.overflow="hidden";
-  var t=document.getElementById("csTitle"),txt=t.textContent.normalize("NFC"),n=0;
-  t.setAttribute("aria-label",txt);t.textContent="";
-  txt.split(" ").forEach(function(w){
-    var s=document.createElement("span");s.className="cs-w";
-    Array.from(w).forEach(function(ch){
-      var l=document.createElement("span");l.className="cs-l";l.textContent=ch;
-      l.style.animationDelay=(0.9+n*0.045)+"s";n++;s.appendChild(l);
-    });
-    t.appendChild(s);
-  });
-  var pct=document.getElementById("csPct");
-  setTimeout(function(){
-    var s0=performance.now();
-    (function f(now){
-      if(done) return;
-      var p=Math.min(1,(now-s0)/2400);
-      pct.textContent=p<1?Math.round(p*100)+"%":"✨ Sẵn sàng · chạm để vào";
-      if(p<1) requestAnimationFrame(f);
-    })(s0);
-  },1600);
-  var cv=document.getElementById("csCanvas"),cx=cv.getContext("2d"),W,H,P=[];
-  var dpr=Math.min(window.devicePixelRatio||1,2);
-  function size(){W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;}
-  size();window.addEventListener("resize",size);
-  var N=Math.min(70,Math.floor(innerWidth/14)),R=120*dpr;
-  for(var i=0;i<N;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.6*dpr,vy:(Math.random()-.5)*.6*dpr});
-  function loop(){
-    cx.clearRect(0,0,W,H);
-    for(var i=0;i<P.length;i++){
-      var a=P[i];a.x+=a.vx;a.y+=a.vy;
-      if(a.x<0||a.x>W)a.vx*=-1;
-      if(a.y<0||a.y>H)a.vy*=-1;
-      cx.fillStyle="rgba(160,190,255,.85)";
-      cx.beginPath();cx.arc(a.x,a.y,1.6*dpr,0,6.2832);cx.fill();
-      for(var j=i+1;j<P.length;j++){
-        var b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-        if(d<R){cx.strokeStyle="rgba(126,162,255,"+((1-d/R)*.35)+")";cx.lineWidth=dpr;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
+(async () => {
+  try {
+    const { CUTSCENE_DURATION_MS } = await import('/js/config.js');
+    (function(){
+      var cs=document.getElementById("cutscene"); if(!cs) return;
+      var done=false,ready=false,raf;
+      var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.body.style.overflow="hidden";
+      var t=document.getElementById("csTitle"),txt=t.textContent.normalize("NFC"),n=0;
+      t.setAttribute("aria-label",txt);t.textContent="";
+      txt.split(" ").forEach(function(w){
+        var s=document.createElement("span");s.className="cs-w";
+        Array.from(w).forEach(function(ch){
+          var l=document.createElement("span");l.className="cs-l";l.textContent=ch;
+          l.style.animationDelay=(0.9+n*0.045)+"s";n++;s.appendChild(l);
+        });
+        t.appendChild(s);
+      });
+      var pct=document.getElementById("csPct");
+      setTimeout(function(){
+        var s0=performance.now();
+        (function f(now){
+          if(done) return;
+          var p=Math.min(1,(now-s0)/2400);
+          pct.textContent=p<1?Math.round(p*100)+"%":"✨ Sẵn sàng · chạm để vào";
+          if(p<1) requestAnimationFrame(f);
+        })(s0);
+      },1600);
+      var cv=document.getElementById("csCanvas"),cx=cv.getContext("2d"),W,H,P=[];
+      var dpr=Math.min(window.devicePixelRatio||1,2);
+      function size(){W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;}
+      size();window.addEventListener("resize",size);
+      var N=Math.min(70,Math.floor(innerWidth/14)),R=120*dpr;
+      for(var i=0;i<N;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.6*dpr,vy:(Math.random()-.5)*.6*dpr});
+      function loop(){
+        cx.clearRect(0,0,W,H);
+        for(var i=0;i<P.length;i++){
+          var a=P[i];a.x+=a.vx;a.y+=a.vy;
+          if(a.x<0||a.x>W)a.vx*=-1;
+          if(a.y<0||a.y>H)a.vy*=-1;
+          cx.fillStyle="rgba(160,190,255,.85)";
+          cx.beginPath();cx.arc(a.x,a.y,1.6*dpr,0,6.2832);cx.fill();
+          for(var j=i+1;j<P.length;j++){
+            var b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+            if(d<R){cx.strokeStyle="rgba(126,162,255,"+((1-d/R)*.35)+")";cx.lineWidth=dpr;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
+          }
+        }
+        raf=requestAnimationFrame(loop);
       }
-    }
-    raf=requestAnimationFrame(loop);
+      if(!reduce) loop();
+      function dismiss(){
+        if(done) return;done=true;
+        cancelAnimationFrame(raf);window.removeEventListener("resize",size);
+        cs.classList.add("out");document.body.style.overflow="";
+        setTimeout(function(){if(cs.parentNode)cs.parentNode.removeChild(cs);},1000);
+      }
+      setTimeout(function(){ready=true;},1000);
+      cs.addEventListener("click",function(){if(ready)dismiss();});
+      document.getElementById("csSkip").addEventListener("click",function(e){e.stopPropagation();dismiss();});
+      document.addEventListener("keydown",function(e){if(e.key==="Escape")dismiss();});
+      setTimeout(dismiss, CUTSCENE_DURATION_MS);
+    })();
+  } catch(e) {
+    console.warn('[cutscene] Load fail, skip cutscene:', e.message);
+    var cs = document.getElementById('cutscene');
+    if (cs && cs.parentNode) cs.parentNode.removeChild(cs);
+    document.body.style.overflow = '';
   }
-  if(!reduce) loop();
-  function dismiss(){
-    if(done) return;done=true;
-    cancelAnimationFrame(raf);window.removeEventListener("resize",size);
-    cs.classList.add("out");document.body.style.overflow="";
-    setTimeout(function(){if(cs.parentNode)cs.parentNode.removeChild(cs);},1000);
-  }
-  setTimeout(function(){ready=true;},1000);
-  cs.addEventListener("click",function(){if(ready)dismiss();});
-  document.getElementById("csSkip").addEventListener("click",function(e){e.stopPropagation();dismiss();});
-  document.addEventListener("keydown",function(e){if(e.key==="Escape")dismiss();});
-  setTimeout(dismiss, CUTSCENE_DURATION_MS);
 })();
 </script>
 
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
-/* ─── IMPORTS ─── */
-import {
+/* ═══ SAFE IMPORTS ═══ */
+let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
+try {
+  core = await import('/js/core.js');
+  utils = await import('/js/utils.js');
+  musicMod = await import('/js/music.js');
+  anticheatMod = await import('/js/anticheat.js');
+  configMod = await import('/js/config.js');
+  firebaseMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+} catch (e) {
+  console.error('[index] Import failed:', e);
+  window.__showFatalError(
+    'Không tải được module:\n' + e.message +
+    '\n\n→ Kiểm tra các file /js/config.js, /js/core.js, /js/utils.js, /js/music.js, /js/anticheat.js.\n' +
+    '→ Mở F12 → Network → xem file nào 404.\n' +
+    '→ Đang test local? Phải chạy "python -m http.server 8000" (không được mở file://).'
+  );
+  throw e;
+}
+
+/* ═══ DESTRUCTURE ═══ */
+const {
   db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
   normText, nameHash, checkProfanity, keyOf,
   getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
   checkFirebaseBan, recordFirebaseViolation, recordViolation,
   syncUnbanEpoch, checkDomain, showDomainWarning,
   checkRegistrationLock, validateRegistrationCode, markCodeUsed
-} from '/js/core.js';
+} = core;
 
-import { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } from '/js/utils.js';
-
-import { createMusicPlayer } from '/js/music.js';
-import { installAntiCheat } from '/js/anticheat.js';
-
-import {
+const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
+const { createMusicPlayer } = musicMod;
+const { installAntiCheat } = anticheatMod;
+const {
   ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE,
   TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
   SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
   SHAKE_VIDEO
-} from '/js/config.js';
+} = configMod;
 
-import {
-  ref, push, set, get, serverTimestamp, runTransaction, remove
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const { ref, push, set, get, serverTimestamp, runTransaction, remove } = firebaseMod;
 
-/* ─── DOMAIN GUARD ─── */
-if (!checkDomain()) { showDomainWarning(); throw new Error("DOMAIN_NOT_ALLOWED"); }
+/* Ẩn boot spinner khi import xong */
+const __boot = document.getElementById('boot');
+if (__boot) __boot.style.display = 'none';
 
-/* ─── HELPERS ─── */
+/* ═══ DOMAIN GUARD ═══ */
+try {
+  if (!checkDomain()) {
+    showDomainWarning();
+    throw new Error("DOMAIN_NOT_ALLOWED");
+  }
+} catch(e) {
+  if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
+}
+
+/* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 const L = "ABCD";
 
@@ -742,7 +823,7 @@ function showBanScreen(name) {
   if (b) b.onclick = () => location.reload();
 }
 
-/* ─── LAZY DATA ─── */
+/* ═══ LAZY DATA ═══ */
 const _dataCache = Object.create(null);
 let ENGLISH_SECTIONS = [];
 let ENGLISH_QMETA = [];
@@ -754,14 +835,14 @@ async function loadSubjectData(key) {
   return _dataCache[key];
 }
 
-/* ─── SESSION SYNC ─── */
+/* ═══ SESSION SYNC ═══ */
 let session = null;
 function _syncSession(s) {
   if (s) { saveSession(s); session = s; }
   else { clearSession(); session = null; }
 }
 
-/* ─── AUTH ─── */
+/* ═══ AUTH ═══ */
 let authMode = "login";
 
 $("atLogin").onclick = function() {
@@ -828,7 +909,7 @@ async function doLogin(u, p) {
   _syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
 }
 
-/* ─── REGISTER WITH LOCK + CODE ─── */
+/* ═══ REGISTER (with lock + code) ═══ */
 $("auGo").onclick = async function() {
   $("auErr").textContent = "";
   const u = $("auUser").value.trim(), p = $("auPass").value;
@@ -844,30 +925,33 @@ $("auGo").onclick = async function() {
         return;
       }
 
-      // 🔒 CHECK LOCK + YÊU CẦU MÃ
       let usedCode = null;
-      if (await checkRegistrationLock()) {
-        const code = prompt(
-          "🔒 Đăng ký đang bị KHÓA.\n\n" +
-          "Vui lòng nhập MÃ ĐĂNG KÝ do admin cấp:\n" +
-          "(Định dạng: LDM-XXXXX-XXXXX)"
-        );
-        if (!code || !code.trim()) {
-          $("auErr").textContent = "🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin để tạo tài khoản.";
-          $("auGo").disabled = false;
-          return;
+      try {
+        if (await checkRegistrationLock()) {
+          const code = prompt(
+            "🔒 Đăng ký đang bị KHÓA.\n\n" +
+            "Vui lòng nhập MÃ ĐĂNG KÝ do admin cấp:\n" +
+            "(Định dạng: LDM-XXXXX-XXXXX)"
+          );
+          if (!code || !code.trim()) {
+            $("auErr").textContent = "🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin.";
+            $("auGo").disabled = false;
+            return;
+          }
+          const check = await validateRegistrationCode(code);
+          if (!check.valid) {
+            $("auErr").textContent = "❌ " + check.reason;
+            $("auGo").disabled = false;
+            return;
+          }
+          usedCode = check.code;
         }
-        const check = await validateRegistrationCode(code);
-        if (!check.valid) {
-          $("auErr").textContent = "❌ " + check.reason;
-          $("auGo").disabled = false;
-          return;
-        }
-        usedCode = check.code;
+      } catch (e) {
+        console.warn('[register] Lock check error:', e);
+        // Nếu lock check fail → cho đăng ký luôn (không chặn)
       }
 
       await doRegister(u, p, name, $("auCls").value.trim());
-
       if (usedCode) await markCodeUsed(usedCode, u);
     } else {
       await doLogin(u, p);
@@ -901,7 +985,7 @@ function enterApp() {
 
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
 
-/* ─── TABS ─── */
+/* ═══ TABS ═══ */
 function switchTab(name) {
   $("tabBtnPractice").classList.toggle("active", name === "practice");
   $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
@@ -923,7 +1007,7 @@ $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
 
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
 
-/* ─── LEADERBOARD ─── */
+/* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
   const el = $(pillsId);
   const filters = [
@@ -1028,7 +1112,7 @@ $("rfResult").onclick = function() {
   renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
 };
 
-/* ─── QUIZ ─── */
+/* ═══ QUIZ ENGINE ═══ */
 let currentSubject, Q = null, order, opt, ans, cur, t0, tick;
 let currentMode = 'choice', maskMode = "submit";
 let autoSubmitTriggered = false, allAtOnce = false, isShuffled = false, _loadingQuiz = false;
@@ -1348,7 +1432,7 @@ $("yes").onclick = function() {
 };
 function finish() { clearInterval(tick); showResults(); }
 
-/* ─── RESULTS ─── */
+/* ═══ RESULTS ═══ */
 function showResults() {
   const ms = Date.now() - t0;
   let pts = 0, full = 0, h = "";
@@ -1503,7 +1587,7 @@ async function saveAndRefresh(res) {
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
 
-/* ─── MUSIC ─── */
+/* ═══ MUSIC ═══ */
 const music = createMusicPlayer({
   audio: $("bgMusic"),
   onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
@@ -1542,7 +1626,7 @@ $("btnSaveMusic").onclick = () => {
   $("musicMask").classList.remove("on");
 };
 
-/* ─── CLOCK ─── */
+/* ═══ CLOCK ═══ */
 function updateClock() {
   const now = new Date();
   const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
@@ -1552,7 +1636,7 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ─── SHAKE VIDEO ─── */
+/* ═══ SHAKE VIDEO ═══ */
 let musicWasPlaying = false;
 function openShakeVideo() {
   const v = $("shakeVideo");
@@ -1578,7 +1662,7 @@ $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
 
-/* ─── IFRAME OVERLAY ─── */
+/* ═══ IFRAME OVERLAY ═══ */
 function openFrameOverlay(src) {
   $("video-frame").src = src;
   $("iframe-overlay").classList.remove("hide");
@@ -1591,7 +1675,7 @@ $("btnBack").onclick = function() {
   $("video-frame").src = "";
 };
 
-/* ─── ANTI-CHEAT ─── */
+/* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
 installAntiCheat({
   blockCopyPaste: false,
@@ -1612,7 +1696,7 @@ installAntiCheat({
   }
 });
 
-/* ─── LEADERBOARD AUTO-REFRESH ─── */
+/* ═══ LEADERBOARD AUTO-REFRESH ═══ */
 document.addEventListener("visibilitychange", function() {
   if (document.hidden || !session) return;
   const tb = $("tab-leaderboard");
@@ -1622,30 +1706,35 @@ document.addEventListener("visibilitychange", function() {
   }
 });
 
-/* ─── INIT ─── */
+/* ═══ INIT ═══ */
 (async function init() {
-  await syncUnbanEpoch();
-  const existing = loadSession();
-  if (existing) {
-    if (existing.isAdmin === true && isAdminUsername(existing.username)) {
-      _syncSession(existing);
-      enterApp();
-    } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
-      recordViolation(existing.name, existing.username);
-      _syncSession(null);
-      showBanScreen(existing.name);
-    } else {
-      const isBanned = await checkFirebaseBan(existing.username);
-      if (isBanned || checkLocalBan(existing.name)) {
+  try {
+    await syncUnbanEpoch();
+    const existing = loadSession();
+    if (existing) {
+      if (existing.isAdmin === true && isAdminUsername(existing.username)) {
+        _syncSession(existing);
+        enterApp();
+      } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
+        recordViolation(existing.name, existing.username);
         _syncSession(null);
         showBanScreen(existing.name);
       } else {
-        _syncSession(existing);
-        enterApp();
+        const isBanned = await checkFirebaseBan(existing.username);
+        if (isBanned || checkLocalBan(existing.name)) {
+          _syncSession(null);
+          showBanScreen(existing.name);
+        } else {
+          _syncSession(existing);
+          enterApp();
+        }
       }
+    } else {
+      show("auth");
     }
-  } else {
-    show("auth");
+  } catch(e) {
+    console.error('Init failed:', e);
+    window.__showFatalError('Lỗi khởi tạo: ' + (e.message || e));
   }
 })();
 </script>
