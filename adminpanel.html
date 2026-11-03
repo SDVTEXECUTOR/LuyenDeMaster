@@ -14,7 +14,6 @@
   --warn: #f59e0b; --warns: #fef3c7;
   --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   --glass: blur(12px) saturate(180%);
-  box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -59,23 +58,21 @@ button.success { background: var(--ok); }
 button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
 .stats-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px; margin-bottom: 16px;
 }
 .stat-card {
   background: var(--card); border: 1px solid var(--ln); border-radius: 14px;
   padding: 16px; text-align: center; backdrop-filter: var(--glass);
 }
-.stat-card .num { font-size: 2rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; }
-.stat-card .lbl { font-size: 0.78rem; color: var(--mut); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.stat-card .num { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; }
+.stat-card .lbl { font-size: 0.75rem; color: var(--mut); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
 .stat-card.ac .num { color: var(--ac); }
 .stat-card.ok .num { color: var(--ok); }
 .stat-card.bad .num { color: var(--bad); }
 .stat-card.warn .num { color: var(--warn); }
 
-.toolbar {
-  display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;
-}
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
 .toolbar input[type=text] {
   flex: 1; min-width: 200px; padding: 10px 14px; font: inherit;
   border: 1.5px solid var(--ln); border-radius: 10px;
@@ -105,7 +102,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .acc-table tbody tr.banned:hover { background: var(--bads); }
 .acc-table td { padding: 12px 10px; vertical-align: middle; }
 .acc-table td.center { text-align: center; }
-.acc-table td.actions { text-align: right; }
+.acc-table td.actions { text-align: right; white-space: nowrap; }
 .acc-table td.actions button { margin-left: 4px; }
 
 .acc-user { font-weight: 700; color: var(--fg); }
@@ -234,13 +231,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   .acc-table thead th:nth-child(2), .acc-table tbody td:nth-child(2) { display: none; }
   .acc-table { font-size: 0.82rem; }
   .acc-table td, .acc-table th { padding: 8px 6px; }
-  .stat-card .num { font-size: 1.6rem; }
+  .stat-card .num { font-size: 1.5rem; }
 }
 @media (max-width: 480px) {
   .acc-table thead th:nth-child(3), .acc-table tbody td:nth-child(3) { display: none; }
   button.sm { padding: 5px 8px; font-size: 0.75rem; }
-  .acc-table td.actions button { margin: 2px 0; display: block; width: 100%; }
-  .code-row { grid-template-columns: 1fr auto; }
+  .acc-table td.actions button { margin: 4px 0; display: block; width: 100%; }
+  .code-row { grid-template-columns: 1fr; gap: 8px; }
+  .code-row > div:last-child { display: flex; gap: 8px; }
+  .code-row > div:last-child button { flex: 1; }
 }
 </style>
 </head>
@@ -261,7 +260,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <h1>Có lỗi xảy ra</h1>
     <pre id="errorMsg"></pre>
     <p style="color:var(--mut);font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
-    <button onclick="location.reload()">🔄 Tải lại</button>
+    <button onclick="location.reload()">🔄 Tải lại trang</button>
     <button class="g" onclick="location.href='/'" style="margin-left:8px">🏠 Về trang chủ</button>
   </div>
 </div>
@@ -285,7 +284,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
         <div id="liveClock"></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="g sm" onclick="location.href='/'">🏠 Về trang chủ</button>
+        <button class="g sm" onclick="location.href='/'">🏠 Trang chủ</button>
         <button class="g sm" id="btnLogout">🚪 Đăng xuất</button>
       </div>
     </div>
@@ -329,8 +328,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 
   <div class="card">
-    <div class="top">
-      <div>
+    <div class="top" style="margin-bottom:12px">
+      <div style="flex:1">
         <h2 style="margin-bottom:4px">🔓 Mở ban toàn bộ</h2>
         <div class="mut" id="unbanStatus">Đang tải…</div>
       </div>
@@ -392,12 +391,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 /* ═══ GLOBAL ERROR ═══ */
 function showFatalError(msg) {
   try {
-    var boot = document.getElementById('boot');
+    const boot = document.getElementById('boot');
     if (boot) boot.style.display = 'none';
-    var err = document.getElementById('errorScreen');
-    var errMsg = document.getElementById('errorMsg');
-    var panel = document.getElementById('panel');
-    var denied = document.getElementById('denied');
+    const err = document.getElementById('errorScreen');
+    const errMsg = document.getElementById('errorMsg');
+    const panel = document.getElementById('panel');
+    const denied = document.getElementById('denied');
     if (panel) panel.classList.add('hide');
     if (denied) denied.classList.add('hide');
     if (err && errMsg) { errMsg.textContent = msg; err.classList.remove('hide'); }
@@ -412,20 +411,20 @@ window.addEventListener('unhandledrejection', (e) => {
   showFatalError((e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject');
 });
 
-/* ═══ SAFE IMPORT ═══ */
+/* ═══ SAFE IMPORT (WITH CACHE BUSTING) ═══ */
 let core, utils, config, firebase;
+const v = Date.now(); // Chống cache
 try {
-  core     = await import('/js/core.js');
-  utils    = await import('/js/utils.js');
-  config   = await import('/js/config.js');
+  core     = await import(`/js/core.js?v=${v}`);
+  utils    = await import(`/js/utils.js?v=${v}`);
+  config   = await import(`/js/config.js?v=${v}`);
   firebase = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
   console.error('Import failed:', e);
   showFatalError(
     'Không tải được module:\n' + e.message +
-    '\n\n→ Kiểm tra /js/core.js, /js/utils.js, /js/config.js.\n' +
-    '→ Nếu lỗi dạng "does not provide an export named..." → file đó CHƯA được cập nhật.\n' +
-    '→ F12 → Network → xem file nào lỗi.'
+    '\n\n→ Kiểm tra file /js/core.js, /js/utils.js, /js/config.js.\n' +
+    '→ Đảm bảo bạn đã Lưu (Save) và Upload file lên server.'
   );
   throw e;
 }
@@ -435,7 +434,8 @@ const $ = id => document.getElementById(id);
 
 /* ═══ CHECK EXPORTS ═══ */
 const missing = [];
-['db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf']
+['db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
+ 'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode']
   .forEach(k => { if (typeof core[k] === 'undefined') missing.push('core.' + k); });
 ['esc','fmtMsShort','fmtDate']
   .forEach(k => { if (typeof utils[k] === 'undefined') missing.push('utils.' + k); });
@@ -445,16 +445,10 @@ const missing = [];
 if (missing.length) {
   showFatalError(
     'Thiếu export trong module:\n\n' + missing.join('\n') +
-    '\n\n→ Cập nhật các file js/*.js theo hướng dẫn.\n' +
-    '→ config.js cần có: REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE.\n' +
-    '→ core.js cần có: checkRegistrationLock, setRegistrationLock, createRegistrationCode, getRegistrationCodes, deleteRegistrationCode.'
+    '\n\n→ Vui lòng cập nhật file js/*.js theo phiên bản mới nhất.'
   );
   throw new Error('Missing exports: ' + missing.join(', '));
 }
-
-const HAS_LOCK_FEATURE = ['checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode']
-  .every(k => typeof core[k] === 'function');
-if (!HAS_LOCK_FEATURE) console.warn('[adminpanel] Thiếu hàm lock/codes — tính năng khóa đăng ký sẽ bị tắt.');
 
 const {
   db, loadSession, saveSession, isAdminSession, isAdminUsername,
@@ -477,7 +471,7 @@ function confirmBox(title, body, onConfirm, danger = true) {
   $("cfTitle").textContent = title;
   $("cfBody").innerHTML = body;
   $("cfYes").className = danger ? "danger" : "success";
-  $("cfYes").textContent = danger ? "Xác nhận xoá" : "Xác nhận";
+  $("cfYes").textContent = danger ? "Xác nhận" : "Xác nhận";
   $("confirmMask").classList.add("on");
   const cleanup = () => {
     $("cfYes").onclick = null;
@@ -495,7 +489,7 @@ let currentAdmin = null;
 
 function tickClock() {
   const now = new Date();
-  const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+  const days = ["CN","T2","T3","T4","T5","T6","T7"];
   const el = $("liveClock");
   if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
 }
@@ -516,29 +510,23 @@ function checkAccess() {
 
 /* ═══ LOCK ═══ */
 async function loadLockStatus() {
-  if (!HAS_LOCK_FEATURE) {
-    $("lockStatus").innerHTML = '<span style="color:var(--bad)">⚠️ Chưa cập nhật core.js</span>';
-    $("lockCheckbox").disabled = true;
-    return;
-  }
   try {
     const isLocked = await core.checkRegistrationLock();
     $("lockCheckbox").checked = isLocked;
     $("lockStatus").innerHTML = isLocked
-      ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký để tạo tài khoản'
+      ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký'
       : '<span style="color:var(--ok);font-weight:700">🔓 ĐANG MỞ</span> — Ai cũng có thể đăng ký';
   } catch (e) { $("lockStatus").textContent = "Lỗi: " + e.message; }
 }
 
 async function toggleLock() {
-  if (!HAS_LOCK_FEATURE) return;
   const newState = $("lockCheckbox").checked;
   if (newState) {
-    if (!confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản.")) {
+    if (!confirm("🔒 Bật KHÓA đăng ký?\n\nHọc sinh sẽ KHÔNG thể tự tạo tài khoản.")) {
       $("lockCheckbox").checked = false; return;
     }
   } else {
-    if (!confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản.")) {
+    if (!confirm("🔓 MỞ khóa đăng ký?\n\nAi cũng có thể tự tạo tài khoản.")) {
       $("lockCheckbox").checked = true; return;
     }
   }
@@ -550,7 +538,7 @@ async function toggleLock() {
       showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký");
       loadLockStatus();
     } else {
-      showToast("Không thể cập nhật. Kiểm tra quyền admin + Firebase rules.", true);
+      showToast("Không thể cập nhật. Kiểm tra quyền admin.", true);
       $("lockCheckbox").checked = !newState;
     }
   } catch (e) {
@@ -562,11 +550,6 @@ async function toggleLock() {
 
 /* ═══ CODES ═══ */
 async function loadCodes() {
-  if (!HAS_LOCK_FEATURE) {
-    $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">⚠️ Chưa cập nhật core.js</div>';
-    $("btnCreateCode").disabled = true;
-    return;
-  }
   $("codesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
     const codes = await core.getRegistrationCodes();
@@ -591,8 +574,10 @@ async function loadCodes() {
               : `📅 Tạo ${fmtDate(c.createdAt)}`}
           </div>
         </div>
-        ${!c.used ? `<button class="sm" style="background:var(--ac)" onclick="window.__copyCode('${esc(c.code)}')">📋 Copy</button>` : '<div></div>'}
-        <button class="sm danger" onclick="window.__deleteCode('${esc(c.code)}')">🗑️</button>
+        <div>
+          ${!c.used ? `<button class="sm" style="background:var(--ac)" onclick="window.__copyCode('${esc(c.code)}')">📋 Copy</button>` : '<div></div>'}
+          <button class="sm danger" onclick="window.__deleteCode('${esc(c.code)}')">🗑️</button>
+        </div>
       </div>
     `).join("");
   } catch (e) {
@@ -601,12 +586,11 @@ async function loadCodes() {
 }
 
 async function createCode() {
-  if (!HAS_LOCK_FEATURE) return;
   try {
     ovOn("Đang tạo mã…");
     const code = await core.createRegistrationCode();
     ovOff();
-    if (!code) { showToast("Không thể tạo mã. Kiểm tra quyền admin + Firebase rules.", true); return; }
+    if (!code) { showToast("Không thể tạo mã.", true); return; }
     let copied = false;
     try { await navigator.clipboard.writeText(code); copied = true; } catch (e) {}
     showToast(copied ? `✅ Đã tạo & copy: ${code}` : `✅ Đã tạo: ${code}`);
@@ -684,8 +668,7 @@ async function loadData() {
     $("stTower").textContent = towerSnap.exists() ? towerSnap.size : 0;
 
     if (unbanSnap.exists()) {
-      $("unbanStatus").textContent = "Lần Unban All gần nhất: " +
-        new Date(Number(unbanSnap.val())).toLocaleString("vi-VN");
+      $("unbanStatus").textContent = "Lần Unban All gần nhất: " + new Date(Number(unbanSnap.val())).toLocaleString("vi-VN");
     } else {
       $("unbanStatus").textContent = "Chưa từng bấm Unban All.";
     }
@@ -693,7 +676,7 @@ async function loadData() {
     renderAccounts();
   } catch (e) {
     console.error(e);
-    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Không tải được dữ liệu: ' + esc(e.message) + '<br><small>Kiểm tra Firebase Rules đã cho phép đọc <code>accounts</code> chưa.</small></div>';
+    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Không tải được dữ liệu: ' + esc(e.message) + '</div>';
   }
 }
 
@@ -769,15 +752,6 @@ function renderAccounts() {
   `;
 }
 
-/* ─────────────────────────────────────────────────────────────────────
-   FIX: trước đây hàm này set UNBAN_NODE (epoch toàn cục) ngay cả khi
-   chỉ gỡ ban MỘT học sinh. Vì syncUnbanEpoch() trong core.js so sánh
-   epoch này trên máy của MỌI học sinh, việc đó vô tình gọi
-   clearAllLocalBans() trên tất cả các máy khác → "giải ban" luôn những
-   bạn khác đang bị khoá vì lý do riêng.
-   → UNBAN_NODE giờ chỉ được cập nhật trong unbanAll() (Unban All),
-     không còn trong nhánh gỡ ban từng người ở đây.
-   ───────────────────────────────────────────────────────────────── */
 async function toggleBan(username, name, currentlyBanned) {
   const action = currentlyBanned ? "gỡ ban" : "ban";
   confirmBox(
