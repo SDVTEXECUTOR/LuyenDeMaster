@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hồ Sơ Cá Nhân · Luyện Đề Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══ REUSE CSS FROM INDEX.HTML ═══ */
+:root {
+  --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
+  --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
+  --warn: #f59e0b; --warns: #fef3c7; --love: #ec4899; --loves: #fce7f3;
+  --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  --glass: blur(12px) saturate(180%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
+    --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
+    --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
+    --love: #f472b6; --loves: rgba(244, 114, 182, 0.15);
+    --ln: rgba(148, 163, 184, 0.15); --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px; line-height: 1.6;
+  background-image: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+  radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 40%);
+  background-attachment: fixed; min-height: 100vh;
+}
+main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
+.card {
+  background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--ln); border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+.mut { color: var(--mut); font-size: 0.9rem; }
+
+/* Header Profile */
+.profile-header { text-align: center; padding: 32px 24px; }
+.avatar-lg {
+  width: 80px; height: 80px; border-radius: 50%; background: var(--acs);
+  display: grid; place-items: center; font-size: 2.5rem; margin: 0 auto 12px;
+  border: 3px solid var(--card); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.profile-user { color: var(--ac); font-weight: 600; font-size: 0.95rem; margin: 4px 0; }
+.profile-bio {
+  font-style: italic; color: var(--mut); margin: 12px 0 20px; font-size: 0.95rem;
+  background: var(--ln); padding: 12px; border-radius: 10px;
+}
+.btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+button {
+  font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 10px 20px;
+  cursor: pointer; background: var(--ac); color: #fff; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); display: flex; align-items: center; gap: 6px;
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35); }
+button:active { transform: translateY(1px); }
+button.g { background: transparent; color: var(--fg); border: 1.5px solid var(--ln); box-shadow: none; }
+button.g:hover { background: var(--acs); border-color: var(--ac); }
+button.love { background: var(--love); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3); }
+button.love:hover { box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4); }
+button.sm { padding: 8px 14px; font-size: 0.85rem; }
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+.stat-item { background: rgba(255,255,255,0.4); padding: 16px 8px; border-radius: 12px; border: 1px solid var(--ln); }
+.stat-val { font-size: 1.5rem; font-weight: 800; color: var(--ac); display: block; }
+.stat-label { font-size: 0.8rem; color: var(--mut); font-weight: 600; margin-top: 4px; display: block; }
+
+/* High Scores */
+.score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.score-row:last-child { margin-bottom: 0; }
+.score-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+.score-name { width: 100px; font-weight: 600; font-size: 0.9rem; flex-shrink: 0; }
+.score-bar-bg { flex: 1; height: 10px; background: var(--ln); border-radius: 5px; overflow: hidden; }
+.score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ac), #60a5fa); border-radius: 5px; transition: width 0.6s ease; }
+.score-val { width: 40px; text-align: right; font-weight: 700; font-size: 0.9rem; }
+.score-na { color: var(--mut); font-style: italic; font-size: 0.85rem; flex: 1; }
+
+/* Couple Section */
+.couple-card { text-align: center; padding: 24px; }
+.couple-avatars { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 2rem; }
+.couple-heart { color: var(--love); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+.couple-stats { display: flex; justify-content: center; gap: 24px; margin: 16px 0; }
+.couple-stat { text-align: center; }
+.couple-stat b { display: block; font-size: 1.2rem; color: var(--love); }
+.couple-stat span { font-size: 0.8rem; color: var(--mut); }
+.mission-box {
+  background: var(--loves); border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 10px; padding: 12px; margin-top: 16px; text-align: left;
+}
+.mission-bar { height: 8px; background: rgba(236, 72, 153, 0.2); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+.mission-fill { height: 100%; background: var(--love); border-radius: 4px; }
+
+/* Badges */
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.badge-item {
+  text-align: center; padding: 16px 8px; border-radius: 12px;
+  border: 1px solid var(--ln); background: rgba(255,255,255,0.4);
+  transition: all 0.2s; position: relative;
+}
+.badge-item.unlocked { border-color: var(--warn); background: var(--warns); }
+.badge-item.locked { opacity: 0.5; filter: grayscale(1); cursor: help; }
+.badge-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+.badge-name { font-size: 0.85rem; font-weight: 700; display: block; }
+.badge-date { font-size: 0.75rem; color: var(--mut); display: block; margin-top: 4px; }
+.badge-item.locked:hover::after {
+  content: attr(data-tooltip);
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--fg); color: var(--bg); padding: 6px 10px; border-radius: 6px;
+  font-size: 0.75rem; white-space: nowrap; z-index: 10; margin-bottom: 6px;
+}
+
+/* Modal */
+.mask {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+  display: none; place-items: center; padding: 16px; z-index: 100; opacity: 0; transition: opacity 0.3s;
+}
+.mask.on { display: grid; opacity: 1; }
+.mask .card { max-width: 440px; width: 100%; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+input[type="text"], textarea {
+  width: 100%; padding: 12px 16px; font: inherit; border: 1.5px solid var(--ln);
+  border-radius: 10px; background: rgba(255,255,255,0.5); color: var(--fg);
+  transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 12px;
+}
+input:focus-visible, textarea:focus-visible { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
+textarea { resize: vertical; min-height: 80px; }
+
+.avatar-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+.avatar-opt {
+  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ln);
+  display: grid; place-items: center; font-size: 1.5rem; cursor: pointer; transition: all 0.2s;
+}
+.avatar-opt.sel { border-color: var(--ac); background: var(--acs); transform: scale(1.1); }
+
+.toast {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
+  background: var(--ok); color: white; padding: 12px 24px; border-radius: 99px;
+  font-weight: 600; box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3); z-index: 150;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--bad); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3); }
+
+.row { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
+.hide { display: none !important; }
+.skel { height: 20px; border-radius: 6px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
+@keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 300%; } }
+</style>
+</head>
+<body>
+
+<main>
+  <!-- Back Button -->
+  <button class="g sm" onclick="window.location.href='index.html'" style="margin-bottom: 16px;">← Quay lại trang chủ</button>
+
+  <!-- 1. Header Profile -->
+  <div class="card profile-header">
+    <div class="avatar-lg" id="pAvatar">🐱</div>
+    <h1 class="profile-name" id="pName">Đang tải...</h1>
+    <div class="profile-user" id="pUser">@username · Lớp</div>
+    <div class="profile-bio" id="pBio">"Chưa có tiểu sử"</div>
+    <div class="btn-group">
+      <button class="g" id="btnEditProfile">✏️ Sửa profile</button>
+      <button class="love" id="btnSetLove">💘 Set Love</button>
+    </div>
+  </div>
+
+  <!-- 2. Thống kê -->
+  <div class="card">
+    <h2>📊 THỐNG KÊ</h2>
+    <div class="stats-grid" id="statsGrid">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
+
+  <!-- 3. Điểm cao nhất -->
+  <div class="card">
+    <h2>🏆 ĐIỂM CAO NHẤT</h2>
+    <div id="scoresList">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
+
+  <!-- 4. Couple -->
+  <div class="card couple-card" id="coupleSection">
+    <div class="skel" style="height: 120px;"></div>
+  </div>
+
+  <!-- 5. Thành tích -->
+  <div class="card">
+    <h2>🎖️ THÀNH TÍCH</h2>
+    <div class="badge-grid" id="badgeGrid">
+      <!-- Render bằng JS -->
+    </div>
+  </div>
+
+  <!-- 6. Lịch sử hoạt động (Optional) -->
+  <div class="card">
+    <h2>📅 HOẠT ĐỘNG GẦN ĐÂY</h2>
+    <div id="activityList" class="mut" style="font-size: 0.9rem; line-height: 1.8;">
+      <div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══ MODAL SỬA PROFILE ═══ -->
+<div class="mask" id="editMask">
+  <div class="card">
+    <h2 style="margin-bottom: 16px;">✏️ Chỉnh sửa hồ sơ</h2>
+    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Chọn Avatar</label>
+    <div class="avatar-picker" id="avatarPicker"></div>
+    
+    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tiểu sử (Bio)</label>
+    <textarea id="editBio" maxlength="100" placeholder="Viết gì đó về bản thân..."></textarea>
+    <div class="mut" style="text-align: right; font-size: 0.8rem; margin-top: -8px; margin-bottom: 12px;"><span id="bioCount">0</span>/100</div>
+    
+    <div class="row">
+      <button class="g" id="cancelEdit">Hủy</button>
+      <button class="p" id="saveEdit" style="background: var(--ok);">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL SET LOVE (GỬI MỜI) ═══ -->
+<div class="mask" id="loveMask">
+  <div class="card">
+    <h2 style="margin-bottom: 8px; color: var(--love);">💘 Kết đôi</h2>
+    <p class="mut" style="font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5;">
+      Nhập <b>tên đăng nhập</b> của người bạn muốn kết đôi.<br>
+      <span style="color: var(--ac); font-size: 0.85rem;">💡 Lời mời sẽ được gửi đi. Khi họ đăng nhập vào trang chủ, họ sẽ thấy thông báo và có thể chấp nhận.</span>
+    </p>
+    
+    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tên đăng nhập đối phương</label>
+    <input type="text" id="targetUsername" placeholder="vd: linh2009" autocomplete="off">
+    <div id="loveErr" class="mut" style="color: var(--bad); font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px;"></div>
+    
+    <div class="row">
+      <button class="g" id="cancelLove">Hủy</button>
+      <button class="love" id="sendLoveInvite">Gửi lời mời 💌</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* ═══ IMPORTS ═══ */
+import { db, getSession, clearSession, normText } from '/js/core.js';
+import { ref, get, set, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ═══ HELPERS ═══ */
+const $ = id => document.getElementById(id);
+function showToast(msg, isErr) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isErr ? " error" : "");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+/* ═══ AUTH CHECK ═══ */
+const session = getSession();
+if (!session) {
+  window.location.href = "index.html";
+}
+
+/* ═══ DATA FETCHING ═══ */
+const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢"];
+const SUBJECTS = [
+  { key: 'tinhoc', icon: '💻', name: 'Tin học 9' },
+  { key: 'gdcd', icon: '⚖️', name: 'GDCD 9' },
+  { key: 'english', icon: '🇬🇧', name: 'Tiếng Anh 9' },
+  { key: 'diali', icon: '🌍', name: 'Địa lí 9' },
+  { key: 'khtn', icon: '🧪', name: 'KHTN 9' }
+];
+
+async function loadData() {
+  try {
+    const accSnap = await get(ref(db, `accounts/${session.username}`));
+    const profSnap = await get(ref(db, `profiles/${session.username}`));
+    const coupleSnap = await get(ref(db, `couples/${session.username}`));
+    
+    const acc = accSnap.val() || {};
+    const prof = profSnap.val() || {};
+    const couple = coupleSnap.val();
+
+    renderHeader(acc, prof);
+    renderStats(prof);
+    renderScores(prof.bestScores || {});
+    renderCouple(couple);
+    renderBadges(prof);
+    renderActivity(prof.recentActivity || []);
+  } catch (e) {
+    console.error(e);
+    showToast("Lỗi tải dữ liệu: " + e.message, true);
+  }
+}
+
+/* ═══ RENDER FUNCTIONS ═══ */
+function renderHeader(acc, prof) {
+  $("pAvatar").textContent = prof.avatar || "🐱";
+  $("pName").textContent = acc.name || "Người dùng";
+  $("pUser").textContent = `@${session.username} · ${acc.cls || 'Chưa có lớp'}`;
+  $("pBio").textContent = prof.bio ? `"${prof.bio}"` : '"Chưa có tiểu sử"';
+}
+
+function renderStats(prof) {
+  const quizzes = prof.totalQuizzes || 0;
+  const logins = prof.loginCount || 1;
+  const streak = prof.streak || 1;
+  
+  $("statsGrid").innerHTML = `
+    <div class="stat-item">
+      <span class="stat-val">${quizzes}</span>
+      <span class="stat-label">Bài đã làm</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val">${logins}</span>
+      <span class="stat-label">Lần đăng nhập</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" style="color: var(--warn);">🔥 ${streak}</span>
+      <span class="stat-label">Ngày streak</span>
+    </div>
+  `;
+}
+
+function renderScores(bestScores) {
+  let html = '';
+  SUBJECTS.forEach(sub => {
+    const score = bestScores[sub.key];
+    if (score !== undefined && score !== null) {
+      const pct = Math.min(100, (score / 10) * 100);
+      html += `
+        <div class="score-row">
+          <span class="score-icon">${sub.icon}</span>
+          <span class="score-name">${sub.name}</span>
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${pct}%"></div></div>
+          <span class="score-val">${score}</span>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="score-row">
+          <span class="score-icon">${sub.icon}</span>
+          <span class="score-name">${sub.name}</span>
+          <span class="score-na">Chưa làm</span>
+        </div>
+      `;
+    }
+  });
+  $("scoresList").innerHTML = html;
+}
+
+function renderCouple(couple) {
+  if (!couple || !couple.partnerUsername) {
+    $("coupleSection").innerHTML = `
+      <div style="font-size: 3rem; margin-bottom: 12px;">💔</div>
+      <h3 style="margin: 0 0 8px;">Chưa có couple</h3>
+      <p class="mut" style="margin-bottom: 20px;">Bạn chưa set love với ai. Hãy tìm một người đặc biệt!</p>
+      <button class="love" onclick="document.getElementById('loveMask').classList.add('on')">💘 Tìm người để set love</button>
+    `;
+  } else {
+    // Giả lập lấy info partner (trong thực tế cần fetch thêm từ accounts/{partner})
+    const partnerName = couple.partnerName || "Đối phương";
+    const partnerAvatar = couple.partnerAvatar || "🐰";
+    const coins = couple.loveCoins || 0;
+    const cStreak = couple.streak || 0;
+    const mission = couple.todaySubject || "Chưa có nhiệm vụ";
+    const doneA = couple.doneA ? 1 : 0;
+    const doneB = couple.doneB ? 1 : 0;
+    const progress = ((doneA + doneB) / 2) * 100;
+    
+    $("coupleSection").innerHTML = `
+      <div class="couple-avatars">
+        <span>${$("pAvatar").textContent}</span>
+        <span class="couple-heart">💕</span>
+        <span>${partnerAvatar}</span>
+      </div>
+      <h3 style="margin: 0;">${$("pName").textContent} & ${partnerName}</h3>
+      
+      <div class="couple-stats">
+        <div class="couple-stat">
+          <b>💎 ${coins}</b>
+          <span>Love coins</span>
+        </div>
+        <div class="couple-stat">
+          <b>🔥 ${cStreak}</b>
+          <span>Ngày streak</span>
+        </div>
+      </div>
+      
+      <div class="mission-box">
+        <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">📅 Nhiệm vụ hôm nay: ${mission}</div>
+        <div style="font-size: 0.85rem; color: var(--mut);">
+          ${doneA ? '✅ Bạn đã xong' : '⏳ Bạn chưa làm'} · ${doneB ? '✅ Đối phương đã xong' : '⏳ Chờ đối phương'}
+        </div>
+        <div class="mission-bar">
+          <div class="mission-fill" style="width: ${progress}%"></div>
+        </div>
+        <div style="text-align: right; font-size: 0.75rem; color: var(--mut); margin-top: 4px;">${progress}%</div>
+      </div>
+    `;
+  }
+}
+
+function renderBadges(prof) {
+  const achievements = prof.achievements || [];
+  const badges = [
+    { id: 'first_blood', icon: '🥇', name: 'First Blood', req: 'Đạt 10 điểm đầu tiên' },
+    { id: 'streak_7', icon: '🔥', name: 'Streak 7', req: '7 ngày đăng nhập liên tục' },
+    { id: 'careful_50', icon: '📚', name: 'Chăm chỉ', req: 'Làm 50 bài' },
+    { id: 'diligent_100', icon: '💪', name: 'Siêng năng', req: 'Làm 100 bài' },
+    { id: 'king', icon: '👑', name: 'Vua môn', req: 'Top 1 bất kỳ môn nào' },
+    { id: 'first_couple', icon: '💘', name: 'Couple đầu tiên', req: 'Set love thành công' },
+    { id: 'love_10', icon: '💎', name: '10 Love Coins', req: 'Tích được 10 coin' },
+    { id: 'perfect', icon: '🌟', name: 'Perfect', req: '10 điểm trên 3 môn' }
+  ];
+
+  let html = '';
+  badges.forEach(b => {
+    const unlocked = achievements.includes(b.id);
+    const dateStr = unlocked ? (prof.achievementDates?.[b.id] || 'Đã đạt') : 'Chưa đạt';
+    html += `
+      <div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-tooltip="${b.req}">
+        <span class="badge-icon">${b.icon}</span>
+        <span class="badge-name">${b.name}</span>
+        <span class="badge-date">${dateStr}</span>
+      </div>
+    `;
+  });
+  $("badgeGrid").innerHTML = html;
+}
+
+function renderActivity(activities) {
+  if (!activities || activities.length === 0) {
+    $("activityList").innerHTML = '<div style="padding: 12px; text-align: center;">Chưa có hoạt động nào.</div>';
+    return;
+  }
+  let html = '';
+  activities.slice(0, 5).forEach(act => {
+    html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px;">
+      <span>${act.icon || '📌'}</span>
+      <span>${act.text}</span>
+      <span style="margin-left: auto; color: var(--mut); font-size: 0.8rem;">${act.time || 'Mới đây'}</span>
+    </div>`;
+  });
+  $("activityList").innerHTML = html;
+}
+
+/* ═══ EDIT PROFILE MODAL ═══ */
+let selectedAvatar = $("pAvatar").textContent;
+
+function openEditModal() {
+  selectedAvatar = $("pAvatar").textContent;
+  $("editBio").value = $("pBio").textContent.replace(/"/g, '') === 'Chưa có tiểu sử' ? '' : $("pBio").textContent.replace(/"/g, '');
+  $("bioCount").textContent = $("editBio").value.length;
+  
+  let pickerHtml = '';
+  AVATARS.forEach(av => {
+    pickerHtml += `<div class="avatar-opt ${av === selectedAvatar ? 'sel' : ''}" data-av="${av}">${av}</div>`;
+  });
+  $("avatarPicker").innerHTML = pickerHtml;
+  
+  $("avatarPicker").querySelectorAll('.avatar-opt').forEach(el => {
+    el.onclick = () => {
+      $("avatarPicker").querySelectorAll('.avatar-opt').forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      selectedAvatar = el.dataset.av;
+    };
+  });
+  
+  $("editMask").classList.add("on");
+}
+
+$("btnEditProfile").onclick = openEditModal;
+$("cancelEdit").onclick = () => $("editMask").classList.remove("on");
+$("editBio").oninput = () => { $("bioCount").textContent = $("editBio").value.length; };
+
+$("saveEdit").onclick = async () => {
+  const bio = $("editBio").value.trim();
+  $("saveEdit").disabled = true;
+  $("saveEdit").textContent = "Đang lưu...";
+  
+  try {
+    await update(ref(db, `profiles/${session.username}`), {
+      avatar: selectedAvatar,
+      bio: bio
+    });
+    showToast("Đã cập nhật hồ sơ!");
+    $("editMask").classList.remove("on");
+    loadData(); // Refresh UI
+  } catch (e) {
+    showToast("Lỗi: " + e.message, true);
+  } finally {
+    $("saveEdit").disabled = false;
+    $("saveEdit").textContent = "Lưu thay đổi";
+  }
+};
+
+/* ═══ SET LOVE MODAL (GỬI MỜI) ═══ */
+$("btnSetLove").onclick = () => {
+  $("targetUsername").value = "";
+  $("loveErr").textContent = "";
+  $("loveMask").classList.add("on");
+};
+$("cancelLove").onclick = () => $("loveMask").classList.remove("on");
+
+$("sendLoveInvite").onclick = async () => {
+  const target = $("targetUsername").value.trim().toLowerCase();
+  if (!target) {
+    $("loveErr").textContent = "Vui lòng nhập tên đăng nhập.";
+    return;
+    }
+  if (target === session.username.toLowerCase()) {
+    $("loveErr").textContent = "Bạn không thể kết đôi với chính mình!";
+    return;
+  }
+
+  $("sendLoveInvite").disabled = true;
+  $("sendLoveInvite").textContent = "Đang gửi...";
+
+  try {
+    // Kiểm tra xem người đó có tồn tại không
+    const targetAcc = await get(ref(db, `accounts/${target}`));
+    if (!targetAcc.exists()) {
+      $("loveErr").textContent = "Không tìm thấy người dùng này.";
+      $("sendLoveInvite").disabled = false;
+      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
+      return;
+    }
+
+    // Kiểm tra xem đã có couple chưa
+    const myCouple = await get(ref(db, `couples/${session.username}`));
+    if (myCouple.exists() && myCouple.val().partnerUsername) {
+      showToast("Bạn đã có couple rồi!", true);
+      $("loveMask").classList.remove("on");
+      return;
+    }
+
+    // GỬI LỜI MỜI: Lưu vào node 'loveInvites'
+    // Lưu ý: Bạn cần thêm rule cho 'loveInvites' trong Firebase sau này
+    await set(ref(db, `loveInvites/${target}/${session.username}`), {
+      from: session.username,
+      name: session.name,
+      avatar: $("pAvatar").textContent,
+      timestamp: serverTimestamp()
+    });
+
+    showToast("🎉 Đã gửi lời mời kết đôi thành công!");
+    $("loveMask").classList.remove("on");
+    
+    // Log activity
+    const actRef = ref(db, `profiles/${session.username}/recentActivity`);
+    const currentActs = (await get(actRef)).val() || [];
+    currentActs.unshift({
+      icon: '💌',
+      text: `Gửi lời mời kết đôi tới @${target}`,
+      time: 'Vừa xong'
+    });
+    await update(ref(db, `profiles/${session.username}`), {
+      recentActivity: currentActs.slice(0, 10)
+    });
+
+  } catch (e) {
+    console.error(e);
+    $("loveErr").textContent = "Lỗi: " + e.message;
+  } finally {
+    $("sendLoveInvite").disabled = false;
+    $("sendLoveInvite").textContent = "Gửi lời mời 💌";
+  }
+};
+
+/* ═══ INIT ═══ */
+loadData();
+</script>
+</body>
+</html>
