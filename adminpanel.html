@@ -181,14 +181,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 
 .denied-screen {
   position: fixed; inset: 0; background: var(--bg); display: grid;
-  place-items: center; text-align: center; padding: 24px;
+  place-items: center; text-align: center; padding: 24px; z-index: 9998;
 }
 .denied-screen .icon { font-size: 5rem; margin-bottom: 12px; }
 .denied-screen h1 { color: var(--bad); font-size: 2rem; margin-bottom: 12px; }
 .denied-screen p { color: var(--mut); max-width: 440px; line-height: 1.7; margin-bottom: 24px; }
-.denied-screen code {
-  background: var(--bads); color: var(--bad); padding: 2px 8px; border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+.denied-screen pre {
+  background: var(--bads); color: var(--bad); padding: 16px; border-radius: 8px;
+  font-size: 0.8rem; text-align: left; white-space: pre-wrap; overflow: auto;
+  max-height: 50vh; line-height: 1.5; margin-bottom: 24px;
 }
 
 #ov {
@@ -230,15 +231,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 
 @media (max-width: 720px) {
-  .acc-table thead th:nth-child(2),
-  .acc-table tbody td:nth-child(2) { display: none; }
+  .acc-table thead th:nth-child(2), .acc-table tbody td:nth-child(2) { display: none; }
   .acc-table { font-size: 0.82rem; }
   .acc-table td, .acc-table th { padding: 8px 6px; }
   .stat-card .num { font-size: 1.6rem; }
 }
 @media (max-width: 480px) {
-  .acc-table thead th:nth-child(3),
-  .acc-table tbody td:nth-child(3) { display: none; }
+  .acc-table thead th:nth-child(3), .acc-table tbody td:nth-child(3) { display: none; }
   button.sm { padding: 5px 8px; font-size: 0.75rem; }
   .acc-table td.actions button { margin: 2px 0; display: block; width: 100%; }
   .code-row { grid-template-columns: 1fr auto; }
@@ -247,7 +246,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 </head>
 <body>
 
-<!-- Loading fallback — hiện trước khi JS chạy xong -->
+<!-- ═══ BOOT ═══ -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:1000;text-align:center;padding:24px">
   <div>
     <div style="width:50px;height:50px;border:4px solid var(--ln);border-top-color:var(--ac);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
@@ -255,22 +254,19 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- Error screen -->
-<div class="denied-screen hide" id="errorScreen">
+<!-- ═══ ERROR SCREEN ═══ -->
+<div id="errorScreen" class="denied-screen hide">
   <div>
     <div class="icon">⚠️</div>
     <h1>Có lỗi xảy ra</h1>
-    <p id="errorMsg" style="color:var(--mut);max-width:600px;line-height:1.7;margin-bottom:16px"></p>
-    <p class="mut" style="font-size:0.85rem;margin-bottom:24px">
-      Mở <b>F12 → Console</b> để xem chi tiết.<br>
-      Nếu lỗi dạng <code>does not provide an export named...</code> → thiếu export trong <code>core.js</code> hoặc <code>config.js</code>.
-    </p>
+    <pre id="errorMsg"></pre>
+    <p style="color:var(--mut);font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
     <button onclick="location.reload()">🔄 Tải lại</button>
     <button class="g" onclick="location.href='/'" style="margin-left:8px">🏠 Về trang chủ</button>
   </div>
 </div>
 
-<!-- Access denied -->
+<!-- ═══ ACCESS DENIED ═══ -->
 <div class="denied-screen hide" id="denied">
   <div>
     <div class="icon">🚫</div>
@@ -281,7 +277,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 </div>
 
 <main id="panel" class="hide">
-  <!-- Header -->
   <div class="card">
     <div class="top">
       <div>
@@ -296,7 +291,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card ac"><div class="num" id="stTotal">—</div><div class="lbl">Tổng tài khoản</div></div>
     <div class="stat-card ok"><div class="num" id="stActive">—</div><div class="lbl">Đang hoạt động</div></div>
@@ -307,7 +301,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="stat-card ok"><div class="num" id="stCodes">—</div><div class="lbl">Mã khả dụng</div></div>
   </div>
 
-  <!-- Khóa đăng ký -->
   <div class="card">
     <div class="top">
       <div style="flex:1;min-width:0">
@@ -324,7 +317,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- Mã đăng ký -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <h2>🔑 Mã đăng ký</h2>
@@ -336,7 +328,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div id="codesList"><div class="skel"></div><div class="skel"></div></div>
   </div>
 
-  <!-- Unban All -->
   <div class="card">
     <div class="top">
       <div>
@@ -350,7 +341,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- Accounts -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <h2>👥 Quản lý tài khoản</h2>
@@ -399,31 +389,30 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ══════════ GLOBAL ERROR CATCHER ══════════ */
+/* ═══ GLOBAL ERROR ═══ */
 function showFatalError(msg) {
-  const boot = document.getElementById('boot');
-  if (boot) boot.style.display = 'none';
-  const err = document.getElementById('errorScreen');
-  const panel = document.getElementById('panel');
-  const denied = document.getElementById('denied');
-  if (panel) panel.classList.add('hide');
-  if (denied) denied.classList.add('hide');
-  if (err) {
-    document.getElementById('errorMsg').textContent = msg;
-    err.classList.remove('hide');
-  }
+  try {
+    var boot = document.getElementById('boot');
+    if (boot) boot.style.display = 'none';
+    var err = document.getElementById('errorScreen');
+    var errMsg = document.getElementById('errorMsg');
+    var panel = document.getElementById('panel');
+    var denied = document.getElementById('denied');
+    if (panel) panel.classList.add('hide');
+    if (denied) denied.classList.add('hide');
+    if (err && errMsg) { errMsg.textContent = msg; err.classList.remove('hide'); }
+  } catch(e) {}
 }
-
 window.addEventListener('error', (e) => {
   console.error('[adminpanel] Uncaught:', e.error || e.message);
-  showFatalError(e.message || 'Lỗi không xác định');
+  showFatalError((e.error && e.error.stack) || e.message || 'Lỗi không xác định');
 });
 window.addEventListener('unhandledrejection', (e) => {
-  console.error('[adminpanel] Unhandled promise:', e.reason);
-  showFatalError((e.reason && e.reason.message) || String(e.reason) || 'Promise bị reject');
+  console.error('[adminpanel] Unhandled:', e.reason);
+  showFatalError((e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject');
 });
 
-/* ══════════ SAFE IMPORT ══════════ */
+/* ═══ SAFE IMPORT ═══ */
 let core, utils, config, firebase;
 try {
   core     = await import('/js/core.js');
@@ -432,59 +421,49 @@ try {
   firebase = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
   console.error('Import failed:', e);
-  showFatalError('Không tải được module. ' + e.message + '\n\n→ Kiểm tra file js/core.js, js/utils.js, js/config.js có tồn tại không.');
+  showFatalError(
+    'Không tải được module:\n' + e.message +
+    '\n\n→ Kiểm tra /js/core.js, /js/utils.js, /js/config.js.\n' +
+    '→ Nếu lỗi dạng "does not provide an export named..." → file đó CHƯA được cập nhật.\n' +
+    '→ F12 → Network → xem file nào lỗi.'
+  );
   throw e;
 }
 
 const { ref, get, set, remove, serverTimestamp } = firebase;
 const $ = id => document.getElementById(id);
 
-/* ══════════ CHECK EXPORTS ══════════ */
-const REQUIRED_CORE = [
-  'db', 'loadSession', 'saveSession', 'getSession',
-  'isAdminSession', 'isAdminUsername',
-  'clearAllLocalBans', 'keyOf'
-];
-const REQUIRED_CORE_LOCK = [
-  'checkRegistrationLock', 'setRegistrationLock',
-  'createRegistrationCode', 'getRegistrationCodes', 'deleteRegistrationCode'
-];
-const REQUIRED_UTILS = ['esc', 'fmtMsShort', 'fmtDate'];
-const REQUIRED_CONFIG = [
-  'ADMIN_USER', 'ADMIN_PROFILE', 'UNBAN_NODE', 'UNBAN_LOCAL_KEY',
-  'REGISTRATION_LOCK_NODE', 'REGISTRATION_CODES_NODE'
-];
-
+/* ═══ CHECK EXPORTS ═══ */
 const missing = [];
-REQUIRED_CORE.forEach(k => { if (typeof core[k] === 'undefined') missing.push('core.' + k); });
-REQUIRED_UTILS.forEach(k => { if (typeof utils[k] === 'undefined') missing.push('utils.' + k); });
-REQUIRED_CONFIG.forEach(k => { if (typeof config[k] === 'undefined') missing.push('config.' + k); });
+['db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf']
+  .forEach(k => { if (typeof core[k] === 'undefined') missing.push('core.' + k); });
+['esc','fmtMsShort','fmtDate']
+  .forEach(k => { if (typeof utils[k] === 'undefined') missing.push('utils.' + k); });
+['ADMIN_USER','ADMIN_PROFILE','UNBAN_NODE','UNBAN_LOCAL_KEY','REGISTRATION_LOCK_NODE','REGISTRATION_CODES_NODE']
+  .forEach(k => { if (typeof config[k] === 'undefined') missing.push('config.' + k); });
 
 if (missing.length) {
   showFatalError(
     'Thiếu export trong module:\n\n' + missing.join('\n') +
-    '\n\n→ Cập nhật các file js/*.js theo hướng dẫn.'
+    '\n\n→ Cập nhật các file js/*.js theo hướng dẫn.\n' +
+    '→ config.js cần có: REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE.\n' +
+    '→ core.js cần có: checkRegistrationLock, setRegistrationLock, createRegistrationCode, getRegistrationCodes, deleteRegistrationCode.'
   );
   throw new Error('Missing exports: ' + missing.join(', '));
 }
 
-// Nếu thiếu hàm lock → có thể chạy được (fallback tắt tính năng)
-const HAS_LOCK_FEATURE = REQUIRED_CORE_LOCK.every(k => typeof core[k] === 'function');
-if (!HAS_LOCK_FEATURE) {
-  console.warn('[adminpanel] Thiếu hàm lock/codes — tính năng khóa đăng ký sẽ bị tắt.');
-}
+const HAS_LOCK_FEATURE = ['checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode']
+  .every(k => typeof core[k] === 'function');
+if (!HAS_LOCK_FEATURE) console.warn('[adminpanel] Thiếu hàm lock/codes — tính năng khóa đăng ký sẽ bị tắt.');
 
 const {
   db, loadSession, saveSession, isAdminSession, isAdminUsername,
   clearAllLocalBans, keyOf
 } = core;
 const { esc, fmtMsShort, fmtDate } = utils;
-const {
-  ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY,
-  REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE
-} = config;
+const { ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY } = config;
 
-/* ══════════ HELPERS ══════════ */
+/* ═══ HELPERS ═══ */
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff() { $("ov").classList.add("hide"); }
 function showToast(msg, isErr) {
@@ -514,17 +493,16 @@ let filterMode = "all";
 let searchQuery = "";
 let currentAdmin = null;
 
-/* ══════════ CLOCK ══════════ */
 function tickClock() {
   const now = new Date();
-  const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+  const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
   const el = $("liveClock");
   if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
 }
 setInterval(tickClock, 1000);
 tickClock();
 
-/* ══════════ ACCESS CHECK ══════════ */
+/* ═══ ACCESS CHECK ═══ */
 function checkAccess() {
   const s = loadSession();
   if (!s || !s.isAdmin || !isAdminUsername(s.username)) return false;
@@ -536,10 +514,10 @@ function checkAccess() {
   return true;
 }
 
-/* ══════════ LOCK ══════════ */
+/* ═══ LOCK ═══ */
 async function loadLockStatus() {
   if (!HAS_LOCK_FEATURE) {
-    $("lockStatus").innerHTML = '<span style="color:var(--bad)">⚠️ Chưa cập nhật core.js (thiếu hàm lock)</span>';
+    $("lockStatus").innerHTML = '<span style="color:var(--bad)">⚠️ Chưa cập nhật core.js</span>';
     $("lockCheckbox").disabled = true;
     return;
   }
@@ -549,26 +527,26 @@ async function loadLockStatus() {
     $("lockStatus").innerHTML = isLocked
       ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký để tạo tài khoản'
       : '<span style="color:var(--ok);font-weight:700">🔓 ĐANG MỞ</span> — Ai cũng có thể đăng ký';
-  } catch (e) {
-    $("lockStatus").textContent = "Lỗi: " + e.message;
-  }
+  } catch (e) { $("lockStatus").textContent = "Lỗi: " + e.message; }
 }
 
 async function toggleLock() {
   if (!HAS_LOCK_FEATURE) return;
   const newState = $("lockCheckbox").checked;
   if (newState) {
-    const ok = confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản.");
-    if (!ok) { $("lockCheckbox").checked = false; return; }
+    if (!confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản.")) {
+      $("lockCheckbox").checked = false; return;
+    }
   } else {
-    const ok = confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản.");
-    if (!ok) { $("lockCheckbox").checked = true; return; }
+    if (!confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản.")) {
+      $("lockCheckbox").checked = true; return;
+    }
   }
   try {
     ovOn("Đang cập nhật…");
-    const success = await core.setRegistrationLock(newState);
+    const ok = await core.setRegistrationLock(newState);
     ovOff();
-    if (success) {
+    if (ok) {
       showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký");
       loadLockStatus();
     } else {
@@ -582,10 +560,10 @@ async function toggleLock() {
   }
 }
 
-/* ══════════ CODES ══════════ */
+/* ═══ CODES ═══ */
 async function loadCodes() {
   if (!HAS_LOCK_FEATURE) {
-    $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">⚠️ Chưa cập nhật core.js (thiếu hàm đăng ký)</div>';
+    $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">⚠️ Chưa cập nhật core.js</div>';
     $("btnCreateCode").disabled = true;
     return;
   }
@@ -596,8 +574,7 @@ async function loadCodes() {
       if (a.used !== b.used) return a.used ? 1 : -1;
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
-    const available = codes.filter(c => !c.used).length;
-    $("stCodes").textContent = available;
+    $("stCodes").textContent = codes.filter(c => !c.used).length;
 
     if (!codes.length) {
       $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có mã nào. Bấm "+ Tạo mã mới" để bắt đầu.</div>';
@@ -629,15 +606,9 @@ async function createCode() {
     ovOn("Đang tạo mã…");
     const code = await core.createRegistrationCode();
     ovOff();
-    if (!code) {
-      showToast("Không thể tạo mã. Kiểm tra quyền admin + Firebase rules.", true);
-      return;
-    }
+    if (!code) { showToast("Không thể tạo mã. Kiểm tra quyền admin + Firebase rules.", true); return; }
     let copied = false;
-    try {
-      await navigator.clipboard.writeText(code);
-      copied = true;
-    } catch (e) {}
+    try { await navigator.clipboard.writeText(code); copied = true; } catch (e) {}
     showToast(copied ? `✅ Đã tạo & copy: ${code}` : `✅ Đã tạo: ${code}`);
     await loadCodes();
   } catch (e) {
@@ -647,17 +618,12 @@ async function createCode() {
 }
 
 async function copyCode(code) {
-  try {
-    await navigator.clipboard.writeText(code);
-    showToast("📋 Đã copy: " + code);
-  } catch (e) {
-    prompt("Copy mã này:", code);
-  }
+  try { await navigator.clipboard.writeText(code); showToast("📋 Đã copy: " + code); }
+  catch (e) { prompt("Copy mã này:", code); }
 }
 
 async function deleteCode(code) {
-  confirmBox(
-    "🗑️ Xoá mã?",
+  confirmBox("🗑️ Xoá mã?",
     `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?`,
     async () => {
       try {
@@ -666,19 +632,14 @@ async function deleteCode(code) {
         ovOff();
         if (ok) { showToast("✅ Đã xoá mã"); loadCodes(); }
         else showToast("Không thể xoá mã", true);
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
-    },
-    true
-  );
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, true);
 }
 
 window.__copyCode = copyCode;
 window.__deleteCode = deleteCode;
 
-/* ══════════ LOAD DATA ══════════ */
+/* ═══ LOAD ACCOUNTS ═══ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -708,26 +669,19 @@ async function loadData() {
           cls: v.cls || "",
           createdAt: v.createdAt || null,
           isBanned: !!banInfo.isBanned,
-          violations: Number(banInfo.violations || 0),
-          banTime: banInfo.timestamp || null
+          violations: Number(banInfo.violations || 0)
         });
       });
     }
     allAccounts = accounts;
 
-    const totalAcc = accounts.length;
     const totalBanned = accounts.filter(a => a.isBanned).length;
-    const totalVio = accounts.reduce((s, a) => s + a.violations, 0);
-    const totalResults = resSnap.exists() ? resSnap.size : 0;
-    const totalKhtn = khtnSnap.exists() ? khtnSnap.size : 0;
-    const totalTower = towerSnap.exists() ? towerSnap.size : 0;
-
-    $("stTotal").textContent = totalAcc;
-    $("stActive").textContent = totalAcc - totalBanned;
+    $("stTotal").textContent = accounts.length;
+    $("stActive").textContent = accounts.length - totalBanned;
     $("stBanned").textContent = totalBanned;
-    $("stVio").textContent = totalVio;
-    $("stResults").textContent = totalResults + totalKhtn;
-    $("stTower").textContent = totalTower;
+    $("stVio").textContent = accounts.reduce((s, a) => s + a.violations, 0);
+    $("stResults").textContent = (resSnap.exists() ? resSnap.size : 0) + (khtnSnap.exists() ? khtnSnap.size : 0);
+    $("stTower").textContent = towerSnap.exists() ? towerSnap.size : 0;
 
     if (unbanSnap.exists()) {
       $("unbanStatus").textContent = "Lần Unban All gần nhất: " +
@@ -743,7 +697,6 @@ async function loadData() {
   }
 }
 
-/* ══════════ RENDER ACCOUNTS ══════════ */
 function renderAccounts() {
   let list = allAccounts.slice();
   if (filterMode === "active") list = list.filter(a => !a.isBanned);
@@ -774,7 +727,6 @@ function renderAccounts() {
     const statusBadge = a.isBanned
       ? '<span class="badge bad">🔴 Bị ban</span>'
       : '<span class="badge ok">🟢 Hoạt động</span>';
-    const vioClass = a.violations > 0 ? "has" : "";
     return `
       <tr class="${a.isBanned ? 'banned' : ''}">
         <td>
@@ -783,7 +735,7 @@ function renderAccounts() {
           <div class="acc-name" style="font-size:0.72rem">📅 ${fmtDate(a.createdAt)}</div>
         </td>
         <td class="center">${statusBadge}</td>
-        <td class="center"><span class="vio-count ${vioClass}">${a.violations}</span></td>
+        <td class="center"><span class="vio-count ${a.violations > 0 ? 'has' : ''}">${a.violations}</span></td>
         <td class="actions">
           <button class="sm ${a.isBanned ? 'success' : 'danger'}"
                   onclick="window.__adminToggleBan('${esc(a.username)}','${esc(a.name)}',${a.isBanned})">
@@ -791,7 +743,7 @@ function renderAccounts() {
           </button>
           <button class="sm" style="background:var(--ac)"
                   onclick="window.__adminViewResults('${esc(a.username)}','${esc(a.name)}')">
-            📊 Kết quả
+            📊
           </button>
           <button class="sm danger"
                   onclick="window.__adminDeleteAccount('${esc(a.key)}','${esc(a.username)}','${esc(a.name)}')">
@@ -805,27 +757,23 @@ function renderAccounts() {
   $("accountsList").innerHTML = `
     <div style="overflow-x:auto">
       <table class="acc-table">
-        <thead>
-          <tr>
-            <th>Tài khoản</th>
-            <th class="center">Trạng thái</th>
-            <th class="center">Vi phạm</th>
-            <th style="text-align:right">Hành động</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Tài khoản</th>
+          <th class="center">Trạng thái</th>
+          <th class="center">Vi phạm</th>
+          <th style="text-align:right">Hành động</th>
+        </tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
   `;
 }
 
-/* ══════════ BAN / UNBAN ══════════ */
 async function toggleBan(username, name, currentlyBanned) {
   const action = currentlyBanned ? "gỡ ban" : "ban";
   confirmBox(
-    currentlyBanned ? "✅ Gỡ ban tài khoản?" : "🚫 Ban tài khoản?",
-    `Bạn có chắc muốn <b>${action}</b> tài khoản <b>"${esc(name)}"</b> (@${esc(username)})?` +
-    (currentlyBanned ? '' : '<br><br><span style="color:var(--bad)">⚠️ Học sinh sẽ bị đăng xuất ở lần mở trang tiếp theo.</span>'),
+    currentlyBanned ? "✅ Gỡ ban?" : "🚫 Ban?",
+    `Bạn có chắc muốn <b>${action}</b> <b>"${esc(name)}"</b> (@${esc(username)})?`,
     async () => {
       ovOn("Đang xử lý…");
       try {
@@ -842,30 +790,16 @@ async function toggleBan(username, name, currentlyBanned) {
         }
         ovOff();
         await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     },
     !currentlyBanned
   );
 }
 
-/* ══════════ DELETE ACCOUNT ══════════ */
 async function deleteAccount(key, username, name) {
-  confirmBox(
-    "🗑️ Xoá tài khoản?",
-    `<div style="line-height:1.7">
-      Bạn đang xoá tài khoản <b>"${esc(name)}"</b> (@${esc(username)}).<br><br>
-      <span style="color:var(--bad);font-weight:700">⚠️ CẢNH BÁO:</span> Hành động này sẽ xoá <b>vĩnh viễn</b>:
-      <ul style="margin:8px 0 0 20px;padding:0">
-        <li>Tài khoản đăng nhập</li>
-        <li>Toàn bộ kết quả luyện tập & KHTN</li>
-        <li>Toàn bộ thành tích leo tháp</li>
-        <li>Lịch sử ban (nếu có)</li>
-      </ul>
-      <br><b>Không thể hoàn tác!</b>
-    </div>`,
+  confirmBox("🗑️ Xoá tài khoản?",
+    `<div style="line-height:1.7">Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br>
+     <span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
     async () => {
       ovOn("Đang xoá tài khoản…");
       try {
@@ -891,18 +825,12 @@ async function deleteAccount(key, username, name) {
         await remove(ref(db, "bans/" + encodeURIComponent(uNorm))).catch(() => {});
 
         ovOff();
-        showToast(`✅ Đã xoá "${name}" (${nQuiz + nKhtn} kết quả + ${nTower} lượt tháp)`);
+        showToast(`✅ Đã xoá "${name}" (${nQuiz + nKhtn} kết quả + ${nTower} tháp)`);
         await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
-    },
-    true
-  );
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, true);
 }
 
-/* ══════════ VIEW RESULTS ══════════ */
 async function viewResults(username, name) {
   $("rmTitle").innerHTML = `📊 Kết quả: <b>${esc(name)}</b> <span class="mut">@${esc(username)}</span>`;
   $("rmBody").innerHTML = '<div class="skel"></div><div class="skel"></div>';
@@ -925,9 +853,9 @@ async function viewResults(username, name) {
       return out;
     };
 
-    const quiz = filterNode(resSnap);
-    const khtn = filterNode(khtnSnap);
-    const tower = filterNode(towerSnap);
+    const quiz = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
+    const khtn = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+    const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
 
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
@@ -935,46 +863,30 @@ async function viewResults(username, name) {
       diali_memory: "🧠 Địa (Ghi nhớ)", khoahoctunhien: "🧪 KHTN"
     };
 
-    const renderItem = (v) => {
-      const subj = subjectLabel[v.subject] || v.subject || "?";
-      const score = v.score != null ? String(v.score).replace(".", ",") + "đ" : "—";
-      const time = v.time || v.createdAt;
-      return `
-        <div class="result-item">
-          <div>
-            <div class="subj">${subj}</div>
-            <div class="time">📅 ${fmtDate(time)}${v.duration ? " · ⏱ " + fmtMsShort(v.duration) : ""}</div>
-          </div>
-          <div class="score">${score}<small>${v.correct != null ? v.correct + "/" + v.total + " đúng" : ""}</small></div>
+    const renderItem = (v) => `
+      <div class="result-item">
+        <div>
+          <div class="subj">${subjectLabel[v.subject] || v.subject || "?"}</div>
+          <div class="time">📅 ${fmtDate(v.time || v.createdAt)}${v.duration ? " · ⏱ " + fmtMsShort(v.duration) : ""}</div>
         </div>
-      `;
-    };
-
-    const quizSorted = quiz.sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
-    const khtnSorted = khtn.sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
-    const towerSorted = tower.sort((a, b) => (b.score || 0) - (a.score || 0));
+        <div class="score">${v.score != null ? String(v.score).replace(".", ",") + "đ" : "—"}
+          <small>${v.correct != null ? v.correct + "/" + v.total + " đúng" : ""}</small>
+        </div>
+      </div>`;
 
     let html = "";
-    if (quizSorted.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quizSorted.length})</h3>`;
-      html += quizSorted.map(renderItem).join("");
-    }
-    if (khtnSorted.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtnSorted.length})</h3>`;
-      html += khtnSorted.map(renderItem).join("");
-    }
-    if (towerSorted.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🏰 Leo tháp (${towerSorted.length})</h3>`;
-      html += towerSorted.slice(0, 20).map(v => `
+    if (quiz.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quiz.length})</h3>` + quiz.map(renderItem).join("");
+    if (khtn.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtn.length})</h3>` + khtn.map(renderItem).join("");
+    if (tower.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🏰 Leo tháp (${tower.length})</h3>` +
+      tower.slice(0, 20).map(v => `
         <div class="result-item">
           <div>
             <div class="subj">🏰 Tầng ${v.score || 0}</div>
             <div class="time">📅 ${fmtDate(v.timestamp)}${v.isAbandoned ? " · 🏳️ Bỏ cuộc" : ""}</div>
           </div>
           <div class="score">${v.time ? fmtMsShort(v.time) : "—"}<small>thời gian</small></div>
-        </div>
-      `).join("");
-    }
+        </div>`).join("");
+
     if (!html) html = '<div class="mut" style="padding:30px;text-align:center">Học sinh này chưa có kết quả nào.</div>';
     $("rmBody").innerHTML = html;
   } catch (e) {
@@ -982,42 +894,29 @@ async function viewResults(username, name) {
   }
 }
 
-/* ══════════ UNBAN ALL ══════════ */
 async function unbanAll() {
-  confirmBox(
-    "🔓 Unban toàn bộ?",
-    `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.<br><br>
-     Học sinh sẽ được gỡ ban ở lần mở trang tiếp theo.`,
+  confirmBox("🔓 Unban toàn bộ?",
+    `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.`,
     async () => {
       ovOn("Đang mở ban…");
       try {
         const n = clearAllLocalBans();
-        if (!db) {
-          ovOff();
-          showToast(`Đã gỡ ${n} khóa trên máy này`, true);
-          return;
-        }
+        if (!db) { ovOff(); showToast(`Đã gỡ ${n} khóa trên máy này`, true); return; }
         await set(ref(db, UNBAN_NODE), serverTimestamp());
         const snap = await get(ref(db, UNBAN_NODE));
         localStorage.setItem(UNBAN_LOCAL_KEY, String(snap.val()));
         ovOff();
-        showToast("✅ Đã Unban All cho toàn bộ học sinh!");
+        showToast("✅ Đã Unban All!");
         await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
-    },
-    false
-  );
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, false);
 }
 
-/* ══════════ PUBLIC API ══════════ */
 window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
-/* ══════════ EVENTS ══════════ */
+/* ═══ EVENTS ═══ */
 $("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); };
 $("btnUnbanAll").onclick = unbanAll;
 $("btnCreateCode").onclick = createCode;
@@ -1031,12 +930,7 @@ $("btnLogout").onclick = () => {
 };
 $("rmClose").onclick = () => $("resultsMask").classList.remove("on");
 $("resultsMask").onclick = (e) => { if (e.target === $("resultsMask")) $("resultsMask").classList.remove("on"); };
-
-$("searchBox").oninput = (e) => {
-  searchQuery = e.target.value.trim();
-  renderAccounts();
-};
-
+$("searchBox").oninput = (e) => { searchQuery = e.target.value.trim(); renderAccounts(); };
 $("filterPills").onclick = (e) => {
   const btn = e.target.closest(".pill");
   if (!btn) return;
@@ -1045,7 +939,6 @@ $("filterPills").onclick = (e) => {
   filterMode = btn.dataset.f;
   renderAccounts();
 };
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("resultsMask").classList.remove("on");
@@ -1053,10 +946,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* ══════════ INIT ══════════ */
+/* ═══ INIT ═══ */
 (async function init() {
   try {
-    // Ẩn boot spinner
     const boot = document.getElementById('boot');
     if (boot) boot.style.display = 'none';
 
