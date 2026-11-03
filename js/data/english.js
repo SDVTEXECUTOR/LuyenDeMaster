@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════════════════════════
    📚 ENGLISH.JS — CÂU HỎI TIẾNG ANH 9
    ══════════════════════════════════════════════════════════════════════
-   Đề cương giữa kì I · 52 câu
+   Đề cương giữa kì I · 60 câu
    
    Export:
-   - questions : mảng 52 câu đã flatten (dùng để chấm điểm)
+   - questions : mảng 60 câu đã flatten (dùng để chấm điểm)
    - sections  : mảng sections có passages (dùng để render allAtOnce)
    - meta      : map câu → section (dùng để render passage đúng chỗ)
    ══════════════════════════════════════════════════════════════════════ */
@@ -268,6 +268,37 @@ const SECTIONS = [
         ["have been handed down from older generations to younger ones",
          "have been handed down from older to younger generations"],
         "text"]
+    ]
+  },
+
+  /* ═══ V. VERB FORMS & CONDITIONALS — Điền dạng đúng của từ trong ngoặc ═══ */
+  {
+    title: "V. VERB FORMS & CONDITIONALS — Điền dạng đúng của từ trong ngoặc",
+    questions: [
+      ["If everyone (keep) ______ the streets clean, our community will become more beautiful.",
+        ["keeps"],
+        "fill"],
+      ["If you live in a big city, you (have to) ______ deal with heavy traffic.",
+        ["will have to", "have to"],
+        "fill"],
+      ["Teenagers should (get) ______ enough sleep every night to stay healthy.",
+        ["get"],
+        "fill"],
+      ["You should know who (talk) ______ to if you have problems at school.",
+        ["to talk"],
+        "fill"],
+      ["If people (work) ______ together, they will make their community better.",
+        ["work"],
+        "fill"],
+      ["If there is too much traffic, people (spend) ______ more time on the street.",
+        ["will spend"],
+        "fill"],
+      ["You must (eat) ______ healthy food and drink enough water every day.",
+        ["eat", "eat healthy"],
+        "fill"],
+      ["Teenagers should learn how (manage) ______ their time among studying, exercising and relaxing.",
+        ["to manage"],
+        "fill"]
     ]
   }
 ];
