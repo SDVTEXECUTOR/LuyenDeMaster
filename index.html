@@ -6,7 +6,7 @@
 <title>Luyện Đề Master</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
 --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
@@ -322,76 +322,111 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══ PATCH 1: Ô ĐIỀN TỪ INLINE ═══ */
-.fill-input {
-  display: inline-block;
-  min-width: 140px;
-  max-width: 280px;
-  padding: 6px 12px;
-  margin: 0 6px;
-  border: 0;
-  border-bottom: 2px solid var(--ac);
-  background: var(--acs);
-  border-radius: 6px 6px 0 0;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--ac);
+/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
+.code-modal-card {
+  max-width: 440px;
+  width: 100%;
   text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.code-modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.code-modal-title {
+  margin: 0 0 8px;
+  color: var(--warn);
+  font-size: 1.3rem;
+}
+.code-modal-desc {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.code-hint {
+  background: var(--warns);
+  color: var(--fg);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 3px solid var(--warn);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin-bottom: 12px;
+  text-align: left;
+}
+.code-hint b {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--ac);
+}
+.code-input-wrap {
+  position: relative;
+  margin: 16px 0;
+}
+.code-input-wrap input {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 16px 44px 16px 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.code-input-wrap input:focus-visible {
   outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px var(--acs);
+}
+.code-input-wrap .code-status {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: 800;
+  pointer-events: none;
   transition: all 0.2s;
-  vertical-align: middle;
 }
-.fill-input::placeholder {
-  color: var(--mut);
-  font-weight: 500;
-  font-style: italic;
-  font-size: 0.95rem;
+.code-input-wrap.shake {
+  animation: shakeInput 0.45s cubic-bezier(.36,.07,.19,.97);
 }
-.fill-input:focus {
-  background: #fff;
-  border-bottom-color: var(--ok);
-  box-shadow: 0 4px 0 -2px var(--ok);
+@keyframes shakeInput {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
 }
-.fill-answer {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 0 4px;
-  background: var(--oks);
-  color: var(--ok);
-  border-radius: 6px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-.fill-answer-user-wrong {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 0 4px;
-  background: var(--bads);
+.code-error {
   color: var(--bad);
-  border-radius: 6px;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-weight: 700;
-  font-size: 0.95rem;
-  text-decoration: line-through;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-height: 1.3em;
+  margin-top: 8px;
+  text-align: center;
+  transition: all 0.2s;
 }
-@media (max-width: 500px) {
-  .fill-input {
-    min-width: 110px;
-    font-size: 0.95rem;
-    padding: 5px 8px;
-  }
-  .fill-answer, .fill-answer-user-wrong {
-    font-size: 0.85rem;
-    padding: 3px 8px;
-  }
+.code-loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--ln);
+  border-top-color: var(--ac);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
 }
 </style>
 </head>
 <body>
-
 <!-- ═══ BOOT SPINNER ═══ -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#f0f4f8;z-index:99999;text-align:center;padding:24px">
 <div>
@@ -399,7 +434,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 <div style="font-weight:600;color:#64748b">Đang tải Luyện Đề Master…</div>
 </div>
 </div>
-
 <!-- ═══ ERROR SCREEN ═══ -->
 <div id="errorScreen" style="display:none;position:fixed;inset:0;background:#f0f4f8;z-index:99999;place-items:center;text-align:center;padding:24px;font-family:system-ui,sans-serif">
 <div style="max-width:600px">
@@ -411,7 +445,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 <button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px">🏠 Trang chủ</button>
 </div>
 </div>
-
 <script>
 window.__showFatalError = function(msg) {
 try {
@@ -435,9 +468,7 @@ var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason)
 window.__showFatalError(msg);
 });
 </script>
-
 <audio id="bgMusic"></audio>
-
 <!-- Cutscene -->
 <div id="cutscene" aria-hidden="true">
 <canvas id="csCanvas"></canvas>
@@ -455,21 +486,17 @@ window.__showFatalError(msg);
 <button class="cs-skip" id="csSkip" type="button">Bỏ qua ›</button>
 <div class="cs-flash"></div>
 </div>
-
 <!-- Iframe overlay -->
 <div id="iframe-overlay" class="hide">
 <button class="btn-back-float" id="btnBack">← Quay lại</button>
 <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
-
 <!-- Shake overlay -->
 <div id="shake-overlay" class="hide">
 <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
 <video id="shakeVideo" playsinline controls></video>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <main>
 <!-- Auth -->
 <section id="auth" class="hide">
@@ -499,7 +526,6 @@ window.__showFatalError(msg);
 </div>
 </div>
 </section>
-
 <!-- App -->
 <section id="app" class="hide">
 <div class="card">
@@ -515,7 +541,6 @@ window.__showFatalError(msg);
 <button class="g sm" id="logout">Đăng xuất</button>
 </div>
 </div>
-
 <div class="tabs">
 <button class="tabbtn active" id="tabBtnPractice" type="button">📚 Luyện Tập</button>
 <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
@@ -523,7 +548,6 @@ window.__showFatalError(msg);
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
 <button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
 </div>
-
 <div id="tab-practice">
 <div class="card">
 <strong style="display:block;margin-bottom:12px">⚙️ Tùy chọn làm bài</strong>
@@ -539,7 +563,6 @@ window.__showFatalError(msg);
 </div>
 <div class="mut" style="font-size:0.8rem;margin-top:8px">* Riêng môn Tiếng Anh và Địa lí: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
 </div>
-
 <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
 <div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">💻</div>
@@ -577,7 +600,6 @@ window.__showFatalError(msg);
 </div>
 </div>
 </div>
-
 <div id="tab-leaderboard" class="hide">
 <div class="card">
 <div class="top">
@@ -589,7 +611,6 @@ window.__showFatalError(msg);
 <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 </div>
 </div>
-
 <div id="tab-gameplay" class="hide">
 <div class="card" style="text-align: center; padding: 40px 24px;">
 <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
@@ -601,7 +622,6 @@ Bạn sẽ được chuyển sang trang Tower riêng. Cần đăng nhập trư�
 <button class="p" id="btnPlayTower" style="font-size: 1.1rem; padding: 14px 32px;">▶ Chơi Tower Ngay</button>
 </div>
 </div>
-
 <div id="tab-admin" class="hide">
 <div class="card" style="text-align:center; padding:40px 24px">
 <div style="font-size:4rem;margin-bottom:16px">🛡️</div>
@@ -614,7 +634,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </button>
 </div>
 </div>
-
 <div id="tab-dev" class="hide">
 <div class="card">
 <h2 style="text-align:center;margin-bottom:24px">🤖 Các AI Đồng Hành</h2>
@@ -638,7 +657,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
-
 <!-- Quiz -->
 <section id="quiz" class="hide">
 <div class="card" style="position:sticky;top:0;z-index:10">
@@ -662,7 +680,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
-
 <!-- Result -->
 <section id="result" class="hide">
 <div class="card" id="resultCard">
@@ -690,7 +707,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 <div id="rv"></div>
 </section>
 </main>
-
 <div class="mask" id="mk">
 <div class="card">
 <h1 style="font-size:1.3rem;margin-bottom:8px" id="mkTitle">Nộp bài?</h1>
@@ -701,7 +717,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </div>
-
 <div class="mask" id="musicMask">
 <div class="card" style="max-width: 440px; width: 100%;">
 <h2 style="margin-bottom: 16px;">🎵 Chọn nhạc nền</h2>
@@ -717,14 +732,43 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 
+<!-- ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ -->
+<div class="mask" id="codeMask">
+<div class="card code-modal-card">
+<div class="code-modal-icon">🔒</div>
+<h2 class="code-modal-title">Đăng ký đang bị khóa</h2>
+<p class="mut code-modal-desc">
+Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp tục tạo tài khoản.
+</p>
+<div class="code-hint">
+💡 Định dạng mã: <b>LDM-XXXXX-XXXXX</b><br>
+⚠️ Mỗi mã chỉ sử dụng được <b>1 lần duy nhất</b>.<br>
+📩 Liên hệ admin nếu bạn chưa có mã.
+</div>
+<div class="code-input-wrap" id="codeInputWrap">
+<input type="text" id="codeInput"
+       placeholder="LDM-XXXXX-XXXXX"
+       maxlength="15"
+       autocomplete="off"
+       spellcheck="false"
+       autocapitalize="characters">
+<span class="code-status" id="codeStatus"></span>
+</div>
+<div class="code-error" id="codeError"></div>
+<div class="row" style="margin-top: 16px;">
+<button class="g" id="codeCancel" style="flex: 1;">Hủy</button>
+<button class="p" id="codeConfirm" style="flex: 1;">✓ Xác nhận</button>
+</div>
+</div>
+</div>
+
 <div id="ov" class="hide">
 <div class="lbox">
 <div class="spinner"></div>
 <div id="ovtxt" style="font-weight:600">Đang xử lý…</div>
 </div>
 </div>
-
-<!-- ═══ CUTSCENE SCRIPT ═══ -->
+<!-- ═══════════ CUTSCENE SCRIPT ═══════════ -->
 <script type="module">
 (async () => {
 try {
@@ -796,8 +840,7 @@ document.body.style.overflow = '';
 }
 })();
 </script>
-
-<!-- ═══ MAIN APP ═══ -->
+<!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 /* ═══ SAFE IMPORTS ═══ */
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
@@ -818,7 +861,7 @@ window.__showFatalError(
 );
 throw e;
 }
-
+/* ═══ DESTRUCTURE ═══ */
 const {
 db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
 normText, nameHash, checkProfanity, keyOf,
@@ -827,7 +870,6 @@ checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
 checkRegistrationLock, validateRegistrationCode, markCodeUsed
 } = core;
-
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
 const { installAntiCheat } = anticheatMod;
@@ -837,12 +879,11 @@ TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
 SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
 SHAKE_VIDEO
 } = configMod;
-
 const { ref, push, set, get, serverTimestamp, runTransaction, remove } = firebaseMod;
-
+/* Ẩn boot spinner khi import xong */
 const __boot = document.getElementById('boot');
 if (__boot) __boot.style.display = 'none';
-
+/* ═══ DOMAIN GUARD ═══ */
 try {
 if (!checkDomain()) {
 showDomainWarning();
@@ -851,10 +892,9 @@ throw new Error("DOMAIN_NOT_ALLOWED");
 } catch(e) {
 if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
 }
-
+/* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 const L = "ABCD";
-
 function showToast(msg, isErr) {
 const t = $("toast");
 t.textContent = msg;
@@ -887,6 +927,102 @@ const b = document.getElementById("banReload");
 if (b) b.onclick = () => location.reload();
 }
 
+/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ (thay thế prompt()) ═══ */
+function promptRegistrationCode() {
+  return new Promise((resolve) => {
+    const mask       = $("codeMask");
+    const input      = $("codeInput");
+    const status     = $("codeStatus");
+    const error      = $("codeError");
+    const wrap       = $("codeInputWrap");
+    const btnConfirm = $("codeConfirm");
+    const btnCancel  = $("codeCancel");
+
+    // Reset state
+    input.value = "";
+    status.textContent = "";
+    error.textContent = "";
+    wrap.classList.remove("shake");
+    btnConfirm.disabled = false;
+    btnConfirm.innerHTML = "✓ Xác nhận";
+
+    // Auto uppercase + tự thêm dấu '-'
+    input.oninput = () => {
+      let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      // Loại bỏ tiền tố LDM nếu user gõ nhầm
+      if (v.startsWith("LDM")) v = v.slice(3);
+      if (v.length > 3)  v = v.slice(0, 3)  + "-" + v.slice(3);
+      if (v.length > 9)  v = v.slice(0, 9)  + "-" + v.slice(9);
+      if (v.length > 15) v = v.slice(0, 15);
+      v = "LDM" + v;
+      input.value = v;
+
+      if (v.length < 15) {
+        status.textContent = "";
+      } else if (/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(v)) {
+        status.textContent = "✓";
+        status.style.color = "var(--ok)";
+      } else {
+        status.textContent = "…";
+        status.style.color = "var(--mut)";
+      }
+    };
+
+    const cleanup = () => {
+      mask.classList.remove("on");
+      input.oninput = null;
+      btnConfirm.onclick = null;
+      btnCancel.onclick = null;
+      input.onkeydown = null;
+      mask.onclick = null;
+    };
+
+    const confirm = async () => {
+      const code = input.value.trim();
+      if (!/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code)) {
+        error.textContent = "❌ Mã không đúng định dạng (LDM-XXXXX-XXXXX)";
+        wrap.classList.remove("shake");
+        void wrap.offsetWidth;
+        wrap.classList.add("shake");
+        return;
+      }
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<span class="code-loading"></span> Đang kiểm tra…';
+      error.textContent = "";
+
+      try {
+        const check = await validateRegistrationCode(code);
+        if (!check.valid) {
+          error.textContent = "❌ " + check.reason;
+          wrap.classList.remove("shake");
+          void wrap.offsetWidth;
+          wrap.classList.add("shake");
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = "✓ Xác nhận";
+          return;
+        }
+        cleanup();
+        resolve(check.code);
+      } catch (e) {
+        error.textContent = "❌ Lỗi: " + e.message;
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = "✓ Xác nhận";
+      }
+    };
+
+    btnConfirm.onclick = confirm;
+    btnCancel.onclick  = () => { cleanup(); resolve(null); };
+    input.onkeydown = (e) => {
+      if (e.key === "Enter")     { e.preventDefault(); confirm(); }
+      else if (e.key === "Escape") { cleanup(); resolve(null); }
+    };
+    mask.onclick = (e) => { if (e.target === mask) { cleanup(); resolve(null); } };
+
+    mask.classList.add("on");
+    setTimeout(() => input.focus(), 150);
+  });
+}
+
 /* ═══ LAZY DATA ═══ */
 const _dataCache = Object.create(null);
 let ENGLISH_SECTIONS = [];
@@ -897,17 +1033,14 @@ const mod = await import('/js/data/' + key + '.js');
 _dataCache[key] = mod.default;
 return _dataCache[key];
 }
-
 /* ═══ SESSION SYNC ═══ */
 let session = null;
 function _syncSession(s) {
 if (s) { saveSession(s); session = s; }
 else { clearSession(); session = null; }
 }
-
 /* ═══ AUTH ═══ */
 let authMode = "login";
-
 $("atLogin").onclick = function() {
 authMode = "login";
 $("atLogin").classList.add("active"); $("atRegister").classList.remove("active");
@@ -918,7 +1051,6 @@ authMode = "register";
 $("atRegister").classList.add("active"); $("atLogin").classList.remove("active");
 $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
 };
-
 async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
@@ -939,7 +1071,6 @@ return;
 if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
 _syncSession({ key, username: u, name, cls: cls || "" });
 }
-
 async function doLogin(u, p) {
 if (String(u).trim().toLowerCase() === ADMIN_USER) {
 const h = await sha256Hex(p);
@@ -971,7 +1102,6 @@ const passHash = await sha256Hex(p);
 if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
 _syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
 }
-
 /* ═══ REGISTER (with lock + code) ═══ */
 $("auGo").onclick = async function() {
 $("auErr").textContent = "";
@@ -990,12 +1120,8 @@ return;
 let usedCode = null;
 try {
 if (await checkRegistrationLock()) {
-const code = prompt(
-"🔒 Đăng ký đang bị KHÓA.\n\n" +
-"Vui lòng nhập MÃ ĐĂNG KÝ do admin cấp:\n" +
-"(Định dạng: LDM-XXXXX-XXXXX)"
-);
-if (!code || !code.trim()) {
+const code = await promptRegistrationCode();
+if (!code) {
 $("auErr").textContent = "🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin.";
 $("auGo").disabled = false;
 return;
@@ -1010,6 +1136,7 @@ usedCode = check.code;
 }
 } catch (e) {
 console.warn('[register] Lock check error:', e);
+// Nếu lock check fail → cho đăng ký luôn (không chặn)
 }
 await doRegister(u, p, name, $("auCls").value.trim());
 if (usedCode) await markCodeUsed(usedCode, u);
@@ -1022,7 +1149,6 @@ $("auErr").textContent = e.message;
 }
 $("auGo").disabled = false;
 };
-
 function enterApp() {
 if (!session) { show("auth"); return; }
 if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
@@ -1042,9 +1168,7 @@ $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 }
-
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
-
 /* ═══ TABS ═══ */
 function switchTab(name) {
 $("tabBtnPractice").classList.toggle("active", name === "practice");
@@ -1064,9 +1188,7 @@ $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
-
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
-
 /* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
 const el = $(pillsId);
@@ -1092,7 +1214,6 @@ renderLeaderboard(listId, b.dataset.f);
 });
 renderLeaderboard(listId, initial);
 }
-
 async function renderLeaderboard(elId, filter) {
 const el = $(elId);
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
@@ -1128,16 +1249,13 @@ if (vShuf > prevShuf) best.set(key, v);
 else if (vShuf === prevShuf && (v.score > prev.score || (v.score === prev.score && v.duration < prev.duration))) best.set(key, v);
 });
 toDelete.forEach(k => { try { remove(ref(db, rPath + "/" + k)).catch(() => {}); } catch(e){} });
-
 const list = [...best.values()].sort((a, b) => {
 const aS = a.isShuffled ? 1 : 0, bS = b.isShuffled ? 1 : 0;
 if (aS !== bS) return bS - aS;
 if (b.score !== a.score) return b.score - a.score;
 return a.duration - b.duration;
 }).slice(0, 20);
-
 if (!list.length) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
-
 el.innerHTML = list.map((v, i) => {
 const rawName = v.name || v.username || "?";
 const isBanned = checkProfanity(rawName);
@@ -1162,7 +1280,6 @@ return '<div class="lbrow' + clsTop + '">'
 el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>';
 }
 }
-
 $("rfMain").onclick = function() {
 const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
@@ -1171,34 +1288,28 @@ $("rfResult").onclick = function() {
 const a = document.querySelector("#lbPillsResult .pill.active");
 renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
 };
-
 /* ═══ QUIZ ENGINE ═══ */
 let currentSubject, Q = null, order, opt, ans, cur, t0, tick;
 let currentMode = 'choice', maskMode = "submit";
 let autoSubmitTriggered = false, allAtOnce = false, isShuffled = false, _loadingQuiz = false;
-
 $("startTinhoc").onclick = () => startQuiz("tinhoc", "choice");
 $("startGdcd").onclick = () => startQuiz("gdcd", "choice");
 $("startEnglish").onclick = () => startQuiz("english", "choice");
 $("startDialyKhoanh").onclick = () => startQuiz("diali", "choice");
 $("startDialyViet").onclick = () => startQuiz("diali", "manual");
 $("startDialyNho").onclick = () => startQuiz("diali", "memory");
-
 async function startQuiz(subjectKey, mode = 'choice') {
 if (_loadingQuiz) return;
 _loadingQuiz = true;
 ovOn("Đang tải câu hỏi…");
 try {
 const data = await loadSubjectData(subjectKey);
-
 currentSubject = subjectKey;
 currentMode = mode;
 Q = data.questions;
 allAtOnce = !!SUBJECTS_META[subjectKey].allAtOnce;
-
 ENGLISH_SECTIONS = (subjectKey === 'english' && data.sections) ? data.sections : [];
 ENGLISH_QMETA    = (subjectKey === 'english' && data.meta)    ? data.meta    : [];
-
 isShuffled = $("sq").checked && $("sa").checked;
 order = Q.map((_, i) => i);
 if ($("sq").checked && !allAtOnce) shuffle(order);
@@ -1212,12 +1323,10 @@ ans = Q.map(() => []);
 cur = 0;
 t0 = Date.now();
 autoSubmitTriggered = false;
-
 let modeLabel = "";
 if (currentMode === 'manual') modeLabel = " (Ghi)";
 else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
 $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS_META[subjectKey].icon + " " + SUBJECTS_META[subjectKey].label + modeLabel;
-
 clearInterval(tick);
 tick = setInterval(() => { $("tm").textContent = fmtMs(Date.now() - t0); }, 30);
 show("quiz");
@@ -1230,7 +1339,6 @@ ovOff();
 _loadingQuiz = false;
 }
 }
-
 function draw() {
 const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
 let h = "";
@@ -1241,7 +1349,6 @@ headerNext.onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 
 } else {
 headerNext.style.display = "none";
 }
-
 if (currentMode === 'memory') {
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · 🧠 Ghi nhớ</span>';
 h += '<div style="background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:700; text-align:center;">🔒 CHẾ ĐỘ GHI NHỚ — KHÔNG hiển thị đáp án A/B/C/D</div>';
@@ -1267,7 +1374,6 @@ $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'sm
 updateNavAndCount();
 return;
 }
-
 if (currentMode === 'manual') {
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · ✍️ Ghi thủ công</span><div class="q">' + q[0] + '</div>';
 h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
@@ -1295,7 +1401,6 @@ $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'sm
 updateNavAndCount();
 return;
 }
-
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
 opt[qi].forEach((oi, k) => {
 const s = ans[qi].indexOf(oi) > -1;
@@ -1322,7 +1427,6 @@ $("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'sm
 $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 updateNavAndCount();
 }
-
 function drawAll() {
 let h = '<div class="exam-hint">📜 Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
 ENGLISH_SECTIONS.forEach((block) => {
@@ -1337,58 +1441,36 @@ $("qc").innerHTML = h;
 attachAllHandlers();
 updateNavAndCount();
 }
-
-/* ═══ PATCH 2: renderQItem — có nhánh isFill ═══ */
 function renderQItem(flatIdx, q) {
 const isText = (typeof q[2] === "string");
-const isFill = q[2] === "fill";
-
 let h = '<div class="q-item" id="q-' + flatIdx + '">';
-h += '<span class="tag">Câu ' + (flatIdx + 1) + '/' + Q.length +
-     (isFill ? ' · Điền từ' : (isText ? ' · Viết câu trả lời' : '')) + '</span>';
-
-/* ═══ DẠNG FILL — điền trực tiếp vào câu ═══ */
-if (isFill) {
-  const qHtml = String(q[0]).replace(
-    /_{3,}/g,
-    `<input type="text" id="fill-${flatIdx}" class="fill-input" placeholder="điền..." autocomplete="off" spellcheck="false" autocapitalize="off">`
-  );
-  h += '<div class="q" style="line-height:2.6;font-size:1.05rem">' + qHtml + '</div>';
-  h += '<div class="mut" style="font-size:0.8rem;margin-top:8px">💡 Không phân biệt chữ hoa/thường. Gõ đúng dạng của từ trong ngoặc.</div>';
-  h += '</div>';
-  return h;
-}
-
+h += '<span class="tag">Câu ' + (flatIdx + 1) + '/' + Q.length + (isText ? ' · Viết câu trả lời' : '') + '</span>';
 h += '<div class="q">' + q[0] + '</div>';
-
-/* ═══ DẠNG TEXT ═══ */
 if (isText) {
-  if (currentSubject === "english") {
-    const meta = ENGLISH_QMETA[flatIdx];
-    if (meta) {
-      const block = ENGLISH_SECTIONS[meta.blockIdx];
-      if (block.passage) {
-        h += '<div class="passage" style="font-size:0.85rem; margin-bottom:12px; max-height:150px; overflow-y:auto; user-select:text;">' + block.passage + '</div>';
-      }
-    }
-  }
-  h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
-  h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-  h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
-  h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ', event)">📥 Điền đoạn bôi đen</button>';
-  h += '</div>';
+if (currentSubject === "english") {
+const meta = ENGLISH_QMETA[flatIdx];
+if (meta) {
+const block = ENGLISH_SECTIONS[meta.blockIdx];
+if (block.passage) {
+h += '<div class="passage" style="font-size:0.85rem; margin-bottom:12px; max-height:150px; overflow-y:auto; user-select:text;">' + block.passage + '</div>';
+}
+}
+}
+h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
+h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
+h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ', event)">📥 Điền đoạn bôi đen</button>';
+h += '</div>';
 } else {
-  /* ═══ TRẮC NGHIỆM ═══ */
-  const multi = q[2].length > 1;
-  opt[flatIdx].forEach((oi, k) => {
-    const s = ans[flatIdx].indexOf(oi) > -1;
-    h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q-' + flatIdx + '" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
-  });
+const multi = q[2].length > 1;
+opt[flatIdx].forEach((oi, k) => {
+const s = ans[flatIdx].indexOf(oi) > -1;
+h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q-' + flatIdx + '" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
+});
 }
 h += '</div>';
 return h;
 }
-
 window.fillSelectedText = function(flatIdx, event) {
 if (!event || !event.isTrusted) {
 showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
@@ -1402,85 +1484,47 @@ const cleanText = sel.replace(/\s+/g, ' ');
 const ta = document.getElementById("txt-" + flatIdx);
 if (ta) { ta.value = cleanText; ta.dispatchEvent(new Event('input', { isTrusted: true })); showToast("✅ Đã điền đáp án!"); }
 };
-
-/* ═══ PATCH 3: attachAllHandlers — có nhánh isFill ═══ */
 function attachAllHandlers() {
 Q.forEach((q, flatIdx) => {
 const isText = (typeof q[2] === "string");
-const isFill = q[2] === "fill";
-
-/* ═══ FILL — input inline ═══ */
-if (isFill) {
-  const inp = $("fill-" + flatIdx);
-  if (!inp) return;
-  inp.value = ans[flatIdx][0] || "";
-  inp.oninput = () => {
-    const v = inp.value.trim();
-    ans[flatIdx] = v ? [inp.value] : [];
-    updateNavAndCount();
-    checkAutoSubmit();
-  };
-  inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
-  inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
-  inp.ondragover = (e) => { e.preventDefault(); };
-  inp.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
-      e.preventDefault();
-      showToast("⚠️ Không được phép sao chép/dán!", true);
-    }
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const nextInp = $("fill-" + (flatIdx + 1));
-      if (nextInp) {
-        nextInp.focus();
-        nextInp.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
-  });
-  return;
-}
-
-/* ═══ TEXT ═══ */
 if (isText) {
-  const ta = $("txt-" + flatIdx);
-  if (!ta) return;
-  ta.value = ans[flatIdx][0] || "";
-  ta.oninput = () => { const v = ta.value.trim(); ans[flatIdx] = v ? [ta.value] : []; updateNavAndCount(); checkAutoSubmit(); };
-  ta.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
-  ta.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
-  ta.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
-  ta.ondragover = (e) => { e.preventDefault(); };
-  ta.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
-      e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
-    }
-  });
+const ta = $("txt-" + flatIdx);
+if (!ta) return;
+ta.value = ans[flatIdx][0] || "";
+ta.oninput = () => { const v = ta.value.trim(); ans[flatIdx] = v ? [ta.value] : []; updateNavAndCount(); checkAutoSubmit(); };
+ta.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
+ta.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
+ta.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
+ta.ondragover = (e) => { e.preventDefault(); };
+ta.addEventListener('keydown', (e) => {
+if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
+}
+});
 } else {
-  /* ═══ TRẮC NGHIỆM ═══ */
-  const container = $("q-" + flatIdx);
-  if (!container) return;
-  container.querySelectorAll("input").forEach(el => {
-    el.onchange = function(e) {
-      if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); showBanScreen(session.name); return; }
-      const v = +el.dataset.v;
-      const multi = q[2].length > 1;
-      if (multi) {
-        const p = ans[flatIdx].indexOf(v);
-        p > -1 ? ans[flatIdx].splice(p,1) : ans[flatIdx].push(v);
-        el.closest(".opt").classList.toggle("sel", el.checked);
-      } else {
-        ans[flatIdx] = [v];
-        container.querySelectorAll(".opt").forEach(o => o.classList.remove("sel"));
-        el.closest(".opt").classList.add("sel");
-      }
-      updateNavAndCount();
-      checkAutoSubmit();
-    };
-  });
+const container = $("q-" + flatIdx);
+if (!container) return;
+container.querySelectorAll("input").forEach(el => {
+el.onchange = function(e) {
+if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); showBanScreen(session.name); return; }
+const v = +el.dataset.v;
+const multi = q[2].length > 1;
+if (multi) {
+const p = ans[flatIdx].indexOf(v);
+p > -1 ? ans[flatIdx].splice(p,1) : ans[flatIdx].push(v);
+el.closest(".opt").classList.toggle("sel", el.checked);
+} else {
+ans[flatIdx] = [v];
+container.querySelectorAll(".opt").forEach(o => o.classList.remove("sel"));
+el.closest(".opt").classList.add("sel");
+}
+updateNavAndCount();
+checkAutoSubmit();
+};
+});
 }
 });
 }
-
 function updateNavAndCount() {
 let done = 0, n = "";
 order.forEach((x, i) => {
@@ -1503,7 +1547,6 @@ cur = +b.dataset.i; draw(); window.scrollTo({ top: 0, behavior: 'smooth' });
 $("pb").style.width = (done / Q.length * 100) + "%";
 $("cnt").textContent = "Đã làm " + done + "/" + Q.length + " câu";
 }
-
 function checkAutoSubmit() {
 const done = ans.filter(a => a.length > 0).length;
 if (done === Q.length && !autoSubmitTriggered) {
@@ -1519,7 +1562,6 @@ $("mk").classList.add("on");
 }, 1200);
 }
 }
-
 document.addEventListener("keydown", function(e) {
 if (e.key !== "Enter") return;
 if ($("quiz").classList.contains("hide")) return;
@@ -1529,7 +1571,6 @@ if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT"
 e.preventDefault();
 if (cur < Q.length - 1) { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 });
-
 $("sub").onclick = finish;
 $("exitQuiz").onclick = function() {
 maskMode = "exit";
@@ -1547,7 +1588,6 @@ if (maskMode === "submit") showResults();
 else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("practice"); }
 };
 function finish() { clearInterval(tick); showResults(); }
-
 /* ═══ RESULTS ═══ */
 function showResults() {
 const ms = Date.now() - t0;
@@ -1555,52 +1595,26 @@ let pts = 0, full = 0, h = "";
 order.forEach((qi, i) => {
 const q = Q[qi];
 const isText = (typeof q[2] === "string");
-
 if (currentSubject === "english" && ENGLISH_QMETA[qi] && ENGLISH_QMETA[qi].qIdx === 0) {
 const block = ENGLISH_SECTIONS[ENGLISH_QMETA[qi].blockIdx];
 if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
 if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
 }
-
-/* ═══ PATCH 4: isText — có xử lý fill inline ═══ */
 if (isText) {
-  const userAns = (ans[qi][0] || "").trim();
-  let ok = false, modelAns = "";
-  if (q[2] === "keys") { modelAns = q[3] || ""; ok = checkTextAnswer(userAns, null, q[1]); }
-  else { modelAns = q[1][0]; ok = checkTextAnswer(userAns, q[1]); }
-  pts += ok ? 1 : 0;
-  full += ok ? 1 : 0;
-  const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
-
-  let qDisplay = q[0];
-
-  /* FILL — thay ___ bằng đáp án đã điền */
-  if (q[2] === "fill") {
-    const correctAns = q[1][0];
-    if (userAns) {
-      const userHtml = ok
-        ? `<span class="fill-answer">${esc(userAns)}</span>`
-        : `<span class="fill-answer-user-wrong">${esc(userAns)}</span> <span class="fill-answer">${esc(correctAns)}</span>`;
-      qDisplay = String(q[0]).replace(/_{3,}/g, userHtml);
-    } else {
-      qDisplay = String(q[0]).replace(/_{3,}/g, `<span class="fill-answer">${esc(correctAns)}</span>`);
-    }
-  }
-
-  h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
-    + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
-    + '<div class="q" style="line-height:' + (q[2] === "fill" ? "2.4" : "1.5") + '">' + qDisplay + '</div>';
-
-  if (q[2] !== "fill") {
-    h += '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
-      + '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
-      + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + esc(modelAns) + '</span>'
-      + '</div>';
-  } else if (!ok && userAns) {
-    h += '<div class="mut" style="font-size:0.85rem;margin-top:6px">📝 Đáp án đúng: <b style="color:var(--ok)">' + esc(modelAns) + '</b></div>';
-  }
-
-  h += '</div>';
+const userAns = (ans[qi][0] || "").trim();
+let ok = false, modelAns = "";
+if (q[2] === "keys") { modelAns = q[3] || ""; ok = checkTextAnswer(userAns, null, q[1]); }
+else { modelAns = q[1][0]; ok = checkTextAnswer(userAns, q[1]); }
+pts += ok ? 1 : 0;
+full += ok ? 1 : 0;
+const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
+h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
++ '<div class="q">' + q[0] + '</div>'
++ '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
++ '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + esc(modelAns) + '</span>'
++ '</div></div>';
 } else if (currentMode === 'memory' || currentMode === 'manual') {
 const userAns = (ans[qi][0] || "").trim();
 const cIdx = q[2][0];
@@ -1638,7 +1652,6 @@ h += '<div class="opt rev ' + cl + '"><b>' + icon + '</b><span>' + L[k] + '. ' +
 h += '</div>';
 }
 });
-
 const sc = Math.round(pts / Q.length * 1000) / 100;
 if (sc >= 10 && ms < SUSPICIOUS_TIME_MS && !isAdminSession()) {
 showToast("⚠️ 10 điểm trong dưới " + (SUSPICIOUS_TIME_MS / 1000) + "s, nghi auto!", true);
@@ -1650,12 +1663,10 @@ $("sc").textContent = fmtScore(sc);
 $("rc").textContent = full + "/" + Q.length;
 $("rw").textContent = (Q.length - full) + "";
 $("rt").textContent = fmtMs(ms);
-
 let modeLabel = "";
 if (currentMode === 'manual') modeLabel = " (Ghi)";
 else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
 $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS_META[currentSubject].icon + " " + SUBJECTS_META[currentSubject].label + modeLabel;
-
 if (currentSubject === 'english') {
 const keyParts = [];
 order.forEach((qi, i) => {
@@ -1672,7 +1683,6 @@ h = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-si
 </div>` + h;
 }
 $("rv").innerHTML = h;
-
 const resultCard = $("resultCard"), lowScoreMsg = $("lowScoreMsg");
 resultCard.classList.remove("punch-low-score");
 lowScoreMsg.innerHTML = "";
@@ -1681,7 +1691,6 @@ setTimeout(() => resultCard.classList.add("punch-low-score"), 300);
 const msgs = ["⚠️ Đây là điểm của bạn","⚠️ Cần cố gắng hơn!","⚠️ Đừng nản lòng!"];
 lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
 }
-
 const sponsorBlock = `
 <div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
 <div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Cảm ơn mọi người đã sử dụng web luyendemaster</div>
@@ -1690,10 +1699,8 @@ const sponsorBlock = `
 </div>`;
 $("rv").innerHTML += sponsorBlock;
 $("closeResultBtn").onclick = function() { show("app"); switchTab("practice"); };
-
 show("result");
 wirePills("lbPillsResult", "lbResult", currentSubject);
-
 let finalSubject = currentSubject;
 if (currentSubject === 'diali') {
 if (currentMode === 'manual') finalSubject = 'diali_manual';
@@ -1702,7 +1709,6 @@ else finalSubject = 'diali_choice';
 }
 saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
 }
-
 async function saveAndRefresh(res) {
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
 if (checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
@@ -1723,10 +1729,8 @@ return;
 }
 renderLeaderboard("lbResult", res.subject);
 }
-
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
-
 /* ═══ MUSIC ═══ */
 const music = createMusicPlayer({
 audio: $("bgMusic"),
@@ -1736,9 +1740,7 @@ $("musicCheck").checked = on;
 $("musicSelectionArea").classList.toggle("hide", !on);
 }
 });
-
 $("musicCheck").onchange = () => music.setOn($("musicCheck").checked);
-
 $("btnChangeMusic").onclick = () => {
 $("mModeRandom").checked = music.mode === "random";
 $("mModePlaylist").checked = music.mode === "playlist";
@@ -1748,7 +1750,6 @@ $("songListContainer").innerHTML = music.SONGS.map(s =>
 toggleSongCheckboxes();
 $("musicMask").classList.add("on");
 };
-
 function toggleSongCheckboxes() {
 const isPlaylist = $("mModePlaylist").checked;
 $("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
@@ -1757,7 +1758,6 @@ $("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
 $("mModeRandom").onchange = toggleSongCheckboxes;
 $("mModePlaylist").onchange = toggleSongCheckboxes;
 $("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
-
 $("btnSaveMusic").onclick = () => {
 const m = $("mModeRandom").checked ? "random" : "playlist";
 const ids = Array.from($("songListContainer").querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value);
@@ -1765,7 +1765,6 @@ if (m === "playlist" && ids.length === 0) { showToast("Vui lòng chọn ít nh�
 music.setMode(m, ids);
 $("musicMask").classList.remove("on");
 };
-
 /* ═══ CLOCK ═══ */
 function updateClock() {
 const now = new Date();
@@ -1775,7 +1774,6 @@ if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("
 }
 setInterval(updateClock, 1000);
 updateClock();
-
 /* ═══ SHAKE VIDEO ═══ */
 let musicWasPlaying = false;
 function openShakeVideo() {
@@ -1801,7 +1799,6 @@ setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
-
 /* ═══ IFRAME OVERLAY ═══ */
 function openFrameOverlay(src) {
 $("video-frame").src = src;
@@ -1814,7 +1811,6 @@ $("btnBack").onclick = function() {
 $("iframe-overlay").classList.add("hide");
 $("video-frame").src = "";
 };
-
 /* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
 installAntiCheat({
@@ -1835,7 +1831,6 @@ console.log("%c🛑 STOP!", "color:#ef4444;font-size:24px;font-weight:900");
 console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
 }
 });
-
 /* ═══ LEADERBOARD AUTO-REFRESH ═══ */
 document.addEventListener("visibilitychange", function() {
 if (document.hidden || !session) return;
@@ -1845,7 +1840,6 @@ const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 }
 });
-
 /* ═══ INIT ═══ */
 (async function init() {
 try {
