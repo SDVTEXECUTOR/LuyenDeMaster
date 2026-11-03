@@ -27,6 +27,7 @@ export const MUSIC_KEY          = "qp_music";
 export const MUSIC_MODE_KEY     = "qp_music_mode";
 export const MUSIC_SELECTED_KEY = "qp_music_selected";
 
+/* ⭐ 2 dòng QUAN TRỌNG — thiếu là lỗi ngay */
 export const REGISTRATION_LOCK_NODE  = "config/registrationLock";
 export const REGISTRATION_CODES_NODE = "config/codes";
 
