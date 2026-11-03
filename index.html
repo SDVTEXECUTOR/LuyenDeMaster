@@ -325,124 +325,67 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
-.code-modal-card {
-  max-width: 440px;
-  width: 100%;
-  text-align: center;
-  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.code-modal-icon {
-  font-size: 3.5rem;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
-  animation: iconPulse 2s ease-in-out infinite;
-}
-@keyframes iconPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-}
-.code-modal-title {
-  margin: 0 0 8px;
-  color: var(--warn);
-  font-size: 1.3rem;
-}
-.code-modal-desc {
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-.code-hint {
-  background: var(--warns);
-  color: var(--fg);
-  padding: 12px 14px;
-  border-radius: 10px;
-  border-left: 3px solid var(--warn);
-  font-size: 0.85rem;
-  line-height: 1.65;
-  margin-bottom: 12px;
-  text-align: left;
-}
-.code-hint b {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  color: var(--ac);
-}
-.code-input-wrap {
-  position: relative;
-  margin: 16px 0;
-}
-.code-input-wrap input {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-align: center;
-  text-transform: uppercase;
-  padding: 16px 44px 16px 16px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.code-input-wrap input:focus-visible {
-  outline: none;
-  border-color: var(--ac);
-  box-shadow: 0 0 0 3px var(--acs);
-}
-.code-input-wrap .code-status {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.3rem;
-  font-weight: 800;
-  pointer-events: none;
-  transition: all 0.2s;
-}
-.code-input-wrap.shake {
-  animation: shakeInput 0.45s cubic-bezier(.36,.07,.19,.97);
-}
-@keyframes shakeInput {
-  0%,100% { transform: translateX(0); }
-  20% { transform: translateX(-10px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-6px); }
-  80% { transform: translateX(4px); }
-}
-.code-error {
-  color: var(--bad);
-  font-size: 0.85rem;
-  font-weight: 600;
-  min-height: 1.3em;
-  margin-top: 8px;
-  text-align: center;
-  transition: all 0.2s;
-}
-.code-loading {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--ln);
-  border-top-color: var(--ac);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
+.code-modal-card { max-width: 440px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.code-modal-icon { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3)); animation: iconPulse 2s ease-in-out infinite; }
+@keyframes iconPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.code-modal-title { margin: 0 0 8px; color: var(--warn); font-size: 1.3rem; }
+.code-modal-desc { margin-bottom: 16px; line-height: 1.6; }
+.code-hint { background: var(--warns); color: var(--fg); padding: 12px 14px; border-radius: 10px; border-left: 3px solid var(--warn); font-size: 0.85rem; line-height: 1.65; margin-bottom: 12px; text-align: left; }
+.code-hint b { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ac); }
+.code-input-wrap { position: relative; margin: 16px 0; }
+.code-input-wrap input { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 1.15rem; font-weight: 700; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; padding: 16px 44px 16px 16px; transition: border-color 0.2s, box-shadow 0.2s; }
+.code-input-wrap input:focus-visible { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
+.code-input-wrap .code-status { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.3rem; font-weight: 800; pointer-events: none; transition: all 0.2s; }
+.code-input-wrap.shake { animation: shakeInput 0.45s cubic-bezier(.36,.07,.19,.97); }
+@keyframes shakeInput { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+.code-error { color: var(--bad); font-size: 0.85rem; font-weight: 600; min-height: 1.3em; margin-top: 8px; text-align: center; transition: all 0.2s; }
+.code-loading { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ln); border-top-color: var(--ac); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
 
 /* ═══ MODAL SET LOVE ══ */
-.love-modal-card {
-  max-width: 440px;
-  width: 100%;
-  text-align: center;
+.love-modal-card { max-width: 440px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.love-modal-icon { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.3)); animation: iconPulse 2s ease-in-out infinite; }
+.love-modal-title { margin: 0 0 8px; color: var(--love); font-size: 1.3rem; }
+
+/* ═══ MODAL LỜI MỜI KẾT ĐÔI ═══ */
+.invite-modal-card {
+  max-width: 440px; width: 100%; text-align: center;
   animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 2px solid var(--love) !important;
+  background: linear-gradient(135deg, var(--loves), var(--card)) !important;
 }
-.love-modal-icon {
-  font-size: 3.5rem;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.3));
-  animation: iconPulse 2s ease-in-out infinite;
+.invite-modal-icon {
+  font-size: 4rem; margin-bottom: 8px;
+  filter: drop-shadow(0 4px 16px rgba(236, 72, 153, 0.4));
+  animation: heartBeat 1.4s ease-in-out infinite;
 }
-.love-modal-title {
-  margin: 0 0 8px;
-  color: var(--love);
-  font-size: 1.3rem;
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.15); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.1); }
 }
+.invite-modal-title { margin: 0 0 8px; color: var(--love); font-size: 1.4rem; font-weight: 800; }
+.invite-sender {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  background: rgba(255,255,255,0.6); padding: 14px 18px; border-radius: 12px;
+  margin: 16px 0; border: 1.5px solid var(--love);
+}
+.invite-sender .avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--love), #f472b6);
+  display: grid; place-items: center; font-size: 1.5rem; color: #fff;
+  font-weight: 800; flex-shrink: 0;
+}
+.invite-sender .info { text-align: left; flex: 1; min-width: 0; }
+.invite-sender .info b { display: block; font-size: 1.05rem; color: var(--fg); }
+.invite-sender .info span { font-size: 0.85rem; color: var(--mut); }
+.invite-time { font-size: 0.8rem; color: var(--mut); margin-bottom: 12px; }
+.invite-actions { display: flex; gap: 10px; margin-top: 16px; }
+.invite-actions button { flex: 1; padding: 12px; font-size: 1rem; }
+.btn-accept { background: var(--love) !important; }
+.btn-accept:hover { background: #db2777 !important; }
+.btn-reject { background: transparent; color: var(--mut); border: 1.5px solid var(--ln); box-shadow: none; }
+.btn-reject:hover { background: var(--bads); color: var(--bad); border-color: var(--bad); }
 </style>
 </head>
 <body>
@@ -767,12 +710,7 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 📩 Liên hệ admin nếu bạn chưa có mã.
 </div>
 <div class="code-input-wrap" id="codeInputWrap">
-<input type="text" id="codeInput"
-       placeholder="LDM-XXXXX-XXXXX"
-       maxlength="15"
-       autocomplete="off"
-       spellcheck="false"
-       autocapitalize="characters">
+<input type="text" id="codeInput" placeholder="LDM-XXXXX-XXXXX" maxlength="15" autocomplete="off" spellcheck="false" autocapitalize="characters">
 <span class="code-status" id="codeStatus"></span>
 </div>
 <div class="code-error" id="codeError"></div>
@@ -783,7 +721,7 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 </div>
 </div>
 
-<!-- ═══ MODAL SET LOVE ═══ -->
+<!-- ═══ MODAL GỬI LỜI MỜI KẾT ĐÔI ═══ -->
 <div class="mask" id="loveMask">
   <div class="card love-modal-card">
     <div class="love-modal-icon">💘</div>
@@ -792,14 +730,36 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
       Nhập <b>tên đăng nhập</b> của người bạn muốn kết đôi.<br>
       <span style="color: var(--ac); font-size: 0.85rem;">💡 Lời mời sẽ được gửi đi.</span>
     </p>
-    
     <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tên đăng nhập đối phương</label>
     <input type="text" id="targetUsername" placeholder="vd: linh2009" autocomplete="off">
     <div id="loveErr" class="mut" style="color: var(--bad); font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px;"></div>
-    
     <div class="row">
       <button class="g" id="cancelLove" style="flex: 1;">Hủy</button>
       <button class="p" id="sendLoveInvite" style="flex: 1; background: var(--love);">Gửi lời mời 💌</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL NHẬN LỜI MỜI KẾT ĐÔI (MỚI) ═══ -->
+<div class="mask" id="inviteMask">
+  <div class="card invite-modal-card">
+    <div class="invite-modal-icon">💌</div>
+    <h2 class="invite-modal-title">Bạn có một lời mời kết đôi!</h2>
+    <div class="invite-sender">
+      <div class="avatar" id="inviteAvatar">💖</div>
+      <div class="info">
+        <b id="inviteSenderName">—</b>
+        <span id="inviteSenderCls"></span>
+      </div>
+    </div>
+    <div class="invite-time" id="inviteTime">Vừa xong</div>
+    <p class="mut" style="font-size:0.9rem; line-height:1.5;">
+      Muốn kết đôi và cùng nhau học tập? <br>
+      <span style="color:var(--love); font-weight:600;">Chấp nhận để bắt đầu hành trình đôi lứa 💕</span>
+    </p>
+    <div class="invite-actions">
+      <button class="btn-reject" id="btnRejectInvite">Từ chối</button>
+      <button class="btn-accept" id="btnAcceptInvite">💖 Chấp nhận</button>
     </div>
   </div>
 </div>
@@ -884,7 +844,6 @@ document.body.style.overflow = '';
 </script>
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
-/* ═══ SAFE IMPORTS ══ */
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
 try {
 core = await import('/js/core.js');
@@ -895,15 +854,9 @@ configMod = await import('/js/config.js');
 firebaseMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
 console.error('[index] Import failed:', e);
-window.__showFatalError(
-'Không tải được module:\n' + e.message +
-'\n→ Kiểm tra các file /js/config.js, /js/core.js, /js/utils.js, /js/music.js, /js/anticheat.js.\n' +
-'→ Mở F12 → Network → xem file nào 404.\n' +
-'→ Đang test local? Phải chạy "python -m http.server 8000" (không được mở file://).'
-);
+window.__showFatalError('Không tải được module:\n' + e.message);
 throw e;
 }
-/* ═══ DESTRUCTURE ═══ */
 const {
 db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
 normText, nameHash, checkProfanity, keyOf,
@@ -921,11 +874,9 @@ TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
 SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
 SHAKE_VIDEO
 } = configMod;
-const { ref, push, set, get, serverTimestamp, runTransaction, remove } = firebaseMod;
-/* Ẩn boot spinner khi import xong */
+const { ref, push, set, get, serverTimestamp, runTransaction, remove, update } = firebaseMod;
 const __boot = document.getElementById('boot');
 if (__boot) __boot.style.display = 'none';
-/* ═══ DOMAIN GUARD ══ */
 try {
 if (!checkDomain()) {
 showDomainWarning();
@@ -934,7 +885,6 @@ throw new Error("DOMAIN_NOT_ALLOWED");
 } catch(e) {
 if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
 }
-/* ═══ HELPERS ═══ */
 const $ = id => {
   const el = document.getElementById(id);
   if (!el) console.warn(`[Cảnh báo] Không tìm thấy phần tử có id="${id}"`);
@@ -973,92 +923,47 @@ const b = document.getElementById("banReload");
 if (b) b.onclick = () => location.reload();
 }
 
-/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ (FIXED) ══ */
 function promptRegistrationCode() {
   return new Promise((resolve) => {
-    const mask       = $("codeMask");
-    const input      = $("codeInput");
-    const status     = $("codeStatus");
-    const error      = $("codeError");
-    const wrap       = $("codeInputWrap");
-    const btnConfirm = $("codeConfirm");
-    const btnCancel  = $("codeCancel");
-
-    // Reset state
-    input.value = "";
-    status.textContent = "";
-    error.textContent = "";
-    wrap.classList.remove("shake");
-    btnConfirm.disabled = false;
-    btnConfirm.innerHTML = "✓ Xác nhận";
-
-    // Auto uppercase + tự thêm dấu '-' (FIXED FORMAT: LDM-XXXXX-XXXXX)
+    const mask = $("codeMask"), input = $("codeInput"), status = $("codeStatus"), error = $("codeError"), wrap = $("codeInputWrap"), btnConfirm = $("codeConfirm"), btnCancel = $("codeCancel");
+    input.value = ""; status.textContent = ""; error.textContent = ""; wrap.classList.remove("shake");
+    btnConfirm.disabled = false; btnConfirm.innerHTML = "✓ Xác nhận";
     input.oninput = () => {
       let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-      // Loại bỏ tiền tố LDM nếu user gõ nhầm
       if (v.startsWith("LDM")) v = v.slice(3);
-      // Format: 5 chars - 5 chars
       if (v.length > 5)  v = v.slice(0, 5)  + "-" + v.slice(5, 10);
-      if (v.length > 11) v = v.slice(0, 11); // Max 10 chars + 1 dash
-      if (v.length > 0 && v.length <= 5) {
-        // Chưa đủ 5 chars thì chưa thêm dash
-      }
+      if (v.length > 11) v = v.slice(0, 11);
       v = "LDM-" + v;
       input.value = v;
-
-      if (v.length < 15) {
-        status.textContent = "";
-      } else if (/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(v)) {
-        status.textContent = "✓";
-        status.style.color = "var(--ok)";
-      } else {
-        status.textContent = "…";
-        status.style.color = "var(--mut)";
-      }
+      if (v.length < 15) { status.textContent = ""; }
+      else if (/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(v)) { status.textContent = "✓"; status.style.color = "var(--ok)"; }
+      else { status.textContent = "…"; status.style.color = "var(--mut)"; }
     };
-
     const cleanup = () => {
-      mask.classList.remove("on");
-      input.oninput = null;
-      btnConfirm.onclick = null;
-      btnCancel.onclick = null;
-      input.onkeydown = null;
-      mask.onclick = null;
+      mask.classList.remove("on"); input.oninput = null; btnConfirm.onclick = null; btnCancel.onclick = null; input.onkeydown = null; mask.onclick = null;
     };
-
     const confirm = async () => {
       const code = input.value.trim();
       if (!/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code)) {
         error.textContent = "❌ Mã không đúng định dạng (LDM-XXXXX-XXXXX)";
-        wrap.classList.remove("shake");
-        void wrap.offsetWidth;
-        wrap.classList.add("shake");
+        wrap.classList.remove("shake"); void wrap.offsetWidth; wrap.classList.add("shake");
         return;
       }
-      btnConfirm.disabled = true;
-      btnConfirm.innerHTML = '<span class="code-loading"></span> Đang kiểm tra…';
-      error.textContent = "";
-
+      btnConfirm.disabled = true; btnConfirm.innerHTML = '<span class="code-loading"></span> Đang kiểm tra…'; error.textContent = "";
       try {
         const check = await validateRegistrationCode(code);
         if (!check.valid) {
           error.textContent = "❌ " + check.reason;
-          wrap.classList.remove("shake");
-          void wrap.offsetWidth;
-          wrap.classList.add("shake");
-          btnConfirm.disabled = false;
-          btnConfirm.innerHTML = "✓ Xác nhận";
+          wrap.classList.remove("shake"); void wrap.offsetWidth; wrap.classList.add("shake");
+          btnConfirm.disabled = false; btnConfirm.innerHTML = "✓ Xác nhận";
           return;
         }
-        cleanup();
-        resolve(check.code);
+        cleanup(); resolve(check.code);
       } catch (e) {
         error.textContent = "❌ Lỗi: " + e.message;
-        btnConfirm.disabled = false;
-        btnConfirm.innerHTML = "✓ Xác nhận";
+        btnConfirm.disabled = false; btnConfirm.innerHTML = "✓ Xác nhận";
       }
     };
-
     btnConfirm.onclick = confirm;
     btnCancel.onclick  = () => { cleanup(); resolve(null); };
     input.onkeydown = (e) => {
@@ -1066,13 +971,11 @@ function promptRegistrationCode() {
       else if (e.key === "Escape") { cleanup(); resolve(null); }
     };
     mask.onclick = (e) => { if (e.target === mask) { cleanup(); resolve(null); } };
-
     mask.classList.add("on");
     setTimeout(() => input.focus(), 150);
   });
 }
 
-/* ══ LAZY DATA ═══ */
 const _dataCache = Object.create(null);
 let ENGLISH_SECTIONS = [];
 let ENGLISH_QMETA = [];
@@ -1082,13 +985,11 @@ const mod = await import('/js/data/' + key + '.js');
 _dataCache[key] = mod.default;
 return _dataCache[key];
 }
-/* ═══ SESSION SYNC ═══ */
 let session = null;
 function _syncSession(s) {
 if (s) { saveSession(s); session = s; }
 else { clearSession(); session = null; }
 }
-/* ═══ AUTH ═══ */
 let authMode = "login";
 $("atLogin").onclick = function() {
 authMode = "login";
@@ -1151,7 +1052,6 @@ const passHash = await sha256Hex(p);
 if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
 _syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
 }
-/* ═══ REGISTER (with lock + code) ═══ */
 $("auGo").onclick = async function() {
 $("auErr").textContent = "";
 const u = $("auUser").value.trim(), p = $("auPass").value;
@@ -1185,20 +1085,198 @@ usedCode = check.code;
 }
 } catch (e) {
 console.warn('[register] Lock check error:', e);
-// Nếu lock check fail → cho đăng ký luôn (không chặn)
 }
 await doRegister(u, p, name, $("auCls").value.trim());
 if (usedCode) await markCodeUsed(usedCode, u);
 } else {
 await doLogin(u, p);
 }
-enterApp();
+await enterApp();
 } catch (e) {
 $("auErr").textContent = e.message;
 }
 $("auGo").disabled = false;
 };
-function enterApp() {
+
+/* ═══════════════════════════════════════════════
+   KIỂM TRA LỜI MỜI KẾT ĐÔI KHI ĐĂNG NHẬP
+   ═══════════════════════════════════════════════ */
+async function checkLoveInvitesOnLogin() {
+  if (!session || !db || isAdminSession()) return;
+  
+  try {
+    // 1. Đọc lời mời gửi đến cho user hiện tại
+    const invitesSnap = await get(ref(db, `loveInvites/${session.username}`));
+    
+    if (!invitesSnap.exists()) {
+      console.log('[love] Không có lời mời nào.');
+      return;
+    }
+    
+    const invites = invitesSnap.val();
+    const inviteKeys = Object.keys(invites);
+    
+    if (inviteKeys.length === 0) return;
+    
+    // Lấy lời mời đầu tiên (mới nhất)
+    const firstFromUsername = inviteKeys[0];
+    const inviteData = invites[firstFromUsername];
+    
+    console.log('[love] Có lời mời từ:', firstFromUsername, inviteData);
+    
+    // Hiển thị modal lời mời
+    showInviteModal(firstFromUsername, inviteData);
+    
+  } catch (e) {
+    console.error('[love] Lỗi kiểm tra lời mời:', e);
+  }
+}
+
+function showInviteModal(fromUsername, inviteData) {
+  const mask = $("inviteMask");
+  const avatar = $("inviteAvatar");
+  const nameEl = $("inviteSenderName");
+  const clsEl = $("inviteSenderCls");
+  const timeEl = $("inviteTime");
+  
+  // Hiển thị thông tin người gửi
+  const senderName = inviteData.name || fromUsername;
+  const senderCls = inviteData.cls || '';
+  const senderAvatar = inviteData.avatar || senderName.charAt(0).toUpperCase();
+  
+  avatar.textContent = senderAvatar;
+  nameEl.textContent = senderName;
+  clsEl.textContent = senderCls ? `@${fromUsername} · Lớp ${senderCls}` : `@${fromUsername}`;
+  
+  // Hiển thị thời gian
+  if (inviteData.timestamp) {
+    const diff = Date.now() - inviteData.timestamp;
+    if (diff < 60000) timeEl.textContent = 'Vừa xong';
+    else if (diff < 3600000) timeEl.textContent = Math.floor(diff / 60000) + ' phút trước';
+    else if (diff < 86400000) timeEl.textContent = Math.floor(diff / 3600000) + ' giờ trước';
+    else timeEl.textContent = Math.floor(diff / 86400000) + ' ngày trước';
+  } else {
+    timeEl.textContent = 'Vừa xong';
+  }
+  
+  // Lưu thông tin lời mời hiện tại để xử lý
+  mask.dataset.fromUsername = fromUsername;
+  
+  mask.classList.add("on");
+}
+
+async function acceptLoveInvite() {
+  const mask = $("inviteMask");
+  const fromUsername = mask.dataset.fromUsername;
+  
+  if (!fromUsername || !session) return;
+  
+  const btnAccept = $("btnAcceptInvite");
+  const btnReject = $("btnRejectInvite");
+  btnAccept.disabled = true;
+  btnReject.disabled = true;
+  btnAccept.textContent = "Đang xử lý...";
+  
+  try {
+    // Lấy thông tin người gửi và người nhận
+    const fromSnap = await get(ref(db, `accounts/${keyOf(fromUsername)}`));
+    if (!fromSnap.exists()) {
+      showToast("❌ Người gửi không tồn tại!", true);
+      mask.classList.remove("on");
+      return;
+    }
+    const fromAcc = fromSnap.val();
+    
+    // Lấy avatar của cả 2 (nếu có trong profiles)
+    const [myProfileSnap, fromProfileSnap] = await Promise.all([
+      get(ref(db, `profiles/${session.username}`)),
+      get(ref(db, `profiles/${fromUsername}`))
+    ]);
+    const myAvatar = myProfileSnap.exists() ? (myProfileSnap.val().avatar || session.name.charAt(0).toUpperCase()) : session.name.charAt(0).toUpperCase();
+    const fromAvatar = fromProfileSnap.exists() ? (fromProfileSnap.val().avatar || fromAcc.name.charAt(0).toUpperCase()) : fromAcc.name.charAt(0).toUpperCase();
+    
+    const now = Date.now();
+    
+    // Tạo couple cho CẢ HAI (cấu trúc 2 chiều)
+    const coupleDataA = {
+      partnerUsername: fromUsername,
+      partnerName: fromAcc.name,
+      partnerAvatar: fromAvatar,
+      loveCoins: 0,
+      streak: 0,
+      todaySubject: "",
+      doneA: false,
+      doneB: false,
+      createdAt: now
+    };
+    
+    const coupleDataB = {
+      partnerUsername: session.username,
+      partnerName: session.name,
+      partnerAvatar: myAvatar,
+      loveCoins: 0,
+      streak: 0,
+      todaySubject: "",
+      doneA: false,
+      doneB: false,
+      createdAt: now
+    };
+    
+    // Ghi đồng thời: couples cho A, couples cho B, và xóa lời mời
+    await Promise.all([
+      set(ref(db, `couples/${session.username}`), coupleDataA),
+      set(ref(db, `couples/${fromUsername}`), coupleDataB),
+      remove(ref(db, `loveInvites/${session.username}/${fromUsername}`))
+    ]);
+    
+    showToast("💖 Đã kết đôi thành công!");
+    mask.classList.remove("on");
+    
+  } catch (e) {
+    console.error('[love] Accept error:', e);
+    showToast("❌ Lỗi: " + e.message, true);
+  } finally {
+    btnAccept.disabled = false;
+    btnReject.disabled = false;
+    btnAccept.textContent = "💖 Chấp nhận";
+  }
+}
+
+async function rejectLoveInvite() {
+  const mask = $("inviteMask");
+  const fromUsername = mask.dataset.fromUsername;
+  
+  if (!fromUsername || !session) return;
+  
+  const btnReject = $("btnRejectInvite");
+  btnReject.disabled = true;
+  btnReject.textContent = "Đang xử lý...";
+  
+  try {
+    // Chỉ xóa lời mời
+    await remove(ref(db, `loveInvites/${session.username}/${fromUsername}`));
+    showToast("Đã từ chối lời mời.");
+    mask.classList.remove("on");
+  } catch (e) {
+    console.error('[love] Reject error:', e);
+    showToast("❌ Lỗi: " + e.message, true);
+  } finally {
+    btnReject.disabled = false;
+    btnReject.textContent = "Từ chối";
+  }
+}
+
+// Gán sự kiện cho nút Accept/Reject
+$("btnAcceptInvite").onclick = acceptLoveInvite;
+$("btnRejectInvite").onclick = rejectLoveInvite;
+
+$("inviteMask").onclick = (e) => {
+  if (e.target === $("inviteMask")) {
+    // Không cho đóng bằng cách click ra ngoài (buộc phải chọn)
+  }
+};
+
+async function enterApp() {
 if (!session) { show("auth"); return; }
 if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
 recordViolation(session.name, session.username);
@@ -1216,9 +1294,11 @@ $("hiName").textContent = "👋 Xin chào, " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
+
+// ⭐ KIỂM TRA LỜI MỜI KẾT ĐÔI SAU KHI VÀO APP
+await checkLoveInvitesOnLogin();
 }
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
-/* ═══ TABS ═══ */
 function switchTab(name) {
 $("tabBtnPractice").classList.toggle("active", name === "practice");
 $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
@@ -1238,7 +1318,6 @@ $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
-/* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
 const el = $(pillsId);
 const filters = [
@@ -1337,7 +1416,6 @@ $("rfResult").onclick = function() {
 const a = document.querySelector("#lbPillsResult .pill.active");
 renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
 };
-/* ═══ QUIZ ENGINE ═══ */
 let currentSubject, Q = null, order, opt, ans, cur, t0, tick;
 let currentMode = 'choice', maskMode = "submit";
 let autoSubmitTriggered = false, allAtOnce = false, isShuffled = false, _loadingQuiz = false;
@@ -1637,7 +1715,6 @@ if (maskMode === "submit") showResults();
 else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("practice"); }
 };
 function finish() { clearInterval(tick); showResults(); }
-/* ═══ RESULTS ═══ */
 function showResults() {
 const ms = Date.now() - t0;
 let pts = 0, full = 0, h = "";
@@ -1780,31 +1857,21 @@ renderLeaderboard("lbResult", res.subject);
 }
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
-/* ═══ MUSIC (FIXED) ═══ */
 const music = createMusicPlayer({
 audio: $("bgMusic"),
 onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
 onToggle: (on) => {
 $("musicCheck").checked = on;
 $("musicSelectionArea").classList.toggle("hide", !on);
-// Sync button state
-if (on) {
-$("musicCheck").checked = true;
-} else {
-$("musicCheck").checked = false;
-}
+if (on) { $("musicCheck").checked = true; }
+else { $("musicCheck").checked = false; }
 }
 });
-
 $("musicCheck").onchange = function() {
 const isChecked = this.checked;
 music.setOn(isChecked);
-// Force sync
-if (!isChecked) {
-$("bgMusic").pause();
-}
+if (!isChecked) { $("bgMusic").pause(); }
 };
-
 $("btnChangeMusic").onclick = () => {
 $("mModeRandom").checked = music.mode === "random";
 $("mModePlaylist").checked = music.mode === "playlist";
@@ -1829,7 +1896,6 @@ if (m === "playlist" && ids.length === 0) { showToast("Vui lòng chọn ít nh�
 music.setMode(m, ids);
 $("musicMask").classList.remove("on");
 };
-/* ═══ CLOCK ═══ */
 function updateClock() {
 const now = new Date();
 const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
@@ -1838,7 +1904,6 @@ if (el) el.textContent = ` ${days[now.getDay()]}, ${now.toLocaleDateString("vi-V
 }
 setInterval(updateClock, 1000);
 updateClock();
-/* ═══ SHAKE VIDEO ═══ */
 let musicWasPlaying = false;
 function openShakeVideo() {
 const v = $("shakeVideo");
@@ -1863,7 +1928,6 @@ setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
-/* ═══ IFRAME OVERLAY ══ */
 function openFrameOverlay(src) {
 $("video-frame").src = src;
 $("iframe-overlay").classList.remove("hide");
@@ -1875,12 +1939,11 @@ $("btnBack").onclick = function() {
 $("iframe-overlay").classList.add("hide");
 $("video-frame").src = "";
 };
-/* ═══ PROFILE BUTTON ═══ */
 $("btnProfile").onclick = () => {
   location.href = "/profile.html";
 };
 
-/* ═══ SET LOVE FUNCTIONALITY ═══ */
+/* ═══ GỬI LỜI MỜI KẾT ĐÔI (ĐÃ SỬA - THÊM AVATAR) ═══ */
 const btnSetLove = $("btnSetLove");
 if (btnSetLove) {
   btnSetLove.onclick = () => {
@@ -1907,51 +1970,67 @@ $("sendLoveInvite").onclick = async () => {
   $("sendLoveInvite").textContent = "Đang gửi...";
 
   try {
-    // Kiểm tra xem người đó có tồn tại không
-    const targetAcc = await get(ref(db, `accounts/${target}`));
-    if (!targetAcc.exists()) {
-      $("loveErr").textContent = "Không tìm thấy người dùng này.";
+    // 1. Kiểm tra tài khoản đối phương có tồn tại không
+    const targetAccSnap = await get(ref(db, `accounts/${keyOf(target)}`));
+    if (!targetAccSnap.exists()) {
+      $("loveErr").textContent = "❌ Không tìm thấy người dùng này.";
+      $("sendLoveInvite").disabled = false;
+      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
+      return;
+    }
+    const targetAcc = targetAccSnap.val();
+
+    // 2. Kiểm tra xem mình đã có couple chưa
+    const myCoupleSnap = await get(ref(db, `couples/${session.username}`));
+    if (myCoupleSnap.exists() && myCoupleSnap.val().partnerUsername) {
+      showToast("❌ Bạn đã có couple rồi!", true);
+      $("loveMask").classList.remove("on");
+      return;
+    }
+
+    // 3. Kiểm tra xem đối phương đã có couple chưa
+    const targetCoupleSnap = await get(ref(db, `couples/${target}`));
+    if (targetCoupleSnap.exists() && targetCoupleSnap.val().partnerUsername) {
+      $("loveErr").textContent = "❌ Người này đã có đôi rồi!";
       $("sendLoveInvite").disabled = false;
       $("sendLoveInvite").textContent = "Gửi lời mời 💌";
       return;
     }
 
-    // Kiểm tra xem đã có couple chưa
-    const myCouple = await get(ref(db, `couples/${session.username}`));
-    if (myCouple.exists() && myCouple.val().partnerUsername) {
-      showToast("Bạn đã có couple rồi!", true);
-      $("loveMask").classList.remove("on");
-      return;
-    }
+    // 4. Lấy avatar của người gửi (từ profiles hoặc mặc định)
+    const myProfileSnap = await get(ref(db, `profiles/${session.username}`));
+    const myAvatar = myProfileSnap.exists() 
+      ? (myProfileSnap.val().avatar || session.name.charAt(0).toUpperCase())
+      : session.name.charAt(0).toUpperCase();
 
-    // GỬI LỜI MỜI
+    // 5. GỬI LỜI MỜI - ĐÚNG CẤU TRÚC FIREBASE RULES
+    // Cấu trúc: loveInvites/{targetUsername}/{fromUsername}
     await set(ref(db, `loveInvites/${target}/${session.username}`), {
       from: session.username,
       name: session.name,
       cls: session.cls || "",
-      timestamp: serverTimestamp()
+      avatar: myAvatar,        // ⭐ BẮT BUỘC theo rules
+      timestamp: Date.now()    // ⭐ Dùng Date.now() thay vì serverTimestamp() để chắc chắn là number
     });
 
-    showToast("🎉 Đã gửi lời mời kết đôi thành công!");
+    showToast("💌 Đã gửi lời mời kết đôi thành công!");
     $("loveMask").classList.remove("on");
     
   } catch (e) {
-    console.error(e);
-    $("loveErr").textContent = "Lỗi: " + e.message;
+    console.error('[love] Send invite error:', e);
+    $("loveErr").textContent = "❌ Lỗi: " + e.message;
   } finally {
     $("sendLoveInvite").disabled = false;
     $("sendLoveInvite").textContent = "Gửi lời mời 💌";
   }
 };
 
-// Close modal when clicking outside
 $("loveMask").onclick = (e) => {
   if (e.target === $("loveMask")) {
     $("loveMask").classList.remove("on");
   }
 };
 
-/* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
 installAntiCheat({
 blockCopyPaste: false,
@@ -1971,7 +2050,6 @@ console.log("%c🛑 STOP!", "color:#ef4444;font-size:24px;font-weight:900");
 console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
 }
 });
-/* ═══ LEADERBOARD AUTO-REFRESH ═══ */
 document.addEventListener("visibilitychange", function() {
 if (document.hidden || !session) return;
 const tb = $("tab-leaderboard");
@@ -1980,7 +2058,6 @@ const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 }
 });
-/* ═══ INIT ══ */
 (async function init() {
 try {
 await syncUnbanEpoch();
@@ -1988,7 +2065,7 @@ const existing = loadSession();
 if (existing) {
 if (existing.isAdmin === true && isAdminUsername(existing.username)) {
 _syncSession(existing);
-enterApp();
+await enterApp();
 } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
 recordViolation(existing.name, existing.username);
 _syncSession(null);
@@ -2000,7 +2077,7 @@ _syncSession(null);
 showBanScreen(existing.name);
 } else {
 _syncSession(existing);
-enterApp();
+await enterApp();
 }
 }
 } else {
