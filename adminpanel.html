@@ -122,6 +122,53 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .vio-count.has { background: var(--bads); color: var(--bad); }
 
+/* ── Toggle switch ── */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #cbd5e1; border-radius: 32px; transition: .3s;
+}
+.slider:before {
+  position: absolute; content: "";
+  height: 24px; width: 24px; left: 4px; bottom: 4px;
+  background: #fff; border-radius: 50%; transition: .3s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.switch input:checked + .slider { background: var(--bad); }
+.switch input:checked + .slider:before { transform: translateX(28px); }
+
+/* ── Code rows ── */
+.code-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 12px; align-items: center;
+  padding: 14px; border: 1px solid var(--ln);
+  border-radius: 12px; margin: 8px 0;
+  background: var(--card); transition: all 0.15s;
+}
+.code-row:hover { border-color: var(--ac); }
+.code-row.used {
+  opacity: 0.6; background: rgba(148,163,184,0.05);
+}
+.code-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800; font-size: 1.05rem;
+  letter-spacing: 0.05em; color: var(--ac);
+  word-break: break-all;
+}
+.code-value.used {
+  text-decoration: line-through; color: var(--mut);
+}
+.code-meta {
+  font-size: 0.75rem; color: var(--mut); margin-top: 4px;
+}
+
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(4px); display: none; place-items: center;
@@ -182,6 +229,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   background: var(--ok); color: #fff; padding: 12px 24px; border-radius: 99px;
   font-weight: 600; box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3); z-index: 150;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 90vw; text-align: center;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--bad); }
@@ -203,12 +251,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   .acc-table tbody td:nth-child(3) { display: none; }
   button.sm { padding: 5px 8px; font-size: 0.75rem; }
   .acc-table td.actions button { margin: 2px 0; display: block; width: 100%; }
+  .code-row { grid-template-columns: 1fr auto; }
+  .code-row button:nth-of-type(2) { grid-column: 1 / -1; }
 }
 </style>
 </head>
 <body>
 
-<!-- Access denied -->
 <div class="denied-screen hide" id="denied">
   <div>
     <div class="icon">🚫</div>
@@ -224,9 +273,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="top">
       <div>
         <h1>🛡️ Admin Panel</h1>
-        <div class="mut">
-          Đăng nhập với: <b id="admName"></b> · <span id="admUser"></span>
-        </div>
+        <div class="mut">Đăng nhập với: <b id="admName"></b> · <span id="admUser"></span></div>
         <div id="liveClock"></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -244,6 +291,36 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="stat-card warn"><div class="num" id="stVio">—</div><div class="lbl">Tổng vi phạm</div></div>
     <div class="stat-card ac"><div class="num" id="stResults">—</div><div class="lbl">Lượt nộp bài</div></div>
     <div class="stat-card ac"><div class="num" id="stTower">—</div><div class="lbl">Lượt leo tháp</div></div>
+    <div class="stat-card ok"><div class="num" id="stCodes">—</div><div class="lbl">Mã khả dụng</div></div>
+  </div>
+
+  <!-- Khóa đăng ký -->
+  <div class="card">
+    <div class="top">
+      <div style="flex:1;min-width:0">
+        <h2 style="margin-bottom:4px">🔒 Khóa đăng ký</h2>
+        <div class="mut" id="lockStatus">Đang tải…</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="lockCheckbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="mut" style="margin-top:12px;font-size:0.85rem;line-height:1.6;background:var(--warns);padding:10px 14px;border-radius:8px;border-left:3px solid var(--warn);color:var(--fg)">
+      💡 Khi bật: học sinh không thể tự đăng ký. Chỉ ai có <b>mã đăng ký</b> do admin cấp mới tạo được tài khoản.
+    </div>
+  </div>
+
+  <!-- Mã đăng ký -->
+  <div class="card">
+    <div class="top" style="margin-bottom:12px">
+      <h2>🔑 Mã đăng ký</h2>
+      <button class="success" id="btnCreateCode">+ Tạo mã mới</button>
+    </div>
+    <div class="mut" style="margin-bottom:12px;font-size:0.85rem">
+      Mỗi mã dùng được <b>1 lần</b>. Bấm "Tạo mã mới" → copy gửi cho học sinh cần đăng ký.
+    </div>
+    <div id="codesList"><div class="skel"></div><div class="skel"></div></div>
   </div>
 
   <!-- Unban All -->
@@ -274,13 +351,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
         <button class="pill" data-f="violated">⚠️ Có vi phạm</button>
       </div>
     </div>
-    <div id="accountsList">
-      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
-    </div>
+    <div id="accountsList"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
   </div>
 </main>
 
-<!-- Results modal -->
 <div class="mask" id="resultsMask">
   <div class="modal">
     <div class="top" style="margin-bottom:16px">
@@ -291,7 +365,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- Confirm modal -->
 <div class="mask" id="confirmMask">
   <div class="modal" style="max-width:460px">
     <h2 id="cfTitle" style="margin-bottom:12px">Xác nhận</h2>
@@ -303,7 +376,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- Loading -->
 <div id="ov" class="hide">
   <div class="lbox">
     <div class="spinner"></div>
@@ -314,18 +386,24 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ══════════ IMPORTS ══════════ */
 import { ref, get, set, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   db, loadSession, saveSession, getSession,
   isAdminSession, isAdminUsername,
-  clearAllLocalBans, keyOf
+  clearAllLocalBans, keyOf,
+  checkRegistrationLock, setRegistrationLock,
+  createRegistrationCode, getRegistrationCodes,
+  deleteRegistrationCode
 } from '/js/core.js';
 import { esc, fmtMsShort, fmtDate } from '/js/utils.js';
-import { ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY } from '/js/config.js';
+import {
+  ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY,
+  REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE
+} from '/js/config.js';
+
+const $ = id => document.getElementById(id);
 
 /* ══════════ HELPERS ══════════ */
-const $ = id => document.getElementById(id);
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff() { $("ov").classList.add("hide"); }
 function showToast(msg, isErr) {
@@ -350,7 +428,6 @@ function confirmBox(title, body, onConfirm, danger = true) {
   $("cfYes").onclick = async () => { cleanup(); await onConfirm(); };
 }
 
-/* ══════════ STATE ══════════ */
 let allAccounts = [];
 let filterMode = "all";
 let searchQuery = "";
@@ -366,15 +443,15 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
-/* ══════════ ACCESS CHECK ══════════ */
+/* ══════════ ACCESS ══════════ */
 function checkAccess() {
   const s = loadSession();
   if (!s || !s.isAdmin || !isAdminUsername(s.username)) {
     $("denied").classList.remove("hide");
     return false;
   }
-  saveSession(s);            // sync _session trong core
-  if (!isAdminSession()) {   // double-check
+  saveSession(s);
+  if (!isAdminSession()) {
     $("denied").classList.remove("hide");
     return false;
   }
@@ -385,7 +462,140 @@ function checkAccess() {
   return true;
 }
 
-/* ══════════ LOAD DATA ══════════ */
+/* ══════════ LOCK ══════════ */
+async function loadLockStatus() {
+  try {
+    const isLocked = await checkRegistrationLock();
+    $("lockCheckbox").checked = isLocked;
+    $("lockStatus").innerHTML = isLocked
+      ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký để tạo tài khoản'
+      : '<span style="color:var(--ok);font-weight:700">🔓 ĐANG MỞ</span> — Ai cũng có thể đăng ký';
+  } catch (e) {
+    $("lockStatus").textContent = "Lỗi tải trạng thái: " + e.message;
+  }
+}
+
+async function toggleLock() {
+  const newState = $("lockCheckbox").checked;
+  if (newState) {
+    const ok = confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản. Chỉ những ai có mã đăng ký do bạn cấp mới tạo được.");
+    if (!ok) { $("lockCheckbox").checked = false; return; }
+  } else {
+    const ok = confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản, KHÔNG cần mã.");
+    if (!ok) { $("lockCheckbox").checked = true; return; }
+  }
+  try {
+    ovOn("Đang cập nhật…");
+    const success = await setRegistrationLock(newState);
+    ovOff();
+    if (success) {
+      showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký");
+      loadLockStatus();
+    } else {
+      showToast("Không thể cập nhật. Kiểm tra quyền admin.", true);
+      $("lockCheckbox").checked = !newState;
+    }
+  } catch (e) {
+    ovOff();
+    showToast("Lỗi: " + e.message, true);
+    $("lockCheckbox").checked = !newState;
+  }
+}
+
+/* ══════════ CODES ══════════ */
+async function loadCodes() {
+  $("codesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
+  try {
+    const codes = await getRegistrationCodes();
+    // Sort: available first, then createdAt desc
+    codes.sort((a, b) => {
+      if (a.used !== b.used) return a.used ? 1 : -1;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    const available = codes.filter(c => !c.used).length;
+    $("stCodes").textContent = available;
+
+    if (!codes.length) {
+      $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có mã nào. Bấm "+ Tạo mã mới" để bắt đầu.</div>';
+      return;
+    }
+
+    $("codesList").innerHTML = codes.map(c => `
+      <div class="code-row ${c.used ? 'used' : ''}">
+        <div>
+          <div class="code-value ${c.used ? 'used' : ''}">${esc(c.code)}</div>
+          <div class="code-meta">
+            ${c.used
+              ? `✓ Đã dùng bởi <b>${esc(c.usedBy || '?')}</b> · ${fmtDate(c.usedAt)}`
+              : `📅 Tạo ${fmtDate(c.createdAt)}`}
+          </div>
+        </div>
+        ${!c.used ? `<button class="sm" style="background:var(--ac)" onclick="window.__copyCode('${esc(c.code)}')">📋 Copy</button>` : '<div></div>'}
+        <button class="sm danger" onclick="window.__deleteCode('${esc(c.code)}')">🗑️</button>
+      </div>
+    `).join("");
+  } catch (e) {
+    $("codesList").innerHTML = '<div class="mut" style="color:var(--bad);padding:20px">Lỗi: ' + esc(e.message) + '</div>';
+  }
+}
+
+async function createCode() {
+  try {
+    ovOn("Đang tạo mã…");
+    const code = await createRegistrationCode();
+    ovOff();
+    if (!code) {
+      showToast("Không thể tạo mã. Kiểm tra quyền admin.", true);
+      return;
+    }
+    // Copy to clipboard
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(code);
+      copied = true;
+    } catch (e) {}
+    showToast(copied ? `✅ Đã tạo & copy: ${code}` : `✅ Đã tạo: ${code}`);
+    await loadCodes();
+  } catch (e) {
+    ovOff();
+    showToast("Lỗi: " + e.message, true);
+  }
+}
+
+async function copyCode(code) {
+  try {
+    await navigator.clipboard.writeText(code);
+    showToast("📋 Đã copy: " + code);
+  } catch (e) {
+    prompt("Copy mã này:", code);
+  }
+}
+
+async function deleteCode(code) {
+  confirmBox(
+    "🗑️ Xoá mã?",
+    `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?<br><br>
+     <span class="mut">Nếu mã chưa dùng, người được cấp sẽ không đăng ký được nữa.</span>`,
+    async () => {
+      try {
+        ovOn("Đang xoá…");
+        const ok = await deleteRegistrationCode(code);
+        ovOff();
+        if (ok) { showToast("✅ Đã xoá mã"); loadCodes(); }
+        else showToast("Không thể xoá mã", true);
+      } catch (e) {
+        ovOff();
+        showToast("Lỗi: " + e.message, true);
+      }
+    },
+    true
+  );
+}
+
+window.__copyCode = copyCode;
+window.__deleteCode = deleteCode;
+
+/* ══════════ LOAD ACCOUNTS ══════════ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -399,7 +609,6 @@ async function loadData() {
       get(ref(db, UNBAN_NODE))
     ]);
 
-    // Ban map: key = encoded username (lowercase)
     const bans = {};
     if (banSnap.exists()) banSnap.forEach(ch => { bans[ch.key] = ch.val(); });
 
@@ -407,7 +616,6 @@ async function loadData() {
     if (accSnap.exists()) {
       accSnap.forEach(ch => {
         const v = ch.val();
-        // ✅ FIX: dùng encodeURIComponent giống core.js, KHÔNG dùng ch.key
         const banKey = encodeURIComponent(String(v.username || ch.key).toLowerCase());
         const banInfo = bans[banKey] || { isBanned: false, violations: 0, timestamp: 0 };
         accounts.push({
@@ -424,7 +632,6 @@ async function loadData() {
     }
     allAccounts = accounts;
 
-    // Stats
     const totalAcc = accounts.length;
     const totalBanned = accounts.filter(a => a.isBanned).length;
     const totalVio = accounts.reduce((s, a) => s + a.violations, 0);
@@ -454,10 +661,9 @@ async function loadData() {
   }
 }
 
-/* ══════════ RENDER TABLE ══════════ */
+/* ══════════ RENDER ACCOUNTS ══════════ */
 function renderAccounts() {
   let list = allAccounts.slice();
-
   if (filterMode === "active") list = list.filter(a => !a.isBanned);
   else if (filterMode === "banned") list = list.filter(a => a.isBanned);
   else if (filterMode === "violated") list = list.filter(a => a.violations > 0);
@@ -541,7 +747,6 @@ async function toggleBan(username, name, currentlyBanned) {
     async () => {
       ovOn("Đang xử lý…");
       try {
-        // ✅ Dùng encodeURIComponent(username.toLowerCase()) — giống hệt core.js
         const banRef = ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase()));
         if (currentlyBanned) {
           await set(banRef, { isBanned: false, violations: 0, timestamp: serverTimestamp() });
@@ -583,11 +788,8 @@ async function deleteAccount(key, username, name) {
       ovOn("Đang xoá tài khoản…");
       try {
         const uNorm = String(username).trim().toLowerCase();
-
-        // 1. Xoá account
         await remove(ref(db, "accounts/" + key));
 
-        // 2. Xoá results, results_khtn, tower (theo username)
         const delResults = async (node) => {
           const snap = await get(ref(db, node));
           if (!snap.exists()) return 0;
@@ -603,10 +805,7 @@ async function deleteAccount(key, username, name) {
         const nKhtn = await delResults("results_khtn");
         const nTower = await delResults("tower");
 
-        // 3. Xoá active tower (dùng keyOf giống Tower.html)
         await remove(ref(db, "tower_active/" + keyOf(uNorm))).catch(() => {});
-
-        // 4. Xoá ban (dùng encodeURIComponent giống core.js)
         await remove(ref(db, "bans/" + encodeURIComponent(uNorm))).catch(() => {});
 
         ovOff();
@@ -697,7 +896,7 @@ async function viewResults(username, name) {
     if (!html) html = '<div class="mut" style="padding:30px;text-align:center">Học sinh này chưa có kết quả nào.</div>';
     $("rmBody").innerHTML = html;
   } catch (e) {
-    $("rmBody").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Lỗi tải kết quả: ' + esc(e.message) + '</div>';
+    $("rmBody").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Lỗi: ' + esc(e.message) + '</div>';
   }
 }
 
@@ -706,15 +905,14 @@ async function unbanAll() {
   confirmBox(
     "🔓 Unban toàn bộ?",
     `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.<br><br>
-     Học sinh sẽ được gỡ ban ở lần mở trang tiếp theo.<br>
-     <span class="mut">Bao gồm cả các khóa IP cũ (nếu có).</span>`,
+     Học sinh sẽ được gỡ ban ở lần mở trang tiếp theo.`,
     async () => {
       ovOn("Đang mở ban…");
       try {
         const n = clearAllLocalBans();
         if (!db) {
           ovOff();
-          showToast(`Đã gỡ ${n} khóa trên máy này (chưa kết nối server)`, true);
+          showToast(`Đã gỡ ${n} khóa trên máy này`, true);
           return;
         }
         await set(ref(db, UNBAN_NODE), serverTimestamp());
@@ -732,16 +930,17 @@ async function unbanAll() {
   );
 }
 
-/* ══════════ PUBLIC API (cho onclick) ══════════ */
+/* ══════════ PUBLIC API ══════════ */
 window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
 /* ══════════ EVENTS ══════════ */
-$("btnRefresh").onclick = () => loadData();
+$("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); };
 $("btnUnbanAll").onclick = unbanAll;
+$("btnCreateCode").onclick = createCode;
+$("lockCheckbox").onchange = toggleLock;
 $("btnLogout").onclick = () => {
-  // Xoá session local
   try {
     localStorage.removeItem("qp_session_v2");
     localStorage.removeItem("qp_session_khtn_v1");
@@ -775,7 +974,7 @@ document.addEventListener("keydown", (e) => {
 /* ══════════ INIT ══════════ */
 (async function init() {
   if (!checkAccess()) return;
-  await loadData();
+  await Promise.all([loadData(), loadLockStatus(), loadCodes()]);
 })();
 </script>
 </body>
