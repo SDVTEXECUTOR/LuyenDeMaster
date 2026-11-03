@@ -11,6 +11,7 @@
 :root {
 --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
 --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
+--warn: #f59e0b; --warns: #fef3c7;
 --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 --glass: blur(12px) saturate(180%);
 box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -19,14 +20,16 @@ box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bott
 :root:not([data-theme="light"]) {
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
---bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --ln: rgba(148, 163, 184, 0.15);
+--bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
+--ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
 }
 :root[data-theme="dark"] {
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
---bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --ln: rgba(148, 163, 184, 0.15);
+--bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
+--ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -320,56 +323,152 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
+.code-modal-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.code-modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.code-modal-title {
+  margin: 0 0 8px;
+  color: var(--warn);
+  font-size: 1.3rem;
+}
+.code-modal-desc {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.code-hint {
+  background: var(--warns);
+  color: var(--fg);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 3px solid var(--warn);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin-bottom: 12px;
+  text-align: left;
+}
+.code-hint b {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--ac);
+}
+.code-input-wrap {
+  position: relative;
+  margin: 16px 0;
+}
+.code-input-wrap input {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 16px 44px 16px 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.code-input-wrap input:focus-visible {
+  outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px var(--acs);
+}
+.code-input-wrap .code-status {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: 800;
+  pointer-events: none;
+  transition: all 0.2s;
+}
+.code-input-wrap.shake {
+  animation: shakeInput 0.45s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes shakeInput {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+.code-error {
+  color: var(--bad);
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-height: 1.3em;
+  margin-top: 8px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.code-loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--ln);
+  border-top-color: var(--ac);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
 </style>
 </head>
 <body>
-
 <!-- ═══ BOOT SPINNER ═══ -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#f0f4f8;z-index:99999;text-align:center;padding:24px">
-  <div>
-    <div style="width:50px;height:50px;border:4px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
-    <div style="font-weight:600;color:#64748b">Đang tải Luyện Đề Master…</div>
-  </div>
+<div>
+<div style="width:50px;height:50px;border:4px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
+<div style="font-weight:600;color:#64748b">Đang tải Luyện Đề Master…</div>
 </div>
-
+</div>
 <!-- ═══ ERROR SCREEN ═══ -->
 <div id="errorScreen" style="display:none;position:fixed;inset:0;background:#f0f4f8;z-index:99999;place-items:center;text-align:center;padding:24px;font-family:system-ui,sans-serif">
-  <div style="max-width:600px">
-    <div style="font-size:5rem;margin-bottom:12px">⚠️</div>
-    <h1 style="color:#dc2626;font-size:2rem;margin-bottom:12px">Có lỗi xảy ra</h1>
-    <pre id="errMsg" style="color:#991b1b;background:#fee2e2;padding:16px;border-radius:8px;text-align:left;overflow:auto;font-size:0.85rem;white-space:pre-wrap;line-height:1.6;max-height:50vh;margin-bottom:24px"></pre>
-    <p style="color:#64748b;font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
-    <button onclick="location.reload()" style="padding:12px 24px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem">🔄 Tải lại</button>
-    <button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px">🏠 Trang chủ</button>
-  </div>
+<div style="max-width:600px">
+<div style="font-size:5rem;margin-bottom:12px">⚠️</div>
+<h1 style="color:#dc2626;font-size:2rem;margin-bottom:12px">Có lỗi xảy ra</h1>
+<pre id="errMsg" style="color:#991b1b;background:#fee2e2;padding:16px;border-radius:8px;text-align:left;overflow:auto;font-size:0.85rem;white-space:pre-wrap;line-height:1.6;max-height:50vh;margin-bottom:24px"></pre>
+<p style="color:#64748b;font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
+<button onclick="location.reload()" style="padding:12px 24px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem">🔄 Tải lại</button>
+<button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px">🏠 Trang chủ</button>
 </div>
-
+</div>
 <script>
 window.__showFatalError = function(msg) {
-  try {
-    var boot = document.getElementById('boot');
-    if (boot) boot.style.display = 'none';
-    var err = document.getElementById('errorScreen');
-    var errMsg = document.getElementById('errMsg');
-    if (err && errMsg) {
-      errMsg.textContent = msg;
-      err.style.display = 'grid';
-    }
-  } catch(e) {}
+try {
+var boot = document.getElementById('boot');
+if (boot) boot.style.display = 'none';
+var err = document.getElementById('errorScreen');
+var errMsg = document.getElementById('errMsg');
+if (err && errMsg) {
+errMsg.textContent = msg;
+err.style.display = 'grid';
+}
+} catch(e) {}
 };
 window.addEventListener('error', function(e) {
-  console.error('[index] Uncaught:', e.error || e.message);
-  window.__showFatalError((e.error && e.error.stack) || e.message || 'Lỗi không xác định');
+console.error('[index] Uncaught:', e.error || e.message);
+window.__showFatalError((e.error && e.error.stack) || e.message || 'Lỗi không xác định');
 });
 window.addEventListener('unhandledrejection', function(e) {
-  console.error('[index] Unhandled:', e.reason);
-  var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject';
-  window.__showFatalError(msg);
+console.error('[index] Unhandled:', e.reason);
+var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject';
+window.__showFatalError(msg);
 });
 </script>
-
 <audio id="bgMusic"></audio>
-
 <!-- Cutscene -->
 <div id="cutscene" aria-hidden="true">
 <canvas id="csCanvas"></canvas>
@@ -387,21 +486,17 @@ window.addEventListener('unhandledrejection', function(e) {
 <button class="cs-skip" id="csSkip" type="button">Bỏ qua ›</button>
 <div class="cs-flash"></div>
 </div>
-
 <!-- Iframe overlay -->
 <div id="iframe-overlay" class="hide">
 <button class="btn-back-float" id="btnBack">← Quay lại</button>
 <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
-
 <!-- Shake overlay -->
 <div id="shake-overlay" class="hide">
 <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
 <video id="shakeVideo" playsinline controls></video>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <main>
 <!-- Auth -->
 <section id="auth" class="hide">
@@ -431,7 +526,6 @@ window.addEventListener('unhandledrejection', function(e) {
 </div>
 </div>
 </section>
-
 <!-- App -->
 <section id="app" class="hide">
 <div class="card">
@@ -447,7 +541,6 @@ window.addEventListener('unhandledrejection', function(e) {
 <button class="g sm" id="logout">Đăng xuất</button>
 </div>
 </div>
-
 <div class="tabs">
 <button class="tabbtn active" id="tabBtnPractice" type="button">📚 Luyện Tập</button>
 <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
@@ -455,7 +548,6 @@ window.addEventListener('unhandledrejection', function(e) {
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
 <button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
 </div>
-
 <div id="tab-practice">
 <div class="card">
 <strong style="display:block;margin-bottom:12px">⚙️ Tùy chọn làm bài</strong>
@@ -471,7 +563,6 @@ window.addEventListener('unhandledrejection', function(e) {
 </div>
 <div class="mut" style="font-size:0.8rem;margin-top:8px">* Riêng môn Tiếng Anh và Địa lí: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
 </div>
-
 <div class="subjgrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
 <div class="card link" style="text-align:center;margin:0">
 <div style="font-size:2.5rem;margin-bottom:8px">💻</div>
@@ -509,7 +600,6 @@ window.addEventListener('unhandledrejection', function(e) {
 </div>
 </div>
 </div>
-
 <div id="tab-leaderboard" class="hide">
 <div class="card">
 <div class="top">
@@ -521,7 +611,6 @@ window.addEventListener('unhandledrejection', function(e) {
 <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 </div>
 </div>
-
 <div id="tab-gameplay" class="hide">
 <div class="card" style="text-align: center; padding: 40px 24px;">
 <div style="font-size: 4rem; margin-bottom: 16px;">🏰</div>
@@ -533,7 +622,6 @@ Bạn sẽ được chuyển sang trang Tower riêng. Cần đăng nhập trư�
 <button class="p" id="btnPlayTower" style="font-size: 1.1rem; padding: 14px 32px;">▶ Chơi Tower Ngay</button>
 </div>
 </div>
-
 <div id="tab-admin" class="hide">
 <div class="card" style="text-align:center; padding:40px 24px">
 <div style="font-size:4rem;margin-bottom:16px">🛡️</div>
@@ -546,7 +634,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </button>
 </div>
 </div>
-
 <div id="tab-dev" class="hide">
 <div class="card">
 <h2 style="text-align:center;margin-bottom:24px">🤖 Các AI Đồng Hành</h2>
@@ -570,7 +657,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
-
 <!-- Quiz -->
 <section id="quiz" class="hide">
 <div class="card" style="position:sticky;top:0;z-index:10">
@@ -594,7 +680,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
-
 <!-- Result -->
 <section id="result" class="hide">
 <div class="card" id="resultCard">
@@ -622,7 +707,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 <div id="rv"></div>
 </section>
 </main>
-
 <div class="mask" id="mk">
 <div class="card">
 <h1 style="font-size:1.3rem;margin-bottom:8px" id="mkTitle">Nộp bài?</h1>
@@ -633,7 +717,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </div>
-
 <div class="mask" id="musicMask">
 <div class="card" style="max-width: 440px; width: 100%;">
 <h2 style="margin-bottom: 16px;">🎵 Chọn nhạc nền</h2>
@@ -649,1093 +732,1144 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 
+<!-- ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ -->
+<div class="mask" id="codeMask">
+<div class="card code-modal-card">
+<div class="code-modal-icon">🔒</div>
+<h2 class="code-modal-title">Đăng ký đang bị khóa</h2>
+<p class="mut code-modal-desc">
+Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp tục tạo tài khoản.
+</p>
+<div class="code-hint">
+💡 Định dạng mã: <b>LDM-XXXXX-XXXXX</b><br>
+⚠️ Mỗi mã chỉ sử dụng được <b>1 lần duy nhất</b>.<br>
+📩 Liên hệ admin nếu bạn chưa có mã.
+</div>
+<div class="code-input-wrap" id="codeInputWrap">
+<input type="text" id="codeInput"
+       placeholder="LDM-XXXXX-XXXXX"
+       maxlength="15"
+       autocomplete="off"
+       spellcheck="false"
+       autocapitalize="characters">
+<span class="code-status" id="codeStatus"></span>
+</div>
+<div class="code-error" id="codeError"></div>
+<div class="row" style="margin-top: 16px;">
+<button class="g" id="codeCancel" style="flex: 1;">Hủy</button>
+<button class="p" id="codeConfirm" style="flex: 1;">✓ Xác nhận</button>
+</div>
+</div>
+</div>
+
 <div id="ov" class="hide">
 <div class="lbox">
 <div class="spinner"></div>
 <div id="ovtxt" style="font-weight:600">Đang xử lý…</div>
 </div>
 </div>
-
 <!-- ═══════════ CUTSCENE SCRIPT ═══════════ -->
 <script type="module">
 (async () => {
-  try {
-    const { CUTSCENE_DURATION_MS } = await import('/js/config.js');
-    (function(){
-      var cs=document.getElementById("cutscene"); if(!cs) return;
-      var done=false,ready=false,raf;
-      var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-      document.body.style.overflow="hidden";
-      var t=document.getElementById("csTitle"),txt=t.textContent.normalize("NFC"),n=0;
-      t.setAttribute("aria-label",txt);t.textContent="";
-      txt.split(" ").forEach(function(w){
-        var s=document.createElement("span");s.className="cs-w";
-        Array.from(w).forEach(function(ch){
-          var l=document.createElement("span");l.className="cs-l";l.textContent=ch;
-          l.style.animationDelay=(0.9+n*0.045)+"s";n++;s.appendChild(l);
-        });
-        t.appendChild(s);
-      });
-      var pct=document.getElementById("csPct");
-      setTimeout(function(){
-        var s0=performance.now();
-        (function f(now){
-          if(done) return;
-          var p=Math.min(1,(now-s0)/2400);
-          pct.textContent=p<1?Math.round(p*100)+"%":"✨ Sẵn sàng · chạm để vào";
-          if(p<1) requestAnimationFrame(f);
-        })(s0);
-      },1600);
-      var cv=document.getElementById("csCanvas"),cx=cv.getContext("2d"),W,H,P=[];
-      var dpr=Math.min(window.devicePixelRatio||1,2);
-      function size(){W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;}
-      size();window.addEventListener("resize",size);
-      var N=Math.min(70,Math.floor(innerWidth/14)),R=120*dpr;
-      for(var i=0;i<N;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.6*dpr,vy:(Math.random()-.5)*.6*dpr});
-      function loop(){
-        cx.clearRect(0,0,W,H);
-        for(var i=0;i<P.length;i++){
-          var a=P[i];a.x+=a.vx;a.y+=a.vy;
-          if(a.x<0||a.x>W)a.vx*=-1;
-          if(a.y<0||a.y>H)a.vy*=-1;
-          cx.fillStyle="rgba(160,190,255,.85)";
-          cx.beginPath();cx.arc(a.x,a.y,1.6*dpr,0,6.2832);cx.fill();
-          for(var j=i+1;j<P.length;j++){
-            var b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-            if(d<R){cx.strokeStyle="rgba(126,162,255,"+((1-d/R)*.35)+")";cx.lineWidth=dpr;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
-          }
-        }
-        raf=requestAnimationFrame(loop);
-      }
-      if(!reduce) loop();
-      function dismiss(){
-        if(done) return;done=true;
-        cancelAnimationFrame(raf);window.removeEventListener("resize",size);
-        cs.classList.add("out");document.body.style.overflow="";
-        setTimeout(function(){if(cs.parentNode)cs.parentNode.removeChild(cs);},1000);
-      }
-      setTimeout(function(){ready=true;},1000);
-      cs.addEventListener("click",function(){if(ready)dismiss();});
-      document.getElementById("csSkip").addEventListener("click",function(e){e.stopPropagation();dismiss();});
-      document.addEventListener("keydown",function(e){if(e.key==="Escape")dismiss();});
-      setTimeout(dismiss, CUTSCENE_DURATION_MS);
-    })();
-  } catch(e) {
-    console.warn('[cutscene] Load fail, skip cutscene:', e.message);
-    var cs = document.getElementById('cutscene');
-    if (cs && cs.parentNode) cs.parentNode.removeChild(cs);
-    document.body.style.overflow = '';
-  }
+try {
+const { CUTSCENE_DURATION_MS } = await import('/js/config.js');
+(function(){
+var cs=document.getElementById("cutscene"); if(!cs) return;
+var done=false,ready=false,raf;
+var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+document.body.style.overflow="hidden";
+var t=document.getElementById("csTitle"),txt=t.textContent.normalize("NFC"),n=0;
+t.setAttribute("aria-label",txt);t.textContent="";
+txt.split(" ").forEach(function(w){
+var s=document.createElement("span");s.className="cs-w";
+Array.from(w).forEach(function(ch){
+var l=document.createElement("span");l.className="cs-l";l.textContent=ch;
+l.style.animationDelay=(0.9+n*0.045)+"s";n++;s.appendChild(l);
+});
+t.appendChild(s);
+});
+var pct=document.getElementById("csPct");
+setTimeout(function(){
+var s0=performance.now();
+(function f(now){
+if(done) return;
+var p=Math.min(1,(now-s0)/2400);
+pct.textContent=p<1?Math.round(p*100)+"%":"✨ Sẵn sàng · chạm để vào";
+if(p<1) requestAnimationFrame(f);
+})(s0);
+},1600);
+var cv=document.getElementById("csCanvas"),cx=cv.getContext("2d"),W,H,P=[];
+var dpr=Math.min(window.devicePixelRatio||1,2);
+function size(){W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;}
+size();window.addEventListener("resize",size);
+var N=Math.min(70,Math.floor(innerWidth/14)),R=120*dpr;
+for(var i=0;i<N;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.6*dpr,vy:(Math.random()-.5)*.6*dpr});
+function loop(){
+cx.clearRect(0,0,W,H);
+for(var i=0;i<P.length;i++){
+var a=P[i];a.x+=a.vx;a.y+=a.vy;
+if(a.x<0||a.x>W)a.vx*=-1;
+if(a.y<0||a.y>H)a.vy*=-1;
+cx.fillStyle="rgba(160,190,255,.85)";
+cx.beginPath();cx.arc(a.x,a.y,1.6*dpr,0,6.2832);cx.fill();
+for(var j=i+1;j<P.length;j++){
+var b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+if(d<R){cx.strokeStyle="rgba(126,162,255,"+((1-d/R)*.35)+")";cx.lineWidth=dpr;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
+}
+}
+raf=requestAnimationFrame(loop);
+}
+if(!reduce) loop();
+function dismiss(){
+if(done) return;done=true;
+cancelAnimationFrame(raf);window.removeEventListener("resize",size);
+cs.classList.add("out");document.body.style.overflow="";
+setTimeout(function(){if(cs.parentNode)cs.parentNode.removeChild(cs);},1000);
+}
+setTimeout(function(){ready=true;},1000);
+cs.addEventListener("click",function(){if(ready)dismiss();});
+document.getElementById("csSkip").addEventListener("click",function(e){e.stopPropagation();dismiss();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")dismiss();});
+setTimeout(dismiss, CUTSCENE_DURATION_MS);
+})();
+} catch(e) {
+console.warn('[cutscene] Load fail, skip cutscene:', e.message);
+var cs = document.getElementById('cutscene');
+if (cs && cs.parentNode) cs.parentNode.removeChild(cs);
+document.body.style.overflow = '';
+}
 })();
 </script>
-
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 /* ═══ SAFE IMPORTS ═══ */
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
 try {
-  core = await import('/js/core.js');
-  utils = await import('/js/utils.js');
-  musicMod = await import('/js/music.js');
-  anticheatMod = await import('/js/anticheat.js');
-  configMod = await import('/js/config.js');
-  firebaseMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+core = await import('/js/core.js');
+utils = await import('/js/utils.js');
+musicMod = await import('/js/music.js');
+anticheatMod = await import('/js/anticheat.js');
+configMod = await import('/js/config.js');
+firebaseMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
-  console.error('[index] Import failed:', e);
-  window.__showFatalError(
-    'Không tải được module:\n' + e.message +
-    '\n\n→ Kiểm tra các file /js/config.js, /js/core.js, /js/utils.js, /js/music.js, /js/anticheat.js.\n' +
-    '→ Mở F12 → Network → xem file nào 404.\n' +
-    '→ Đang test local? Phải chạy "python -m http.server 8000" (không được mở file://).'
-  );
-  throw e;
+console.error('[index] Import failed:', e);
+window.__showFatalError(
+'Không tải được module:\n' + e.message +
+'\n→ Kiểm tra các file /js/config.js, /js/core.js, /js/utils.js, /js/music.js, /js/anticheat.js.\n' +
+'→ Mở F12 → Network → xem file nào 404.\n' +
+'→ Đang test local? Phải chạy "python -m http.server 8000" (không được mở file://).'
+);
+throw e;
 }
-
 /* ═══ DESTRUCTURE ═══ */
 const {
-  db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
-  normText, nameHash, checkProfanity, keyOf,
-  getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
-  checkFirebaseBan, recordFirebaseViolation, recordViolation,
-  syncUnbanEpoch, checkDomain, showDomainWarning,
-  checkRegistrationLock, validateRegistrationCode, markCodeUsed
+db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
+normText, nameHash, checkProfanity, keyOf,
+getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
+checkFirebaseBan, recordFirebaseViolation, recordViolation,
+syncUnbanEpoch, checkDomain, showDomainWarning,
+checkRegistrationLock, validateRegistrationCode, markCodeUsed
 } = core;
-
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
 const { installAntiCheat } = anticheatMod;
 const {
-  ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE,
-  TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
-  SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
-  SHAKE_VIDEO
+ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE,
+TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
+SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
+SHAKE_VIDEO
 } = configMod;
-
 const { ref, push, set, get, serverTimestamp, runTransaction, remove } = firebaseMod;
-
 /* Ẩn boot spinner khi import xong */
 const __boot = document.getElementById('boot');
 if (__boot) __boot.style.display = 'none';
-
 /* ═══ DOMAIN GUARD ═══ */
 try {
-  if (!checkDomain()) {
-    showDomainWarning();
-    throw new Error("DOMAIN_NOT_ALLOWED");
-  }
-} catch(e) {
-  if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
+if (!checkDomain()) {
+showDomainWarning();
+throw new Error("DOMAIN_NOT_ALLOWED");
 }
-
+} catch(e) {
+if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
+}
 /* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 const L = "ABCD";
-
 function showToast(msg, isErr) {
-  const t = $("toast");
-  t.textContent = msg;
-  t.className = "toast show" + (isErr ? " error" : "");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => t.classList.remove("show"), 4000);
+const t = $("toast");
+t.textContent = msg;
+t.className = "toast show" + (isErr ? " error" : "");
+clearTimeout(showToast._t);
+showToast._t = setTimeout(() => t.classList.remove("show"), 4000);
 }
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff() { $("ov").classList.add("hide"); }
 function skeleton(n) { return Array.from({ length: n }, () => '<div class="skel"></div>').join(""); }
 async function sha256Hex(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 function show(id) {
-  ["auth","app","quiz","result"].forEach(s => $(s).classList.toggle("hide", s !== id));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+["auth","app","quiz","result"].forEach(s => $(s).classList.toggle("hide", s !== id));
+window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function showBanScreen(name) {
-  if (isAdminSession()) return;
-  document.body.innerHTML =
-    '<div class="ban-screen">' +
-    '<h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>' +
-    '<p>Bạn đã vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.<br>' +
-    'Tài khoản <b>"' + esc(name) + '"</b> đã bị chặn.<br><br>' +
-    'Vui lòng liên hệ quản trị nếu có khiếu nại.</p>' +
-    '<button class="p" style="margin-top:24px" id="banReload">Tải lại trang</button>' +
-    '</div>';
-  const b = document.getElementById("banReload");
-  if (b) b.onclick = () => location.reload();
+if (isAdminSession()) return;
+document.body.innerHTML =
+'<div class="ban-screen">' +
+'<h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>' +
+'<p>Bạn đã vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.<br>' +
+'Tài khoản <b>"' + esc(name) + '"</b> đã bị chặn.<br><br>' +
+'Vui lòng liên hệ quản trị nếu có khiếu nại.</p>' +
+'<button class="p" style="margin-top:24px" id="banReload">Tải lại trang</button>' +
+'</div>';
+const b = document.getElementById("banReload");
+if (b) b.onclick = () => location.reload();
+}
+
+/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ (thay thế prompt()) ═══ */
+function promptRegistrationCode() {
+  return new Promise((resolve) => {
+    const mask       = $("codeMask");
+    const input      = $("codeInput");
+    const status     = $("codeStatus");
+    const error      = $("codeError");
+    const wrap       = $("codeInputWrap");
+    const btnConfirm = $("codeConfirm");
+    const btnCancel  = $("codeCancel");
+
+    // Reset state
+    input.value = "";
+    status.textContent = "";
+    error.textContent = "";
+    wrap.classList.remove("shake");
+    btnConfirm.disabled = false;
+    btnConfirm.innerHTML = "✓ Xác nhận";
+
+    // Auto uppercase + tự thêm dấu '-'
+    input.oninput = () => {
+      let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      // Loại bỏ tiền tố LDM nếu user gõ nhầm
+      if (v.startsWith("LDM")) v = v.slice(3);
+      if (v.length > 3)  v = v.slice(0, 3)  + "-" + v.slice(3);
+      if (v.length > 9)  v = v.slice(0, 9)  + "-" + v.slice(9);
+      if (v.length > 15) v = v.slice(0, 15);
+      v = "LDM" + v;
+      input.value = v;
+
+      if (v.length < 15) {
+        status.textContent = "";
+      } else if (/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(v)) {
+        status.textContent = "✓";
+        status.style.color = "var(--ok)";
+      } else {
+        status.textContent = "…";
+        status.style.color = "var(--mut)";
+      }
+    };
+
+    const cleanup = () => {
+      mask.classList.remove("on");
+      input.oninput = null;
+      btnConfirm.onclick = null;
+      btnCancel.onclick = null;
+      input.onkeydown = null;
+      mask.onclick = null;
+    };
+
+    const confirm = async () => {
+      const code = input.value.trim();
+      if (!/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code)) {
+        error.textContent = "❌ Mã không đúng định dạng (LDM-XXXXX-XXXXX)";
+        wrap.classList.remove("shake");
+        void wrap.offsetWidth;
+        wrap.classList.add("shake");
+        return;
+      }
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<span class="code-loading"></span> Đang kiểm tra…';
+      error.textContent = "";
+
+      try {
+        const check = await validateRegistrationCode(code);
+        if (!check.valid) {
+          error.textContent = "❌ " + check.reason;
+          wrap.classList.remove("shake");
+          void wrap.offsetWidth;
+          wrap.classList.add("shake");
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = "✓ Xác nhận";
+          return;
+        }
+        cleanup();
+        resolve(check.code);
+      } catch (e) {
+        error.textContent = "❌ Lỗi: " + e.message;
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = "✓ Xác nhận";
+      }
+    };
+
+    btnConfirm.onclick = confirm;
+    btnCancel.onclick  = () => { cleanup(); resolve(null); };
+    input.onkeydown = (e) => {
+      if (e.key === "Enter")     { e.preventDefault(); confirm(); }
+      else if (e.key === "Escape") { cleanup(); resolve(null); }
+    };
+    mask.onclick = (e) => { if (e.target === mask) { cleanup(); resolve(null); } };
+
+    mask.classList.add("on");
+    setTimeout(() => input.focus(), 150);
+  });
 }
 
 /* ═══ LAZY DATA ═══ */
 const _dataCache = Object.create(null);
 let ENGLISH_SECTIONS = [];
 let ENGLISH_QMETA = [];
-
 async function loadSubjectData(key) {
-  if (_dataCache[key]) return _dataCache[key];
-  const mod = await import('/js/data/' + key + '.js');
-  _dataCache[key] = mod.default;
-  return _dataCache[key];
+if (_dataCache[key]) return _dataCache[key];
+const mod = await import('/js/data/' + key + '.js');
+_dataCache[key] = mod.default;
+return _dataCache[key];
 }
-
 /* ═══ SESSION SYNC ═══ */
 let session = null;
 function _syncSession(s) {
-  if (s) { saveSession(s); session = s; }
-  else { clearSession(); session = null; }
+if (s) { saveSession(s); session = s; }
+else { clearSession(); session = null; }
 }
-
 /* ═══ AUTH ═══ */
 let authMode = "login";
-
 $("atLogin").onclick = function() {
-  authMode = "login";
-  $("atLogin").classList.add("active"); $("atRegister").classList.remove("active");
-  $("regExtra").classList.add("hide"); $("auGo").textContent = "Đăng nhập"; $("auErr").textContent = "";
+authMode = "login";
+$("atLogin").classList.add("active"); $("atRegister").classList.remove("active");
+$("regExtra").classList.add("hide"); $("auGo").textContent = "Đăng nhập"; $("auErr").textContent = "";
 };
 $("atRegister").onclick = function() {
-  authMode = "register";
-  $("atRegister").classList.add("active"); $("atLogin").classList.remove("active");
-  $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
+authMode = "register";
+$("atRegister").classList.add("active"); $("atLogin").classList.remove("active");
+$("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
 };
-
 async function doRegister(u, p, name, cls) {
-  if (!db) throw new Error("Chưa kết nối được máy chủ.");
-  if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
-  if (checkProfanity(u) || checkProfanity(name)) {
-    recordViolation(name);
-    throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
-  }
-  const key = keyOf(u);
-  const passHash = await sha256Hex(p);
-  ovOn("Đang tạo tài khoản…");
-  let result;
-  try {
-    result = await runTransaction(ref(db, "accounts/" + key), function(cur) {
-      if (cur === null) return { username: u, passHash, name, cls: cls || "", createdAt: Date.now() };
-      return;
-    });
-  } finally { ovOff(); }
-  if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
-  _syncSession({ key, username: u, name, cls: cls || "" });
+if (!db) throw new Error("Chưa kết nối được máy chủ.");
+if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
+if (checkProfanity(u) || checkProfanity(name)) {
+recordViolation(name);
+throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
 }
-
+const key = keyOf(u);
+const passHash = await sha256Hex(p);
+ovOn("Đang tạo tài khoản…");
+let result;
+try {
+result = await runTransaction(ref(db, "accounts/" + key), function(cur) {
+if (cur === null) return { username: u, passHash, name, cls: cls || "", createdAt: Date.now() };
+return;
+});
+} finally { ovOff(); }
+if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
+_syncSession({ key, username: u, name, cls: cls || "" });
+}
 async function doLogin(u, p) {
-  if (String(u).trim().toLowerCase() === ADMIN_USER) {
-    const h = await sha256Hex(p);
-    if (h !== ADMIN_PASS_HASH) throw new Error("Sai mật khẩu.");
-    _syncSession({ key: keyOf(ADMIN_PROFILE.username), username: ADMIN_PROFILE.username,
-                   name: ADMIN_PROFILE.name, cls: ADMIN_PROFILE.cls, isAdmin: true });
-    return;
-  }
-  if (!db) throw new Error("Chưa kết nối được máy chủ.");
-  const key = keyOf(u);
-  ovOn("Đang đăng nhập…");
-  let snap;
-  try { snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
-  if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
-  const acc = snap.val();
-  if (checkProfanity(acc.name) || checkProfanity(acc.username)) {
-    await recordFirebaseViolation(acc.username);
-    clearSession();
-    showBanScreen(acc.name);
-    throw new Error("Tài khoản đã bị khóa do vi phạm quy tắc ứng xử.");
-  }
-  const isBanned = await checkFirebaseBan(acc.username);
-  if (isBanned || checkLocalBan(acc.name)) {
-    clearSession();
-    showBanScreen(acc.name);
-    throw new Error("Tài khoản đã bị khóa.");
-  }
-  const passHash = await sha256Hex(p);
-  if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
-  _syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
+if (String(u).trim().toLowerCase() === ADMIN_USER) {
+const h = await sha256Hex(p);
+if (h !== ADMIN_PASS_HASH) throw new Error("Sai mật khẩu.");
+_syncSession({ key: keyOf(ADMIN_PROFILE.username), username: ADMIN_PROFILE.username,
+name: ADMIN_PROFILE.name, cls: ADMIN_PROFILE.cls, isAdmin: true });
+return;
 }
-
+if (!db) throw new Error("Chưa kết nối được máy chủ.");
+const key = keyOf(u);
+ovOn("Đang đăng nhập…");
+let snap;
+try { snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
+if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
+const acc = snap.val();
+if (checkProfanity(acc.name) || checkProfanity(acc.username)) {
+await recordFirebaseViolation(acc.username);
+clearSession();
+showBanScreen(acc.name);
+throw new Error("Tài khoản đã bị khóa do vi phạm quy tắc ứng xử.");
+}
+const isBanned = await checkFirebaseBan(acc.username);
+if (isBanned || checkLocalBan(acc.name)) {
+clearSession();
+showBanScreen(acc.name);
+throw new Error("Tài khoản đã bị khóa.");
+}
+const passHash = await sha256Hex(p);
+if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
+_syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
+}
 /* ═══ REGISTER (with lock + code) ═══ */
 $("auGo").onclick = async function() {
-  $("auErr").textContent = "";
-  const u = $("auUser").value.trim(), p = $("auPass").value;
-  if (!u || !p) { $("auErr").textContent = "Vui lòng nhập đầy đủ."; return; }
-  if (p.length < 4) { $("auErr").textContent = "Mật khẩu cần tối thiểu 4 kí tự."; return; }
-  $("auGo").disabled = true;
-  try {
-    if (authMode === "register") {
-      const name = $("auName").value.trim();
-      if (!name) {
-        $("auErr").textContent = "Vui lòng nhập họ và tên.";
-        $("auGo").disabled = false;
-        return;
-      }
-
-      let usedCode = null;
-      try {
-        if (await checkRegistrationLock()) {
-          const code = prompt(
-            "🔒 Đăng ký đang bị KHÓA.\n\n" +
-            "Vui lòng nhập MÃ ĐĂNG KÝ do admin cấp:\n" +
-            "(Định dạng: LDM-XXXXX-XXXXX)"
-          );
-          if (!code || !code.trim()) {
-            $("auErr").textContent = "🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin.";
-            $("auGo").disabled = false;
-            return;
-          }
-          const check = await validateRegistrationCode(code);
-          if (!check.valid) {
-            $("auErr").textContent = "❌ " + check.reason;
-            $("auGo").disabled = false;
-            return;
-          }
-          usedCode = check.code;
-        }
-      } catch (e) {
-        console.warn('[register] Lock check error:', e);
-        // Nếu lock check fail → cho đăng ký luôn (không chặn)
-      }
-
-      await doRegister(u, p, name, $("auCls").value.trim());
-      if (usedCode) await markCodeUsed(usedCode, u);
-    } else {
-      await doLogin(u, p);
-    }
-    enterApp();
-  } catch (e) {
-    $("auErr").textContent = e.message;
-  }
-  $("auGo").disabled = false;
-};
-
-function enterApp() {
-  if (!session) { show("auth"); return; }
-  if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
-    recordViolation(session.name, session.username);
-    _syncSession(null);
-    showBanScreen(session.name);
-    return;
-  }
-  if (!isAdminSession() && checkLocalBan(session.name)) {
-    _syncSession(null);
-    showBanScreen(session.name);
-    return;
-  }
-  $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
-  $("hiName").textContent = "👋 Xin chào, " + session.name;
-  $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
-  $("auUser").value = ""; $("auPass").value = "";
-  show("app"); switchTab("practice");
+$("auErr").textContent = "";
+const u = $("auUser").value.trim(), p = $("auPass").value;
+if (!u || !p) { $("auErr").textContent = "Vui lòng nhập đầy đủ."; return; }
+if (p.length < 4) { $("auErr").textContent = "Mật khẩu cần tối thiểu 4 kí tự."; return; }
+$("auGo").disabled = true;
+try {
+if (authMode === "register") {
+const name = $("auName").value.trim();
+if (!name) {
+$("auErr").textContent = "Vui lòng nhập họ và tên.";
+$("auGo").disabled = false;
+return;
 }
-
+let usedCode = null;
+try {
+if (await checkRegistrationLock()) {
+const code = await promptRegistrationCode();
+if (!code) {
+$("auErr").textContent = "🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin.";
+$("auGo").disabled = false;
+return;
+}
+const check = await validateRegistrationCode(code);
+if (!check.valid) {
+$("auErr").textContent = "❌ " + check.reason;
+$("auGo").disabled = false;
+return;
+}
+usedCode = check.code;
+}
+} catch (e) {
+console.warn('[register] Lock check error:', e);
+// Nếu lock check fail → cho đăng ký luôn (không chặn)
+}
+await doRegister(u, p, name, $("auCls").value.trim());
+if (usedCode) await markCodeUsed(usedCode, u);
+} else {
+await doLogin(u, p);
+}
+enterApp();
+} catch (e) {
+$("auErr").textContent = e.message;
+}
+$("auGo").disabled = false;
+};
+function enterApp() {
+if (!session) { show("auth"); return; }
+if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
+recordViolation(session.name, session.username);
+_syncSession(null);
+showBanScreen(session.name);
+return;
+}
+if (!isAdminSession() && checkLocalBan(session.name)) {
+_syncSession(null);
+showBanScreen(session.name);
+return;
+}
+$("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
+$("hiName").textContent = "👋 Xin chào, " + session.name;
+$("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+$("auUser").value = ""; $("auPass").value = "";
+show("app"); switchTab("practice");
+}
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
-
 /* ═══ TABS ═══ */
 function switchTab(name) {
-  $("tabBtnPractice").classList.toggle("active", name === "practice");
-  $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
-  $("tabBtnGameplay").classList.toggle("active", name === "gameplay");
-  $("tabBtnDev").classList.toggle("active", name === "dev");
-  $("tabBtnAdmin").classList.toggle("active", name === "admin");
-  $("tab-practice").classList.toggle("hide", name !== "practice");
-  $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
-  $("tab-gameplay").classList.toggle("hide", name !== "gameplay");
-  $("tab-dev").classList.toggle("hide", name !== "dev");
-  $("tab-admin").classList.toggle("hide", name !== "admin");
-  if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
+$("tabBtnPractice").classList.toggle("active", name === "practice");
+$("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
+$("tabBtnGameplay").classList.toggle("active", name === "gameplay");
+$("tabBtnDev").classList.toggle("active", name === "dev");
+$("tabBtnAdmin").classList.toggle("active", name === "admin");
+$("tab-practice").classList.toggle("hide", name !== "practice");
+$("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
+$("tab-gameplay").classList.toggle("hide", name !== "gameplay");
+$("tab-dev").classList.toggle("hide", name !== "dev");
+$("tab-admin").classList.toggle("hide", name !== "admin");
+if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
-
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
-
 /* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
-  const el = $(pillsId);
-  const filters = [
-    { id: "all", label: "Tất cả" },
-    { id: "tinhoc", label: "💻 Tin học 9" },
-    { id: "gdcd", label: "⚖️ GDCD 9" },
-    { id: "english", label: "🇬🇧 Tiếng Anh 9" },
-    { id: "khoahoctunhien", label: "🧪 KHTN 9" },
-    { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
-    { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
-    { id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" }
-  ];
-  el.innerHTML = filters.map(f =>
-    '<button class="pill' + (f.id === initial ? ' active' : '') + '" data-f="' + f.id + '">' + f.label + '</button>'
-  ).join("");
-  el.querySelectorAll(".pill").forEach(b => {
-    b.onclick = function() {
-      el.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
-      b.classList.add("active");
-      renderLeaderboard(listId, b.dataset.f);
-    };
-  });
-  renderLeaderboard(listId, initial);
+const el = $(pillsId);
+const filters = [
+{ id: "all", label: "Tất cả" },
+{ id: "tinhoc", label: "💻 Tin học 9" },
+{ id: "gdcd", label: "⚖️ GDCD 9" },
+{ id: "english", label: "🇬🇧 Tiếng Anh 9" },
+{ id: "khoahoctunhien", label: "🧪 KHTN 9" },
+{ id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
+{ id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
+{ id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" }
+];
+el.innerHTML = filters.map(f =>
+'<button class="pill' + (f.id === initial ? ' active' : '') + '" data-f="' + f.id + '">' + f.label + '</button>'
+).join("");
+el.querySelectorAll(".pill").forEach(b => {
+b.onclick = function() {
+el.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
+b.classList.add("active");
+renderLeaderboard(listId, b.dataset.f);
+};
+});
+renderLeaderboard(listId, initial);
 }
-
 async function renderLeaderboard(elId, filter) {
-  const el = $(elId);
-  if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
-  el.innerHTML = skeleton(3);
-  try {
-    const rPath = filter === "khoahoctunhien" ? "results_khtn" : "results";
-    const snap = await get(ref(db, rPath));
-    const best = new Map();
-    const toDelete = [];
-    snap.forEach(ch => {
-      const v = ch.val();
-      if (!v || v.type !== "quiz_result") return;
-      const rawName = v.name || v.username || "";
-      if (checkProfanity(rawName)) {
-        toDelete.push(ch.key);
-        if (session && normText(session.name) === normText(rawName)) {
-          recordViolation(rawName);
-          showBanScreen(rawName);
-        }
-        return;
-      }
-      if (filter !== "all") {
-        if (filter === "diali_choice" && v.subject !== "diali_choice") return;
-        if (filter === "diali_manual" && v.subject !== "diali_manual") return;
-        if (filter === "diali_memory" && v.subject !== "diali_memory") return;
-        if (filter !== "diali_choice" && filter !== "diali_manual" && filter !== "diali_memory" && v.subject !== filter) return;
-      }
-      const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
-      const prev = best.get(key);
-      if (!prev) { best.set(key, v); return; }
-      const prevShuf = prev.isShuffled ? 1 : 0, vShuf = v.isShuffled ? 1 : 0;
-      if (vShuf > prevShuf) best.set(key, v);
-      else if (vShuf === prevShuf && (v.score > prev.score || (v.score === prev.score && v.duration < prev.duration))) best.set(key, v);
-    });
-    toDelete.forEach(k => { try { remove(ref(db, rPath + "/" + k)).catch(() => {}); } catch(e){} });
-
-    const list = [...best.values()].sort((a, b) => {
-      const aS = a.isShuffled ? 1 : 0, bS = b.isShuffled ? 1 : 0;
-      if (aS !== bS) return bS - aS;
-      if (b.score !== a.score) return b.score - a.score;
-      return a.duration - b.duration;
-    }).slice(0, 20);
-
-    if (!list.length) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
-
-    el.innerHTML = list.map((v, i) => {
-      const rawName = v.name || v.username || "?";
-      const isBanned = checkProfanity(rawName);
-      const displayName = isBanned ? "🚫 Vi phạm" : esc(rawName);
-      const isShuf = v.isShuffled === true && !isBanned;
-      const medal = isShuf ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
-      const clsTop = isShuf && i < 3 ? " top" + (i + 1) : "";
-      const subj = LEADERBOARD_SUBJECTS_META[v.subject];
-      const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
-      const shufBadge = isShuf ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
-      const timeStr = fmtDate(v.time || v.createdAt);
-      return '<div class="lbrow' + clsTop + '">'
-        + '<span class="rk">' + medal + '</span>'
-        + '<span class="who2"><b>' + displayName + shufBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls && !isBanned ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
-        + '<span class="pts"><div style="font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;">'
-        + (isBanned ? '-' : fmtScore(v.score) + 'đ') + '</div>'
-        + (timeStr && !isBanned ? '<div style="font-size:0.7rem;color:var(--mut);font-weight:500;white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
-        + '</span>'
-        + '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span></div>';
-    }).join("");
-  } catch (e) {
-    el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>';
-  }
+const el = $(elId);
+if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
+el.innerHTML = skeleton(3);
+try {
+const rPath = filter === "khoahoctunhien" ? "results_khtn" : "results";
+const snap = await get(ref(db, rPath));
+const best = new Map();
+const toDelete = [];
+snap.forEach(ch => {
+const v = ch.val();
+if (!v || v.type !== "quiz_result") return;
+const rawName = v.name || v.username || "";
+if (checkProfanity(rawName)) {
+toDelete.push(ch.key);
+if (session && normText(session.name) === normText(rawName)) {
+recordViolation(rawName);
+showBanScreen(rawName);
 }
-
+return;
+}
+if (filter !== "all") {
+if (filter === "diali_choice" && v.subject !== "diali_choice") return;
+if (filter === "diali_manual" && v.subject !== "diali_manual") return;
+if (filter === "diali_memory" && v.subject !== "diali_memory") return;
+if (filter !== "diali_choice" && filter !== "diali_manual" && filter !== "diali_memory" && v.subject !== filter) return;
+}
+const key = (v.subject || "") + "|" + String(v.username || v.name || "").toLowerCase();
+const prev = best.get(key);
+if (!prev) { best.set(key, v); return; }
+const prevShuf = prev.isShuffled ? 1 : 0, vShuf = v.isShuffled ? 1 : 0;
+if (vShuf > prevShuf) best.set(key, v);
+else if (vShuf === prevShuf && (v.score > prev.score || (v.score === prev.score && v.duration < prev.duration))) best.set(key, v);
+});
+toDelete.forEach(k => { try { remove(ref(db, rPath + "/" + k)).catch(() => {}); } catch(e){} });
+const list = [...best.values()].sort((a, b) => {
+const aS = a.isShuffled ? 1 : 0, bS = b.isShuffled ? 1 : 0;
+if (aS !== bS) return bS - aS;
+if (b.score !== a.score) return b.score - a.score;
+return a.duration - b.duration;
+}).slice(0, 20);
+if (!list.length) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
+el.innerHTML = list.map((v, i) => {
+const rawName = v.name || v.username || "?";
+const isBanned = checkProfanity(rawName);
+const displayName = isBanned ? "🚫 Vi phạm" : esc(rawName);
+const isShuf = v.isShuffled === true && !isBanned;
+const medal = isShuf ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
+const clsTop = isShuf && i < 3 ? " top" + (i + 1) : "";
+const subj = LEADERBOARD_SUBJECTS_META[v.subject];
+const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
+const shufBadge = isShuf ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
+const timeStr = fmtDate(v.time || v.createdAt);
+return '<div class="lbrow' + clsTop + '">'
++ '<span class="rk">' + medal + '</span>'
++ '<span class="who2"><b>' + displayName + shufBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls && !isBanned ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
++ '<span class="pts"><div style="font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;">'
++ (isBanned ? '-' : fmtScore(v.score) + 'đ') + '</div>'
++ (timeStr && !isBanned ? '<div style="font-size:0.7rem;color:var(--mut);font-weight:500;white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
++ '</span>'
++ '<span class="dur">⏱ ' + (isBanned ? '-' : fmtMsShort(v.duration || 0)) + '</span></div>';
+}).join("");
+} catch (e) {
+el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>';
+}
+}
 $("rfMain").onclick = function() {
-  const a = document.querySelector("#lbPillsMain .pill.active");
-  renderLeaderboard("lbMain", a ? a.dataset.f : "all");
+const a = document.querySelector("#lbPillsMain .pill.active");
+renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 };
 $("rfResult").onclick = function() {
-  const a = document.querySelector("#lbPillsResult .pill.active");
-  renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
+const a = document.querySelector("#lbPillsResult .pill.active");
+renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
 };
-
 /* ═══ QUIZ ENGINE ═══ */
 let currentSubject, Q = null, order, opt, ans, cur, t0, tick;
 let currentMode = 'choice', maskMode = "submit";
 let autoSubmitTriggered = false, allAtOnce = false, isShuffled = false, _loadingQuiz = false;
-
 $("startTinhoc").onclick = () => startQuiz("tinhoc", "choice");
 $("startGdcd").onclick = () => startQuiz("gdcd", "choice");
 $("startEnglish").onclick = () => startQuiz("english", "choice");
 $("startDialyKhoanh").onclick = () => startQuiz("diali", "choice");
 $("startDialyViet").onclick = () => startQuiz("diali", "manual");
 $("startDialyNho").onclick = () => startQuiz("diali", "memory");
-
 async function startQuiz(subjectKey, mode = 'choice') {
-  if (_loadingQuiz) return;
-  _loadingQuiz = true;
-  ovOn("Đang tải câu hỏi…");
-  try {
-    const data = await loadSubjectData(subjectKey);
-
-    currentSubject = subjectKey;
-    currentMode = mode;
-    Q = data.questions;
-    allAtOnce = !!SUBJECTS_META[subjectKey].allAtOnce;
-
-    ENGLISH_SECTIONS = (subjectKey === 'english' && data.sections) ? data.sections : [];
-    ENGLISH_QMETA    = (subjectKey === 'english' && data.meta)    ? data.meta    : [];
-
-    isShuffled = $("sq").checked && $("sa").checked;
-    order = Q.map((_, i) => i);
-    if ($("sq").checked && !allAtOnce) shuffle(order);
-    opt = Q.map(q => {
-      if (typeof q[2] === "string") return [];
-      const o = q[1].map((_, i) => i);
-      if ($("sa").checked) shuffle(o);
-      return o;
-    });
-    ans = Q.map(() => []);
-    cur = 0;
-    t0 = Date.now();
-    autoSubmitTriggered = false;
-
-    let modeLabel = "";
-    if (currentMode === 'manual') modeLabel = " (Ghi)";
-    else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
-    $("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS_META[subjectKey].icon + " " + SUBJECTS_META[subjectKey].label + modeLabel;
-
-    clearInterval(tick);
-    tick = setInterval(() => { $("tm").textContent = fmtMs(Date.now() - t0); }, 30);
-    show("quiz");
-    if (allAtOnce) drawAll(); else draw();
-  } catch (e) {
-    console.error("startQuiz error:", e);
-    showToast("Không tải được câu hỏi: " + e.message, true);
-  } finally {
-    ovOff();
-    _loadingQuiz = false;
-  }
-}
-
-function draw() {
-  const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
-  let h = "";
-  const headerNext = $("headerNext");
-  if (currentSubject === 'gdcd' && cur < Q.length - 1) {
-    headerNext.style.display = "block";
-    headerNext.onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  } else {
-    headerNext.style.display = "none";
-  }
-
-  if (currentMode === 'memory') {
-    h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · 🧠 Ghi nhớ</span>';
-    h += '<div style="background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:700; text-align:center;">🔒 CHẾ ĐỘ GHI NHỚ — KHÔNG hiển thị đáp án A/B/C/D</div>';
-    h += '<div class="q">' + q[0] + '</div>';
-    h += '<div style="background:var(--acs); color:var(--ac); padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:600; border-left:4px solid var(--ac);">👉 Hãy <b>tự nhớ</b> và gõ <b>nguyên văn nội dung đáp án đúng</b> vào ô bên dưới.<br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
-    h += '<textarea id="mem-input" class="txt-input" style="min-height:120px;font-weight:600;font-size:1.05rem;margin-bottom:12px" placeholder="Gõ nguyên văn đáp án bạn nhớ..."></textarea>';
-    h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
-    $("qc").innerHTML = h;
-    const inp = $("mem-input");
-    inp.value = ans[qi][0] || "";
-    inp.oninput = () => { ans[qi] = inp.value.trim() ? [inp.value] : []; updateNavAndCount(); checkAutoSubmit(); };
-    inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste)!", true); };
-    inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
-    inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
-    inp.ondragover = (e) => { e.preventDefault(); };
-    inp.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
-        e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
-      }
-    });
-    $("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    updateNavAndCount();
-    return;
-  }
-
-  if (currentMode === 'manual') {
-    h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · ✍️ Ghi thủ công</span><div class="q">' + q[0] + '</div>';
-    h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
-    q[1].forEach((txt, k) => {
-      h += '<div style="margin:4px 0; padding:8px 12px; background:rgba(255,255,255,0.4); border-radius:8px; border:1px solid var(--ln);"><b>' + L[k] + '.</b> ' + txt + '</div>';
-    });
-    h += '</div>';
-    h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng. <br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
-    h += '<input type="text" id="man-input" class="txt-input" style="margin-bottom:12px;font-weight:600;font-size:1.1rem" placeholder="Nhập nguyên văn nội dung đáp án..." value="' + esc(ans[qi][0] || "") + '">';
-    h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
-    $("qc").innerHTML = h;
-    const inp = $("man-input");
-    inp.oninput = () => { ans[qi] = inp.value.trim() ? [inp.value.trim()] : []; updateNavAndCount(); checkAutoSubmit(); };
-    inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
-    inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
-    inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
-    inp.ondragover = (e) => { e.preventDefault(); };
-    inp.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
-        e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
-      }
-    });
-    $("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    updateNavAndCount();
-    return;
-  }
-
-  h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
-  opt[qi].forEach((oi, k) => {
-    const s = ans[qi].indexOf(oi) > -1;
-    h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="o" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
-  });
-  h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
-  $("qc").innerHTML = h;
-  $("qc").querySelectorAll("input").forEach(el => {
-    el.onchange = function(e) {
-      if (!e.isTrusted) {
-        showToast("⚠️ Phát hiện công cụ tự động chọn!", true);
-        recordViolation(session.name, session.username);
-        showBanScreen(session.name);
-        return;
-      }
-      const v = +el.dataset.v, a = ans[qi];
-      if (multi) { const p = a.indexOf(v); p > -1 ? a.splice(p,1) : a.push(v); }
-      else ans[qi] = [v];
-      draw();
-      checkAutoSubmit();
-    };
-  });
-  $("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-  updateNavAndCount();
-}
-
-function drawAll() {
-  let h = '<div class="exam-hint">📜 Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
-  ENGLISH_SECTIONS.forEach((block) => {
-    if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
-    if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
-    block.questions.forEach((q, qi) => {
-      const flatIdx = block.startIdx + qi;
-      h += renderQItem(flatIdx, q);
-    });
-  });
-  $("qc").innerHTML = h;
-  attachAllHandlers();
-  updateNavAndCount();
-}
-
-function renderQItem(flatIdx, q) {
-  const isText = (typeof q[2] === "string");
-  let h = '<div class="q-item" id="q-' + flatIdx + '">';
-  h += '<span class="tag">Câu ' + (flatIdx + 1) + '/' + Q.length + (isText ? ' · Viết câu trả lời' : '') + '</span>';
-  h += '<div class="q">' + q[0] + '</div>';
-  if (isText) {
-    if (currentSubject === "english") {
-      const meta = ENGLISH_QMETA[flatIdx];
-      if (meta) {
-        const block = ENGLISH_SECTIONS[meta.blockIdx];
-        if (block.passage) {
-          h += '<div class="passage" style="font-size:0.85rem; margin-bottom:12px; max-height:150px; overflow-y:auto; user-select:text;">' + block.passage + '</div>';
-        }
-      }
-    }
-    h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
-    h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-    h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
-    h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ', event)">📥 Điền đoạn bôi đen</button>';
-    h += '</div>';
-  } else {
-    const multi = q[2].length > 1;
-    opt[flatIdx].forEach((oi, k) => {
-      const s = ans[flatIdx].indexOf(oi) > -1;
-      h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q-' + flatIdx + '" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
-    });
-  }
-  h += '</div>';
-  return h;
-}
-
-window.fillSelectedText = function(flatIdx, event) {
-  if (!event || !event.isTrusted) {
-    showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
-    recordViolation(session.name, session.username);
-    showBanScreen(session.name);
-    return;
-  }
-  const sel = window.getSelection().toString().trim();
-  if (!sel) { showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true); return; }
-  const cleanText = sel.replace(/\s+/g, ' ');
-  const ta = document.getElementById("txt-" + flatIdx);
-  if (ta) { ta.value = cleanText; ta.dispatchEvent(new Event('input', { isTrusted: true })); showToast("✅ Đã điền đáp án!"); }
-};
-
-function attachAllHandlers() {
-  Q.forEach((q, flatIdx) => {
-    const isText = (typeof q[2] === "string");
-    if (isText) {
-      const ta = $("txt-" + flatIdx);
-      if (!ta) return;
-      ta.value = ans[flatIdx][0] || "";
-      ta.oninput = () => { const v = ta.value.trim(); ans[flatIdx] = v ? [ta.value] : []; updateNavAndCount(); checkAutoSubmit(); };
-      ta.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
-      ta.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
-      ta.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
-      ta.ondragover = (e) => { e.preventDefault(); };
-      ta.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
-          e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
-        }
-      });
-    } else {
-      const container = $("q-" + flatIdx);
-      if (!container) return;
-      container.querySelectorAll("input").forEach(el => {
-        el.onchange = function(e) {
-          if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); showBanScreen(session.name); return; }
-          const v = +el.dataset.v;
-          const multi = q[2].length > 1;
-          if (multi) {
-            const p = ans[flatIdx].indexOf(v);
-            p > -1 ? ans[flatIdx].splice(p,1) : ans[flatIdx].push(v);
-            el.closest(".opt").classList.toggle("sel", el.checked);
-          } else {
-            ans[flatIdx] = [v];
-            container.querySelectorAll(".opt").forEach(o => o.classList.remove("sel"));
-            el.closest(".opt").classList.add("sel");
-          }
-          updateNavAndCount();
-          checkAutoSubmit();
-        };
-      });
-    }
-  });
-}
-
-function updateNavAndCount() {
-  let done = 0, n = "";
-  order.forEach((x, i) => {
-    const d = ans[x].length > 0;
-    if (d) done++;
-    const isCur = !allAtOnce && i === cur;
-    n += '<button class="' + (d ? 'd' : '') + (isCur ? ' c' : '') + '" data-i="' + i + '">' + (i+1) + '</button>';
-  });
-  $("nv").innerHTML = n;
-  $("nv").querySelectorAll("button").forEach(b => {
-    b.onclick = function() {
-      if (allAtOnce) {
-        const target = $("q-" + (+b.dataset.i));
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        cur = +b.dataset.i; draw(); window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    };
-  });
-  $("pb").style.width = (done / Q.length * 100) + "%";
-  $("cnt").textContent = "Đã làm " + done + "/" + Q.length + " câu";
-}
-
-function checkAutoSubmit() {
-  const done = ans.filter(a => a.length > 0).length;
-  if (done === Q.length && !autoSubmitTriggered) {
-    autoSubmitTriggered = true;
-    showToast("🎉 Đã hoàn thành 100% câu hỏi!");
-    setTimeout(() => {
-      maskMode = "submit";
-      $("mkTitle").textContent = "🎯 Hoàn thành xuất sắc!";
-      $("mt").innerHTML = "Bạn đã làm đủ <b>" + Q.length + "</b> câu hỏi.<br>Hệ thống đã sẵn sàng nộp bài.";
-      $("yes").textContent = "Nộp bài ngay";
-      $("yes").style.background = "var(--ok)";
-      $("mk").classList.add("on");
-    }, 1200);
-  }
-}
-
-document.addEventListener("keydown", function(e) {
-  if (e.key !== "Enter") return;
-  if ($("quiz").classList.contains("hide")) return;
-  if (allAtOnce) return;
-  if ($("mk").classList.contains("on")) return;
-  if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT")) return;
-  e.preventDefault();
-  if (cur < Q.length - 1) { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+if (_loadingQuiz) return;
+_loadingQuiz = true;
+ovOn("Đang tải câu hỏi…");
+try {
+const data = await loadSubjectData(subjectKey);
+currentSubject = subjectKey;
+currentMode = mode;
+Q = data.questions;
+allAtOnce = !!SUBJECTS_META[subjectKey].allAtOnce;
+ENGLISH_SECTIONS = (subjectKey === 'english' && data.sections) ? data.sections : [];
+ENGLISH_QMETA    = (subjectKey === 'english' && data.meta)    ? data.meta    : [];
+isShuffled = $("sq").checked && $("sa").checked;
+order = Q.map((_, i) => i);
+if ($("sq").checked && !allAtOnce) shuffle(order);
+opt = Q.map(q => {
+if (typeof q[2] === "string") return [];
+const o = q[1].map((_, i) => i);
+if ($("sa").checked) shuffle(o);
+return o;
 });
-
+ans = Q.map(() => []);
+cur = 0;
+t0 = Date.now();
+autoSubmitTriggered = false;
+let modeLabel = "";
+if (currentMode === 'manual') modeLabel = " (Ghi)";
+else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
+$("who").textContent = session.name + (session.cls ? " – " + session.cls : "") + " · " + SUBJECTS_META[subjectKey].icon + " " + SUBJECTS_META[subjectKey].label + modeLabel;
+clearInterval(tick);
+tick = setInterval(() => { $("tm").textContent = fmtMs(Date.now() - t0); }, 30);
+show("quiz");
+if (allAtOnce) drawAll(); else draw();
+} catch (e) {
+console.error("startQuiz error:", e);
+showToast("Không tải được câu hỏi: " + e.message, true);
+} finally {
+ovOff();
+_loadingQuiz = false;
+}
+}
+function draw() {
+const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
+let h = "";
+const headerNext = $("headerNext");
+if (currentSubject === 'gdcd' && cur < Q.length - 1) {
+headerNext.style.display = "block";
+headerNext.onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+} else {
+headerNext.style.display = "none";
+}
+if (currentMode === 'memory') {
+h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · 🧠 Ghi nhớ</span>';
+h += '<div style="background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:700; text-align:center;">🔒 CHẾ ĐỘ GHI NHỚ — KHÔNG hiển thị đáp án A/B/C/D</div>';
+h += '<div class="q">' + q[0] + '</div>';
+h += '<div style="background:var(--acs); color:var(--ac); padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:600; border-left:4px solid var(--ac);">👉 Hãy <b>tự nhớ</b> và gõ <b>nguyên văn nội dung đáp án đúng</b> vào ô bên dưới.<br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
+h += '<textarea id="mem-input" class="txt-input" style="min-height:120px;font-weight:600;font-size:1.05rem;margin-bottom:12px" placeholder="Gõ nguyên văn đáp án bạn nhớ..."></textarea>';
+h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
+$("qc").innerHTML = h;
+const inp = $("mem-input");
+inp.value = ans[qi][0] || "";
+inp.oninput = () => { ans[qi] = inp.value.trim() ? [inp.value] : []; updateNavAndCount(); checkAutoSubmit(); };
+inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán (Paste)!", true); };
+inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
+inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
+inp.ondragover = (e) => { e.preventDefault(); };
+inp.addEventListener('keydown', (e) => {
+if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
+}
+});
+$("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+updateNavAndCount();
+return;
+}
+if (currentMode === 'manual') {
+h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · ✍️ Ghi thủ công</span><div class="q">' + q[0] + '</div>';
+h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
+q[1].forEach((txt, k) => {
+h += '<div style="margin:4px 0; padding:8px 12px; background:rgba(255,255,255,0.4); border-radius:8px; border:1px solid var(--ln);"><b>' + L[k] + '.</b> ' + txt + '</div>';
+});
+h += '</div>';
+h += '<div style="background:var(--acs); color:var(--ac); padding:8px 12px; border-radius:8px; margin-bottom:12px; font-size:0.85rem; font-weight:600;">👉 Hãy gõ <b>nguyên văn nội dung</b> của đáp án đúng. <br>⚠️ <b>Nghiêm cấm Copy/Paste!</b></div>';
+h += '<input type="text" id="man-input" class="txt-input" style="margin-bottom:12px;font-weight:600;font-size:1.1rem" placeholder="Nhập nguyên văn nội dung đáp án..." value="' + esc(ans[qi][0] || "") + '">';
+h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
+$("qc").innerHTML = h;
+const inp = $("man-input");
+inp.oninput = () => { ans[qi] = inp.value.trim() ? [inp.value.trim()] : []; updateNavAndCount(); checkAutoSubmit(); };
+inp.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
+inp.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
+inp.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
+inp.ondragover = (e) => { e.preventDefault(); };
+inp.addEventListener('keydown', (e) => {
+if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
+}
+});
+$("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+updateNavAndCount();
+return;
+}
+h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
+opt[qi].forEach((oi, k) => {
+const s = ans[qi].indexOf(oi) > -1;
+h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="o" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
+});
+h += '<div class="row"><button class="g" id="pv"' + (cur ? '' : ' disabled') + '>← Trước</button><button class="p" id="nx"' + (cur < Q.length-1 ? '' : ' disabled') + '>Sau →</button></div>';
+$("qc").innerHTML = h;
+$("qc").querySelectorAll("input").forEach(el => {
+el.onchange = function(e) {
+if (!e.isTrusted) {
+showToast("⚠️ Phát hiện công cụ tự động chọn!", true);
+recordViolation(session.name, session.username);
+showBanScreen(session.name);
+return;
+}
+const v = +el.dataset.v, a = ans[qi];
+if (multi) { const p = a.indexOf(v); p > -1 ? a.splice(p,1) : a.push(v); }
+else ans[qi] = [v];
+draw();
+checkAutoSubmit();
+};
+});
+$("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+$("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+updateNavAndCount();
+}
+function drawAll() {
+let h = '<div class="exam-hint">📜 Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
+ENGLISH_SECTIONS.forEach((block) => {
+if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
+if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
+block.questions.forEach((q, qi) => {
+const flatIdx = block.startIdx + qi;
+h += renderQItem(flatIdx, q);
+});
+});
+$("qc").innerHTML = h;
+attachAllHandlers();
+updateNavAndCount();
+}
+function renderQItem(flatIdx, q) {
+const isText = (typeof q[2] === "string");
+let h = '<div class="q-item" id="q-' + flatIdx + '">';
+h += '<span class="tag">Câu ' + (flatIdx + 1) + '/' + Q.length + (isText ? ' · Viết câu trả lời' : '') + '</span>';
+h += '<div class="q">' + q[0] + '</div>';
+if (isText) {
+if (currentSubject === "english") {
+const meta = ENGLISH_QMETA[flatIdx];
+if (meta) {
+const block = ENGLISH_SECTIONS[meta.blockIdx];
+if (block.passage) {
+h += '<div class="passage" style="font-size:0.85rem; margin-bottom:12px; max-height:150px; overflow-y:auto; user-select:text;">' + block.passage + '</div>';
+}
+}
+}
+h += '<textarea id="txt-' + flatIdx + '" class="txt-input" placeholder="Nhập đáp án..."></textarea>';
+h += '<div class="mut" style="font-size:0.8rem;margin-top:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+h += '<span>Không phân biệt chữ hoa/thường. (Chống gian lận: Không Copy/Paste)</span>';
+h += '<button type="button" class="g sm" style="padding:4px 10px;font-size:0.8rem;border-color:var(--ac);color:var(--ac)" onclick="window.fillSelectedText(' + flatIdx + ', event)">📥 Điền đoạn bôi đen</button>';
+h += '</div>';
+} else {
+const multi = q[2].length > 1;
+opt[flatIdx].forEach((oi, k) => {
+const s = ans[flatIdx].indexOf(oi) > -1;
+h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="q-' + flatIdx + '" data-v="' + oi + '"' + (s ? ' checked' : '') + '><b>' + L[k] + '</b><span>' + q[1][oi] + '</span></label>';
+});
+}
+h += '</div>';
+return h;
+}
+window.fillSelectedText = function(flatIdx, event) {
+if (!event || !event.isTrusted) {
+showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
+recordViolation(session.name, session.username);
+showBanScreen(session.name);
+return;
+}
+const sel = window.getSelection().toString().trim();
+if (!sel) { showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true); return; }
+const cleanText = sel.replace(/\s+/g, ' ');
+const ta = document.getElementById("txt-" + flatIdx);
+if (ta) { ta.value = cleanText; ta.dispatchEvent(new Event('input', { isTrusted: true })); showToast("✅ Đã điền đáp án!"); }
+};
+function attachAllHandlers() {
+Q.forEach((q, flatIdx) => {
+const isText = (typeof q[2] === "string");
+if (isText) {
+const ta = $("txt-" + flatIdx);
+if (!ta) return;
+ta.value = ans[flatIdx][0] || "";
+ta.oninput = () => { const v = ta.value.trim(); ans[flatIdx] = v ? [ta.value] : []; updateNavAndCount(); checkAutoSubmit(); };
+ta.onpaste = (e) => { e.preventDefault(); showToast("⚠️ Không được phép dán!", true); };
+ta.oncontextmenu = (e) => { e.preventDefault(); showToast("⚠️ Không được phép chuột phải!", true); };
+ta.ondrop = (e) => { e.preventDefault(); showToast("⚠️ Không được phép kéo thả!", true); };
+ta.ondragover = (e) => { e.preventDefault(); };
+ta.addEventListener('keydown', (e) => {
+if ((e.ctrlKey || e.metaKey) && ['v','V','c','C','x','X'].includes(e.key)) {
+e.preventDefault(); showToast("⚠️ Không được phép sao chép/dán!", true);
+}
+});
+} else {
+const container = $("q-" + flatIdx);
+if (!container) return;
+container.querySelectorAll("input").forEach(el => {
+el.onchange = function(e) {
+if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); showBanScreen(session.name); return; }
+const v = +el.dataset.v;
+const multi = q[2].length > 1;
+if (multi) {
+const p = ans[flatIdx].indexOf(v);
+p > -1 ? ans[flatIdx].splice(p,1) : ans[flatIdx].push(v);
+el.closest(".opt").classList.toggle("sel", el.checked);
+} else {
+ans[flatIdx] = [v];
+container.querySelectorAll(".opt").forEach(o => o.classList.remove("sel"));
+el.closest(".opt").classList.add("sel");
+}
+updateNavAndCount();
+checkAutoSubmit();
+};
+});
+}
+});
+}
+function updateNavAndCount() {
+let done = 0, n = "";
+order.forEach((x, i) => {
+const d = ans[x].length > 0;
+if (d) done++;
+const isCur = !allAtOnce && i === cur;
+n += '<button class="' + (d ? 'd' : '') + (isCur ? ' c' : '') + '" data-i="' + i + '">' + (i+1) + '</button>';
+});
+$("nv").innerHTML = n;
+$("nv").querySelectorAll("button").forEach(b => {
+b.onclick = function() {
+if (allAtOnce) {
+const target = $("q-" + (+b.dataset.i));
+if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+} else {
+cur = +b.dataset.i; draw(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+};
+});
+$("pb").style.width = (done / Q.length * 100) + "%";
+$("cnt").textContent = "Đã làm " + done + "/" + Q.length + " câu";
+}
+function checkAutoSubmit() {
+const done = ans.filter(a => a.length > 0).length;
+if (done === Q.length && !autoSubmitTriggered) {
+autoSubmitTriggered = true;
+showToast("🎉 Đã hoàn thành 100% câu hỏi!");
+setTimeout(() => {
+maskMode = "submit";
+$("mkTitle").textContent = "🎯 Hoàn thành xuất sắc!";
+$("mt").innerHTML = "Bạn đã làm đủ <b>" + Q.length + "</b> câu hỏi.<br>Hệ thống đã sẵn sàng nộp bài.";
+$("yes").textContent = "Nộp bài ngay";
+$("yes").style.background = "var(--ok)";
+$("mk").classList.add("on");
+}, 1200);
+}
+}
+document.addEventListener("keydown", function(e) {
+if (e.key !== "Enter") return;
+if ($("quiz").classList.contains("hide")) return;
+if (allAtOnce) return;
+if ($("mk").classList.contains("on")) return;
+if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT")) return;
+e.preventDefault();
+if (cur < Q.length - 1) { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+});
 $("sub").onclick = finish;
 $("exitQuiz").onclick = function() {
-  maskMode = "exit";
-  $("mkTitle").textContent = "Thoát bài làm?";
-  $("mt").textContent = "Tiến trình làm bài hiện tại sẽ không được lưu. Bạn có chắc muốn thoát?";
-  $("yes").textContent = "Thoát";
-  $("yes").style.background = "var(--bad)";
-  $("no").textContent = "Hủy";
-  $("mk").classList.add("on");
+maskMode = "exit";
+$("mkTitle").textContent = "Thoát bài làm?";
+$("mt").textContent = "Tiến trình làm bài hiện tại sẽ không được lưu. Bạn có chắc muốn thoát?";
+$("yes").textContent = "Thoát";
+$("yes").style.background = "var(--bad)";
+$("no").textContent = "Hủy";
+$("mk").classList.add("on");
 };
 $("no").onclick = () => $("mk").classList.remove("on");
 $("yes").onclick = function() {
-  $("mk").classList.remove("on");
-  if (maskMode === "submit") showResults();
-  else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("practice"); }
+$("mk").classList.remove("on");
+if (maskMode === "submit") showResults();
+else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("practice"); }
 };
 function finish() { clearInterval(tick); showResults(); }
-
 /* ═══ RESULTS ═══ */
 function showResults() {
-  const ms = Date.now() - t0;
-  let pts = 0, full = 0, h = "";
-  order.forEach((qi, i) => {
-    const q = Q[qi];
-    const isText = (typeof q[2] === "string");
-
-    if (currentSubject === "english" && ENGLISH_QMETA[qi] && ENGLISH_QMETA[qi].qIdx === 0) {
-      const block = ENGLISH_SECTIONS[ENGLISH_QMETA[qi].blockIdx];
-      if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
-      if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
-    }
-
-    if (isText) {
-      const userAns = (ans[qi][0] || "").trim();
-      let ok = false, modelAns = "";
-      if (q[2] === "keys") { modelAns = q[3] || ""; ok = checkTextAnswer(userAns, null, q[1]); }
-      else { modelAns = q[1][0]; ok = checkTextAnswer(userAns, q[1]); }
-      pts += ok ? 1 : 0;
-      full += ok ? 1 : 0;
-      const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
-      h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
-        + '<div class="q">' + q[0] + '</div>'
-        + '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
-        + '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + esc(modelAns) + '</span>'
-        + '</div></div>';
-    } else if (currentMode === 'memory' || currentMode === 'manual') {
-      const userAns = (ans[qi][0] || "").trim();
-      const cIdx = q[2][0];
-      const correctLetter = L[cIdx], correctText = q[1][cIdx];
-      const ok = checkTextAnswer(userAns, [correctText]);
-      pts += ok ? 1 : 0;
-      full += ok ? 1 : 0;
-      const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
-      h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
-        + '<div class="q">' + q[0] + '</div>'
-        + '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
-        + '<span class="lbl" style="margin-top:12px">Đáp án đúng (' + correctLetter + '):</span><span class="correct-ans">' + esc(correctText) + '</span>'
-        + '</div></div>';
-    } else {
-      const c = q[2], a = ans[qi];
-      const r = a.filter(x => c.indexOf(x) > -1).length;
-      const w = a.length - r;
-      const p = c.length > 1 ? Math.max(0, (r - w) / c.length) : ((a.length === 1 && r === 1) ? 1 : 0);
-      const ok = (r === c.length && w === 0);
-      pts += p;
-      if (ok) full++;
-      let status = ok ? 'Đúng' : (!a.length ? 'Chưa làm' : (c.length > 1 ? 'Chưa đúng (một phần)' : 'Chưa đúng'));
-      h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
-        + '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
-        + '<div class="q">' + q[0] + '</div>';
-      opt[qi].forEach((oi, k) => {
-        const isC = c.indexOf(oi) > -1, isA = a.indexOf(oi) > -1;
-        const cl = isC ? 'ok' : (isA ? 'bad' : '');
-        const icon = isC && isA ? '✓' : (isC && !isA ? '✓' : (!isC && isA ? '✗' : L[k]));
-        const note = isC && isA ? ' <em class="mut">(bạn chọn – đúng)</em>' : (isC && !isA ? ' <em class="mut" style="color:var(--ok)">(đúng – chưa chọn)</em>' : (!isC && isA ? ' <em class="mut">(bạn chọn – sai)</em>' : ''));
-        h += '<div class="opt rev ' + cl + '"><b>' + icon + '</b><span>' + L[k] + '. ' + q[1][oi] + note + '</span></div>';
-      });
-      h += '</div>';
-    }
-  });
-
-  const sc = Math.round(pts / Q.length * 1000) / 100;
-  if (sc >= 10 && ms < SUSPICIOUS_TIME_MS && !isAdminSession()) {
-    showToast("⚠️ 10 điểm trong dưới " + (SUSPICIOUS_TIME_MS / 1000) + "s, nghi auto!", true);
-    recordViolation(session.name, session.username);
-    showBanScreen(session.name);
-    return;
-  }
-  $("sc").textContent = fmtScore(sc);
-  $("rc").textContent = full + "/" + Q.length;
-  $("rw").textContent = (Q.length - full) + "";
-  $("rt").textContent = fmtMs(ms);
-
-  let modeLabel = "";
-  if (currentMode === 'manual') modeLabel = " (Ghi)";
-  else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
-  $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS_META[currentSubject].icon + " " + SUBJECTS_META[currentSubject].label + modeLabel;
-
-  if (currentSubject === 'english') {
-    const keyParts = [];
-    order.forEach((qi, i) => {
-      const q = Q[qi];
-      if (typeof q[2] !== "string") {
-        const dIdx = opt[qi].indexOf(q[2][0]);
-        keyParts.push(`${i+1}. ${"ABCD"[dIdx]}`);
-      }
-    });
-    const grouped = [];
-    for (let i = 0; i < keyParts.length; i += 5) grouped.push(keyParts.slice(i, i + 5).join(", "));
-    h = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-size:1.05rem; text-align:center; line-height:1.8; background:var(--acs); border-color:var(--ac);">
-      <div style="margin-top:12px; color:var(--ac); font-weight:800;">📝 Đáp án tham khảo:<br>${grouped.join("<br>")}</div>
-    </div>` + h;
-  }
-  $("rv").innerHTML = h;
-
-  const resultCard = $("resultCard"), lowScoreMsg = $("lowScoreMsg");
-  resultCard.classList.remove("punch-low-score");
-  lowScoreMsg.innerHTML = "";
-  if (sc < 5) {
-    setTimeout(() => resultCard.classList.add("punch-low-score"), 300);
-    const msgs = ["⚠️ Đây là điểm của bạn","⚠️ Cần cố gắng hơn!","⚠️ Đừng nản lòng!"];
-    lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
-  }
-
-  const sponsorBlock = `
-    <div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
-      <div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Cảm ơn mọi người đã sử dụng web luyendemaster</div>
-      <div style="font-size:1.8rem; font-weight:900; color:var(--ac); letter-spacing:2px; margin-bottom:16px;">Please Donate</div>
-      <button class="p" id="closeResultBtn" style="width:100%; max-width:300px;">Đóng</button>
-    </div>`;
-  $("rv").innerHTML += sponsorBlock;
-  $("closeResultBtn").onclick = function() { show("app"); switchTab("practice"); };
-
-  show("result");
-  wirePills("lbPillsResult", "lbResult", currentSubject);
-
-  let finalSubject = currentSubject;
-  if (currentSubject === 'diali') {
-    if (currentMode === 'manual') finalSubject = 'diali_manual';
-    else if (currentMode === 'memory') finalSubject = 'diali_memory';
-    else finalSubject = 'diali_choice';
-  }
-  saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
+const ms = Date.now() - t0;
+let pts = 0, full = 0, h = "";
+order.forEach((qi, i) => {
+const q = Q[qi];
+const isText = (typeof q[2] === "string");
+if (currentSubject === "english" && ENGLISH_QMETA[qi] && ENGLISH_QMETA[qi].qIdx === 0) {
+const block = ENGLISH_SECTIONS[ENGLISH_QMETA[qi].blockIdx];
+if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
+if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
 }
-
+if (isText) {
+const userAns = (ans[qi][0] || "").trim();
+let ok = false, modelAns = "";
+if (q[2] === "keys") { modelAns = q[3] || ""; ok = checkTextAnswer(userAns, null, q[1]); }
+else { modelAns = q[1][0]; ok = checkTextAnswer(userAns, q[1]); }
+pts += ok ? 1 : 0;
+full += ok ? 1 : 0;
+const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
+h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
++ '<div class="q">' + q[0] + '</div>'
++ '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
++ '<span class="lbl" style="margin-top:12px">Đáp án đúng:</span><span class="correct-ans">' + esc(modelAns) + '</span>'
++ '</div></div>';
+} else if (currentMode === 'memory' || currentMode === 'manual') {
+const userAns = (ans[qi][0] || "").trim();
+const cIdx = q[2][0];
+const correctLetter = L[cIdx], correctText = q[1][cIdx];
+const ok = checkTextAnswer(userAns, [correctText]);
+pts += ok ? 1 : 0;
+full += ok ? 1 : 0;
+const status = ok ? 'Đúng' : (!userAns ? 'Chưa làm' : 'Chưa đúng');
+h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
++ '<div class="q">' + q[0] + '</div>'
++ '<div class="ans-box ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="lbl">Đáp án của bạn:</span>' + (userAns ? esc(userAns) : '<em class="mut">(chưa làm)</em>')
++ '<span class="lbl" style="margin-top:12px">Đáp án đúng (' + correctLetter + '):</span><span class="correct-ans">' + esc(correctText) + '</span>'
++ '</div></div>';
+} else {
+const c = q[2], a = ans[qi];
+const r = a.filter(x => c.indexOf(x) > -1).length;
+const w = a.length - r;
+const p = c.length > 1 ? Math.max(0, (r - w) / c.length) : ((a.length === 1 && r === 1) ? 1 : 0);
+const ok = (r === c.length && w === 0);
+pts += p;
+if (ok) full++;
+let status = ok ? 'Đúng' : (!a.length ? 'Chưa làm' : (c.length > 1 ? 'Chưa đúng (một phần)' : 'Chưa đúng'));
+h += '<div class="card rv ' + (ok ? 'ok' : 'bad') + '">'
++ '<span class="res" style="color:var(--' + (ok ? 'ok' : 'bad') + ');font-weight:700">Câu ' + (i+1) + ' · ' + status + '</span>'
++ '<div class="q">' + q[0] + '</div>';
+opt[qi].forEach((oi, k) => {
+const isC = c.indexOf(oi) > -1, isA = a.indexOf(oi) > -1;
+const cl = isC ? 'ok' : (isA ? 'bad' : '');
+const icon = isC && isA ? '✓' : (isC && !isA ? '✓' : (!isC && isA ? '✗' : L[k]));
+const note = isC && isA ? ' <em class="mut">(bạn chọn – đúng)</em>' : (isC && !isA ? ' <em class="mut" style="color:var(--ok)">(đúng – chưa chọn)</em>' : (!isC && isA ? ' <em class="mut">(bạn chọn – sai)</em>' : ''));
+h += '<div class="opt rev ' + cl + '"><b>' + icon + '</b><span>' + L[k] + '. ' + q[1][oi] + note + '</span></div>';
+});
+h += '</div>';
+}
+});
+const sc = Math.round(pts / Q.length * 1000) / 100;
+if (sc >= 10 && ms < SUSPICIOUS_TIME_MS && !isAdminSession()) {
+showToast("⚠️ 10 điểm trong dưới " + (SUSPICIOUS_TIME_MS / 1000) + "s, nghi auto!", true);
+recordViolation(session.name, session.username);
+showBanScreen(session.name);
+return;
+}
+$("sc").textContent = fmtScore(sc);
+$("rc").textContent = full + "/" + Q.length;
+$("rw").textContent = (Q.length - full) + "";
+$("rt").textContent = fmtMs(ms);
+let modeLabel = "";
+if (currentMode === 'manual') modeLabel = " (Ghi)";
+else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
+$("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS_META[currentSubject].icon + " " + SUBJECTS_META[currentSubject].label + modeLabel;
+if (currentSubject === 'english') {
+const keyParts = [];
+order.forEach((qi, i) => {
+const q = Q[qi];
+if (typeof q[2] !== "string") {
+const dIdx = opt[qi].indexOf(q[2][0]);
+keyParts.push(`${i+1}. ${"ABCD"[dIdx]}`);
+}
+});
+const grouped = [];
+for (let i = 0; i < keyParts.length; i += 5) grouped.push(keyParts.slice(i, i + 5).join(", "));
+h = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-size:1.05rem; text-align:center; line-height:1.8; background:var(--acs); border-color:var(--ac);">
+<div style="margin-top:12px; color:var(--ac); font-weight:800;">📝 Đáp án tham khảo:<br>${grouped.join("<br>")}</div>
+</div>` + h;
+}
+$("rv").innerHTML = h;
+const resultCard = $("resultCard"), lowScoreMsg = $("lowScoreMsg");
+resultCard.classList.remove("punch-low-score");
+lowScoreMsg.innerHTML = "";
+if (sc < 5) {
+setTimeout(() => resultCard.classList.add("punch-low-score"), 300);
+const msgs = ["⚠️ Đây là điểm của bạn","⚠️ Cần cố gắng hơn!","⚠️ Đừng nản lòng!"];
+lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
+}
+const sponsorBlock = `
+<div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
+<div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Cảm ơn mọi người đã sử dụng web luyendemaster</div>
+<div style="font-size:1.8rem; font-weight:900; color:var(--ac); letter-spacing:2px; margin-bottom:16px;">Please Donate</div>
+<button class="p" id="closeResultBtn" style="width:100%; max-width:300px;">Đóng</button>
+</div>`;
+$("rv").innerHTML += sponsorBlock;
+$("closeResultBtn").onclick = function() { show("app"); switchTab("practice"); };
+show("result");
+wirePills("lbPillsResult", "lbResult", currentSubject);
+let finalSubject = currentSubject;
+if (currentSubject === 'diali') {
+if (currentMode === 'manual') finalSubject = 'diali_manual';
+else if (currentMode === 'memory') finalSubject = 'diali_memory';
+else finalSubject = 'diali_choice';
+}
+saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
+}
 async function saveAndRefresh(res) {
-  if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
-  if (checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
-  try {
-    ovOn("Đang lưu kết quả…");
-    const r = push(ref(db, "results"));
-    await set(r, {
-      type: "quiz_result", time: serverTimestamp(), subject: res.subject,
-      username: res.username, name: res.name, cls: res.cls || "",
-      score: res.score, correct: res.correct, total: res.total, duration: res.duration,
-      isShuffled: res.isShuffled || false
-    });
-    ovOff();
-  } catch (e) {
-    ovOff();
-    $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
-    return;
-  }
-  renderLeaderboard("lbResult", res.subject);
+if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
+if (checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
+try {
+ovOn("Đang lưu kết quả…");
+const r = push(ref(db, "results"));
+await set(r, {
+type: "quiz_result", time: serverTimestamp(), subject: res.subject,
+username: res.username, name: res.name, cls: res.cls || "",
+score: res.score, correct: res.correct, total: res.total, duration: res.duration,
+isShuffled: res.isShuffled || false
+});
+ovOff();
+} catch (e) {
+ovOff();
+$("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
+return;
 }
-
+renderLeaderboard("lbResult", res.subject);
+}
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
-
 /* ═══ MUSIC ═══ */
 const music = createMusicPlayer({
-  audio: $("bgMusic"),
-  onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
-  onToggle: (on) => {
-    $("musicCheck").checked = on;
-    $("musicSelectionArea").classList.toggle("hide", !on);
-  }
+audio: $("bgMusic"),
+onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
+onToggle: (on) => {
+$("musicCheck").checked = on;
+$("musicSelectionArea").classList.toggle("hide", !on);
+}
 });
-
 $("musicCheck").onchange = () => music.setOn($("musicCheck").checked);
-
 $("btnChangeMusic").onclick = () => {
-  $("mModeRandom").checked = music.mode === "random";
-  $("mModePlaylist").checked = music.mode === "playlist";
-  $("songListContainer").innerHTML = music.SONGS.map(s =>
-    `<label class="song-item"><input type="checkbox" value="${s.id}" ${music.sel.includes(s.id) ? 'checked' : ''}><span>${s.title}</span></label>`
-  ).join("");
-  toggleSongCheckboxes();
-  $("musicMask").classList.add("on");
+$("mModeRandom").checked = music.mode === "random";
+$("mModePlaylist").checked = music.mode === "playlist";
+$("songListContainer").innerHTML = music.SONGS.map(s =>
+`<label class="song-item"><input type="checkbox" value="${s.id}" ${music.sel.includes(s.id) ? 'checked' : ''}><span>${s.title}</span></label>`
+).join("");
+toggleSongCheckboxes();
+$("musicMask").classList.add("on");
 };
-
 function toggleSongCheckboxes() {
-  const isPlaylist = $("mModePlaylist").checked;
-  $("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
-  $("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
+const isPlaylist = $("mModePlaylist").checked;
+$("songListContainer").style.opacity = isPlaylist ? "1" : "0.5";
+$("songListContainer").style.pointerEvents = isPlaylist ? "auto" : "none";
 }
 $("mModeRandom").onchange = toggleSongCheckboxes;
 $("mModePlaylist").onchange = toggleSongCheckboxes;
 $("btnCancelMusic").onclick = () => $("musicMask").classList.remove("on");
-
 $("btnSaveMusic").onclick = () => {
-  const m = $("mModeRandom").checked ? "random" : "playlist";
-  const ids = Array.from($("songListContainer").querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value);
-  if (m === "playlist" && ids.length === 0) { showToast("Vui lòng chọn ít nhất 1 bài hát!", true); return; }
-  music.setMode(m, ids);
-  $("musicMask").classList.remove("on");
+const m = $("mModeRandom").checked ? "random" : "playlist";
+const ids = Array.from($("songListContainer").querySelectorAll("input[type=checkbox]:checked")).map(cb => cb.value);
+if (m === "playlist" && ids.length === 0) { showToast("Vui lòng chọn ít nhất 1 bài hát!", true); return; }
+music.setMode(m, ids);
+$("musicMask").classList.remove("on");
 };
-
 /* ═══ CLOCK ═══ */
 function updateClock() {
-  const now = new Date();
-  const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
-  const el = $("liveClock");
-  if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
+const now = new Date();
+const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+const el = $("liveClock");
+if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
-
 /* ═══ SHAKE VIDEO ═══ */
 let musicWasPlaying = false;
 function openShakeVideo() {
-  const v = $("shakeVideo");
-  musicWasPlaying = !$("bgMusic").paused;
-  $("bgMusic").pause();
-  v.src = SHAKE_VIDEO;
-  $("shake-overlay").classList.remove("hide");
-  v.play().catch(() => {});
+const v = $("shakeVideo");
+musicWasPlaying = !$("bgMusic").paused;
+$("bgMusic").pause();
+v.src = SHAKE_VIDEO;
+$("shake-overlay").classList.remove("hide");
+v.play().catch(() => {});
 }
 function closeShakeVideo() {
-  const v = $("shakeVideo");
-  v.pause(); v.removeAttribute("src"); v.load();
-  $("shake-overlay").classList.add("hide");
-  if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
-  musicWasPlaying = false;
+const v = $("shakeVideo");
+v.pause(); v.removeAttribute("src"); v.load();
+$("shake-overlay").classList.add("hide");
+if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
+musicWasPlaying = false;
 }
 $("btnShake").onclick = function() {
-  const m = document.querySelector("main");
-  m.classList.add("shaking");
-  setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
+const m = document.querySelector("main");
+m.classList.add("shaking");
+setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
 };
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
-
 /* ═══ IFRAME OVERLAY ═══ */
 function openFrameOverlay(src) {
-  $("video-frame").src = src;
-  $("iframe-overlay").classList.remove("hide");
+$("video-frame").src = src;
+$("iframe-overlay").classList.remove("hide");
 }
 document.querySelectorAll('.play-video').forEach(btn => {
-  btn.onclick = function() { openFrameOverlay(this.dataset.src); };
+btn.onclick = function() { openFrameOverlay(this.dataset.src); };
 });
 $("btnBack").onclick = function() {
-  $("iframe-overlay").classList.add("hide");
-  $("video-frame").src = "";
+$("iframe-overlay").classList.add("hide");
+$("video-frame").src = "";
 };
-
 /* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
 installAntiCheat({
-  blockCopyPaste: false,
-  blockSelection: false,
-  detectIframe: true,
-  onTabSwitch: () => {
-    if ($("quiz").classList.contains("hide")) return;
-    tabSwitchCount++;
-    if (tabSwitchCount >= TAB_SWITCH_WARN) {
-      showToast("⚠️ Cảnh báo: Chuyển tab/ứng dụng khi đang làm bài!", true);
-      const s = getSession();
-      if (s) recordViolation(s.name, s.username);
-    }
-  },
-  onDevtoolsOpen: () => {
-    console.log("%c🛑 STOP!", "color:#ef4444;font-size:24px;font-weight:900");
-    console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
-  }
+blockCopyPaste: false,
+blockSelection: false,
+detectIframe: true,
+onTabSwitch: () => {
+if ($("quiz").classList.contains("hide")) return;
+tabSwitchCount++;
+if (tabSwitchCount >= TAB_SWITCH_WARN) {
+showToast("⚠️ Cảnh báo: Chuyển tab/ứng dụng khi đang làm bài!", true);
+const s = getSession();
+if (s) recordViolation(s.name, s.username);
+}
+},
+onDevtoolsOpen: () => {
+console.log("%c🛑 STOP!", "color:#ef4444;font-size:24px;font-weight:900");
+console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
+}
 });
-
 /* ═══ LEADERBOARD AUTO-REFRESH ═══ */
 document.addEventListener("visibilitychange", function() {
-  if (document.hidden || !session) return;
-  const tb = $("tab-leaderboard");
-  if (tb && !tb.classList.contains("hide") && !$("app").classList.contains("hide")) {
-    const a = document.querySelector("#lbPillsMain .pill.active");
-    renderLeaderboard("lbMain", a ? a.dataset.f : "all");
-  }
+if (document.hidden || !session) return;
+const tb = $("tab-leaderboard");
+if (tb && !tb.classList.contains("hide") && !$("app").classList.contains("hide")) {
+const a = document.querySelector("#lbPillsMain .pill.active");
+renderLeaderboard("lbMain", a ? a.dataset.f : "all");
+}
 });
-
 /* ═══ INIT ═══ */
 (async function init() {
-  try {
-    await syncUnbanEpoch();
-    const existing = loadSession();
-    if (existing) {
-      if (existing.isAdmin === true && isAdminUsername(existing.username)) {
-        _syncSession(existing);
-        enterApp();
-      } else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
-        recordViolation(existing.name, existing.username);
-        _syncSession(null);
-        showBanScreen(existing.name);
-      } else {
-        const isBanned = await checkFirebaseBan(existing.username);
-        if (isBanned || checkLocalBan(existing.name)) {
-          _syncSession(null);
-          showBanScreen(existing.name);
-        } else {
-          _syncSession(existing);
-          enterApp();
-        }
-      }
-    } else {
-      show("auth");
-    }
-  } catch(e) {
-    console.error('Init failed:', e);
-    window.__showFatalError('Lỗi khởi tạo: ' + (e.message || e));
-  }
+try {
+await syncUnbanEpoch();
+const existing = loadSession();
+if (existing) {
+if (existing.isAdmin === true && isAdminUsername(existing.username)) {
+_syncSession(existing);
+enterApp();
+} else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
+recordViolation(existing.name, existing.username);
+_syncSession(null);
+showBanScreen(existing.name);
+} else {
+const isBanned = await checkFirebaseBan(existing.username);
+if (isBanned || checkLocalBan(existing.name)) {
+_syncSession(null);
+showBanScreen(existing.name);
+} else {
+_syncSession(existing);
+enterApp();
+}
+}
+} else {
+show("auth");
+}
+} catch(e) {
+console.error('Init failed:', e);
+window.__showFatalError('Lỗi khởi tạo: ' + (e.message || e));
+}
 })();
 </script>
 </body>
