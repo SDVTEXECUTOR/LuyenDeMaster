@@ -935,38 +935,28 @@ throw new Error("DOMAIN_NOT_ALLOWED");
 if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
 }
 /* ═══ HELPERS ═══ */
-const $ = id => document.getElementById(id);
-
-/* ═══ FIX: Safe event binder — không crash nếu element không tồn tại ═══ */
-function on(idOrEl, evt, fn) {
-const el = typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
-if (!el) { console.warn("[on] Missing element:", idOrEl); return null; }
-el.addEventListener(evt, fn);
-return el;
-}
-
+const $ = id => {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`[Cảnh báo] Không tìm thấy phần tử có id="${id}"`);
+  return el;
+};
 const L = "ABCD";
 function showToast(msg, isErr) {
 const t = $("toast");
-if (!t) return;
 t.textContent = msg;
 t.className = "toast show" + (isErr ? " error" : "");
 clearTimeout(showToast._t);
 showToast._t = setTimeout(() => t.classList.remove("show"), 4000);
 }
-function ovOn(t) {
-const o = $("ov"), ot = $("ovtxt");
-if (ot) ot.textContent = t || "Đang xử lý…";
-if (o) o.classList.remove("hide");
-}
-function ovOff() { const o = $("ov"); if (o) o.classList.add("hide"); }
+function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
+function ovOff() { $("ov").classList.add("hide"); }
 function skeleton(n) { return Array.from({ length: n }, () => '<div class="skel"></div>').join(""); }
 async function sha256Hex(str) {
 const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
 return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 function show(id) {
-["auth","app","quiz","result"].forEach(s => { const el = $(s); if (el) el.classList.toggle("hide", s !== id); });
+["auth","app","quiz","result"].forEach(s => $(s).classList.toggle("hide", s !== id));
 window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function showBanScreen(name) {
@@ -994,11 +984,6 @@ function promptRegistrationCode() {
     const btnConfirm = $("codeConfirm");
     const btnCancel  = $("codeCancel");
 
-    if (!mask || !input || !status || !error || !wrap || !btnConfirm || !btnCancel) {
-      resolve(null);
-      return;
-    }
-
     // Reset state
     input.value = "";
     status.textContent = "";
@@ -1010,9 +995,14 @@ function promptRegistrationCode() {
     // Auto uppercase + tự thêm dấu '-' (FIXED FORMAT: LDM-XXXXX-XXXXX)
     input.oninput = () => {
       let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      // Loại bỏ tiền tố LDM nếu user gõ nhầm
       if (v.startsWith("LDM")) v = v.slice(3);
+      // Format: 5 chars - 5 chars
       if (v.length > 5)  v = v.slice(0, 5)  + "-" + v.slice(5, 10);
-      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 11) v = v.slice(0, 11); // Max 10 chars + 1 dash
+      if (v.length > 0 && v.length <= 5) {
+        // Chưa đủ 5 chars thì chưa thêm dash
+      }
       v = "LDM-" + v;
       input.value = v;
 
@@ -1195,6 +1185,7 @@ usedCode = check.code;
 }
 } catch (e) {
 console.warn('[register] Lock check error:', e);
+// Nếu lock check fail → cho đăng ký luôn (không chặn)
 }
 await doRegister(u, p, name, $("auCls").value.trim());
 if (usedCode) await markCodeUsed(usedCode, u);
@@ -1220,8 +1211,7 @@ _syncSession(null);
 showBanScreen(session.name);
 return;
 }
-const tabAdmin = $("tabBtnAdmin");
-if (tabAdmin) tabAdmin.classList.toggle("hide", !isAdminSession());
+$("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 $("hiName").textContent = "👋 Xin chào, " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 $("auUser").value = ""; $("auPass").value = "";
@@ -1230,14 +1220,16 @@ show("app"); switchTab("practice");
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
 /* ═══ TABS ═══ */
 function switchTab(name) {
-const map = {
-practice: "tabBtnPractice", leaderboard: "tabBtnLeaderboard", gameplay: "tabBtnGameplay",
-dev: "tabBtnDev", admin: "tabBtnAdmin"
-};
-Object.keys(map).forEach(k => {
-const b = $(map[k]); if (b) b.classList.toggle("active", k === name);
-const p = $("tab-" + k); if (p) p.classList.toggle("hide", k !== name);
-});
+$("tabBtnPractice").classList.toggle("active", name === "practice");
+$("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
+$("tabBtnGameplay").classList.toggle("active", name === "gameplay");
+$("tabBtnDev").classList.toggle("active", name === "dev");
+$("tabBtnAdmin").classList.toggle("active", name === "admin");
+$("tab-practice").classList.toggle("hide", name !== "practice");
+$("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
+$("tab-gameplay").classList.toggle("hide", name !== "gameplay");
+$("tab-dev").classList.toggle("hide", name !== "dev");
+$("tab-admin").classList.toggle("hide", name !== "admin");
 if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
@@ -1249,7 +1241,6 @@ $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
 /* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
 const el = $(pillsId);
-if (!el) return;
 const filters = [
 { id: "all", label: "Tất cả" },
 { id: "tinhoc", label: " Tin học 9" },
@@ -1274,7 +1265,6 @@ renderLeaderboard(listId, initial);
 }
 async function renderLeaderboard(elId, filter) {
 const el = $(elId);
-if (!el) return;
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
 el.innerHTML = skeleton(3);
 try {
@@ -1797,6 +1787,7 @@ onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
 onToggle: (on) => {
 $("musicCheck").checked = on;
 $("musicSelectionArea").classList.toggle("hide", !on);
+// Sync button state
 if (on) {
 $("musicCheck").checked = true;
 } else {
@@ -1808,6 +1799,7 @@ $("musicCheck").checked = false;
 $("musicCheck").onchange = function() {
 const isChecked = this.checked;
 music.setOn(isChecked);
+// Force sync
 if (!isChecked) {
 $("bgMusic").pause();
 }
@@ -1888,59 +1880,52 @@ $("btnProfile").onclick = () => {
   location.href = "/profile.html";
 };
 
-/* ═══ SET LOVE FUNCTIONALITY (FIXED — safe, dùng keyOf, dùng on()) ═══ */
-on("btnSetLove", "click", () => {
-  const tu = $("targetUsername"); if (tu) tu.value = "";
-  const err = $("loveErr");       if (err) err.textContent = "";
-  const mask = $("loveMask");     if (mask) mask.classList.add("on");
-});
+/* ═══ SET LOVE FUNCTIONALITY ═══ */
+const btnSetLove = $("btnSetLove");
+if (btnSetLove) {
+  btnSetLove.onclick = () => {
+    $("targetUsername").value = "";
+    $("loveErr").textContent = "";
+    $("loveMask").classList.add("on");
+  };
+}
 
-on("cancelLove", "click", () => {
-  const m = $("loveMask"); if (m) m.classList.remove("on");
-});
+$("cancelLove").onclick = () => $("loveMask").classList.remove("on");
 
-on("loveMask", "click", (e) => {
-  const m = $("loveMask");
-  if (m && e.target === m) m.classList.remove("on");
-});
-
-on("sendLoveInvite", "click", async () => {
-  const btn   = $("sendLoveInvite");
-  const errEl = $("loveErr");
-  const tu    = $("targetUsername");
-  if (!btn || !errEl || !tu) return;
-  if (!db) { errEl.textContent = "Chưa kết nối được máy chủ."; return; }
-  if (!session) { errEl.textContent = "Bạn chưa đăng nhập."; return; }
-
-  const rawTarget = tu.value.trim();
-  if (!rawTarget) { errEl.textContent = "Vui lòng nhập tên đăng nhập."; return; }
-
-  const targetKey = keyOf(rawTarget);
-  const myKey     = keyOf(session.username);
-  if (targetKey === myKey) {
-    errEl.textContent = "Bạn không thể kết đôi với chính mình!";
+$("sendLoveInvite").onclick = async () => {
+  const target = $("targetUsername").value.trim().toLowerCase();
+  if (!target) {
+    $("loveErr").textContent = "Vui lòng nhập tên đăng nhập.";
+    return;
+  }
+  if (target === session.username.toLowerCase()) {
+    $("loveErr").textContent = "Bạn không thể kết đôi với chính mình!";
     return;
   }
 
-  errEl.textContent = "";
-  btn.disabled = true;
-  btn.textContent = "Đang gửi...";
+  $("sendLoveInvite").disabled = true;
+  $("sendLoveInvite").textContent = "Đang gửi...";
 
   try {
-    const targetAcc = await get(ref(db, "accounts/" + targetKey));
+    // Kiểm tra xem người đó có tồn tại không
+    const targetAcc = await get(ref(db, `accounts/${target}`));
     if (!targetAcc.exists()) {
-      errEl.textContent = "Không tìm thấy người dùng này.";
+      $("loveErr").textContent = "Không tìm thấy người dùng này.";
+      $("sendLoveInvite").disabled = false;
+      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
       return;
     }
 
-    const myCouple = await get(ref(db, "couples/" + myKey));
-    if (myCouple.exists() && myCouple.val() && myCouple.val().partnerUsername) {
+    // Kiểm tra xem đã có couple chưa
+    const myCouple = await get(ref(db, `couples/${session.username}`));
+    if (myCouple.exists() && myCouple.val().partnerUsername) {
       showToast("Bạn đã có couple rồi!", true);
-      const m = $("loveMask"); if (m) m.classList.remove("on");
+      $("loveMask").classList.remove("on");
       return;
     }
 
-    await set(ref(db, "loveInvites/" + targetKey + "/" + myKey), {
+    // GỬI LỜI MỜI
+    await set(ref(db, `loveInvites/${target}/${session.username}`), {
       from: session.username,
       name: session.name,
       cls: session.cls || "",
@@ -1948,15 +1933,23 @@ on("sendLoveInvite", "click", async () => {
     });
 
     showToast("🎉 Đã gửi lời mời kết đôi thành công!");
-    const m = $("loveMask"); if (m) m.classList.remove("on");
+    $("loveMask").classList.remove("on");
+    
   } catch (e) {
-    console.error("[sendLoveInvite]", e);
-    errEl.textContent = "Lỗi: " + (e.message || e);
+    console.error(e);
+    $("loveErr").textContent = "Lỗi: " + e.message;
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Gửi lời mời 💌";
+    $("sendLoveInvite").disabled = false;
+    $("sendLoveInvite").textContent = "Gửi lời mời 💌";
   }
-});
+};
+
+// Close modal when clicking outside
+$("loveMask").onclick = (e) => {
+  if (e.target === $("loveMask")) {
+    $("loveMask").classList.remove("on");
+  }
+};
 
 /* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
