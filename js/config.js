@@ -14,7 +14,7 @@ export const FIREBASE_CONFIG = {
 };
 
 export const ADMIN_USER      = "phamgiabao";
-export const ADMIN_PASS_HASH = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+export const ADMIN_PASS_HASH = "7fd23dbecef914f709fc8be1271cd604d0b808b6e877ab694658b904ab94734d";
 export const ADMIN_PROFILE   = { username: "PhamGiaBao", name: "Phạm Gia Bảo", cls: "Admin" };
 
 export const SESSION_KEY      = "qp_session_v2";
