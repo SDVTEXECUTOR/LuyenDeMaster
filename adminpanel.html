@@ -122,14 +122,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .vio-count.has { background: var(--bads); color: var(--bad); }
 
-/* ── Toggle switch ── */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 32px;
-  flex-shrink: 0;
-}
+.switch { position: relative; display: inline-block; width: 60px; height: 32px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
   position: absolute; cursor: pointer; inset: 0;
@@ -144,7 +137,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .switch input:checked + .slider { background: var(--bad); }
 .switch input:checked + .slider:before { transform: translateX(28px); }
 
-/* ── Code rows ── */
 .code-row {
   display: grid; grid-template-columns: 1fr auto auto;
   gap: 12px; align-items: center;
@@ -153,21 +145,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   background: var(--card); transition: all 0.15s;
 }
 .code-row:hover { border-color: var(--ac); }
-.code-row.used {
-  opacity: 0.6; background: rgba(148,163,184,0.05);
-}
+.code-row.used { opacity: 0.6; background: rgba(148,163,184,0.05); }
 .code-value {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 800; font-size: 1.05rem;
   letter-spacing: 0.05em; color: var(--ac);
   word-break: break-all;
 }
-.code-value.used {
-  text-decoration: line-through; color: var(--mut);
-}
-.code-meta {
-  font-size: 0.75rem; color: var(--mut); margin-top: 4px;
-}
+.code-value.used { text-decoration: line-through; color: var(--mut); }
+.code-meta { font-size: 0.75rem; color: var(--mut); margin-top: 4px; }
 
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
@@ -200,6 +186,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .denied-screen .icon { font-size: 5rem; margin-bottom: 12px; }
 .denied-screen h1 { color: var(--bad); font-size: 2rem; margin-bottom: 12px; }
 .denied-screen p { color: var(--mut); max-width: 440px; line-height: 1.7; margin-bottom: 24px; }
+.denied-screen code {
+  background: var(--bads); color: var(--bad); padding: 2px 8px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+}
 
 #ov {
   position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
@@ -252,12 +242,35 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   button.sm { padding: 5px 8px; font-size: 0.75rem; }
   .acc-table td.actions button { margin: 2px 0; display: block; width: 100%; }
   .code-row { grid-template-columns: 1fr auto; }
-  .code-row button:nth-of-type(2) { grid-column: 1 / -1; }
 }
 </style>
 </head>
 <body>
 
+<!-- Loading fallback — hiện trước khi JS chạy xong -->
+<div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:1000;text-align:center;padding:24px">
+  <div>
+    <div style="width:50px;height:50px;border:4px solid var(--ln);border-top-color:var(--ac);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
+    <div style="font-weight:600;color:var(--mut)">Đang tải Admin Panel…</div>
+  </div>
+</div>
+
+<!-- Error screen -->
+<div class="denied-screen hide" id="errorScreen">
+  <div>
+    <div class="icon">⚠️</div>
+    <h1>Có lỗi xảy ra</h1>
+    <p id="errorMsg" style="color:var(--mut);max-width:600px;line-height:1.7;margin-bottom:16px"></p>
+    <p class="mut" style="font-size:0.85rem;margin-bottom:24px">
+      Mở <b>F12 → Console</b> để xem chi tiết.<br>
+      Nếu lỗi dạng <code>does not provide an export named...</code> → thiếu export trong <code>core.js</code> hoặc <code>config.js</code>.
+    </p>
+    <button onclick="location.reload()">🔄 Tải lại</button>
+    <button class="g" onclick="location.href='/'" style="margin-left:8px">🏠 Về trang chủ</button>
+  </div>
+</div>
+
+<!-- Access denied -->
 <div class="denied-screen hide" id="denied">
   <div>
     <div class="icon">🚫</div>
@@ -386,22 +399,90 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { ref, get, set, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import {
-  db, loadSession, saveSession, getSession,
-  isAdminSession, isAdminUsername,
-  clearAllLocalBans, keyOf,
-  checkRegistrationLock, setRegistrationLock,
-  createRegistrationCode, getRegistrationCodes,
-  deleteRegistrationCode
-} from '/js/core.js';
-import { esc, fmtMsShort, fmtDate } from '/js/utils.js';
-import {
+/* ══════════ GLOBAL ERROR CATCHER ══════════ */
+function showFatalError(msg) {
+  const boot = document.getElementById('boot');
+  if (boot) boot.style.display = 'none';
+  const err = document.getElementById('errorScreen');
+  const panel = document.getElementById('panel');
+  const denied = document.getElementById('denied');
+  if (panel) panel.classList.add('hide');
+  if (denied) denied.classList.add('hide');
+  if (err) {
+    document.getElementById('errorMsg').textContent = msg;
+    err.classList.remove('hide');
+  }
+}
+
+window.addEventListener('error', (e) => {
+  console.error('[adminpanel] Uncaught:', e.error || e.message);
+  showFatalError(e.message || 'Lỗi không xác định');
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('[adminpanel] Unhandled promise:', e.reason);
+  showFatalError((e.reason && e.reason.message) || String(e.reason) || 'Promise bị reject');
+});
+
+/* ══════════ SAFE IMPORT ══════════ */
+let core, utils, config, firebase;
+try {
+  core     = await import('/js/core.js');
+  utils    = await import('/js/utils.js');
+  config   = await import('/js/config.js');
+  firebase = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+} catch (e) {
+  console.error('Import failed:', e);
+  showFatalError('Không tải được module. ' + e.message + '\n\n→ Kiểm tra file js/core.js, js/utils.js, js/config.js có tồn tại không.');
+  throw e;
+}
+
+const { ref, get, set, remove, serverTimestamp } = firebase;
+const $ = id => document.getElementById(id);
+
+/* ══════════ CHECK EXPORTS ══════════ */
+const REQUIRED_CORE = [
+  'db', 'loadSession', 'saveSession', 'getSession',
+  'isAdminSession', 'isAdminUsername',
+  'clearAllLocalBans', 'keyOf'
+];
+const REQUIRED_CORE_LOCK = [
+  'checkRegistrationLock', 'setRegistrationLock',
+  'createRegistrationCode', 'getRegistrationCodes', 'deleteRegistrationCode'
+];
+const REQUIRED_UTILS = ['esc', 'fmtMsShort', 'fmtDate'];
+const REQUIRED_CONFIG = [
+  'ADMIN_USER', 'ADMIN_PROFILE', 'UNBAN_NODE', 'UNBAN_LOCAL_KEY',
+  'REGISTRATION_LOCK_NODE', 'REGISTRATION_CODES_NODE'
+];
+
+const missing = [];
+REQUIRED_CORE.forEach(k => { if (typeof core[k] === 'undefined') missing.push('core.' + k); });
+REQUIRED_UTILS.forEach(k => { if (typeof utils[k] === 'undefined') missing.push('utils.' + k); });
+REQUIRED_CONFIG.forEach(k => { if (typeof config[k] === 'undefined') missing.push('config.' + k); });
+
+if (missing.length) {
+  showFatalError(
+    'Thiếu export trong module:\n\n' + missing.join('\n') +
+    '\n\n→ Cập nhật các file js/*.js theo hướng dẫn.'
+  );
+  throw new Error('Missing exports: ' + missing.join(', '));
+}
+
+// Nếu thiếu hàm lock → có thể chạy được (fallback tắt tính năng)
+const HAS_LOCK_FEATURE = REQUIRED_CORE_LOCK.every(k => typeof core[k] === 'function');
+if (!HAS_LOCK_FEATURE) {
+  console.warn('[adminpanel] Thiếu hàm lock/codes — tính năng khóa đăng ký sẽ bị tắt.');
+}
+
+const {
+  db, loadSession, saveSession, isAdminSession, isAdminUsername,
+  clearAllLocalBans, keyOf
+} = core;
+const { esc, fmtMsShort, fmtDate } = utils;
+const {
   ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY,
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE
-} from '/js/config.js';
-
-const $ = id => document.getElementById(id);
+} = config;
 
 /* ══════════ HELPERS ══════════ */
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
@@ -437,62 +518,61 @@ let currentAdmin = null;
 function tickClock() {
   const now = new Date();
   const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-  $("liveClock").textContent =
-    `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
+  const el = $("liveClock");
+  if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
 }
 setInterval(tickClock, 1000);
 tickClock();
 
-/* ══════════ ACCESS ══════════ */
+/* ══════════ ACCESS CHECK ══════════ */
 function checkAccess() {
   const s = loadSession();
-  if (!s || !s.isAdmin || !isAdminUsername(s.username)) {
-    $("denied").classList.remove("hide");
-    return false;
-  }
+  if (!s || !s.isAdmin || !isAdminUsername(s.username)) return false;
   saveSession(s);
-  if (!isAdminSession()) {
-    $("denied").classList.remove("hide");
-    return false;
-  }
+  if (!isAdminSession()) return false;
   currentAdmin = s;
   $("admName").textContent = s.name || ADMIN_PROFILE.name;
   $("admUser").textContent = "@" + (s.username || ADMIN_PROFILE.username);
-  $("panel").classList.remove("hide");
   return true;
 }
 
 /* ══════════ LOCK ══════════ */
 async function loadLockStatus() {
+  if (!HAS_LOCK_FEATURE) {
+    $("lockStatus").innerHTML = '<span style="color:var(--bad)">⚠️ Chưa cập nhật core.js (thiếu hàm lock)</span>';
+    $("lockCheckbox").disabled = true;
+    return;
+  }
   try {
-    const isLocked = await checkRegistrationLock();
+    const isLocked = await core.checkRegistrationLock();
     $("lockCheckbox").checked = isLocked;
     $("lockStatus").innerHTML = isLocked
       ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký để tạo tài khoản'
       : '<span style="color:var(--ok);font-weight:700">🔓 ĐANG MỞ</span> — Ai cũng có thể đăng ký';
   } catch (e) {
-    $("lockStatus").textContent = "Lỗi tải trạng thái: " + e.message;
+    $("lockStatus").textContent = "Lỗi: " + e.message;
   }
 }
 
 async function toggleLock() {
+  if (!HAS_LOCK_FEATURE) return;
   const newState = $("lockCheckbox").checked;
   if (newState) {
-    const ok = confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản. Chỉ những ai có mã đăng ký do bạn cấp mới tạo được.");
+    const ok = confirm("🔒 Bật KHÓA đăng ký?\n\nSau khi bật, học sinh KHÔNG thể tự tạo tài khoản.");
     if (!ok) { $("lockCheckbox").checked = false; return; }
   } else {
-    const ok = confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản, KHÔNG cần mã.");
+    const ok = confirm("🔓 MỞ khóa đăng ký?\n\nSau khi mở, ai cũng có thể tự tạo tài khoản.");
     if (!ok) { $("lockCheckbox").checked = true; return; }
   }
   try {
     ovOn("Đang cập nhật…");
-    const success = await setRegistrationLock(newState);
+    const success = await core.setRegistrationLock(newState);
     ovOff();
     if (success) {
       showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký");
       loadLockStatus();
     } else {
-      showToast("Không thể cập nhật. Kiểm tra quyền admin.", true);
+      showToast("Không thể cập nhật. Kiểm tra quyền admin + Firebase rules.", true);
       $("lockCheckbox").checked = !newState;
     }
   } catch (e) {
@@ -504,10 +584,14 @@ async function toggleLock() {
 
 /* ══════════ CODES ══════════ */
 async function loadCodes() {
+  if (!HAS_LOCK_FEATURE) {
+    $("codesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">⚠️ Chưa cập nhật core.js (thiếu hàm đăng ký)</div>';
+    $("btnCreateCode").disabled = true;
+    return;
+  }
   $("codesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
-    const codes = await getRegistrationCodes();
-    // Sort: available first, then createdAt desc
+    const codes = await core.getRegistrationCodes();
     codes.sort((a, b) => {
       if (a.used !== b.used) return a.used ? 1 : -1;
       return (b.createdAt || 0) - (a.createdAt || 0);
@@ -540,15 +624,15 @@ async function loadCodes() {
 }
 
 async function createCode() {
+  if (!HAS_LOCK_FEATURE) return;
   try {
     ovOn("Đang tạo mã…");
-    const code = await createRegistrationCode();
+    const code = await core.createRegistrationCode();
     ovOff();
     if (!code) {
-      showToast("Không thể tạo mã. Kiểm tra quyền admin.", true);
+      showToast("Không thể tạo mã. Kiểm tra quyền admin + Firebase rules.", true);
       return;
     }
-    // Copy to clipboard
     let copied = false;
     try {
       await navigator.clipboard.writeText(code);
@@ -574,12 +658,11 @@ async function copyCode(code) {
 async function deleteCode(code) {
   confirmBox(
     "🗑️ Xoá mã?",
-    `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?<br><br>
-     <span class="mut">Nếu mã chưa dùng, người được cấp sẽ không đăng ký được nữa.</span>`,
+    `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?`,
     async () => {
       try {
         ovOn("Đang xoá…");
-        const ok = await deleteRegistrationCode(code);
+        const ok = await core.deleteRegistrationCode(code);
         ovOff();
         if (ok) { showToast("✅ Đã xoá mã"); loadCodes(); }
         else showToast("Không thể xoá mã", true);
@@ -595,7 +678,7 @@ async function deleteCode(code) {
 window.__copyCode = copyCode;
 window.__deleteCode = deleteCode;
 
-/* ══════════ LOAD ACCOUNTS ══════════ */
+/* ══════════ LOAD DATA ══════════ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -656,8 +739,7 @@ async function loadData() {
     renderAccounts();
   } catch (e) {
     console.error(e);
-    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Không tải được dữ liệu.</div>';
-    showToast("Lỗi tải dữ liệu: " + e.message, true);
+    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Không tải được dữ liệu: ' + esc(e.message) + '<br><small>Kiểm tra Firebase Rules đã cho phép đọc <code>accounts</code> chưa.</small></div>';
   }
 }
 
@@ -973,8 +1055,22 @@ document.addEventListener("keydown", (e) => {
 
 /* ══════════ INIT ══════════ */
 (async function init() {
-  if (!checkAccess()) return;
-  await Promise.all([loadData(), loadLockStatus(), loadCodes()]);
+  try {
+    // Ẩn boot spinner
+    const boot = document.getElementById('boot');
+    if (boot) boot.style.display = 'none';
+
+    if (!checkAccess()) {
+      $("denied").classList.remove("hide");
+      return;
+    }
+
+    $("panel").classList.remove("hide");
+    await Promise.all([loadData(), loadLockStatus(), loadCodes()]);
+  } catch (e) {
+    console.error('Init failed:', e);
+    showFatalError(e.message || 'Lỗi khởi tạo admin panel');
+  }
 })();
 </script>
 </body>
