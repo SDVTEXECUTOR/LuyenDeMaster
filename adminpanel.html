@@ -769,6 +769,15 @@ function renderAccounts() {
   `;
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   FIX: trước đây hàm này set UNBAN_NODE (epoch toàn cục) ngay cả khi
+   chỉ gỡ ban MỘT học sinh. Vì syncUnbanEpoch() trong core.js so sánh
+   epoch này trên máy của MỌI học sinh, việc đó vô tình gọi
+   clearAllLocalBans() trên tất cả các máy khác → "giải ban" luôn những
+   bạn khác đang bị khoá vì lý do riêng.
+   → UNBAN_NODE giờ chỉ được cập nhật trong unbanAll() (Unban All),
+     không còn trong nhánh gỡ ban từng người ở đây.
+   ───────────────────────────────────────────────────────────────── */
 async function toggleBan(username, name, currentlyBanned) {
   const action = currentlyBanned ? "gỡ ban" : "ban";
   confirmBox(
@@ -780,7 +789,6 @@ async function toggleBan(username, name, currentlyBanned) {
         const banRef = ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase()));
         if (currentlyBanned) {
           await set(banRef, { isBanned: false, violations: 0, timestamp: serverTimestamp() });
-          await set(ref(db, UNBAN_NODE), serverTimestamp());
           showToast(`✅ Đã gỡ ban cho ${name}`);
         } else {
           const snap = await get(banRef);
