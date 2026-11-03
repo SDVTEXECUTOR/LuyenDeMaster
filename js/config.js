@@ -43,6 +43,11 @@ export const MUSIC_MODE_KEY     = "qp_music_mode";
 export const MUSIC_SELECTED_KEY = "qp_music_selected";
 
 
+/* ── 3️⃣b  ĐĂNG KÝ — KHÓA + MÃ ĐĂNG KÝ 1 LẦN ── */
+export const REGISTRATION_LOCK_NODE  = "config/registrationLock";
+export const REGISTRATION_CODES_NODE = "config/codes";
+
+
 /* ── 4️⃣  BANNED WORDS — DANH SÁCH TỪ CẤM ── */
 export const BAD_WORDS = [
   // Viết tắt bậy
