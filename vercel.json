@@ -3,7 +3,8 @@
     { "source": "/adminpanel", "destination": "/adminpanel.html" },
     { "source": "/Tower", "destination": "/Tower.html" },
     { "source": "/Tower_:path(.*)", "destination": "/Tower.html" },
-    { "source": "/khoahoctunhien9", "destination": "/khoahoctunhien.html" }
+    { "source": "/khoahoctunhien9", "destination": "/khoahoctunhien.html" },
+    { "source": "/profile", "destination": "/profile.html" }
   ],
   "headers": [
     {
