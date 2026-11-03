@@ -109,12 +109,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .badge-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
 .badge-name { font-size: 0.85rem; font-weight: 700; display: block; }
 .badge-date { font-size: 0.75rem; color: var(--mut); display: block; margin-top: 4px; }
-.badge-item.locked:hover::after {
-  content: attr(data-tooltip);
-  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-  background: var(--fg); color: var(--bg); padding: 6px 10px; border-radius: 6px;
-  font-size: 0.75rem; white-space: nowrap; z-index: 10; margin-bottom: 6px;
-}
 
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -240,11 +234,10 @@ textarea { resize: vertical; min-height: 80px; }
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ═══ IMPORTS — thêm keyOf ═══ */
-import { db, getSession, keyOf } from '/js/core.js';
-import { ref, get, set, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+/* ═══ IMPORTS — dùng loadSession + saveSession ═══ */
+import { db, loadSession, saveSession, keyOf } from '/js/core.js';
+import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 function showToast(msg, isErr) {
   const t = $("toast");
@@ -255,15 +248,17 @@ function showToast(msg, isErr) {
   showToast._t = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-/* ═══ AUTH CHECK ═══ */
-const session = getSession();
-if (!session) {
+/* ═══ AUTH — đọc từ localStorage, không dùng getSession() ═══ */
+const session = loadSession();
+if (!session || !session.username) {
   window.location.href = "index.html";
+  throw new Error("NO_SESSION");
 }
+saveSession(session);  // hydrate _session trong core để checkBan hoạt động
 
-/* ═══ FIX: dùng session.key (đã được lưu từ index.html) — fallback keyOf ═══ */
 const myKey  = session.key || keyOf(session.username);
 const myName = session.name || session.username;
+const myCls  = session.cls  || "";
 
 /* ═══ STATE ═══ */
 let currentProfile = { avatar: "🐱", bio: "" };
@@ -271,7 +266,6 @@ let currentProfile = { avatar: "🐱", bio: "" };
 /* ═══ CONSTANTS ═══ */
 const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢"];
 
-/* ═══ FIX: key khớp DB thực tế ═══ */
 const SUBJECTS = [
   { key: 'tinhoc', icon: '💻', name: 'Tin học 9' },
   { key: 'gdcd', icon: '⚖️', name: 'GDCD 9' },
@@ -283,7 +277,6 @@ const SUBJECTS = [
 /* ═══ LOAD DATA ═══ */
 async function loadData() {
   try {
-    /* FIX: dùng myKey thay vì session.username */
     const [accSnap, profSnap, coupleSnap] = await Promise.all([
       get(ref(db, `accounts/${myKey}`)),
       get(ref(db, `profiles/${myKey}`)),
@@ -294,9 +287,8 @@ async function loadData() {
     const prof   = profSnap.val()   || {};
     const couple = coupleSnap.val() || null;
 
-    /* FIX: fallback session.name nếu accounts không có name */
     if (!acc.name) acc.name = myName;
-    if (!acc.cls)  acc.cls  = session.cls || "";
+    if (!acc.cls)  acc.cls  = myCls;
 
     currentProfile.avatar = prof.avatar || "🐱";
     currentProfile.bio    = prof.bio    || "";
@@ -310,9 +302,8 @@ async function loadData() {
   } catch (e) {
     console.error("[profile] loadData error:", e);
     showToast("Lỗi tải dữ liệu: " + (e.message || e), true);
-    /* Fallback: hiện thông tin cơ bản từ session */
     $("pName").textContent = myName;
-    $("pUser").textContent = `@${session.username}` + (session.cls ? ` · ${session.cls}` : "");
+    $("pUser").textContent = `@${session.username}` + (myCls ? ` · ${myCls}` : "");
   }
 }
 
@@ -335,7 +326,6 @@ function renderStats(prof) {
   `;
 }
 
-/* FIX: xử lý đúng key diali_choice / diali_manual / diali_memory */
 function renderScores(bestScores) {
   let html = '';
   SUBJECTS.forEach(sub => {
@@ -383,7 +373,7 @@ function renderCouple(couple) {
     const mission       = couple.todaySubject  || "Chưa có nhiệm vụ";
     const doneA         = couple.doneA ? 1 : 0;
     const doneB         = couple.doneB ? 1 : 0;
-    const progress      = ((doneA + doneB) / 2) * 100;
+    const progress      = Math.round(((doneA + doneB) / 2) * 100);
 
     $("coupleSection").innerHTML = `
       <div class="couple-avatars">
@@ -409,7 +399,7 @@ function renderCouple(couple) {
 }
 
 function renderBadges(prof) {
-  const achievements = prof.achievements || [];
+  const achievements = prof.achievements || {};
   const badges = [
     { id: 'first_blood',  icon: '🥇', name: 'First Blood',    req: 'Đạt 10 điểm đầu tiên' },
     { id: 'streak_7',     icon: '🔥', name: 'Streak 7',        req: '7 ngày đăng nhập liên tục' },
@@ -423,10 +413,13 @@ function renderBadges(prof) {
 
   let html = '';
   badges.forEach(b => {
-    const unlocked = achievements.includes(b.id);
+    // FIX: achievements là object, check bằng key
+    const unlocked = Array.isArray(achievements)
+      ? achievements.includes(b.id)
+      : achievements[b.id] === true;
     const dateStr = unlocked ? (prof.achievementDates?.[b.id] || 'Đã đạt') : 'Chưa đạt';
     html += `
-      <div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-tooltip="${b.req}">
+      <div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" title="${b.req}">
         <span class="badge-icon">${b.icon}</span>
         <span class="badge-name">${b.name}</span>
         <span class="badge-date">${dateStr}</span>
@@ -436,12 +429,13 @@ function renderBadges(prof) {
 }
 
 function renderActivity(activities) {
-  if (!activities || activities.length === 0) {
+  const list = Array.isArray(activities) ? activities : Object.values(activities);
+  if (!list || list.length === 0) {
     $("activityList").innerHTML = '<div style="padding: 12px; text-align: center;">Chưa có hoạt động nào.</div>';
     return;
   }
   let html = '';
-  activities.slice(0, 5).forEach(act => {
+  list.slice(0, 5).forEach(act => {
     html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px;">
       <span>${act.icon || '📌'}</span>
       <span>${act.text || ''}</span>
@@ -482,31 +476,38 @@ $("editBio").oninput = () => { $("bioCount").textContent = $("editBio").value.le
 
 $("saveEdit").onclick = async () => {
   const bio = $("editBio").value.trim();
+  if (bio.length > 100) { showToast("Bio tối đa 100 ký tự", true); return; }
+
   $("saveEdit").disabled = true;
   $("saveEdit").textContent = "Đang lưu...";
 
   try {
-    /* FIX: dùng myKey */
     const profRef = ref(db, `profiles/${myKey}`);
     const existing = await get(profRef);
+
     if (existing.exists()) {
+      // Chỉ update field được phép
       await update(profRef, { avatar: selectedAvatar, bio });
     } else {
+      // FIX: profile mới phải có ĐẦY ĐỦ field, dùng Date.now() thay serverTimestamp()
       await set(profRef, {
         avatar: selectedAvatar,
-        bio,
+        bio: bio,
         totalQuizzes: 0,
         loginCount: 1,
         streak: 1,
+        lastLogin: Date.now(),
         bestScores: {},
-        achievements: [],
+        achievements: {},
+        achievementDates: {},
         recentActivity: [],
-        createdAt: serverTimestamp()
+        createdAt: Date.now()
       });
     }
+
     currentProfile.avatar = selectedAvatar;
     currentProfile.bio    = bio;
-    showToast("Đã cập nhật hồ sơ!");
+    showToast("✅ Đã cập nhật hồ sơ!");
     $("editMask").classList.remove("on");
     loadData();
   } catch (e) {
@@ -533,7 +534,6 @@ $("sendLoveInvite").onclick = async () => {
     return;
   }
 
-  /* FIX: dùng keyOf để chuẩn hoá */
   const targetKey = keyOf(rawTarget);
   if (targetKey === myKey) {
     $("loveErr").textContent = "Bạn không thể kết đôi với chính mình!";
@@ -545,13 +545,14 @@ $("sendLoveInvite").onclick = async () => {
   $("loveErr").textContent = "";
 
   try {
-    /* FIX: dùng targetKey thay vì target */
+    // Check target tồn tại
     const targetAcc = await get(ref(db, `accounts/${targetKey}`));
     if (!targetAcc.exists()) {
       $("loveErr").textContent = "Không tìm thấy người dùng này.";
       return;
     }
 
+    // Check đã có couple chưa
     const myCouple = await get(ref(db, `couples/${myKey}`));
     if (myCouple.exists() && myCouple.val() && myCouple.val().partnerUsername) {
       showToast("Bạn đã có couple rồi!", true);
@@ -559,39 +560,31 @@ $("sendLoveInvite").onclick = async () => {
       return;
     }
 
-    /* FIX: loveInvites/{targetKey}/{myKey} */
+    // Gửi invite
     await set(ref(db, `loveInvites/${targetKey}/${myKey}`), {
       from: session.username,
       name: myName,
-      cls: session.cls || "",
+      cls: myCls,
       avatar: currentProfile.avatar,
-      timestamp: serverTimestamp()
+      timestamp: Date.now()  // FIX: dùng Date.now() thay serverTimestamp()
     });
 
     showToast("🎉 Đã gửi lời mời kết đôi thành công!");
     $("loveMask").classList.remove("on");
 
-    /* Log activity */
+    // Log activity (best-effort, không ảnh hưởng chính)
     try {
       const profRef = ref(db, `profiles/${myKey}`);
       const profSnap = await get(profRef);
-      const prof = profSnap.val() || {};
-      const acts = prof.recentActivity || [];
-      acts.unshift({
-        icon: '💌',
-        text: `Gửi lời mời kết đôi tới @${rawTarget}`,
-        time: new Date().toLocaleString("vi-VN")
-      });
       if (profSnap.exists()) {
-        await update(profRef, { recentActivity: acts.slice(0, 10) });
-      } else {
-        await set(profRef, {
-          avatar: currentProfile.avatar, bio: currentProfile.bio,
-          totalQuizzes: 0, loginCount: 1, streak: 1,
-          bestScores: {}, achievements: [],
-          recentActivity: acts.slice(0, 10),
-          createdAt: serverTimestamp()
+        const prof = profSnap.val();
+        const acts = Array.isArray(prof.recentActivity) ? prof.recentActivity : [];
+        acts.unshift({
+          icon: '💌',
+          text: `Gửi lời mời kết đôi tới @${rawTarget}`,
+          time: new Date().toLocaleString("vi-VN")
         });
+        await update(profRef, { recentActivity: acts.slice(0, 10) });
       }
     } catch (e) { console.warn("[loveInvite log]", e); }
 
