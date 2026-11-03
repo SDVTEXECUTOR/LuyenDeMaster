@@ -12,15 +12,22 @@
    • Ban local: checkLocalBan / setLocalBan / clearAllLocalBans
    • Ban Firebase: checkFirebaseBan / recordFirebaseViolation / recordViolation
    • Unban: syncUnbanEpoch
-   • Domain check: checkDomain / showDomainWarning
+   • Domain: checkDomain / showDomainWarning
+   • Đăng ký: checkRegistrationLock / setRegistrationLock
+              / generateRegistrationCode / createRegistrationCode
+              / getRegistrationCodes / deleteRegistrationCode
+              / validateRegistrationCode / markCodeUsed
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+  getDatabase, ref, get, set, remove, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   FIREBASE_CONFIG,
   SESSION_KEY, SESSION_KEY_KHTN,
   UNBAN_NODE, UNBAN_LOCAL_KEY, BAN_PREFIX,
+  REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
   BAD_WORDS, ADMIN_USER,
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
@@ -114,7 +121,6 @@ export function nameHash(name) {
    4️⃣  KIỂM DUYỆT — CHỬI TỤC / TỪ CẤM
    ────────────────────────────────────────────────────────────────────── */
 
-// Regex kiểm tra có dấu tiếng Việt
 const _ACCENT_RE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
 
 /**
@@ -159,16 +165,11 @@ export function getViolationKey(name) {
    6️⃣  BAN LOCAL — LƯU TRÊN MÁY NGƯỜI DÙNG
    ────────────────────────────────────────────────────────────────────── */
 
-/** Kiểm tra tên có bị ban trên máy này không */
 export function checkLocalBan(name) {
-  try {
-    return localStorage.getItem(getBanKey(name)) === "1";
-  } catch (e) {
-    return false;
-  }
+  try { return localStorage.getItem(getBanKey(name)) === "1"; }
+  catch (e) { return false; }
 }
 
-/** Đánh dấu ban trên máy này + tăng vi phạm */
 export function setLocalBan(name) {
   try {
     localStorage.setItem(getBanKey(name), "1");
@@ -180,7 +181,6 @@ export function setLocalBan(name) {
 
 /**
  * Xoá TOÀN BỘ ban cũ trong localStorage.
- * Bao gồm: qpb3_*, banned_ip_sim, ban_*, banned_*, violations_*
  * @returns {number} Số key đã xoá
  */
 export function clearAllLocalBans() {
@@ -204,22 +204,18 @@ export function clearAllLocalBans() {
 
 
 /* ──────────────────────────────────────────────────────────────────────
-   7️⃣  BAN FIREBASE — LƯU TRÊN SERVER (áp dụng mọi máy)
+   7️⃣  BAN FIREBASE — LƯU TRÊN SERVER
    ────────────────────────────────────────────────────────────────────── */
 
-/** Kiểm tra username có đang bị ban trên Firebase không */
 export async function checkFirebaseBan(username) {
   if (!db || !username) return false;
   try {
     const banRef = ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase()));
     const snap = await get(banRef);
     return snap.exists() && snap.val().isBanned === true;
-  } catch (e) {
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
-/** Ghi nhận vi phạm lên Firebase (tăng counter + set isBanned = true) */
 export async function recordFirebaseViolation(username) {
   if (!db || !username || isAdminSession()) return false;
   try {
@@ -252,9 +248,6 @@ export function recordViolation(nameOrUsername, username) {
 
 /* ──────────────────────────────────────────────────────────────────────
    8️⃣  UNBAN SYNC — ĐỒNG BỘ MỐC UNBAN TỪ FIREBASE
-   ──────────────────────────────────────────────────────────────────────
-   Admin bấm "Unban All" ở 1 máy → server lưu timestamp.
-   Máy khác mở app → đọc timestamp → nếu mới hơn local → xoá hết ban.
    ────────────────────────────────────────────────────────────────────── */
 export async function syncUnbanEpoch() {
   if (!db) return;
@@ -272,9 +265,7 @@ export async function syncUnbanEpoch() {
       clearAllLocalBans();
       localStorage.setItem(UNBAN_LOCAL_KEY, String(remote));
     }
-  } catch (e) {
-    // Timeout hoặc lỗi mạng → bỏ qua, không làm hỏng app
-  }
+  } catch (e) {}
 }
 
 
@@ -282,14 +273,12 @@ export async function syncUnbanEpoch() {
    9️⃣  DOMAIN CHECK — KIỂM TRA TÊN MIỀN
    ────────────────────────────────────────────────────────────────────── */
 
-/** Trả về true nếu domain hiện tại được phép chạy app */
 export function checkDomain() {
   if (!ENFORCE_DOMAIN_CHECK) return true;
   const cur = String(location.hostname || "").toLowerCase();
   return ALLOWED_HOSTS.map(h => h.toLowerCase()).includes(cur);
 }
 
-/** Hiện cảnh báo ăn cắp domain (thay toàn bộ body) */
 export function showDomainWarning() {
   document.body.innerHTML =
     '<div style="position:fixed;inset:0;z-index:2147483647;background:linear-gradient(135deg,#0f172a,#1e1b4b);' +
@@ -310,14 +299,139 @@ export function showDomainWarning() {
 
 
 /* ──────────────────────────────────────────────────────────────────────
-   🔟  LEGACY CLEANUP — DỌN DẸP KEY CŨ (chạy 1 lần khi import)
-   ──────────────────────────────────────────────────────────────────────
-   Xoá các key ban từ các phiên bản cũ (trước khi có BAN_PREFIX).
-   Chạy tự động khi module này được import lần đầu.
+   🔟  ĐĂNG KÝ — KHÓA + MÃ ĐĂNG KÝ 1 LẦN
+   ────────────────────────────────────────────────────────────────────── */
+
+/** Kiểm tra đăng ký có đang bị khóa không */
+export async function checkRegistrationLock() {
+  if (!db) return false;
+  try {
+    const snap = await get(ref(db, REGISTRATION_LOCK_NODE));
+    return snap.exists() && snap.val() === true;
+  } catch (e) {
+    console.warn("[core] checkRegistrationLock:", e);
+    return false;
+  }
+}
+
+/** Bật/tắt khóa đăng ký (admin only) */
+export async function setRegistrationLock(locked) {
+  if (!db || !isAdminSession()) return false;
+  try {
+    await set(ref(db, REGISTRATION_LOCK_NODE), !!locked);
+    return true;
+  } catch (e) {
+    console.warn("[core] setRegistrationLock:", e);
+    return false;
+  }
+}
+
+/** Tạo mã đăng ký ngẫu nhiên (VD: LDM-A7K2M-9XN4Q) */
+export function generateRegistrationCode() {
+  // Bỏ các ký tự dễ nhầm: I, O, 0, 1
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const rand = () => {
+    let s = "";
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  };
+  return `LDM-${rand()}-${rand()}`;
+}
+
+/** Tạo mã mới (admin only). Trả về code hoặc null */
+export async function createRegistrationCode(note = "") {
+  if (!db || !isAdminSession()) return null;
+  try {
+    const code = generateRegistrationCode();
+    await set(ref(db, REGISTRATION_CODES_NODE + "/" + code), {
+      used: false,
+      createdAt: Date.now(),
+      usedBy: "",
+      usedAt: 0,
+      note: String(note).slice(0, 200)
+    });
+    return code;
+  } catch (e) {
+    console.warn("[core] createRegistrationCode:", e);
+    return null;
+  }
+}
+
+/** Lấy danh sách mã (admin only) */
+export async function getRegistrationCodes() {
+  if (!db) return [];
+  try {
+    const snap = await get(ref(db, REGISTRATION_CODES_NODE));
+    const codes = [];
+    if (snap.exists()) {
+      snap.forEach(ch => codes.push({ code: ch.key, ...ch.val() }));
+    }
+    return codes;
+  } catch (e) {
+    console.warn("[core] getRegistrationCodes:", e);
+    return [];
+  }
+}
+
+/** Xoá mã (admin only) */
+export async function deleteRegistrationCode(code) {
+  if (!db || !isAdminSession()) return false;
+  try {
+    await remove(ref(db, REGISTRATION_CODES_NODE + "/" + code));
+    return true;
+  } catch (e) {
+    console.warn("[core] deleteRegistrationCode:", e);
+    return false;
+  }
+}
+
+/** Kiểm tra mã có hợp lệ không (dùng trước khi register) */
+export async function validateRegistrationCode(code) {
+  if (!db || !code) return { valid: false, reason: "Mã không hợp lệ" };
+  try {
+    const c = String(code).trim().toUpperCase();
+    if (!/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(c)) {
+      return { valid: false, reason: "Mã không đúng định dạng (VD: LDM-A7K2M-9XN4Q)" };
+    }
+    const snap = await get(ref(db, REGISTRATION_CODES_NODE + "/" + c));
+    if (!snap.exists()) return { valid: false, reason: "Mã không tồn tại" };
+    const v = snap.val();
+    if (v.used) return { valid: false, reason: "Mã đã được sử dụng" };
+    return { valid: true, code: c };
+  } catch (e) {
+    return { valid: false, reason: "Lỗi kiểm tra mã: " + e.message };
+  }
+}
+
+/** Đánh dấu mã đã dùng (gọi sau khi register thành công) */
+export async function markCodeUsed(code, username) {
+  if (!db) return false;
+  try {
+    const cRef = ref(db, REGISTRATION_CODES_NODE + "/" + code);
+    const snap = await get(cRef);
+    if (!snap.exists()) return false;
+    const v = snap.val();
+    if (v.used) return false;
+    await set(cRef, {
+      used: true,
+      createdAt: v.createdAt || Date.now(),
+      usedBy: String(username || "").slice(0, 100),
+      usedAt: Date.now(),
+      note: v.note || ""
+    });
+    return true;
+  } catch (e) {
+    console.warn("[core] markCodeUsed:", e);
+    return false;
+  }
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────
+   1️⃣1️⃣  LEGACY CLEANUP — DỌN DẸP KEY CŨ (chạy 1 lần khi import)
    ────────────────────────────────────────────────────────────────────── */
 (function _cleanupLegacyStorage() {
   try {
-    // Bước 1: xoá các key ban cũ (không có prefix qpb3_)
     const oldKeys = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
@@ -331,7 +445,6 @@ export function showDomainWarning() {
     }
     oldKeys.forEach(x => { try { localStorage.removeItem(x); } catch (e) {} });
 
-    // Bước 2: migration lần đầu — xoá hết qpb3_* khi chưa có flag qp_unban_v1
     if (localStorage.getItem("qp_unban_v1") !== "done") {
       const banKeys = [];
       for (let a = 0; a < localStorage.length; a++) {
@@ -341,52 +454,44 @@ export function showDomainWarning() {
       banKeys.forEach(x => { try { localStorage.removeItem(x); } catch (e) {} });
       localStorage.setItem("qp_unban_v1", "done");
     }
-  } catch (e) {
-    // Không làm gì nếu localStorage bị chặn
-  }
+  } catch (e) {}
 })();
 
 
 /* ══════════════════════════════════════════════════════════════════════
    ✅ HẾT CORE.JS
    
-   📌 DANH SÁCH EXPORT:
+   📌 DANH SÁCH EXPORT (tổng cộng 32 hàm/const):
    
    Firebase:
      • db
    
    Session:
-     • getSession()  → object | null
-     • saveSession(s)
-     • loadSession() → object | null
-     • clearSession()
-     • isAdminSession() → boolean
-     • isAdminUsername(username) → boolean
+     • getSession() / saveSession(s) / loadSession() / clearSession()
+     • isAdminSession() / isAdminUsername(username)
    
    Normalize:
-     • normText(s) → string
-     • nameHash(name) → string
-     • checkProfanity(s) → boolean
+     • normText(s) / nameHash(name) / checkProfanity(s)
    
    Keys:
-     • keyOf(u) → string
-     • getBanKey(name) → string
-     • getViolationKey(name) → string
+     • keyOf(u) / getBanKey(name) / getViolationKey(name)
    
    Ban local:
-     • checkLocalBan(name) → boolean
-     • setLocalBan(name)
-     • clearAllLocalBans() → number
+     • checkLocalBan(name) / setLocalBan(name) / clearAllLocalBans()
    
    Ban Firebase:
-     • checkFirebaseBan(username) → Promise<boolean>
-     • recordFirebaseViolation(username) → Promise<boolean>
+     • checkFirebaseBan(username) / recordFirebaseViolation(username)
      • recordViolation(nameOrUsername, [username])
    
    Unban:
-     • syncUnbanEpoch() → Promise<void>
+     • syncUnbanEpoch()
    
    Domain:
-     • checkDomain() → boolean
-     • showDomainWarning()
+     • checkDomain() / showDomainWarning()
+   
+   Đăng ký:
+     • checkRegistrationLock() / setRegistrationLock(locked)
+     • generateRegistrationCode() / createRegistrationCode(note)
+     • getRegistrationCodes() / deleteRegistrationCode(code)
+     • validateRegistrationCode(code) / markCodeUsed(code, username)
    ══════════════════════════════════════════════════════════════════════ */
