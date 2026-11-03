@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══ REUSE CSS FROM INDEX.HTML ═══ */
 :root {
   --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
   --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
@@ -43,7 +42,6 @@ main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
 h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
 .mut { color: var(--mut); font-size: 0.9rem; }
 
-/* Header Profile */
 .profile-header { text-align: center; padding: 32px 24px; }
 .avatar-lg {
   width: 80px; height: 80px; border-radius: 50%; background: var(--acs);
@@ -69,14 +67,13 @@ button.g:hover { background: var(--acs); border-color: var(--ac); }
 button.love { background: var(--love); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3); }
 button.love:hover { box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4); }
 button.sm { padding: 8px 14px; font-size: 0.85rem; }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-/* Stats Grid */
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
 .stat-item { background: rgba(255,255,255,0.4); padding: 16px 8px; border-radius: 12px; border: 1px solid var(--ln); }
 .stat-val { font-size: 1.5rem; font-weight: 800; color: var(--ac); display: block; }
 .stat-label { font-size: 0.8rem; color: var(--mut); font-weight: 600; margin-top: 4px; display: block; }
 
-/* High Scores */
 .score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .score-row:last-child { margin-bottom: 0; }
 .score-icon { font-size: 1.2rem; width: 28px; text-align: center; }
@@ -86,7 +83,6 @@ button.sm { padding: 8px 14px; font-size: 0.85rem; }
 .score-val { width: 40px; text-align: right; font-weight: 700; font-size: 0.9rem; }
 .score-na { color: var(--mut); font-style: italic; font-size: 0.85rem; flex: 1; }
 
-/* Couple Section */
 .couple-card { text-align: center; padding: 24px; }
 .couple-avatars { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 2rem; }
 .couple-heart { color: var(--love); animation: pulse 1.5s infinite; }
@@ -102,7 +98,6 @@ button.sm { padding: 8px 14px; font-size: 0.85rem; }
 .mission-bar { height: 8px; background: rgba(236, 72, 153, 0.2); border-radius: 4px; margin-top: 8px; overflow: hidden; }
 .mission-fill { height: 100%; background: var(--love); border-radius: 4px; }
 
-/* Badges */
 .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .badge-item {
   text-align: center; padding: 16px 8px; border-radius: 12px;
@@ -121,7 +116,6 @@ button.sm { padding: 8px 14px; font-size: 0.85rem; }
   font-size: 0.75rem; white-space: nowrap; z-index: 10; margin-bottom: 6px;
 }
 
-/* Modal */
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
   display: none; place-items: center; padding: 16px; z-index: 100; opacity: 0; transition: opacity 0.3s;
@@ -157,16 +151,14 @@ textarea { resize: vertical; min-height: 80px; }
 .row { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
 .hide { display: none !important; }
 .skel { height: 20px; border-radius: 6px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
-@keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 300%; } }
+@keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 </style>
 </head>
 <body>
 
 <main>
-  <!-- Back Button -->
   <button class="g sm" onclick="window.location.href='index.html'" style="margin-bottom: 16px;">← Quay lại trang chủ</button>
 
-  <!-- 1. Header Profile -->
   <div class="card profile-header">
     <div class="avatar-lg" id="pAvatar">🐱</div>
     <h1 class="profile-name" id="pName">Đang tải...</h1>
@@ -178,7 +170,6 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 
-  <!-- 2. Thống kê -->
   <div class="card">
     <h2>📊 THỐNG KÊ</h2>
     <div class="stats-grid" id="statsGrid">
@@ -186,7 +177,6 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 
-  <!-- 3. Điểm cao nhất -->
   <div class="card">
     <h2>🏆 ĐIỂM CAO NHẤT</h2>
     <div id="scoresList">
@@ -194,20 +184,15 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 
-  <!-- 4. Couple -->
   <div class="card couple-card" id="coupleSection">
     <div class="skel" style="height: 120px;"></div>
   </div>
 
-  <!-- 5. Thành tích -->
   <div class="card">
     <h2>🎖️ THÀNH TÍCH</h2>
-    <div class="badge-grid" id="badgeGrid">
-      <!-- Render bằng JS -->
-    </div>
+    <div class="badge-grid" id="badgeGrid"></div>
   </div>
 
-  <!-- 6. Lịch sử hoạt động (Optional) -->
   <div class="card">
     <h2>📅 HOẠT ĐỘNG GẦN ĐÂY</h2>
     <div id="activityList" class="mut" style="font-size: 0.9rem; line-height: 1.8;">
@@ -216,25 +201,23 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </main>
 
-<!-- ═══ MODAL SỬA PROFILE ═══ -->
 <div class="mask" id="editMask">
   <div class="card">
     <h2 style="margin-bottom: 16px;">✏️ Chỉnh sửa hồ sơ</h2>
     <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Chọn Avatar</label>
     <div class="avatar-picker" id="avatarPicker"></div>
-    
+
     <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tiểu sử (Bio)</label>
     <textarea id="editBio" maxlength="100" placeholder="Viết gì đó về bản thân..."></textarea>
     <div class="mut" style="text-align: right; font-size: 0.8rem; margin-top: -8px; margin-bottom: 12px;"><span id="bioCount">0</span>/100</div>
-    
+
     <div class="row">
       <button class="g" id="cancelEdit">Hủy</button>
-      <button class="p" id="saveEdit" style="background: var(--ok);">Lưu thay đổi</button>
+      <button id="saveEdit" style="background: var(--ok);">Lưu thay đổi</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ MODAL SET LOVE (GỬI MỜI) ═══ -->
 <div class="mask" id="loveMask">
   <div class="card">
     <h2 style="margin-bottom: 8px; color: var(--love);">💘 Kết đôi</h2>
@@ -242,11 +225,11 @@ textarea { resize: vertical; min-height: 80px; }
       Nhập <b>tên đăng nhập</b> của người bạn muốn kết đôi.<br>
       <span style="color: var(--ac); font-size: 0.85rem;">💡 Lời mời sẽ được gửi đi. Khi họ đăng nhập vào trang chủ, họ sẽ thấy thông báo và có thể chấp nhận.</span>
     </p>
-    
+
     <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tên đăng nhập đối phương</label>
     <input type="text" id="targetUsername" placeholder="vd: linh2009" autocomplete="off">
     <div id="loveErr" class="mut" style="color: var(--bad); font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px;"></div>
-    
+
     <div class="row">
       <button class="g" id="cancelLove">Hủy</button>
       <button class="love" id="sendLoveInvite">Gửi lời mời 💌</button>
@@ -257,14 +240,15 @@ textarea { resize: vertical; min-height: 80px; }
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ═══ IMPORTS ═══ */
-import { db, getSession, clearSession, normText } from '/js/core.js';
+/* ═══ IMPORTS — thêm keyOf ═══ */
+import { db, getSession, keyOf } from '/js/core.js';
 import { ref, get, set, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 /* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
 function showToast(msg, isErr) {
   const t = $("toast");
+  if (!t) return;
   t.textContent = msg;
   t.className = "toast show" + (isErr ? " error" : "");
   clearTimeout(showToast._t);
@@ -277,25 +261,45 @@ if (!session) {
   window.location.href = "index.html";
 }
 
-/* ═══ DATA FETCHING ═══ */
+/* ═══ FIX: dùng session.key (đã được lưu từ index.html) — fallback keyOf ═══ */
+const myKey  = session.key || keyOf(session.username);
+const myName = session.name || session.username;
+
+/* ═══ STATE ═══ */
+let currentProfile = { avatar: "🐱", bio: "" };
+
+/* ═══ CONSTANTS ═══ */
 const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢"];
+
+/* ═══ FIX: key khớp DB thực tế ═══ */
 const SUBJECTS = [
   { key: 'tinhoc', icon: '💻', name: 'Tin học 9' },
   { key: 'gdcd', icon: '⚖️', name: 'GDCD 9' },
   { key: 'english', icon: '🇬🇧', name: 'Tiếng Anh 9' },
-  { key: 'diali', icon: '🌍', name: 'Địa lí 9' },
-  { key: 'khtn', icon: '🧪', name: 'KHTN 9' }
+  { key: 'diali', icon: '🌍', name: 'Địa lí 9', subKeys: ['diali_choice', 'diali_manual', 'diali_memory'] },
+  { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9' }
 ];
 
+/* ═══ LOAD DATA ═══ */
 async function loadData() {
   try {
-    const accSnap = await get(ref(db, `accounts/${session.username}`));
-    const profSnap = await get(ref(db, `profiles/${session.username}`));
-    const coupleSnap = await get(ref(db, `couples/${session.username}`));
-    
-    const acc = accSnap.val() || {};
-    const prof = profSnap.val() || {};
-    const couple = coupleSnap.val();
+    /* FIX: dùng myKey thay vì session.username */
+    const [accSnap, profSnap, coupleSnap] = await Promise.all([
+      get(ref(db, `accounts/${myKey}`)),
+      get(ref(db, `profiles/${myKey}`)),
+      get(ref(db, `couples/${myKey}`))
+    ]);
+
+    const acc    = accSnap.val()    || {};
+    const prof   = profSnap.val()   || {};
+    const couple = coupleSnap.val() || null;
+
+    /* FIX: fallback session.name nếu accounts không có name */
+    if (!acc.name) acc.name = myName;
+    if (!acc.cls)  acc.cls  = session.cls || "";
+
+    currentProfile.avatar = prof.avatar || "🐱";
+    currentProfile.bio    = prof.bio    || "";
 
     renderHeader(acc, prof);
     renderStats(prof);
@@ -304,45 +308,43 @@ async function loadData() {
     renderBadges(prof);
     renderActivity(prof.recentActivity || []);
   } catch (e) {
-    console.error(e);
-    showToast("Lỗi tải dữ liệu: " + e.message, true);
+    console.error("[profile] loadData error:", e);
+    showToast("Lỗi tải dữ liệu: " + (e.message || e), true);
+    /* Fallback: hiện thông tin cơ bản từ session */
+    $("pName").textContent = myName;
+    $("pUser").textContent = `@${session.username}` + (session.cls ? ` · ${session.cls}` : "");
   }
 }
 
-/* ═══ RENDER FUNCTIONS ═══ */
+/* ═══ RENDER ═══ */
 function renderHeader(acc, prof) {
   $("pAvatar").textContent = prof.avatar || "🐱";
-  $("pName").textContent = acc.name || "Người dùng";
-  $("pUser").textContent = `@${session.username} · ${acc.cls || 'Chưa có lớp'}`;
-  $("pBio").textContent = prof.bio ? `"${prof.bio}"` : '"Chưa có tiểu sử"';
+  $("pName").textContent   = acc.name || myName || "Người dùng";
+  $("pUser").textContent   = `@${session.username}` + (acc.cls ? ` · Lớp ${acc.cls}` : "");
+  $("pBio").textContent    = prof.bio ? `"${prof.bio}"` : '"Chưa có tiểu sử"';
 }
 
 function renderStats(prof) {
   const quizzes = prof.totalQuizzes || 0;
-  const logins = prof.loginCount || 1;
-  const streak = prof.streak || 1;
-  
+  const logins  = prof.loginCount   || 1;
+  const streak  = prof.streak       || 1;
   $("statsGrid").innerHTML = `
-    <div class="stat-item">
-      <span class="stat-val">${quizzes}</span>
-      <span class="stat-label">Bài đã làm</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-val">${logins}</span>
-      <span class="stat-label">Lần đăng nhập</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-val" style="color: var(--warn);">🔥 ${streak}</span>
-      <span class="stat-label">Ngày streak</span>
-    </div>
+    <div class="stat-item"><span class="stat-val">${quizzes}</span><span class="stat-label">Bài đã làm</span></div>
+    <div class="stat-item"><span class="stat-val">${logins}</span><span class="stat-label">Lần đăng nhập</span></div>
+    <div class="stat-item"><span class="stat-val" style="color: var(--warn);">🔥 ${streak}</span><span class="stat-label">Ngày streak</span></div>
   `;
 }
 
+/* FIX: xử lý đúng key diali_choice / diali_manual / diali_memory */
 function renderScores(bestScores) {
   let html = '';
   SUBJECTS.forEach(sub => {
-    const score = bestScores[sub.key];
-    if (score !== undefined && score !== null) {
+    let score = bestScores[sub.key];
+    if (sub.subKeys) {
+      const vals = sub.subKeys.map(k => bestScores[k]).filter(v => typeof v === "number");
+      score = vals.length ? Math.max(...vals) : undefined;
+    }
+    if (typeof score === "number") {
       const pct = Math.min(100, (score / 10) * 100);
       html += `
         <div class="score-row">
@@ -350,16 +352,14 @@ function renderScores(bestScores) {
           <span class="score-name">${sub.name}</span>
           <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${pct}%"></div></div>
           <span class="score-val">${score}</span>
-        </div>
-      `;
+        </div>`;
     } else {
       html += `
         <div class="score-row">
           <span class="score-icon">${sub.icon}</span>
           <span class="score-name">${sub.name}</span>
           <span class="score-na">Chưa làm</span>
-        </div>
-      `;
+        </div>`;
     }
   });
   $("scoresList").innerHTML = html;
@@ -371,46 +371,37 @@ function renderCouple(couple) {
       <div style="font-size: 3rem; margin-bottom: 12px;">💔</div>
       <h3 style="margin: 0 0 8px;">Chưa có couple</h3>
       <p class="mut" style="margin-bottom: 20px;">Bạn chưa set love với ai. Hãy tìm một người đặc biệt!</p>
-      <button class="love" onclick="document.getElementById('loveMask').classList.add('on')">💘 Tìm người để set love</button>
+      <button class="love" id="coupleSetLoveBtn">💘 Tìm người để set love</button>
     `;
+    const b = $("coupleSetLoveBtn");
+    if (b) b.onclick = () => $("loveMask").classList.add("on");
   } else {
-    // Giả lập lấy info partner (trong thực tế cần fetch thêm từ accounts/{partner})
-    const partnerName = couple.partnerName || "Đối phương";
+    const partnerName   = couple.partnerName   || couple.partnerUsername || "Đối phương";
     const partnerAvatar = couple.partnerAvatar || "🐰";
-    const coins = couple.loveCoins || 0;
-    const cStreak = couple.streak || 0;
-    const mission = couple.todaySubject || "Chưa có nhiệm vụ";
-    const doneA = couple.doneA ? 1 : 0;
-    const doneB = couple.doneB ? 1 : 0;
-    const progress = ((doneA + doneB) / 2) * 100;
-    
+    const coins         = couple.loveCoins     || 0;
+    const cStreak       = couple.streak        || 0;
+    const mission       = couple.todaySubject  || "Chưa có nhiệm vụ";
+    const doneA         = couple.doneA ? 1 : 0;
+    const doneB         = couple.doneB ? 1 : 0;
+    const progress      = ((doneA + doneB) / 2) * 100;
+
     $("coupleSection").innerHTML = `
       <div class="couple-avatars">
-        <span>${$("pAvatar").textContent}</span>
+        <span>${currentProfile.avatar}</span>
         <span class="couple-heart">💕</span>
         <span>${partnerAvatar}</span>
       </div>
-      <h3 style="margin: 0;">${$("pName").textContent} & ${partnerName}</h3>
-      
+      <h3 style="margin: 0;">${myName} & ${partnerName}</h3>
       <div class="couple-stats">
-        <div class="couple-stat">
-          <b>💎 ${coins}</b>
-          <span>Love coins</span>
-        </div>
-        <div class="couple-stat">
-          <b>🔥 ${cStreak}</b>
-          <span>Ngày streak</span>
-        </div>
+        <div class="couple-stat"><b>💎 ${coins}</b><span>Love coins</span></div>
+        <div class="couple-stat"><b>🔥 ${cStreak}</b><span>Ngày streak</span></div>
       </div>
-      
       <div class="mission-box">
         <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">📅 Nhiệm vụ hôm nay: ${mission}</div>
         <div style="font-size: 0.85rem; color: var(--mut);">
           ${doneA ? '✅ Bạn đã xong' : '⏳ Bạn chưa làm'} · ${doneB ? '✅ Đối phương đã xong' : '⏳ Chờ đối phương'}
         </div>
-        <div class="mission-bar">
-          <div class="mission-fill" style="width: ${progress}%"></div>
-        </div>
+        <div class="mission-bar"><div class="mission-fill" style="width: ${progress}%"></div></div>
         <div style="text-align: right; font-size: 0.75rem; color: var(--mut); margin-top: 4px;">${progress}%</div>
       </div>
     `;
@@ -420,14 +411,14 @@ function renderCouple(couple) {
 function renderBadges(prof) {
   const achievements = prof.achievements || [];
   const badges = [
-    { id: 'first_blood', icon: '🥇', name: 'First Blood', req: 'Đạt 10 điểm đầu tiên' },
-    { id: 'streak_7', icon: '🔥', name: 'Streak 7', req: '7 ngày đăng nhập liên tục' },
-    { id: 'careful_50', icon: '📚', name: 'Chăm chỉ', req: 'Làm 50 bài' },
-    { id: 'diligent_100', icon: '💪', name: 'Siêng năng', req: 'Làm 100 bài' },
-    { id: 'king', icon: '👑', name: 'Vua môn', req: 'Top 1 bất kỳ môn nào' },
+    { id: 'first_blood',  icon: '🥇', name: 'First Blood',    req: 'Đạt 10 điểm đầu tiên' },
+    { id: 'streak_7',     icon: '🔥', name: 'Streak 7',        req: '7 ngày đăng nhập liên tục' },
+    { id: 'careful_50',   icon: '📚', name: 'Chăm chỉ',        req: 'Làm 50 bài' },
+    { id: 'diligent_100', icon: '💪', name: 'Siêng năng',      req: 'Làm 100 bài' },
+    { id: 'king',         icon: '👑', name: 'Vua môn',         req: 'Top 1 bất kỳ môn nào' },
     { id: 'first_couple', icon: '💘', name: 'Couple đầu tiên', req: 'Set love thành công' },
-    { id: 'love_10', icon: '💎', name: '10 Love Coins', req: 'Tích được 10 coin' },
-    { id: 'perfect', icon: '🌟', name: 'Perfect', req: '10 điểm trên 3 môn' }
+    { id: 'love_10',      icon: '💎', name: '10 Love Coins',   req: 'Tích được 10 coin' },
+    { id: 'perfect',      icon: '🌟', name: 'Perfect',         req: '10 điểm trên 3 môn' }
   ];
 
   let html = '';
@@ -439,8 +430,7 @@ function renderBadges(prof) {
         <span class="badge-icon">${b.icon}</span>
         <span class="badge-name">${b.name}</span>
         <span class="badge-date">${dateStr}</span>
-      </div>
-    `;
+      </div>`;
   });
   $("badgeGrid").innerHTML = html;
 }
@@ -454,27 +444,27 @@ function renderActivity(activities) {
   activities.slice(0, 5).forEach(act => {
     html += `<div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px;">
       <span>${act.icon || '📌'}</span>
-      <span>${act.text}</span>
+      <span>${act.text || ''}</span>
       <span style="margin-left: auto; color: var(--mut); font-size: 0.8rem;">${act.time || 'Mới đây'}</span>
     </div>`;
   });
   $("activityList").innerHTML = html;
 }
 
-/* ═══ EDIT PROFILE MODAL ═══ */
-let selectedAvatar = $("pAvatar").textContent;
+/* ═══ EDIT PROFILE ═══ */
+let selectedAvatar = "🐱";
 
 function openEditModal() {
-  selectedAvatar = $("pAvatar").textContent;
-  $("editBio").value = $("pBio").textContent.replace(/"/g, '') === 'Chưa có tiểu sử' ? '' : $("pBio").textContent.replace(/"/g, '');
+  selectedAvatar = currentProfile.avatar || "🐱";
+  $("editBio").value = currentProfile.bio || "";
   $("bioCount").textContent = $("editBio").value.length;
-  
+
   let pickerHtml = '';
   AVATARS.forEach(av => {
     pickerHtml += `<div class="avatar-opt ${av === selectedAvatar ? 'sel' : ''}" data-av="${av}">${av}</div>`;
   });
   $("avatarPicker").innerHTML = pickerHtml;
-  
+
   $("avatarPicker").querySelectorAll('.avatar-opt').forEach(el => {
     el.onclick = () => {
       $("avatarPicker").querySelectorAll('.avatar-opt').forEach(x => x.classList.remove('sel'));
@@ -482,7 +472,7 @@ function openEditModal() {
       selectedAvatar = el.dataset.av;
     };
   });
-  
+
   $("editMask").classList.add("on");
 }
 
@@ -494,24 +484,41 @@ $("saveEdit").onclick = async () => {
   const bio = $("editBio").value.trim();
   $("saveEdit").disabled = true;
   $("saveEdit").textContent = "Đang lưu...";
-  
+
   try {
-    await update(ref(db, `profiles/${session.username}`), {
-      avatar: selectedAvatar,
-      bio: bio
-    });
+    /* FIX: dùng myKey */
+    const profRef = ref(db, `profiles/${myKey}`);
+    const existing = await get(profRef);
+    if (existing.exists()) {
+      await update(profRef, { avatar: selectedAvatar, bio });
+    } else {
+      await set(profRef, {
+        avatar: selectedAvatar,
+        bio,
+        totalQuizzes: 0,
+        loginCount: 1,
+        streak: 1,
+        bestScores: {},
+        achievements: [],
+        recentActivity: [],
+        createdAt: serverTimestamp()
+      });
+    }
+    currentProfile.avatar = selectedAvatar;
+    currentProfile.bio    = bio;
     showToast("Đã cập nhật hồ sơ!");
     $("editMask").classList.remove("on");
-    loadData(); // Refresh UI
+    loadData();
   } catch (e) {
-    showToast("Lỗi: " + e.message, true);
+    console.error("[saveEdit]", e);
+    showToast("Lỗi: " + (e.message || e), true);
   } finally {
     $("saveEdit").disabled = false;
     $("saveEdit").textContent = "Lưu thay đổi";
   }
 };
 
-/* ═══ SET LOVE MODAL (GỬI MỜI) ═══ */
+/* ═══ SET LOVE ═══ */
 $("btnSetLove").onclick = () => {
   $("targetUsername").value = "";
   $("loveErr").textContent = "";
@@ -520,64 +527,77 @@ $("btnSetLove").onclick = () => {
 $("cancelLove").onclick = () => $("loveMask").classList.remove("on");
 
 $("sendLoveInvite").onclick = async () => {
-  const target = $("targetUsername").value.trim().toLowerCase();
-  if (!target) {
+  const rawTarget = $("targetUsername").value.trim();
+  if (!rawTarget) {
     $("loveErr").textContent = "Vui lòng nhập tên đăng nhập.";
     return;
-    }
-  if (target === session.username.toLowerCase()) {
+  }
+
+  /* FIX: dùng keyOf để chuẩn hoá */
+  const targetKey = keyOf(rawTarget);
+  if (targetKey === myKey) {
     $("loveErr").textContent = "Bạn không thể kết đôi với chính mình!";
     return;
   }
 
   $("sendLoveInvite").disabled = true;
   $("sendLoveInvite").textContent = "Đang gửi...";
+  $("loveErr").textContent = "";
 
   try {
-    // Kiểm tra xem người đó có tồn tại không
-    const targetAcc = await get(ref(db, `accounts/${target}`));
+    /* FIX: dùng targetKey thay vì target */
+    const targetAcc = await get(ref(db, `accounts/${targetKey}`));
     if (!targetAcc.exists()) {
       $("loveErr").textContent = "Không tìm thấy người dùng này.";
-      $("sendLoveInvite").disabled = false;
-      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
       return;
     }
 
-    // Kiểm tra xem đã có couple chưa
-    const myCouple = await get(ref(db, `couples/${session.username}`));
-    if (myCouple.exists() && myCouple.val().partnerUsername) {
+    const myCouple = await get(ref(db, `couples/${myKey}`));
+    if (myCouple.exists() && myCouple.val() && myCouple.val().partnerUsername) {
       showToast("Bạn đã có couple rồi!", true);
       $("loveMask").classList.remove("on");
       return;
     }
 
-    // GỬI LỜI MỜI: Lưu vào node 'loveInvites'
-    // Lưu ý: Bạn cần thêm rule cho 'loveInvites' trong Firebase sau này
-    await set(ref(db, `loveInvites/${target}/${session.username}`), {
+    /* FIX: loveInvites/{targetKey}/{myKey} */
+    await set(ref(db, `loveInvites/${targetKey}/${myKey}`), {
       from: session.username,
-      name: session.name,
-      avatar: $("pAvatar").textContent,
+      name: myName,
+      cls: session.cls || "",
+      avatar: currentProfile.avatar,
       timestamp: serverTimestamp()
     });
 
     showToast("🎉 Đã gửi lời mời kết đôi thành công!");
     $("loveMask").classList.remove("on");
-    
-    // Log activity
-    const actRef = ref(db, `profiles/${session.username}/recentActivity`);
-    const currentActs = (await get(actRef)).val() || [];
-    currentActs.unshift({
-      icon: '💌',
-      text: `Gửi lời mời kết đôi tới @${target}`,
-      time: 'Vừa xong'
-    });
-    await update(ref(db, `profiles/${session.username}`), {
-      recentActivity: currentActs.slice(0, 10)
-    });
+
+    /* Log activity */
+    try {
+      const profRef = ref(db, `profiles/${myKey}`);
+      const profSnap = await get(profRef);
+      const prof = profSnap.val() || {};
+      const acts = prof.recentActivity || [];
+      acts.unshift({
+        icon: '💌',
+        text: `Gửi lời mời kết đôi tới @${rawTarget}`,
+        time: new Date().toLocaleString("vi-VN")
+      });
+      if (profSnap.exists()) {
+        await update(profRef, { recentActivity: acts.slice(0, 10) });
+      } else {
+        await set(profRef, {
+          avatar: currentProfile.avatar, bio: currentProfile.bio,
+          totalQuizzes: 0, loginCount: 1, streak: 1,
+          bestScores: {}, achievements: [],
+          recentActivity: acts.slice(0, 10),
+          createdAt: serverTimestamp()
+        });
+      }
+    } catch (e) { console.warn("[loveInvite log]", e); }
 
   } catch (e) {
-    console.error(e);
-    $("loveErr").textContent = "Lỗi: " + e.message;
+    console.error("[sendLoveInvite]", e);
+    $("loveErr").textContent = "Lỗi: " + (e.message || e);
   } finally {
     $("sendLoveInvite").disabled = false;
     $("sendLoveInvite").textContent = "Gửi lời mời 💌";
