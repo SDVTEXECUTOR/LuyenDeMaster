@@ -11,7 +11,7 @@
 :root {
 --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
 --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
---warn: #f59e0b; --warns: #fef3c7;
+--warn: #f59e0b; --warns: #fef3c7; --love: #ec4899; --loves: #fce7f3;
 --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 --glass: blur(12px) saturate(180%);
 box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -21,6 +21,7 @@ box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bott
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
 --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
+--love: #f472b6; --loves: rgba(244, 114, 182, 0.15);
 --ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
@@ -29,6 +30,7 @@ box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bott
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
 --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
+--love: #f472b6; --loves: rgba(244, 114, 182, 0.15);
 --ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
@@ -38,7 +40,7 @@ margin: 0; background: var(--bg); color: var(--fg);
 font-family: 'Inter', system-ui, -apple-system, sans-serif;
 font-size: 16px; line-height: 1.6;
 background-image: radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
-radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 40%);
 background-attachment: fixed;
 }
 main { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
@@ -102,8 +104,6 @@ display: grid; place-items: center; font-size: 0.9rem; font-weight: 700; transit
 .opt.sel b { background: var(--ac); border-color: var(--ac); color: #fff; transform: scale(1.05); }
 .opt.ok { border-color: var(--ok); background: var(--oks); }
 .opt.bad { border-color: var(--bad); background: var(--bads); }
-.opt.ok b { background: var(--ok); border-color: var(--ok); color: #fff; }
-.opt.bad b { background: var(--bad); border-color: var(--bad); color: #fff; }
 .opt.rev { cursor: default; }
 .ans-box {
 border: 1.5px solid var(--ln); border-radius: 12px; padding: 14px; margin: 10px 0;
@@ -324,7 +324,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
+/* ══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
 .code-modal-card {
   max-width: 440px;
   width: 100%;
@@ -424,6 +424,25 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   vertical-align: middle;
   margin-right: 6px;
 }
+
+/* ═══ MODAL SET LOVE ══ */
+.love-modal-card {
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.love-modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.3));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+.love-modal-title {
+  margin: 0 0 8px;
+  color: var(--love);
+  font-size: 1.3rem;
+}
 </style>
 </head>
 <body>
@@ -442,7 +461,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 <pre id="errMsg" style="color:#991b1b;background:#fee2e2;padding:16px;border-radius:8px;text-align:left;overflow:auto;font-size:0.85rem;white-space:pre-wrap;line-height:1.6;max-height:50vh;margin-bottom:24px"></pre>
 <p style="color:#64748b;font-size:0.85rem;margin-bottom:24px">Mở <b>F12 → Console</b> để xem chi tiết.</p>
 <button onclick="location.reload()" style="padding:12px 24px;background:#2563eb;color:#fff;border:0;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem">🔄 Tải lại</button>
-<button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px">🏠 Trang chủ</button>
+<button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px"> Trang chủ</button>
 </div>
 </div>
 <script>
@@ -475,8 +494,8 @@ window.__showFatalError(msg);
 <div class="cs-bg"></div><div class="cs-grid"></div><div class="cs-vignette"></div>
 <div class="cs-bar-t"></div><div class="cs-bar-b"></div>
 <div class="cs-content">
-<div class="cs-ring">🎓</div>
-<div class="cs-line cs-1">Trường TH&amp;THCS Tân Trụ</div>
+<div class="cs-ring"></div>
+<div class="cs-line cs-1">Trường TH&THCS Tân Trụ</div>
 <h2 class="cs-2" id="csTitle">Luyện Đề Trắc Nghiệm</h2>
 <div class="cs-line cs-3">Tin học 9 · GDCD 9 · Tiếng Anh 9 · Địa lí 9</div>
 <div class="cs-line cs-quote">"Mỗi câu đúng là một bước gần hơn tới điểm 10"</div>
@@ -502,9 +521,9 @@ window.__showFatalError(msg);
 <section id="auth" class="hide">
 <div style="display:flex;min-height:70vh;align-items:center;justify-content:center;padding:24px 0">
 <div class="card" style="max-width:440px;width:100%;text-align:center">
-<div style="font-size:3rem;margin-bottom:8px">🎮</div>
+<div style="font-size:3rem;margin-bottom:8px"></div>
 <h1>Luyện Đề Trắc Nghiệm</h1>
-<div class="mut">Trường TH&amp;THCS Tân Trụ · Năm học 2026–2027</div>
+<div class="mut">Trường TH&THCS Tân Trụ · Năm học 2026–2027</div>
 <div style="display:flex;gap:6px;background:var(--ln);border-radius:10px;padding:4px;margin:20px 0 4px">
 <button class="tabbtn active" id="atLogin" type="button">Đăng nhập</button>
 <button class="tabbtn" id="atRegister" type="button">Đăng kí</button>
@@ -533,6 +552,8 @@ window.__showFatalError(msg);
 <div>
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
 <strong id="hiName" style="font-size:1.1rem"></strong>
+<button class="sm g" id="btnProfile" type="button" style="border-color:var(--love);color:var(--love)">👤 Profile</button>
+<button class="sm g" id="btnSetLove" type="button" style="border-color:var(--love);color:var(--love)">💘 Kết đôi</button>
 <button class="sm" id="btnShake" type="button">📳 Lắc</button>
 </div>
 <div class="mut" id="hiSub"></div>
@@ -546,7 +567,7 @@ window.__showFatalError(msg);
 <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
 <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
-<button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
+<button class="tabbtn hide" id="tabBtnAdmin" type="button">️ AdminPanel</button>
 </div>
 <div id="tab-practice">
 <div class="card">
@@ -559,7 +580,7 @@ window.__showFatalError(msg);
 <button class="g sm" id="btnChangeMusic" style="padding: 6px 12px; font-size: 0.8rem;">Thay đổi</button>
 </div>
 <div style="background:var(--bads); color:var(--bad); padding:10px 14px; border-radius:8px; font-size:0.85rem; font-weight:600; margin-top:12px; border-left:3px solid var(--bad);">
-💡 <b>Lưu ý:</b> Chỉ những ai bật <b>CẢ 2</b> tùy chọn xáo trộn mới được tính vào thứ hạng Top 1, 2, 3 trên Bảng Xếp Hạng!
+ <b>Lưu ý:</b> Chỉ những ai bật <b>CẢ 2</b> tùy chọn xáo trộn mới được tính vào thứ hạng Top 1, 2, 3 trên Bảng Xếp Hạng!
 </div>
 <div class="mut" style="font-size:0.8rem;margin-top:8px">* Riêng môn Tiếng Anh và Địa lí: đề hiển thị đầy đủ dạng cuộn (không xáo câu hỏi).</div>
 </div>
@@ -589,7 +610,7 @@ window.__showFatalError(msg);
 <div style="display:flex; gap:8px; flex-wrap:wrap;">
 <button class="p" style="flex:1; min-width:80px" id="startDialyKhoanh">Khoanh</button>
 <button class="g" style="flex:1; min-width:80px" id="startDialyViet">Ghi thủ công</button>
-<button class="g" style="flex:1; min-width:80px; background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; border-color:transparent;" id="startDialyNho">🧠 Ghi nhớ</button>
+<button class="g" style="flex:1; min-width:80px; background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; border-color:transparent;" id="startDialyNho"> Ghi nhớ</button>
 </div>
 </div>
 <div class="card link" id="cardKhtn" role="link" tabindex="0" style="text-align:center;margin:0" onclick="location.href='khoahoctunhien.html'" onkeydown="if(event.key==='Enter'){location.href='khoahoctunhien.html'}">
@@ -719,7 +740,7 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 <div class="mask" id="musicMask">
 <div class="card" style="max-width: 440px; width: 100%;">
-<h2 style="margin-bottom: 16px;">🎵 Chọn nhạc nền</h2>
+<h2 style="margin-bottom: 16px;"> Chọn nhạc nền</h2>
 <div style="margin-bottom: 16px;">
 <label class="chk" style="margin: 8px 0;"><input type="radio" name="mMode" value="random" id="mModeRandom"> <b>Ngẫu nhiên</b></label>
 <label class="chk" style="margin: 8px 0;"><input type="radio" name="mMode" value="playlist" id="mModePlaylist"> <b>Danh sách</b></label>
@@ -760,6 +781,27 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 <button class="p" id="codeConfirm" style="flex: 1;">✓ Xác nhận</button>
 </div>
 </div>
+</div>
+
+<!-- ═══ MODAL SET LOVE ═══ -->
+<div class="mask" id="loveMask">
+  <div class="card love-modal-card">
+    <div class="love-modal-icon">💘</div>
+    <h2 class="love-modal-title">Kết đôi</h2>
+    <p class="mut" style="font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5;">
+      Nhập <b>tên đăng nhập</b> của người bạn muốn kết đôi.<br>
+      <span style="color: var(--ac); font-size: 0.85rem;">💡 Lời mời sẽ được gửi đi.</span>
+    </p>
+    
+    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tên đăng nhập đối phương</label>
+    <input type="text" id="targetUsername" placeholder="vd: linh2009" autocomplete="off">
+    <div id="loveErr" class="mut" style="color: var(--bad); font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px;"></div>
+    
+    <div class="row">
+      <button class="g" id="cancelLove" style="flex: 1;">Hủy</button>
+      <button class="p" id="sendLoveInvite" style="flex: 1; background: var(--love);">Gửi lời mời 💌</button>
+    </div>
+  </div>
 </div>
 
 <div id="ov" class="hide">
@@ -842,7 +884,7 @@ document.body.style.overflow = '';
 </script>
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
-/* ═══ SAFE IMPORTS ═══ */
+/* ═══ SAFE IMPORTS ══ */
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
 try {
 core = await import('/js/core.js');
@@ -883,7 +925,7 @@ const { ref, push, set, get, serverTimestamp, runTransaction, remove } = firebas
 /* Ẩn boot spinner khi import xong */
 const __boot = document.getElementById('boot');
 if (__boot) __boot.style.display = 'none';
-/* ═══ DOMAIN GUARD ═══ */
+/* ═══ DOMAIN GUARD ══ */
 try {
 if (!checkDomain()) {
 showDomainWarning();
@@ -894,23 +936,37 @@ if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
 }
 /* ═══ HELPERS ═══ */
 const $ = id => document.getElementById(id);
+
+/* ═══ FIX: Safe event binder — không crash nếu element không tồn tại ═══ */
+function on(idOrEl, evt, fn) {
+const el = typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
+if (!el) { console.warn("[on] Missing element:", idOrEl); return null; }
+el.addEventListener(evt, fn);
+return el;
+}
+
 const L = "ABCD";
 function showToast(msg, isErr) {
 const t = $("toast");
+if (!t) return;
 t.textContent = msg;
 t.className = "toast show" + (isErr ? " error" : "");
 clearTimeout(showToast._t);
 showToast._t = setTimeout(() => t.classList.remove("show"), 4000);
 }
-function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
-function ovOff() { $("ov").classList.add("hide"); }
+function ovOn(t) {
+const o = $("ov"), ot = $("ovtxt");
+if (ot) ot.textContent = t || "Đang xử lý…";
+if (o) o.classList.remove("hide");
+}
+function ovOff() { const o = $("ov"); if (o) o.classList.add("hide"); }
 function skeleton(n) { return Array.from({ length: n }, () => '<div class="skel"></div>').join(""); }
 async function sha256Hex(str) {
 const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
 return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 function show(id) {
-["auth","app","quiz","result"].forEach(s => $(s).classList.toggle("hide", s !== id));
+["auth","app","quiz","result"].forEach(s => { const el = $(s); if (el) el.classList.toggle("hide", s !== id); });
 window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function showBanScreen(name) {
@@ -927,7 +983,7 @@ const b = document.getElementById("banReload");
 if (b) b.onclick = () => location.reload();
 }
 
-/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ (thay thế prompt()) ═══ */
+/* ═══ MODAL NHẬP MÃ ĐĂNG KÝ (FIXED) ══ */
 function promptRegistrationCode() {
   return new Promise((resolve) => {
     const mask       = $("codeMask");
@@ -938,6 +994,11 @@ function promptRegistrationCode() {
     const btnConfirm = $("codeConfirm");
     const btnCancel  = $("codeCancel");
 
+    if (!mask || !input || !status || !error || !wrap || !btnConfirm || !btnCancel) {
+      resolve(null);
+      return;
+    }
+
     // Reset state
     input.value = "";
     status.textContent = "";
@@ -946,15 +1007,13 @@ function promptRegistrationCode() {
     btnConfirm.disabled = false;
     btnConfirm.innerHTML = "✓ Xác nhận";
 
-    // Auto uppercase + tự thêm dấu '-'
+    // Auto uppercase + tự thêm dấu '-' (FIXED FORMAT: LDM-XXXXX-XXXXX)
     input.oninput = () => {
       let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-      // Loại bỏ tiền tố LDM nếu user gõ nhầm
       if (v.startsWith("LDM")) v = v.slice(3);
-      if (v.length > 3)  v = v.slice(0, 3)  + "-" + v.slice(3);
-      if (v.length > 9)  v = v.slice(0, 9)  + "-" + v.slice(9);
-      if (v.length > 15) v = v.slice(0, 15);
-      v = "LDM" + v;
+      if (v.length > 5)  v = v.slice(0, 5)  + "-" + v.slice(5, 10);
+      if (v.length > 11) v = v.slice(0, 11);
+      v = "LDM-" + v;
       input.value = v;
 
       if (v.length < 15) {
@@ -1023,7 +1082,7 @@ function promptRegistrationCode() {
   });
 }
 
-/* ═══ LAZY DATA ═══ */
+/* ══ LAZY DATA ═══ */
 const _dataCache = Object.create(null);
 let ENGLISH_SECTIONS = [];
 let ENGLISH_QMETA = [];
@@ -1056,7 +1115,7 @@ if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
 if (checkProfanity(u) || checkProfanity(name)) {
 recordViolation(name);
-throw new Error("🚫 TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
+throw new Error(" TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
 }
 const key = keyOf(u);
 const passHash = await sha256Hex(p);
@@ -1136,7 +1195,6 @@ usedCode = check.code;
 }
 } catch (e) {
 console.warn('[register] Lock check error:', e);
-// Nếu lock check fail → cho đăng ký luôn (không chặn)
 }
 await doRegister(u, p, name, $("auCls").value.trim());
 if (usedCode) await markCodeUsed(usedCode, u);
@@ -1162,7 +1220,8 @@ _syncSession(null);
 showBanScreen(session.name);
 return;
 }
-$("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
+const tabAdmin = $("tabBtnAdmin");
+if (tabAdmin) tabAdmin.classList.toggle("hide", !isAdminSession());
 $("hiName").textContent = "👋 Xin chào, " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 $("auUser").value = ""; $("auPass").value = "";
@@ -1171,16 +1230,14 @@ show("app"); switchTab("practice");
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
 /* ═══ TABS ═══ */
 function switchTab(name) {
-$("tabBtnPractice").classList.toggle("active", name === "practice");
-$("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
-$("tabBtnGameplay").classList.toggle("active", name === "gameplay");
-$("tabBtnDev").classList.toggle("active", name === "dev");
-$("tabBtnAdmin").classList.toggle("active", name === "admin");
-$("tab-practice").classList.toggle("hide", name !== "practice");
-$("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
-$("tab-gameplay").classList.toggle("hide", name !== "gameplay");
-$("tab-dev").classList.toggle("hide", name !== "dev");
-$("tab-admin").classList.toggle("hide", name !== "admin");
+const map = {
+practice: "tabBtnPractice", leaderboard: "tabBtnLeaderboard", gameplay: "tabBtnGameplay",
+dev: "tabBtnDev", admin: "tabBtnAdmin"
+};
+Object.keys(map).forEach(k => {
+const b = $(map[k]); if (b) b.classList.toggle("active", k === name);
+const p = $("tab-" + k); if (p) p.classList.toggle("hide", k !== name);
+});
 if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
@@ -1192,12 +1249,13 @@ $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
 /* ═══ LEADERBOARD ═══ */
 function wirePills(pillsId, listId, initial) {
 const el = $(pillsId);
+if (!el) return;
 const filters = [
 { id: "all", label: "Tất cả" },
-{ id: "tinhoc", label: "💻 Tin học 9" },
+{ id: "tinhoc", label: " Tin học 9" },
 { id: "gdcd", label: "⚖️ GDCD 9" },
 { id: "english", label: "🇬🇧 Tiếng Anh 9" },
-{ id: "khoahoctunhien", label: "🧪 KHTN 9" },
+{ id: "khoahoctunhien", label: " KHTN 9" },
 { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
 { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
 { id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" }
@@ -1216,6 +1274,7 @@ renderLeaderboard(listId, initial);
 }
 async function renderLeaderboard(elId, filter) {
 const el = $(elId);
+if (!el) return;
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
 el.innerHTML = skeleton(3);
 try {
@@ -1261,7 +1320,7 @@ const rawName = v.name || v.username || "?";
 const isBanned = checkProfanity(rawName);
 const displayName = isBanned ? "🚫 Vi phạm" : esc(rawName);
 const isShuf = v.isShuffled === true && !isBanned;
-const medal = isShuf ? (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1)) : (i + 1);
+const medal = isShuf ? (i === 0 ? "🥇" : i === 1 ? "" : i === 2 ? "" : (i + 1)) : (i + 1);
 const clsTop = isShuf && i < 3 ? " top" + (i + 1) : "";
 const subj = LEADERBOARD_SUBJECTS_META[v.subject];
 const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
@@ -1411,7 +1470,7 @@ $("qc").innerHTML = h;
 $("qc").querySelectorAll("input").forEach(el => {
 el.onchange = function(e) {
 if (!e.isTrusted) {
-showToast("⚠️ Phát hiện công cụ tự động chọn!", true);
+showToast("️ Phát hiện công cụ tự động chọn!", true);
 recordViolation(session.name, session.username);
 showBanScreen(session.name);
 return;
@@ -1428,7 +1487,7 @@ $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'sm
 updateNavAndCount();
 }
 function drawAll() {
-let h = '<div class="exam-hint">📜 Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
+let h = '<div class="exam-hint"> Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
 ENGLISH_SECTIONS.forEach((block) => {
 if (block.title) h += '<div class="sec-title">' + block.title + '</div>';
 if (block.passage) h += '<div class="passage">' + block.passage + '</div>';
@@ -1479,7 +1538,7 @@ showBanScreen(session.name);
 return;
 }
 const sel = window.getSelection().toString().trim();
-if (!sel) { showToast("⚠️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true); return; }
+if (!sel) { showToast("️ Vui lòng bôi đen đoạn văn bản ở trên trước!", true); return; }
 const cleanText = sel.replace(/\s+/g, ' ');
 const ta = document.getElementById("txt-" + flatIdx);
 if (ta) { ta.value = cleanText; ta.dispatchEvent(new Event('input', { isTrusted: true })); showToast("✅ Đã điền đáp án!"); }
@@ -1731,16 +1790,29 @@ renderLeaderboard("lbResult", res.subject);
 }
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
-/* ═══ MUSIC ═══ */
+/* ═══ MUSIC (FIXED) ═══ */
 const music = createMusicPlayer({
 audio: $("bgMusic"),
 onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
 onToggle: (on) => {
 $("musicCheck").checked = on;
 $("musicSelectionArea").classList.toggle("hide", !on);
+if (on) {
+$("musicCheck").checked = true;
+} else {
+$("musicCheck").checked = false;
+}
 }
 });
-$("musicCheck").onchange = () => music.setOn($("musicCheck").checked);
+
+$("musicCheck").onchange = function() {
+const isChecked = this.checked;
+music.setOn(isChecked);
+if (!isChecked) {
+$("bgMusic").pause();
+}
+};
+
 $("btnChangeMusic").onclick = () => {
 $("mModeRandom").checked = music.mode === "random";
 $("mModePlaylist").checked = music.mode === "playlist";
@@ -1770,7 +1842,7 @@ function updateClock() {
 const now = new Date();
 const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
 const el = $("liveClock");
-if (el) el.textContent = `📅 ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
+if (el) el.textContent = ` ${days[now.getDay()]}, ${now.toLocaleDateString("vi-VN")} · ⏰ ${now.toLocaleTimeString("vi-VN")}`;
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -1799,7 +1871,7 @@ setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
-/* ═══ IFRAME OVERLAY ═══ */
+/* ═══ IFRAME OVERLAY ══ */
 function openFrameOverlay(src) {
 $("video-frame").src = src;
 $("iframe-overlay").classList.remove("hide");
@@ -1811,6 +1883,81 @@ $("btnBack").onclick = function() {
 $("iframe-overlay").classList.add("hide");
 $("video-frame").src = "";
 };
+/* ═══ PROFILE BUTTON ═══ */
+$("btnProfile").onclick = () => {
+  location.href = "/profile.html";
+};
+
+/* ═══ SET LOVE FUNCTIONALITY (FIXED — safe, dùng keyOf, dùng on()) ═══ */
+on("btnSetLove", "click", () => {
+  const tu = $("targetUsername"); if (tu) tu.value = "";
+  const err = $("loveErr");       if (err) err.textContent = "";
+  const mask = $("loveMask");     if (mask) mask.classList.add("on");
+});
+
+on("cancelLove", "click", () => {
+  const m = $("loveMask"); if (m) m.classList.remove("on");
+});
+
+on("loveMask", "click", (e) => {
+  const m = $("loveMask");
+  if (m && e.target === m) m.classList.remove("on");
+});
+
+on("sendLoveInvite", "click", async () => {
+  const btn   = $("sendLoveInvite");
+  const errEl = $("loveErr");
+  const tu    = $("targetUsername");
+  if (!btn || !errEl || !tu) return;
+  if (!db) { errEl.textContent = "Chưa kết nối được máy chủ."; return; }
+  if (!session) { errEl.textContent = "Bạn chưa đăng nhập."; return; }
+
+  const rawTarget = tu.value.trim();
+  if (!rawTarget) { errEl.textContent = "Vui lòng nhập tên đăng nhập."; return; }
+
+  const targetKey = keyOf(rawTarget);
+  const myKey     = keyOf(session.username);
+  if (targetKey === myKey) {
+    errEl.textContent = "Bạn không thể kết đôi với chính mình!";
+    return;
+  }
+
+  errEl.textContent = "";
+  btn.disabled = true;
+  btn.textContent = "Đang gửi...";
+
+  try {
+    const targetAcc = await get(ref(db, "accounts/" + targetKey));
+    if (!targetAcc.exists()) {
+      errEl.textContent = "Không tìm thấy người dùng này.";
+      return;
+    }
+
+    const myCouple = await get(ref(db, "couples/" + myKey));
+    if (myCouple.exists() && myCouple.val() && myCouple.val().partnerUsername) {
+      showToast("Bạn đã có couple rồi!", true);
+      const m = $("loveMask"); if (m) m.classList.remove("on");
+      return;
+    }
+
+    await set(ref(db, "loveInvites/" + targetKey + "/" + myKey), {
+      from: session.username,
+      name: session.name,
+      cls: session.cls || "",
+      timestamp: serverTimestamp()
+    });
+
+    showToast("🎉 Đã gửi lời mời kết đôi thành công!");
+    const m = $("loveMask"); if (m) m.classList.remove("on");
+  } catch (e) {
+    console.error("[sendLoveInvite]", e);
+    errEl.textContent = "Lỗi: " + (e.message || e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Gửi lời mời 💌";
+  }
+});
+
 /* ═══ ANTI-CHEAT ═══ */
 let tabSwitchCount = 0;
 installAntiCheat({
@@ -1840,7 +1987,7 @@ const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 }
 });
-/* ═══ INIT ═══ */
+/* ═══ INIT ══ */
 (async function init() {
 try {
 await syncUnbanEpoch();
