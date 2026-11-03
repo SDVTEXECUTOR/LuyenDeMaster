@@ -26,6 +26,7 @@ export const db = _db;
 /* ══ SESSION ══ */
 let _session = null;
 export function getSession() { return _session; }
+
 export function saveSession(s) {
   if (!s) return;
   _session = s;
@@ -35,21 +36,25 @@ export function saveSession(s) {
     localStorage.setItem(SESSION_KEY_KHTN, str);
   } catch (e) { console.warn("[core] saveSession:", e); }
 }
+
 export function loadSession() {
   try {
     const v = localStorage.getItem(SESSION_KEY_KHTN) || localStorage.getItem(SESSION_KEY);
     return v ? JSON.parse(v) : null;
   } catch (e) { return null; }
 }
+
 export function clearSession() {
   _session = null;
   [SESSION_KEY, SESSION_KEY_KHTN].forEach(k => {
     try { localStorage.removeItem(k); } catch (e) {}
   });
 }
+
 export function isAdminSession() {
   return !!(_session && _session.isAdmin === true);
 }
+
 export function isAdminUsername(username) {
   return String(username || "").trim().toLowerCase() === ADMIN_USER;
 }
@@ -62,11 +67,13 @@ export function normText(s) {
     .replace(/[.,!?;:'"()\-–—]/g, " ")
     .replace(/\s+/g, " ").trim();
 }
+
 export function nameHash(name) {
   return normText(name || "").replace(/\s+/g, "_");
 }
 
 const _ACCENT_RE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+
 export function checkProfanity(str) {
   if (!str) return false;
   const low = String(str).toLowerCase();
@@ -80,6 +87,7 @@ export function checkProfanity(str) {
 export function keyOf(u) {
   return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
 }
+
 export function getBanKey(name)       { return BAN_PREFIX + "ban_" + nameHash(name); }
 export function getViolationKey(name) { return BAN_PREFIX + "vio_" + nameHash(name); }
 
@@ -88,6 +96,7 @@ export function checkLocalBan(name) {
   try { return localStorage.getItem(getBanKey(name)) === "1"; }
   catch (e) { return false; }
 }
+
 export function setLocalBan(name) {
   try {
     localStorage.setItem(getBanKey(name), "1");
@@ -96,6 +105,7 @@ export function setLocalBan(name) {
     localStorage.setItem(vk, String(cur + 1));
   } catch (e) {}
 }
+
 export function clearAllLocalBans() {
   const ks = [];
   try {
@@ -120,6 +130,7 @@ export async function checkFirebaseBan(username) {
     return snap.exists() && snap.val().isBanned === true;
   } catch (e) { return false; }
 }
+
 export async function recordFirebaseViolation(username) {
   if (!db || !username || isAdminSession()) return false;
   try {
@@ -137,6 +148,7 @@ export async function recordFirebaseViolation(username) {
     return false;
   }
 }
+
 export function recordViolation(nameOrUsername, username) {
   setLocalBan(nameOrUsername);
   const u = username || (_session && _session.username);
@@ -167,6 +179,7 @@ export function checkDomain() {
   const cur = String(location.hostname || "").toLowerCase();
   return ALLOWED_HOSTS.map(h => h.toLowerCase()).includes(cur);
 }
+
 export function showDomainWarning() {
   document.body.innerHTML =
     '<div style="position:fixed;inset:0;z-index:2147483647;background:linear-gradient(135deg,#0f172a,#1e1b4b);' +
@@ -316,6 +329,7 @@ export async function markCodeUsed(code, username) {
       }
     }
     oldKeys.forEach(x => { try { localStorage.removeItem(x); } catch (e) {} });
+
     if (localStorage.getItem("qp_unban_v1") !== "done") {
       const banKeys = [];
       for (let a = 0; a < localStorage.length; a++) {
