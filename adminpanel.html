@@ -227,7 +227,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   font-variant-numeric: tabular-nums;
 }
 
-/* ═══ NEWS / ANNOUNCEMENTS ═══ */
 .news-form label {
   font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; color: var(--mut);
 }
@@ -248,7 +247,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .news-list-item .news-meta { font-size: 0.72rem; color: var(--mut); margin-bottom: 6px; }
 .news-list-item .news-body { font-size: 0.88rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 
-/* ═══ RESET LEADERBOARD ═══ */
 .reset-row {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
@@ -277,7 +275,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 </head>
 <body>
 
-<!-- BOOT -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:1000;text-align:center;padding:24px">
   <div>
     <div style="width:50px;height:50px;border:4px solid var(--ln);border-top-color:var(--ac);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
@@ -285,7 +282,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- ERROR -->
 <div id="errorScreen" class="denied-screen hide">
   <div>
     <div class="icon">⚠️</div>
@@ -297,7 +293,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- DENIED -->
 <div class="denied-screen hide" id="denied">
   <div>
     <div class="icon">🚫</div>
@@ -307,7 +302,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- MAIN PANEL -->
 <main id="panel" class="hide">
   <div class="card">
     <div class="top">
@@ -323,7 +317,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card ac"><div class="num" id="stTotal">—</div><div class="lbl">Tổng tài khoản</div></div>
     <div class="stat-card ok"><div class="num" id="stActive">—</div><div class="lbl">Đang hoạt động</div></div>
@@ -334,7 +327,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="stat-card ok"><div class="num" id="stCodes">—</div><div class="lbl">Mã khả dụng</div></div>
   </div>
 
-  <!-- LOCK -->
   <div class="card">
     <div class="top">
       <div style="flex:1;min-width:0">
@@ -351,7 +343,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- NEWS / ANNOUNCEMENTS -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div style="flex:1;min-width:0">
@@ -371,7 +362,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- CODES -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <h2>🔑 Mã đăng ký</h2>
@@ -386,7 +376,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div id="codesList"><div class="skel"></div><div class="skel"></div></div>
   </div>
 
-  <!-- RESET LEADERBOARD -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <h2>🗑️ Reset bảng xếp hạng</h2>
@@ -410,7 +399,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- UNBAN ALL -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div style="flex:1">
@@ -424,7 +412,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- ACCOUNTS -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <h2>👥 Quản lý tài khoản</h2>
@@ -442,7 +429,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </main>
 
-<!-- MODAL: results -->
 <div class="mask" id="resultsMask">
   <div class="modal">
     <div class="top" style="margin-bottom:16px">
@@ -453,7 +439,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- MODAL: confirm -->
 <div class="mask" id="confirmMask">
   <div class="modal" style="max-width:460px">
     <h2 id="cfTitle" style="margin-bottom:12px">Xác nhận</h2>
@@ -465,7 +450,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- OVERLAY -->
 <div id="ov" class="hide">
   <div class="lbox">
     <div class="spinner"></div>
@@ -473,13 +457,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ══════════════════════════════════════════════════════════════════
-   GLOBAL ERROR HANDLER
-   ══════════════════════════════════════════════════════════════════ */
 function showFatalError(msg) {
   try {
     const boot = document.getElementById('boot');
@@ -502,52 +482,36 @@ window.addEventListener('unhandledrejection', (e) => {
   showFatalError((e.reason && (e.reason.stack || e.reason.message)) || String(e.reason) || 'Promise bị reject');
 });
 
-/* ══════════════════════════════════════════════════════════════════
-   IMPORTS (cache-busting)
-   ══════════════════════════════════════════════════════════════════ */
 let core, utils, config, firebase;
-const v = Date.now();
+const BUILD_V = Date.now();
 try {
-  core     = await import(`/js/core.js?v=${v}`);
-  utils    = await import(`/js/utils.js?v=${v}`);
-  config   = await import(`/js/config.js?v=${v}`);
+  core     = await import(`/js/core.js?v=${BUILD_V}`);
+  utils    = await import(`/js/utils.js?v=${BUILD_V}`);
+  config   = await import(`/js/config.js?v=${BUILD_V}`);
   firebase = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
   console.error('Import failed:', e);
-  showFatalError(
-    'Không tải được module:\n' + e.message +
-    '\n\n→ Kiểm tra file /js/core.js, /js/utils.js, /js/config.js.'
-  );
+  showFatalError('Không tải được module:\n' + e.message);
   throw e;
 }
 
 const { ref, get, set, remove, serverTimestamp } = firebase;
 const $ = id => document.getElementById(id);
 
-/* ══════════════════════════════════════════════════════════════════
-   CHECK EXPORTS
-   ══════════════════════════════════════════════════════════════════ */
-const missing = [];
-[
+// ⭐ CHECK EXPORTS — không throw nếu thiếu announcements
+const requiredExports = [
   'db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
-  'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode',
-  'getAnnouncements','createAnnouncement','deleteAnnouncement'
-].forEach(k => { if (typeof core[k] === 'undefined') missing.push('core.' + k); });
-
-['esc','fmtMsShort','fmtDate'].forEach(k => {
-  if (typeof utils[k] === 'undefined') missing.push('utils.' + k);
-});
-
-['ADMIN_USER','ADMIN_PROFILE','UNBAN_NODE','UNBAN_LOCAL_KEY'].forEach(k => {
-  if (typeof config[k] === 'undefined') missing.push('config.' + k);
-});
-
+  'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode'
+];
+const missing = requiredExports.filter(k => typeof core[k] === 'undefined');
 if (missing.length) {
-  showFatalError(
-    'Thiếu export trong module:\n\n' + missing.join('\n') +
-    '\n\n→ Vui lòng cập nhật file js/*.js theo phiên bản mới nhất.'
-  );
-  throw new Error('Missing exports: ' + missing.join(', '));
+  showFatalError('Thiếu export trong core:\n\n' + missing.join('\n'));
+  throw new Error('Missing exports');
+}
+
+// ⭐ Cảnh báo nhẹ (KHÔNG throw) nếu core cũ chưa có announcements — fallback sẽ xử lý
+if (typeof core.getAnnouncements !== 'function') {
+  console.warn('[adminpanel] core.js chưa có getAnnouncements — dùng fallback firebase trực tiếp');
 }
 
 const {
@@ -557,12 +521,64 @@ const {
 const { esc, fmtMsShort, fmtDate } = utils;
 const { ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY } = config;
 
-/* ══════════════════════════════════════════════════════════════════
-   HELPERS
-   ══════════════════════════════════════════════════════════════════ */
+// ⭐ FALLBACK cho announcements — dùng được cả khi core cũ
+const ANN_NODE = "config/announcements";
+
+async function safeGetAnnouncements() {
+  if (typeof core.getAnnouncements === "function") {
+    try { return await core.getAnnouncements(); }
+    catch(e) { console.warn("[ann] core.getAnnouncements failed:", e.message); }
+  }
+  try {
+    if (!db) return [];
+    const snap = await get(ref(db, ANN_NODE));
+    const items = [];
+    if (snap.exists()) {
+      snap.forEach(ch => {
+        const v = ch.val();
+        if (v && v.title) items.push({ id: ch.key, ...v });
+      });
+    }
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return items;
+  } catch(e) { console.warn("[ann] fallback get failed:", e); return []; }
+}
+
+async function safeCreateAnnouncement(title, content, author) {
+  if (typeof core.createAnnouncement === "function") {
+    try { return await core.createAnnouncement(title, content, author); }
+    catch(e) { console.warn("[ann] core.createAnnouncement failed:", e.message); }
+  }
+  // Fallback: tạo trực tiếp
+  try {
+    if (!db) return null;
+    const t = String(title || "").trim();
+    const c = String(content || "").trim();
+    if (!t || t.length > 200 || !c || c.length > 5000) return null;
+    const newRef = firebase.push(ref(db, ANN_NODE));
+    await set(newRef, {
+      title: t, content: c,
+      author: String(author || "Admin").slice(0, 100),
+      createdAt: Date.now()
+    });
+    return newRef.key;
+  } catch(e) { console.warn("[ann] fallback create failed:", e); return null; }
+}
+
+async function safeDeleteAnnouncement(id) {
+  if (typeof core.deleteAnnouncement === "function") {
+    try { return await core.deleteAnnouncement(id); }
+    catch(e) { console.warn("[ann] core.deleteAnnouncement failed:", e.message); }
+  }
+  try {
+    if (!db || !id) return false;
+    await remove(ref(db, ANN_NODE + "/" + id));
+    return true;
+  } catch(e) { console.warn("[ann] fallback delete failed:", e); return false; }
+}
+
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff() { $("ov").classList.add("hide"); }
-
 function showToast(msg, isErr) {
   const t = $("toast");
   t.textContent = msg;
@@ -570,7 +586,6 @@ function showToast(msg, isErr) {
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => t.classList.remove("show"), 3500);
 }
-
 function confirmBox(title, body, onConfirm, danger = true) {
   $("cfTitle").textContent = title;
   $("cfBody").innerHTML = body;
@@ -586,18 +601,12 @@ function confirmBox(title, body, onConfirm, danger = true) {
   $("cfYes").onclick = async () => { cleanup(); await onConfirm(); };
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   STATE
-   ══════════════════════════════════════════════════════════════════ */
 let allAccounts = [];
 let filterMode = "all";
 let searchQuery = "";
 let currentAdmin = null;
 let showAllCodes = false;
 
-/* ══════════════════════════════════════════════════════════════════
-   CLOCK
-   ══════════════════════════════════════════════════════════════════ */
 function tickClock() {
   const now = new Date();
   const days = ["CN","T2","T3","T4","T5","T6","T7"];
@@ -607,9 +616,6 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
-/* ══════════════════════════════════════════════════════════════════
-   ACCESS CHECK
-   ══════════════════════════════════════════════════════════════════ */
 function checkAccess() {
   const s = loadSession();
   if (!s || !s.isAdmin || !isAdminUsername(s.username)) return false;
@@ -621,9 +627,6 @@ function checkAccess() {
   return true;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   LOCK
-   ══════════════════════════════════════════════════════════════════ */
 async function loadLockStatus() {
   try {
     const isLocked = await core.checkRegistrationLock();
@@ -631,47 +634,28 @@ async function loadLockStatus() {
     $("lockStatus").innerHTML = isLocked
       ? '<span style="color:var(--bad);font-weight:700">🔒 ĐANG KHÓA</span> — Học sinh cần mã đăng ký'
       : '<span style="color:var(--ok);font-weight:700">🔓 ĐANG MỞ</span> — Ai cũng có thể đăng ký';
-  } catch (e) {
-    $("lockStatus").textContent = "Lỗi: " + e.message;
-  }
+  } catch (e) { $("lockStatus").textContent = "Lỗi: " + e.message; }
 }
 
 async function toggleLock() {
   const newState = $("lockCheckbox").checked;
-  if (newState) {
-    if (!confirm("🔒 Bật KHÓA đăng ký?\n\nHọc sinh sẽ KHÔNG thể tự tạo tài khoản.")) {
-      $("lockCheckbox").checked = false; return;
-    }
-  } else {
-    if (!confirm("🔓 MỞ khóa đăng ký?\n\nAi cũng có thể tự tạo tài khoản.")) {
-      $("lockCheckbox").checked = true; return;
-    }
+  if (!confirm(newState ? "🔒 Bật KHÓA đăng ký?\n\nHọc sinh sẽ KHÔNG thể tự tạo tài khoản." : "🔓 MỞ khóa đăng ký?\n\nAi cũng có thể tự tạo tài khoản.")) {
+    $("lockCheckbox").checked = !newState; return;
   }
   try {
     ovOn("Đang cập nhật…");
     const ok = await core.setRegistrationLock(newState);
     ovOff();
-    if (ok) {
-      showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký");
-      loadLockStatus();
-    } else {
-      showToast("Không thể cập nhật. Kiểm tra quyền admin.", true);
-      $("lockCheckbox").checked = !newState;
-    }
-  } catch (e) {
-    ovOff();
-    showToast("Lỗi: " + e.message, true);
-    $("lockCheckbox").checked = !newState;
-  }
+    if (ok) { showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký"); loadLockStatus(); }
+    else { showToast("Không thể cập nhật.", true); $("lockCheckbox").checked = !newState; }
+  } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("lockCheckbox").checked = !newState; }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   📢 ANNOUNCEMENTS (tin tức)
-   ══════════════════════════════════════════════════════════════════ */
+/* ═══ ANNOUNCEMENTS (dùng safe helpers) ═══ */
 async function loadAnnouncements() {
   $("annList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
-    const items = await core.getAnnouncements();
+    const items = await safeGetAnnouncements();
     if (!items.length) {
       $("annList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có thông báo nào. Hãy đăng thông báo đầu tiên!</div>';
       return;
@@ -697,14 +681,11 @@ async function deleteAnn(id) {
   confirmBox("🗑️ Xoá thông báo?", "Bạn có chắc muốn xoá thông báo này?<br><br><span style='color:var(--bad);font-weight:700'>Không thể hoàn tác!</span>", async () => {
     ovOn("Đang xoá...");
     try {
-      const ok = await core.deleteAnnouncement(id);
+      const ok = await safeDeleteAnnouncement(id);
       ovOff();
       if (ok) { showToast("✅ Đã xoá thông báo!"); loadAnnouncements(); }
-      else showToast("Không thể xoá. Kiểm tra quyền admin.", true);
-    } catch (e) {
-      ovOff();
-      showToast("Lỗi: " + e.message, true);
-    }
+      else showToast("Không thể xoá.", true);
+    } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
   }, true);
 }
 window.__deleteAnn = deleteAnn;
@@ -719,25 +700,17 @@ $("btnCreateAnn").onclick = async () => {
 
   ovOn("Đang đăng...");
   try {
-    const id = await core.createAnnouncement(title, content, currentAdmin?.name || "Admin");
+    const id = await safeCreateAnnouncement(title, content, currentAdmin?.name || "Admin");
     ovOff();
-    if (!id) {
-      showToast("Không thể đăng thông báo. Kiểm tra quyền admin.", true);
-      return;
-    }
+    if (!id) { showToast("Không thể đăng thông báo.", true); return; }
     $("annTitle").value = "";
     $("annContent").value = "";
     showToast("✅ Đã đăng thông báo!");
     loadAnnouncements();
-  } catch (e) {
-    ovOff();
-    showToast("Lỗi: " + e.message, true);
-  }
+  } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
 };
 
-/* ══════════════════════════════════════════════════════════════════
-   CODES (có nút Xem tất cả)
-   ══════════════════════════════════════════════════════════════════ */
+/* ═══ CODES ═══ */
 async function loadCodes() {
   $("codesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
@@ -746,29 +719,21 @@ async function loadCodes() {
       if (a.used !== b.used) return a.used ? 1 : -1;
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
-
     $("stCodes").textContent = all.filter(c => !c.used).length;
     $("btnShowAllCodes").textContent = showAllCodes ? "🔒 Ẩn mã đã dùng" : "👁️ Xem tất cả";
-
     const codes = showAllCodes ? all : all.filter(c => !c.used);
-
     if (!codes.length) {
       $("codesList").innerHTML = `<div class="mut" style="padding:20px;text-align:center">${
-        showAllCodes
-          ? "Chưa có mã nào. Bấm '+ Tạo mã mới' để bắt đầu."
-          : "Không có mã khả dụng. Bấm '+ Tạo mã mới' hoặc 'Xem tất cả'."
+        showAllCodes ? "Chưa có mã nào." : "Không có mã khả dụng."
       }</div>`;
       return;
     }
-
     $("codesList").innerHTML = codes.map(c => `
       <div class="code-row ${c.used ? 'used' : ''}">
         <div>
           <div class="code-value ${c.used ? 'used' : ''}">${esc(c.code)}</div>
           <div class="code-meta">
-            ${c.used
-              ? `✓ Đã dùng bởi <b>${esc(c.usedBy || '?')}</b> · ${fmtDate(c.usedAt)}`
-              : `📅 Tạo ${fmtDate(c.createdAt)}`}
+            ${c.used ? `✓ Đã dùng bởi <b>${esc(c.usedBy || '?')}</b> · ${fmtDate(c.usedAt)}` : `📅 Tạo ${fmtDate(c.createdAt)}`}
           </div>
         </div>
         <div>
@@ -781,7 +746,6 @@ async function loadCodes() {
     $("codesList").innerHTML = '<div class="mut" style="color:var(--bad);padding:20px">Lỗi: ' + esc(e.message) + '</div>';
   }
 }
-
 $("btnShowAllCodes").onclick = () => { showAllCodes = !showAllCodes; loadCodes(); };
 
 async function createCode() {
@@ -794,21 +758,12 @@ async function createCode() {
     try { await navigator.clipboard.writeText(code); copied = true; } catch (e) {}
     showToast(copied ? `✅ Đã tạo & copy: ${code}` : `✅ Đã tạo: ${code}`);
     await loadCodes();
-  } catch (e) {
-    ovOff();
-    showToast("Lỗi: " + e.message, true);
-  }
+  } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
 }
-
 async function copyCode(code) {
-  try {
-    await navigator.clipboard.writeText(code);
-    showToast("📋 Đã copy: " + code);
-  } catch (e) {
-    prompt("Copy mã này:", code);
-  }
+  try { await navigator.clipboard.writeText(code); showToast("📋 Đã copy: " + code); }
+  catch (e) { prompt("Copy mã này:", code); }
 }
-
 async function deleteCode(code) {
   confirmBox("🗑️ Xoá mã?",
     `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?`,
@@ -822,13 +777,10 @@ async function deleteCode(code) {
       } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     }, true);
 }
-
 window.__copyCode = copyCode;
 window.__deleteCode = deleteCode;
 
-/* ══════════════════════════════════════════════════════════════════
-   RESET LEADERBOARD
-   ══════════════════════════════════════════════════════════════════ */
+/* ═══ RESET LEADERBOARD — xoá từng child để khớp rules $id.write ═══ */
 $("btnResetLeaderboard").onclick = () => {
   const subj = $("resetSubject").value;
   if (!subj) { showToast("Vui lòng chọn bảng xếp hạng!", true); return; }
@@ -851,25 +803,35 @@ $("btnResetLeaderboard").onclick = () => {
     async () => {
       ovOn("Đang reset...");
       try {
+        // Helper: xoá từng child (rules chỉ cho phép xoá ở cấp $id, KHÔNG cho xoá cả node)
+        const deleteAllChildren = async (nodePath, filterFn = null) => {
+          const snap = await get(ref(db, nodePath));
+          if (!snap.exists()) return 0;
+          const keys = [];
+          snap.forEach(ch => {
+            const v = ch.val();
+            if (!filterFn || filterFn(v)) keys.push(ch.key);
+          });
+          const results = await Promise.allSettled(
+            keys.map(k => remove(ref(db, nodePath + "/" + k)))
+          );
+          const okCount = results.filter(r => r.status === "fulfilled").length;
+          const failCount = results.length - okCount;
+          if (failCount > 0) console.warn(`[reset] ${failCount}/${results.length} xoá thất bại`);
+          return okCount;
+        };
+
+        let deleted = 0;
         if (subj === "tower") {
-          await remove(ref(db, "tower"));
+          deleted = await deleteAllChildren("tower");
         } else if (subj === "khoahoctunhien") {
-          await remove(ref(db, "results_khtn"));
+          deleted = await deleteAllChildren("results_khtn");
         } else {
-          const snap = await get(ref(db, "results"));
-          const toDelete = [];
-          if (snap.exists()) {
-            snap.forEach(ch => {
-              const v = ch.val();
-              if (v && v.subject === subj) toDelete.push(ch.key);
-            });
-          }
-          await Promise.all(toDelete.map(k =>
-            remove(ref(db, "results/" + k)).catch(() => {})
-          ));
+          deleted = await deleteAllChildren("results", (v) => v && v.subject === subj);
         }
+
         ovOff();
-        showToast("✅ Đã reset bảng xếp hạng!");
+        showToast(`✅ Đã reset ${deleted} kết quả!`);
         $("resetSubject").value = "";
         await loadData();
       } catch (e) {
@@ -881,21 +843,15 @@ $("btnResetLeaderboard").onclick = () => {
   );
 };
 
-/* ══════════════════════════════════════════════════════════════════
-   LOAD DATA (accounts + stats)
-   ══════════════════════════════════════════════════════════════════ */
+/* ═══ LOAD DATA ═══ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
-
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   try {
     const [accSnap, banSnap, resSnap, khtnSnap, towerSnap, unbanSnap] = await Promise.all([
-      get(ref(db, "accounts")),
-      get(ref(db, "bans")),
-      get(ref(db, "results")),
-      get(ref(db, "results_khtn")),
-      get(ref(db, "tower")),
-      get(ref(db, UNBAN_NODE))
+      get(ref(db, "accounts")), get(ref(db, "bans")),
+      get(ref(db, "results")), get(ref(db, "results_khtn")),
+      get(ref(db, "tower")), get(ref(db, UNBAN_NODE))
     ]);
 
     const bans = {};
@@ -906,15 +862,11 @@ async function loadData() {
       accSnap.forEach(ch => {
         const v = ch.val();
         const banKey = encodeURIComponent(String(v.username || ch.key).toLowerCase());
-        const banInfo = bans[banKey] || { isBanned: false, violations: 0, timestamp: 0 };
+        const banInfo = bans[banKey] || { isBanned: false, violations: 0 };
         accounts.push({
-          key: ch.key,
-          username: v.username || "",
-          name: v.name || "",
-          cls: v.cls || "",
-          createdAt: v.createdAt || null,
-          isBanned: !!banInfo.isBanned,
-          violations: Number(banInfo.violations || 0)
+          key: ch.key, username: v.username || "", name: v.name || "",
+          cls: v.cls || "", createdAt: v.createdAt || null,
+          isBanned: !!banInfo.isBanned, violations: Number(banInfo.violations || 0)
         });
       });
     }
@@ -986,13 +938,9 @@ function renderAccounts() {
             ${a.isBanned ? '✅ Unban' : '🚫 Ban'}
           </button>
           <button class="sm" style="background:var(--ac)"
-                  onclick="window.__adminViewResults('${esc(a.username)}','${esc(a.name)}')">
-            📊
-          </button>
+                  onclick="window.__adminViewResults('${esc(a.username)}','${esc(a.name)}')">📊</button>
           <button class="sm danger"
-                  onclick="window.__adminDeleteAccount('${esc(a.key)}','${esc(a.username)}','${esc(a.name)}')">
-            🗑️
-          </button>
+                  onclick="window.__adminDeleteAccount('${esc(a.key)}','${esc(a.username)}','${esc(a.name)}')">🗑️</button>
         </td>
       </tr>
     `;
@@ -1014,10 +962,9 @@ function renderAccounts() {
 }
 
 async function toggleBan(username, name, currentlyBanned) {
-  const action = currentlyBanned ? "gỡ ban" : "ban";
   confirmBox(
     currentlyBanned ? "✅ Gỡ ban?" : "🚫 Ban?",
-    `Bạn có chắc muốn <b>${action}</b> <b>"${esc(name)}"</b> (@${esc(username)})?`,
+    `Bạn có chắc muốn <b>${currentlyBanned ? "gỡ ban" : "ban"}</b> <b>"${esc(name)}"</b> (@${esc(username)})?`,
     async () => {
       ovOn("Đang xử lý…");
       try {
@@ -1031,27 +978,19 @@ async function toggleBan(username, name, currentlyBanned) {
           await set(banRef, { isBanned: true, violations: cur + 1, timestamp: serverTimestamp() });
           showToast(`🚫 Đã ban ${name}`);
         }
-        ovOff();
-        await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
-    },
-    !currentlyBanned
-  );
+        ovOff(); await loadData();
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, !currentlyBanned);
 }
 
 async function deleteAccount(key, username, name) {
   confirmBox("🗑️ Xoá tài khoản?",
-    `<div style="line-height:1.7">Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br>
-     <span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
+    `<div style="line-height:1.7">Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br><span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
     async () => {
       ovOn("Đang xoá tài khoản…");
       try {
         const uNorm = String(username).trim().toLowerCase();
         await remove(ref(db, "accounts/" + key));
-
         const delResults = async (node) => {
           const snap = await get(ref(db, node));
           if (!snap.exists()) return 0;
@@ -1066,17 +1005,12 @@ async function deleteAccount(key, username, name) {
         const nQuiz = await delResults("results");
         const nKhtn = await delResults("results_khtn");
         const nTower = await delResults("tower");
-
         await remove(ref(db, "tower_active/" + keyOf(uNorm))).catch(() => {});
         await remove(ref(db, "bans/" + encodeURIComponent(uNorm))).catch(() => {});
-
         ovOff();
         showToast(`✅ Đã xoá "${name}" (${nQuiz + nKhtn} kết quả + ${nTower} tháp)`);
         await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     }, true);
 }
 
@@ -1084,15 +1018,11 @@ async function viewResults(username, name) {
   $("rmTitle").innerHTML = `📊 Kết quả: <b>${esc(name)}</b> <span class="mut">@${esc(username)}</span>`;
   $("rmBody").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   $("resultsMask").classList.add("on");
-
   try {
     const uNorm = String(username).trim().toLowerCase();
     const [resSnap, khtnSnap, towerSnap] = await Promise.all([
-      get(ref(db, "results")),
-      get(ref(db, "results_khtn")),
-      get(ref(db, "tower"))
+      get(ref(db, "results")), get(ref(db, "results_khtn")), get(ref(db, "tower"))
     ]);
-
     const filterNode = (snap) => {
       const out = [];
       if (!snap.exists()) return out;
@@ -1102,17 +1032,14 @@ async function viewResults(username, name) {
       });
       return out;
     };
-
     const quiz  = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
     const khtn  = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
-
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
       diali_choice: "🌍 Địa (Khoanh)", diali_manual: "✍️ Địa (Ghi)",
       diali_memory: "🧠 Địa (Ghi nhớ)", khoahoctunhien: "🧪 KHTN"
     };
-
     const renderItem = (v) => `
       <div class="result-item">
         <div>
@@ -1123,28 +1050,16 @@ async function viewResults(username, name) {
           <small>${v.correct != null ? v.correct + "/" + v.total + " đúng" : ""}</small>
         </div>
       </div>`;
-
     let html = "";
-    if (quiz.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quiz.length})</h3>` +
-        quiz.map(renderItem).join("");
-    }
-    if (khtn.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtn.length})</h3>` +
-        khtn.map(renderItem).join("");
-    }
-    if (tower.length) {
-      html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🏰 Leo tháp (${tower.length})</h3>` +
-        tower.slice(0, 20).map(v => `
-          <div class="result-item">
-            <div>
-              <div class="subj">🏰 Tầng ${v.score || 0}</div>
-              <div class="time">📅 ${fmtDate(v.timestamp)}${v.isAbandoned ? " · 🏳️ Bỏ cuộc" : ""}</div>
-            </div>
-            <div class="score">${v.time ? fmtMsShort(v.time) : "—"}<small>thời gian</small></div>
-          </div>`).join("");
-    }
-
+    if (quiz.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quiz.length})</h3>` + quiz.map(renderItem).join("");
+    if (khtn.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtn.length})</h3>` + khtn.map(renderItem).join("");
+    if (tower.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🏰 Leo tháp (${tower.length})</h3>` +
+      tower.slice(0, 20).map(v => `
+        <div class="result-item">
+          <div><div class="subj">🏰 Tầng ${v.score || 0}</div>
+          <div class="time">📅 ${fmtDate(v.timestamp)}${v.isAbandoned ? " · 🏳️ Bỏ cuộc" : ""}</div></div>
+          <div class="score">${v.time ? fmtMsShort(v.time) : "—"}<small>thời gian</small></div>
+        </div>`).join("");
     if (!html) html = '<div class="mut" style="padding:30px;text-align:center">Học sinh này chưa có kết quả nào.</div>';
     $("rmBody").innerHTML = html;
   } catch (e) {
@@ -1153,8 +1068,7 @@ async function viewResults(username, name) {
 }
 
 async function unbanAll() {
-  confirmBox("🔓 Unban toàn bộ?",
-    `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.`,
+  confirmBox("🔓 Unban toàn bộ?", `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.`,
     async () => {
       ovOn("Đang mở ban…");
       try {
@@ -1163,13 +1077,8 @@ async function unbanAll() {
         await set(ref(db, UNBAN_NODE), serverTimestamp());
         const snap = await get(ref(db, UNBAN_NODE));
         localStorage.setItem(UNBAN_LOCAL_KEY, String(snap.val()));
-        ovOff();
-        showToast("✅ Đã Unban All!");
-        await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
+        ovOff(); showToast("✅ Đã Unban All!"); await loadData();
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     }, false);
 }
 
@@ -1177,32 +1086,17 @@ window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
-/* ══════════════════════════════════════════════════════════════════
-   EVENTS
-   ══════════════════════════════════════════════════════════════════ */
-$("btnRefresh").onclick = () => {
-  loadData();
-  loadCodes();
-  loadLockStatus();
-  loadAnnouncements();
-};
+$("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); loadAnnouncements(); };
 $("btnUnbanAll").onclick = unbanAll;
 $("btnCreateCode").onclick = createCode;
 $("lockCheckbox").onchange = toggleLock;
-
 $("btnLogout").onclick = () => {
-  try {
-    localStorage.removeItem("qp_session_v2");
-    localStorage.removeItem("qp_session_khtn_v1");
-  } catch (e) {}
+  try { localStorage.removeItem("qp_session_v2"); localStorage.removeItem("qp_session_khtn_v1"); } catch (e) {}
   location.href = "/";
 };
-
 $("rmClose").onclick = () => $("resultsMask").classList.remove("on");
 $("resultsMask").onclick = (e) => { if (e.target === $("resultsMask")) $("resultsMask").classList.remove("on"); };
-
 $("searchBox").oninput = (e) => { searchQuery = e.target.value.trim(); renderAccounts(); };
-
 $("filterPills").onclick = (e) => {
   const btn = e.target.closest(".pill");
   if (!btn) return;
@@ -1211,7 +1105,6 @@ $("filterPills").onclick = (e) => {
   filterMode = btn.dataset.f;
   renderAccounts();
 };
-
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("resultsMask").classList.remove("on");
@@ -1219,26 +1112,13 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* ══════════════════════════════════════════════════════════════════
-   INIT
-   ══════════════════════════════════════════════════════════════════ */
 (async function init() {
   try {
     const boot = document.getElementById('boot');
     if (boot) boot.style.display = 'none';
-
-    if (!checkAccess()) {
-      $("denied").classList.remove("hide");
-      return;
-    }
-
+    if (!checkAccess()) { $("denied").classList.remove("hide"); return; }
     $("panel").classList.remove("hide");
-    await Promise.all([
-      loadData(),
-      loadLockStatus(),
-      loadCodes(),
-      loadAnnouncements()
-    ]);
+    await Promise.all([loadData(), loadLockStatus(), loadCodes(), loadAnnouncements()]);
   } catch (e) {
     console.error('Init failed:', e);
     showFatalError(e.message || 'Lỗi khởi tạo admin panel');
