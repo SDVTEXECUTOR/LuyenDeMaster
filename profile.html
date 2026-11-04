@@ -39,21 +39,35 @@ main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
   box-shadow: var(--shadow);
 }
 h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
-.badge-counter {
-  margin-left: auto;
-  font-size: 0.78rem; font-weight: 700;
-  color: var(--ac); background: var(--acs);
-  padding: 4px 10px; border-radius: 99px;
-  white-space: nowrap;
-}
 .mut { color: var(--mut); font-size: 0.9rem; }
 
+/* ═══ STREAK REMINDER BANNER ═══ */
+#streakBanner {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  padding: 12px 20px; border-radius: 99px; font-weight: 700; z-index: 90;
+  max-width: 92vw; font-size: 0.88rem;
+  display: flex; align-items: center; gap: 10px;
+  color: #fff; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+#streakBanner.urgent { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+#streakBanner.info   { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+#streakBanner.close  { opacity: 0; transform: translateX(-50%) translateY(-100px); transition: all 0.3s; pointer-events: none; }
+@keyframes slideDown {
+  from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);      opacity: 1; }
+}
+
+/* ═══ PROFILE HEADER ═══ */
 .profile-header { text-align: center; padding: 32px 24px; }
 .avatar-lg {
-  width: 80px; height: 80px; border-radius: 50%; background: var(--acs);
-  display: grid; place-items: center; font-size: 2.5rem; margin: 0 auto 12px;
-  border: 3px solid var(--card); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 90px; height: 90px; border-radius: 50%; background: var(--acs);
+  display: grid; place-items: center; font-size: 2.8rem; margin: 0 auto 12px;
+  border: 3px solid var(--card); box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  overflow: hidden; position: relative;
 }
+.avatar-lg img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
 .profile-user { color: var(--ac); font-weight: 600; font-size: 0.95rem; margin: 4px 0; }
 .profile-bio {
@@ -73,11 +87,13 @@ button.g:hover { background: var(--acs); border-color: var(--ac); }
 button.sm { padding: 8px 14px; font-size: 0.85rem; }
 button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
+/* ═══ STATS ═══ */
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
 .stat-item { background: rgba(255,255,255,0.4); padding: 16px 8px; border-radius: 12px; border: 1px solid var(--ln); }
 .stat-val { font-size: 1.5rem; font-weight: 800; color: var(--ac); display: block; }
 .stat-label { font-size: 0.8rem; color: var(--mut); font-weight: 600; margin-top: 4px; display: block; }
 
+/* ═══ BEST SCORES ═══ */
 .score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .score-row:last-child { margin-bottom: 0; }
 .score-icon { font-size: 1.2rem; width: 28px; text-align: center; }
@@ -86,6 +102,30 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ac), #60a5fa); border-radius: 5px; transition: width 0.6s ease; }
 .score-val { width: 40px; text-align: right; font-weight: 700; font-size: 0.9rem; }
 .score-na { color: var(--mut); font-style: italic; font-size: 0.85rem; flex: 1; }
+
+/* ═══ CHARTS ═══ */
+.chart-block { margin-bottom: 20px; }
+.chart-block:last-child { margin-bottom: 0; }
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.chart-title { font-weight: 700; font-size: 0.92rem; }
+.chart-count { font-size: 0.78rem; color: var(--mut); font-weight: 600; }
+.chart-stats {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-size: 0.75rem; color: var(--mut); margin-top: 8px;
+  padding-top: 8px; border-top: 1px dashed var(--ln);
+}
+.chart-stats b { font-weight: 800; }
+.chart-dates {
+  display: flex; justify-content: space-between;
+  font-size: 0.7rem; color: var(--mut); margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══ BADGES ═══ */
+.badge-progress-wrap { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.badge-progress-bar { width: 90px; height: 8px; background: var(--ln); border-radius: 4px; overflow: hidden; }
+.badge-progress-fill { height: 100%; background: linear-gradient(90deg, var(--ac), #fbbf24); border-radius: 4px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.badge-progress-text { font-size: 0.78rem; font-weight: 800; color: var(--ac); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
 .badge-item {
@@ -110,6 +150,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .badge-name { font-size: 0.82rem; font-weight: 700; display: block; line-height: 1.3; }
 .badge-date { font-size: 0.7rem; color: var(--mut); display: block; margin-top: 4px; }
 
+/* ═══ MODALS ═══ */
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
   display: none; place-items: center; padding: 16px; z-index: 100; opacity: 0; transition: opacity 0.3s;
@@ -126,12 +167,33 @@ input[type="text"], input[type="password"], textarea {
 input:focus-visible, textarea:focus-visible { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
 textarea { resize: vertical; min-height: 80px; }
 
-.avatar-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
-.avatar-opt {
-  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ln);
-  display: grid; place-items: center; font-size: 1.5rem; cursor: pointer; transition: all 0.2s;
+.avatar-edit-area { text-align: center; margin-bottom: 16px; }
+.avatar-preview-lg {
+  width: 100px; height: 100px; border-radius: 50%; background: var(--acs);
+  display: grid; place-items: center; font-size: 3rem; margin: 0 auto 12px;
+  border: 3px solid var(--ln); overflow: hidden;
 }
-.avatar-opt.sel { border-color: var(--ac); background: var(--acs); transform: scale(1.1); }
+.avatar-preview-lg img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.avatar-actions label {
+  font: inherit; font-weight: 600; border-radius: 10px; padding: 8px 14px;
+  cursor: pointer; font-size: 0.85rem; border: 1.5px solid var(--ln);
+  background: transparent; color: var(--fg); transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.avatar-actions label:hover { background: var(--acs); border-color: var(--ac); }
+
+.avatar-picker {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 6px; margin-bottom: 16px; max-height: 180px; overflow-y: auto;
+  padding: 8px; background: rgba(255,255,255,0.3); border-radius: 10px; border: 1px solid var(--ln);
+}
+.avatar-opt {
+  width: 38px; height: 38px; border-radius: 50%; border: 2px solid transparent;
+  display: grid; place-items: center; font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+}
+.avatar-opt:hover { background: var(--acs); }
+.avatar-opt.sel { border-color: var(--ac); background: var(--acs); transform: scale(1.08); }
 
 .toast {
   position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -150,6 +212,9 @@ textarea { resize: vertical; min-height: 80px; }
 </style>
 </head>
 <body>
+
+<!-- Streak reminder banner -->
+<div id="streakBanner" class="hide"></div>
 
 <main>
   <button class="g sm" onclick="window.location.href='index.html'" style="margin-bottom: 16px;">← Quay lại trang chủ</button>
@@ -180,16 +245,23 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 
   <div class="card">
-    <h2>🎖️ THÀNH TÍCH <span class="badge-counter" id="badgeCounter">0/17 đạt</span></h2>
-    <div class="mut" style="margin: -8px 0 16px; font-size: 0.82rem;">Nhấn vào từng danh hiệu để xem cách đạt →</div>
-    <div class="badge-grid" id="badgeGrid"></div>
+    <h2>📈 TIẾN BỘ THEO THỜI GIAN</h2>
+    <div class="mut" style="margin: -8px 0 16px; font-size: 0.82rem;">Điểm số qua các lần làm bài gần nhất (tối đa 30 lần/môn)</div>
+    <div id="chartsList">
+      <div class="skel" style="height: 120px;"></div>
+      <div class="skel" style="height: 120px;"></div>
+    </div>
   </div>
 
   <div class="card">
-    <h2>📅 HOẠT ĐỘNG GẦN ĐÂY</h2>
-    <div id="activityList" class="mut" style="font-size: 0.9rem; line-height: 1.8;">
-      <div class="skel"></div><div class="skel"></div>
-    </div>
+    <h2>🎖️ THÀNH TÍCH
+      <div class="badge-progress-wrap">
+        <div class="badge-progress-bar"><div class="badge-progress-fill" id="badgeProgressFill"></div></div>
+        <span class="badge-progress-text" id="badgeProgressText">0/17</span>
+      </div>
+    </h2>
+    <div class="mut" style="margin: -8px 0 16px; font-size: 0.82rem;">Nhấn vào từng danh hiệu để xem cách đạt →</div>
+    <div class="badge-grid" id="badgeGrid"></div>
   </div>
 </main>
 
@@ -205,7 +277,18 @@ textarea { resize: vertical; min-height: 80px; }
 <div class="mask" id="editMask">
   <div class="card">
     <h2 style="margin-bottom: 16px;">✏️ Chỉnh sửa hồ sơ</h2>
-    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Chọn Avatar</label>
+
+    <div class="avatar-edit-area">
+      <div class="avatar-preview-lg" id="avatarPreview">🐱</div>
+      <div class="avatar-actions">
+        <label for="avatarFile" id="lblUpload">📷 Tải ảnh lên</label>
+        <input type="file" id="avatarFile" accept="image/*" style="display: none;">
+        <button type="button" class="g sm" id="btnResetAvatar">🔄 Về emoji</button>
+      </div>
+      <div class="mut" style="font-size: 0.75rem; margin-top: 8px;">Ảnh sẽ được nén tự động (200×200 JPEG)</div>
+    </div>
+
+    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Hoặc chọn emoji</label>
     <div class="avatar-picker" id="avatarPicker"></div>
 
     <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tiểu sử (Bio)</label>
@@ -272,11 +355,11 @@ const myName = session.name || session.username;
 const myCls = session.cls || "";
 const isAdmin = session.isAdmin === true;
 
-let currentProfile = { avatar: "🐱", bio: "" };
+let currentProfile = { avatar: "🐱", avatarImg: "", bio: "" };
 let currentAchievements = {};
 let currentAchievementDates = {};
 
-const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢"];
+const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢","🌸","🌺","🌻","🌹","🍀","⭐","💫","🔥","💎","🎮","🎯","🎨","🎵","🎸","⚽","🏀","🏆"];
 
 const SUBJECTS = [
   { key: 'tinhoc',         icon: '💻', name: 'Tin học 9',    aliases: ['tinhoc'] },
@@ -286,7 +369,6 @@ const SUBJECTS = [
   { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9',       aliases: ['khoahoctunhien', 'khtn'] }
 ];
 
-// Nhóm môn để xếp hạng
 const SUBJECT_GROUPS = {
   tinhoc:         ['tinhoc'],
   gdcd:           ['gdcd'],
@@ -296,7 +378,7 @@ const SUBJECT_GROUPS = {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   BADGE DEFINITIONS — 17 danh hiệu
+   17 BADGES
    ══════════════════════════════════════════════════════════════════════ */
 const BADGES = [
   { id: 'first_step', icon: '🎯', name: 'Khởi đầu',    req: 'Hoàn thành bài thi đầu tiên của bạn.' },
@@ -330,14 +412,6 @@ function tsToMs(ts) {
   }
   return 0;
 }
-function tsToVN(ts) {
-  const ms = tsToMs(ts);
-  if (!ms) return "Mới đây";
-  return new Date(ms).toLocaleString("vi-VN", {
-    day: "2-digit", month: "2-digit", year: "numeric",
-    hour: "2-digit", minute: "2-digit"
-  });
-}
 function fmtScoreShort(n) {
   const x = Number(n) || 0;
   return String(x).replace(/\.?0+$/, "").replace(".", ",") || "0";
@@ -346,9 +420,69 @@ function dayKey(ms) {
   const d = new Date(ms);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+function shortDate(ms) {
+  const d = new Date(ms);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+}
 
 /* ══════════════════════════════════════════════════════════════════════
-   ANALYZE — 1 pass, tính tất cả stats + achievements
+   STREAK
+   ══════════════════════════════════════════════════════════════════════ */
+function computeStreak(timestamps) {
+  if (!timestamps.length) return { days: 0, active: false, doneToday: false };
+  const daySet = new Set(timestamps.map(t => t && dayKey(t)).filter(Boolean));
+  const now = Date.now();
+  const today = dayKey(now);
+  const yesterday = dayKey(now - 86400000);
+
+  let start;
+  if (daySet.has(today)) start = today;
+  else if (daySet.has(yesterday)) start = yesterday;
+  else return { days: 0, active: false, doneToday: false };
+
+  let days = 0;
+  let cur = start;
+  while (daySet.has(cur)) {
+    days++;
+    const [y, m, d] = cur.split('-').map(Number);
+    cur = dayKey(new Date(y, m-1, d-1).getTime());
+  }
+  return { days, active: true, doneToday: daySet.has(today) };
+}
+
+function getStreakReminder(streak) {
+  if (!streak.active) {
+    return { type: 'info', msg: '🔥 Làm 1 bài để bắt đầu streak mới hôm nay!' };
+  }
+  if (streak.doneToday) return null;
+
+  const now = new Date();
+  const hoursLeft = 23 - now.getHours();
+  const minsLeft = 59 - now.getMinutes();
+
+  if (hoursLeft <= 4) {
+    return {
+      type: 'urgent',
+      msg: `⏰ Còn ${hoursLeft}h ${minsLeft}p để giữ streak ${streak.days} ngày!`
+    };
+  }
+  return {
+    type: 'info',
+    msg: `🔥 Streak ${streak.days} ngày đang chạy! Làm bài hôm nay để giữ.`
+  };
+}
+
+function renderStreakBanner(streak) {
+  const banner = $("streakBanner");
+  const rem = getStreakReminder(streak);
+  if (!rem) { banner.classList.add("hide"); return; }
+  banner.textContent = rem.msg;
+  banner.className = rem.type;
+  banner.onclick = () => banner.classList.add("close");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ANALYZE
    ══════════════════════════════════════════════════════════════════════ */
 function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
   const uNorm = String(myUsername || "").trim().toLowerCase();
@@ -357,12 +491,12 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
 
   const byUserSubj = {};
   const myTimestamps = [];
+  const timeline = {}; // { subject_alias: [{ts, score}] }
   let myTotalQuizzes = 0;
   let myTowerBest = 0;
   let hasPerfect10 = false;
   let hasSpeedrun = false;
 
-  // ── Process quizzes ──
   const processQuiz = (snap) => {
     if (!snap || !snap.exists()) return;
     snap.forEach(ch => {
@@ -380,6 +514,10 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
         if (ts) myTimestamps.push(ts);
         if (score === 10) hasPerfect10 = true;
         if (score >= 9 && dur > 0 && dur < 180000) hasSpeedrun = true;
+        if (ts) {
+          if (!timeline[subj]) timeline[subj] = [];
+          timeline[subj].push({ ts, score });
+        }
       }
 
       if (!byUserSubj[u]) byUserSubj[u] = {};
@@ -396,7 +534,6 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
   processQuiz(resSnap);
   processQuiz(khtnSnap);
 
-  // ── Tower ──
   if (towerSnap && towerSnap.exists()) {
     towerSnap.forEach(ch => {
       const v = ch.val();
@@ -409,7 +546,7 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
     });
   }
 
-  // ── Night / Early ──
+  // Night / Early
   let hasNightOwl = false, hasEarlyBird = false;
   myTimestamps.forEach(ts => {
     if (!ts) return;
@@ -418,7 +555,7 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
     if (h >= 5 && h < 7) hasEarlyBird = true;
   });
 
-  // ── Group rankings ──
+  // Group rankings
   const groupRankings = {};
   Object.entries(SUBJECT_GROUPS).forEach(([group, aliases]) => {
     const userBests = {};
@@ -449,29 +586,27 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
     return list.find(e => e.username === uNorm) || null;
   };
 
-  // ── Best scores (alias-level, cho renderScores) ──
+  // Best scores
   const bestScoresRaw = {};
   Object.entries(byUserSubj[uNorm] || {}).forEach(([subj, d]) => {
     bestScoresRaw[subj] = d.score;
   });
 
-  // ── Streak of days ──
+  // Longest streak
   const daySet = new Set();
   myTimestamps.forEach(ts => { if (ts) daySet.add(dayKey(ts)); });
   const daysMs = [...daySet].map(s => {
     const [y, m, d] = s.split("-").map(Number);
-    return new Date(y, m - 1, d).getTime();
+    return new Date(y, m-1, d).getTime();
   }).sort((a, b) => a - b);
-  let longestStreak = 0, curStreak = 1;
-  if (daysMs.length === 1) longestStreak = 1;
+  let longestStreak = daysMs.length > 0 ? 1 : 0, curStreak = 1;
   for (let i = 1; i < daysMs.length; i++) {
     if (daysMs[i] - daysMs[i-1] <= DAY + 1000) curStreak++;
     else curStreak = 1;
     if (curStreak > longestStreak) longestStreak = curStreak;
   }
-  if (longestStreak < 1 && daysMs.length > 0) longestStreak = 1;
 
-  // ── BADGE COMPUTATION ──
+  // Achievements
   const a = {};
   a.first_step = myTotalQuizzes >= 1;
 
@@ -481,7 +616,6 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
   a.cham_chi = longestStreak >= 3;
   a.sieng_nang = longestStreak >= 7;
 
-  // Vua môn: top1 một môn + best ts >= 5 ngày trước
   let vuaMon = false;
   top1Groups.forEach(g => {
     const me = myDataInGroup(g);
@@ -511,44 +645,12 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
   a.cu_dem = hasNightOwl;
   a.chim_som = hasEarlyBird;
 
-  // ── Activities ──
-  const activities = [];
-  const scanAct = (snap, isTower) => {
-    if (!snap || !snap.exists()) return;
-    snap.forEach(ch => {
-      const v = ch.val();
-      if (!v) return;
-      const u = String(v.username || "").trim().toLowerCase();
-      if (u !== uNorm) return;
-      if (isTower) {
-        activities.push({
-          icon: "🏰",
-          text: `Leo tháp: tầng ${Number(v.score) || 0}`,
-          ts: tsToMs(v.timestamp || v.createdAt || v.time)
-        });
-      } else {
-        if (v.type && v.type !== "quiz_result") return;
-        const subj = String(v.subject || "");
-        const icon = SUBJECTS.find(s => s.aliases.includes(subj))?.icon || "📝";
-        activities.push({
-          icon,
-          text: `Làm bài ${subj}: ${fmtScoreShort(v.score)}đ`,
-          ts: tsToMs(v.time || v.createdAt || v.timestamp)
-        });
-      }
-    });
-  };
-  scanAct(resSnap);
-  scanAct(khtnSnap);
-  scanAct(towerSnap, true);
-  activities.sort((x, y) => (y.ts || 0) - (x.ts || 0));
-  activities.forEach(x => x.time = tsToVN(x.ts));
-
   return {
     stats: { totalQuizzes: myTotalQuizzes, bestScores: bestScoresRaw },
     achievements: a,
-    activities: activities.slice(0, 10),
-    meta: { longestStreak, top1Count: top1Groups.length, top10Count, myTowerBest }
+    timeline,
+    timestamps: myTimestamps,
+    meta: { longestStreak, myTowerBest }
   };
 }
 
@@ -571,21 +673,21 @@ async function loadData() {
     const acc  = (accSnap  && accSnap.val())  || {};
     const prof = (profSnap && profSnap.val()) || {};
 
-    // Auto-create profile lần đầu
     if (profSnap && !profSnap.exists() && !isAdmin) {
       try {
-        await set(ref(db, `profiles/${myKey}`), { avatar: "🐱", bio: "", createdAt: Date.now() });
+        await set(ref(db, `profiles/${myKey}`), {
+          avatar: "🐱", avatarImg: "", bio: "", createdAt: Date.now()
+        });
       } catch (e) { console.warn("[profile] auto-create failed:", e); }
     }
 
-    currentProfile.avatar = prof.avatar || "🐱";
-    currentProfile.bio    = prof.bio    || "";
+    currentProfile.avatar    = prof.avatar    || "🐱";
+    currentProfile.avatarImg = prof.avatarImg || "";
+    currentProfile.bio       = prof.bio       || "";
 
-    // Analyze (1 pass)
     const analysis = analyzeUserData(session.username, resSnap, khtnSnap, towerSnap);
     currentAchievements = analysis.achievements;
 
-    // Merge achievement dates (chỉ lưu lần đầu đạt)
     const existingDates = prof.achievementDates || {};
     const newDates = { ...existingDates };
     let hasNew = false;
@@ -597,30 +699,32 @@ async function loadData() {
     });
     currentAchievementDates = newDates;
 
-    // Lưu date mới (nếu có + profile tồn tại + không phải admin)
     if (hasNew && profSnap && profSnap.exists() && !isAdmin) {
       try {
         await update(ref(db, `profiles/${myKey}`), { achievementDates: newDates });
       } catch (e) { console.warn("[profile] save dates:", e); }
     }
 
+    const streak = computeStreak(analysis.timestamps);
+    renderStreakBanner(streak);
+
     const merged = {
       avatar:           currentProfile.avatar,
+      avatarImg:        currentProfile.avatarImg,
       bio:              currentProfile.bio,
       totalQuizzes:     analysis.stats.totalQuizzes,
       loginCount:       Number(prof.loginCount) || 1,
-      streak:           Number(prof.streak)     || 1,
+      streak:           streak.days || 1,
       bestScores:       analysis.stats.bestScores,
       achievements:     currentAchievements,
-      achievementDates: currentAchievementDates,
-      recentActivity:   analysis.activities
+      achievementDates: currentAchievementDates
     };
 
     renderHeader(acc, merged);
     renderStats(merged);
     renderScores(merged.bestScores);
+    renderCharts(analysis.timeline);
     renderBadges(merged);
-    renderActivity(merged.recentActivity);
 
   } catch (e) {
     console.error("[profile] loadData error:", e);
@@ -630,16 +734,25 @@ async function loadData() {
     $("pBio").textContent  = '"Chưa có tiểu sử"';
     renderStats({ totalQuizzes: 0, loginCount: 1, streak: 1 });
     renderScores({});
+    renderCharts({});
     renderBadges({ achievements: {}, achievementDates: {} });
-    renderActivity([]);
   }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
    RENDER
    ══════════════════════════════════════════════════════════════════════ */
+function renderAvatarEl(el, avatar, avatarImg) {
+  if (avatarImg) {
+    el.innerHTML = `<img src="${avatarImg}" alt="avatar">`;
+  } else {
+    el.innerHTML = "";
+    el.textContent = avatar || "🐱";
+  }
+}
+
 function renderHeader(acc, merged) {
-  $("pAvatar").textContent = merged.avatar || "🐱";
+  renderAvatarEl($("pAvatar"), merged.avatar, merged.avatarImg);
   $("pName").textContent   = acc.name || myName || "Người dùng";
   $("pUser").textContent   = `@${session.username}` + (acc.cls ? ` · Lớp ${acc.cls}` : (myCls ? ` · Lớp ${myCls}` : ""));
   $("pBio").textContent    = merged.bio ? `"${merged.bio}"` : '"Chưa có tiểu sử"';
@@ -681,16 +794,106 @@ function renderScores(bestScores) {
   $("scoresList").innerHTML = html;
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CHARTS
+   ══════════════════════════════════════════════════════════════════════ */
+function buildSVGChart(attempts) {
+  if (attempts.length < 2) {
+    return `<div class="empty-hint" style="padding: 16px; font-size: 0.82rem;">
+      Mới có ${attempts.length} lần làm — cần thêm để vẽ biểu đồ
+    </div>`;
+  }
+
+  const W = 300, H = 90;
+  const padX = 6, padY = 12;
+  const innerW = W - padX * 2;
+  const innerH = H - padY * 2;
+  const n = attempts.length;
+  const xStep = innerW / (n - 1);
+
+  const points = attempts.map((a, i) => ({
+    x: padX + i * xStep,
+    y: padY + innerH - (Math.min(10, Math.max(0, a.score)) / 10) * innerH,
+    score: a.score,
+    ts: a.ts
+  }));
+
+  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const areaD = `M${points[0].x.toFixed(1)},${(H - padY).toFixed(1)} ` +
+    points.map(p => `L${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') +
+    ` L${points[points.length - 1].x.toFixed(1)},${(H - padY).toFixed(1)} Z`;
+
+  const scores = attempts.map(a => a.score);
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
+  const avg = scores.reduce((s, x) => s + x, 0) / scores.length;
+
+  const startDate = shortDate(points[0].ts);
+  const endDate   = shortDate(points[points.length - 1].ts);
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width: 100%; height: 110px; background: rgba(148,163,184,0.06); border-radius: 8px; display: block;">
+      <line x1="${padX}" y1="${H - padY}" x2="${W - padX}" y2="${H - padY}" stroke="rgba(148,163,184,0.3)" stroke-width="0.5"/>
+      <line x1="${padX}" y1="${padY + innerH / 2}" x2="${W - padX}" y2="${padY + innerH / 2}" stroke="rgba(148,163,184,0.2)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="${padX}" y1="${padY}" x2="${W - padX}" y2="${padY}" stroke="rgba(148,163,184,0.2)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <path d="${areaD}" fill="#3b82f6" opacity="0.13"/>
+      <path d="${pathD}" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${points.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.6" fill="#3b82f6"/>`).join('')}
+    </svg>
+    <div class="chart-dates"><span>${startDate}</span><span>${endDate}</span></div>
+    <div class="chart-stats">
+      <span>Cao: <b style="color: var(--ok);">${fmtScoreShort(max)}</b></span>
+      <span>TB: <b style="color: var(--ac);">${fmtScoreShort(avg.toFixed(2))}</b></span>
+      <span>Thấp: <b style="color: var(--bad);">${fmtScoreShort(min)}</b></span>
+      <span>${attempts.length} lần</span>
+    </div>
+  `;
+}
+
+function renderCharts(timeline) {
+  const container = $("chartsList");
+  const blocks = SUBJECTS.map(sub => {
+    const all = [];
+    sub.aliases.forEach(a => {
+      if (timeline[a]) all.push(...timeline[a]);
+    });
+    all.sort((x, y) => x.ts - y.ts);
+    const last = all.slice(-30);
+
+    let chartHTML;
+    if (!last.length) {
+      chartHTML = `<div class="empty-hint" style="padding: 16px; font-size: 0.82rem;">Chưa có dữ liệu</div>`;
+    } else {
+      chartHTML = buildSVGChart(last);
+    }
+
+    return `<div class="chart-block">
+      <div class="chart-header">
+        <div class="chart-title">${sub.icon} ${sub.name}</div>
+        <div class="chart-count">${all.length} lần</div>
+      </div>
+      ${chartHTML}
+    </div>`;
+  });
+  container.innerHTML = blocks.join("");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BADGES
+   ══════════════════════════════════════════════════════════════════════ */
 function renderBadges(merged) {
   const ach = merged.achievements || {};
   const dates = merged.achievementDates || {};
   const totalUnlocked = BADGES.filter(b => ach[b.id] === true).length;
-  $("badgeCounter").textContent = `${totalUnlocked}/${BADGES.length} đạt`;
+  const pct = (totalUnlocked / BADGES.length) * 100;
+
+  $("badgeProgressText").textContent = `${totalUnlocked}/${BADGES.length}`;
+  $("badgeProgressFill").style.width = pct + "%";
 
   $("badgeGrid").innerHTML = BADGES.map(b => {
     const unlocked = ach[b.id] === true;
     const dateStr = dates[b.id] || (unlocked ? "Đã đạt" : "Chưa đạt");
-    return `<div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-badge="${b.id}" title="${b.name}">
+    return `<div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-badge="${b.id}">
       <div class="badge-help">?</div>
       <span class="badge-icon">${b.icon}</span>
       <span class="badge-name">${b.name}</span>
@@ -698,7 +901,6 @@ function renderBadges(merged) {
     </div>`;
   }).join("");
 
-  // Click handler
   $("badgeGrid").querySelectorAll(".badge-item").forEach(el => {
     el.onclick = () => openBadgeDetail(el.dataset.badge);
   });
@@ -729,28 +931,48 @@ function openBadgeDetail(id) {
 $("badgeClose").onclick = () => $("badgeMask").classList.remove("on");
 $("badgeMask").onclick = (e) => { if (e.target === $("badgeMask")) $("badgeMask").classList.remove("on"); };
 
-function renderActivity(activities) {
-  const list = Array.isArray(activities) ? activities : [];
-  if (!list.length) {
-    $("activityList").innerHTML = '<div class="empty-hint">Chưa có hoạt động nào.</div>';
-    return;
-  }
-  $("activityList").innerHTML = list.map(act => `
-    <div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px; align-items: baseline;">
-      <span>${act.icon || '📌'}</span>
-      <span style="flex: 1;">${act.text || ''}</span>
-      <span style="color: var(--mut); font-size: 0.78rem; white-space: nowrap;">${act.time || 'Mới đây'}</span>
-    </div>`).join("");
-}
-
 /* ══════════════════════════════════════════════════════════════════════
-   EDIT PROFILE
+   EDIT PROFILE (avatar + bio)
    ══════════════════════════════════════════════════════════════════════ */
 let selectedAvatar = "🐱";
+let selectedAvatarImg = "";
+
+function updateAvatarPreview() {
+  renderAvatarEl($("avatarPreview"), selectedAvatar, selectedAvatarImg);
+}
+
+async function resizeImage(file, maxSize = 200) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let w = img.width, h = img.height;
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else       { w = Math.round(w * maxSize / h); h = maxSize; }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.78));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 $("btnEditProfile").onclick = () => {
   selectedAvatar = currentProfile.avatar || "🐱";
+  selectedAvatarImg = currentProfile.avatarImg || "";
   $("editBio").value = currentProfile.bio || "";
   $("bioCount").textContent = $("editBio").value.length;
+
+  updateAvatarPreview();
+
   $("avatarPicker").innerHTML = AVATARS.map(av =>
     `<div class="avatar-opt ${av === selectedAvatar ? 'sel' : ''}" data-av="${av}">${av}</div>`
   ).join("");
@@ -759,12 +981,48 @@ $("btnEditProfile").onclick = () => {
       $("avatarPicker").querySelectorAll('.avatar-opt').forEach(x => x.classList.remove('sel'));
       el.classList.add('sel');
       selectedAvatar = el.dataset.av;
+      selectedAvatarImg = ""; // clear image → dùng emoji
+      updateAvatarPreview();
     };
   });
+
   $("editMask").classList.add("on");
 };
+
 $("cancelEdit").onclick = () => $("editMask").classList.remove("on");
 $("editBio").oninput = () => { $("bioCount").textContent = $("editBio").value.length; };
+
+$("avatarFile").onchange = async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    showToast("Vui lòng chọn file ảnh", true);
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast("Ảnh tối đa 10MB", true);
+    return;
+  }
+  $("lblUpload").textContent = "⏳ Đang xử lý...";
+  try {
+    const dataUrl = await resizeImage(file, 200);
+    selectedAvatarImg = dataUrl;
+    updateAvatarPreview();
+    showToast("✅ Đã chọn ảnh (bấm Lưu để áp dụng)");
+  } catch (err) {
+    console.error(err);
+    showToast("Lỗi xử lý ảnh: " + err.message, true);
+  } finally {
+    $("lblUpload").textContent = "📷 Tải ảnh lên";
+    e.target.value = "";
+  }
+};
+
+$("btnResetAvatar").onclick = () => {
+  selectedAvatarImg = "";
+  updateAvatarPreview();
+  showToast("Đã xoá ảnh — dùng emoji");
+};
 
 $("saveEdit").onclick = async () => {
   const bio = $("editBio").value.trim();
@@ -775,17 +1033,19 @@ $("saveEdit").onclick = async () => {
   try {
     const profRef = ref(db, `profiles/${myKey}`);
     const existing = await get(profRef);
+    const payload = { avatar: selectedAvatar, avatarImg: selectedAvatarImg || "", bio };
     if (existing.exists()) {
-      await update(profRef, { avatar: selectedAvatar, bio });
+      await update(profRef, payload);
     } else {
       await set(profRef, {
-        avatar: selectedAvatar, bio,
+        ...payload,
         totalQuizzes: 0, loginCount: 1, streak: 1, lastLogin: Date.now(),
         bestScores: {}, achievements: {}, achievementDates: {}, recentActivity: [],
         createdAt: Date.now()
       });
     }
     currentProfile.avatar = selectedAvatar;
+    currentProfile.avatarImg = selectedAvatarImg;
     currentProfile.bio = bio;
     showToast("✅ Đã cập nhật hồ sơ!");
     $("editMask").classList.remove("on");
