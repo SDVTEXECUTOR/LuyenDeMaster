@@ -131,6 +131,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .badge-item.unlocked { border-color: var(--warn); background: var(--warns); }
 .badge-item.locked { opacity: 0.55; }
 .badge-item.locked .badge-icon { filter: grayscale(1); }
+.badge-item.no-hover { cursor: default; }
+.badge-item.no-hover:hover { transform: none; }
 .badge-help {
   position: absolute; top: 6px; right: 6px;
   width: 18px; height: 18px; border-radius: 50%;
@@ -215,10 +217,14 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="avatar-lg" id="pAvatar">🐱</div>
     <h1 class="profile-name" id="pName">Đang tải...</h1>
     <div class="profile-user" id="pUser">@username · Lớp</div>
+    <div id="publicNote" class="hide" style="display:inline-block;margin:8px 0 0;padding:4px 12px;background:var(--acs);color:var(--ac);border-radius:8px;font-size:0.78rem;font-weight:700">
+      👀 Hồ sơ công khai
+    </div>
     <div class="profile-bio" id="pBio">"Chưa có tiểu sử"</div>
-    <div class="btn-group">
+    <div class="btn-group" id="btnGroup">
       <button class="g" id="btnEditProfile">✏️ Sửa profile</button>
       <button class="g" id="btnChangePassword">🔑 Đổi mật khẩu</button>
+      <button class="g" id="btnShare">🔗 Chia sẻ</button>
     </div>
   </div>
 
@@ -252,7 +258,7 @@ textarea { resize: vertical; min-height: 80px; }
         <span class="badge-progress-text" id="badgeProgressText">0/17</span>
       </div>
     </h2>
-    <div class="mut" style="margin: -8px 0 16px; font-size: 0.82rem;">Nhấn vào từng danh hiệu để xem cách đạt →</div>
+    <div class="mut" id="badgeHint" style="margin: -8px 0 16px; font-size: 0.82rem;">Nhấn vào từng danh hiệu để xem cách đạt →</div>
     <div class="badge-grid" id="badgeGrid"></div>
   </div>
 </main>
@@ -329,25 +335,78 @@ async function sha256Hex(str) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   URL PARSING
+   /profile          → hồ sơ của mình (canEdit = true)
+   /profile_foo      → hồ sơ người khác (canEdit = false)
+   /profile_me (nếu me = session.username) → coi như của mình
+   ══════════════════════════════════════════════════════════════════ */
 const session = loadSession();
-if (!session || !session.username) {
+const rawPath = location.pathname;
+const ownPaths = ["/profile", "/profile/", "/profile.html"];
+const isOwnPath = ownPaths.includes(rawPath);
+const publicMatch = rawPath.match(/^\/profile_(.+)$/i);
+const isPublicPath = !isOwnPath && !!publicMatch;
+
+if (!isOwnPath && !isPublicPath) {
   window.location.href = "index.html";
-  throw new Error("NO_SESSION");
+  throw new Error("BAD_PATH");
 }
-saveSession(session);
 
-const myKey = session.key || keyOf(session.username);
-const myName = session.name || session.username;
-const myCls = session.cls || "";
-const isAdmin = session.isAdmin === true;
+let viewedUsername, viewedKey;
+let canEdit = false;
+let isAdmin = false;
 
+if (isPublicPath) {
+  viewedUsername = decodeURIComponent(publicMatch[1]).toLowerCase();
+  viewedKey = keyOf(viewedUsername);
+  const isSelf = session && session.username && session.username.toLowerCase() === viewedUsername;
+  if (isSelf) {
+    canEdit = true;
+    isAdmin = session.isAdmin === true;
+    saveSession(session);
+  } else {
+    canEdit = false;
+    isAdmin = false;
+  }
+} else {
+  if (!session || !session.username) {
+    window.location.href = "index.html";
+    throw new Error("NO_SESSION");
+  }
+  saveSession(session);
+  viewedUsername = session.username;
+  viewedKey = session.key || keyOf(session.username);
+  canEdit = true;
+  isAdmin = session.isAdmin === true;
+}
+
+const isPublicView = !canEdit;
+const myName = canEdit ? (session.name || session.username) : viewedUsername;
+const myCls  = canEdit ? (session.cls || "") : "";
+
+/* ══════════════════════════════════════════════════════════════════
+   TIÊU ĐỀ & UI PUBLIC VIEW
+   ══════════════════════════════════════════════════════════════════ */
+document.title = isPublicView
+  ? `Hồ sơ · ${viewedUsername} · Luyện Đề Master`
+  : "Hồ Sơ Cá Nhân · Luyện Đề Master";
+
+if (isPublicView) {
+  $("publicNote").classList.remove("hide");
+  $("btnGroup").style.display = "none";
+  $("streakBanner").style.display = "none";
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════════════ */
 let currentProfile = { avatar: "🐱", avatarImg: "", bio: "" };
 let currentAchievements = {};
 let currentAchievementDates = {};
 
 const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢","🌸","🌺","🌻","🌹","🍀","⭐","💫","🔥","💎","🎮","🎯","🎨","🎵","🎸","⚽","🏀","🏆"];
 
-// 🔧 ĐÃ THÊM: môn Công nghệ 9
 const SUBJECTS = [
   { key: 'tinhoc',         icon: '💻', name: 'Tin học 9',    aliases: ['tinhoc'] },
   { key: 'gdcd',           icon: '⚖️', name: 'GDCD 9',       aliases: ['gdcd'] },
@@ -357,7 +416,6 @@ const SUBJECTS = [
   { key: 'congnghe',       icon: '⚙️', name: 'Công nghệ 9',  aliases: ['congnghe'] }
 ];
 
-// 🔧 ĐÃ THÊM: nhóm congnghe
 const SUBJECT_GROUPS = {
   tinhoc:         ['tinhoc'],
   gdcd:           ['gdcd'],
@@ -367,7 +425,6 @@ const SUBJECT_GROUPS = {
   congnghe:       ['congnghe']
 };
 
-// 🔧 Cập nhật mô tả 3 badge cho khớp logic thực tế khi có 6 môn
 const BADGES = [
   { id: 'first_step', icon: '🎯', name: 'Khởi đầu',    req: 'Hoàn thành bài thi đầu tiên của bạn.' },
   { id: 'first_blood',icon: '🥇', name: 'First Blood', req: 'Lần đầu lên <b>top 1</b> bảng xếp hạng của bất kỳ môn nào.' },
@@ -449,6 +506,7 @@ function getStreakReminder(streak) {
 }
 
 function renderStreakBanner(streak) {
+  if (isPublicView) return;
   const banner = $("streakBanner");
   const rem = getStreakReminder(streak);
   if (!rem) { banner.classList.add("hide"); return; }
@@ -457,8 +515,8 @@ function renderStreakBanner(streak) {
   banner.onclick = () => banner.classList.add("close");
 }
 
-function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
-  const uNorm = String(myUsername || "").trim().toLowerCase();
+function analyzeUserData(username, resSnap, khtnSnap, towerSnap) {
+  const uNorm = String(username || "").trim().toLowerCase();
   const now = Date.now();
   const DAY = 86400000;
 
@@ -624,23 +682,34 @@ function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
 
 async function loadData() {
   $("pName").textContent = myName;
-  $("pUser").textContent = `@${session.username}` + (myCls ? ` · Lớp ${myCls}` : "");
+  $("pUser").textContent = `@${viewedUsername}` + (myCls ? ` · Lớp ${myCls}` : "");
 
   try {
     const [accSnap, profSnap, resSnap, khtnSnap, towerSnap] = await Promise.all([
-      get(ref(db, `accounts/${myKey}`)).catch(() => null),
-      get(ref(db, `profiles/${myKey}`)).catch(() => null),
+      get(ref(db, `accounts/${viewedKey}`)).catch(() => null),
+      get(ref(db, `profiles/${viewedKey}`)).catch(() => null),
       get(ref(db, "results")).catch(() => null),
       get(ref(db, "results_khtn")).catch(() => null),
       get(ref(db, "tower")).catch(() => null)
     ]);
 
+    if (isPublicView && (!accSnap || !accSnap.exists())) {
+      $("pName").textContent = "❓ Không tìm thấy";
+      $("pUser").textContent = `@${viewedUsername}`;
+      $("pBio").textContent = "Hồ sơ này không tồn tại hoặc đã bị xoá.";
+      $("statsGrid").innerHTML = '<div class="empty-hint">—</div>';
+      $("scoresList").innerHTML = '<div class="empty-hint">—</div>';
+      $("chartsList").innerHTML = '<div class="empty-hint">—</div>';
+      $("badgeGrid").innerHTML = '<div class="empty-hint">—</div>';
+      return;
+    }
+
     const acc  = (accSnap  && accSnap.val())  || {};
     const prof = (profSnap && profSnap.val()) || {};
 
-    if (profSnap && !profSnap.exists() && !isAdmin) {
+    if (canEdit && profSnap && !profSnap.exists() && !isAdmin) {
       try {
-        await set(ref(db, `profiles/${myKey}`), {
+        await set(ref(db, `profiles/${viewedKey}`), {
           avatar: "🐱", avatarImg: "", bio: "", createdAt: Date.now()
         });
       } catch (e) { console.warn("[profile] auto-create failed:", e); }
@@ -650,7 +719,7 @@ async function loadData() {
     currentProfile.avatarImg = prof.avatarImg || "";
     currentProfile.bio       = prof.bio       || "";
 
-    const analysis = analyzeUserData(session.username, resSnap, khtnSnap, towerSnap);
+    const analysis = analyzeUserData(viewedUsername, resSnap, khtnSnap, towerSnap);
     currentAchievements = analysis.achievements;
 
     const existingDates = prof.achievementDates || {};
@@ -664,9 +733,9 @@ async function loadData() {
     });
     currentAchievementDates = newDates;
 
-    if (hasNew && profSnap && profSnap.exists() && !isAdmin) {
+    if (hasNew && canEdit && profSnap && profSnap.exists() && !isAdmin) {
       try {
-        await update(ref(db, `profiles/${myKey}`), { achievementDates: newDates });
+        await update(ref(db, `profiles/${viewedKey}`), { achievementDates: newDates });
       } catch (e) { console.warn("[profile] save dates:", e); }
     }
 
@@ -695,7 +764,7 @@ async function loadData() {
     console.error("[profile] loadData error:", e);
     showToast("Lỗi tải dữ liệu: " + (e.message || e), true);
     $("pName").textContent = myName;
-    $("pUser").textContent = `@${session.username}` + (myCls ? ` · Lớp ${myCls}` : "");
+    $("pUser").textContent = `@${viewedUsername}` + (myCls ? ` · Lớp ${myCls}` : "");
     $("pBio").textContent  = '"Chưa có tiểu sử"';
     renderStats({ totalQuizzes: 0, loginCount: 1, streak: 1 });
     renderScores({});
@@ -716,7 +785,7 @@ function renderAvatarEl(el, avatar, avatarImg) {
 function renderHeader(acc, merged) {
   renderAvatarEl($("pAvatar"), merged.avatar, merged.avatarImg);
   $("pName").textContent   = acc.name || myName || "Người dùng";
-  $("pUser").textContent   = `@${session.username}` + (acc.cls ? ` · Lớp ${acc.cls}` : (myCls ? ` · Lớp ${myCls}` : ""));
+  $("pUser").textContent   = `@${viewedUsername}` + (acc.cls ? ` · Lớp ${acc.cls}` : (myCls ? ` · Lớp ${myCls}` : ""));
   $("pBio").textContent    = merged.bio ? `"${merged.bio}"` : '"Chưa có tiểu sử"';
 }
 
@@ -846,23 +915,31 @@ function renderBadges(merged) {
   $("badgeProgressText").textContent = `${totalUnlocked}/${BADGES.length}`;
   $("badgeProgressFill").style.width = pct + "%";
 
+  const hintEl = $("badgeHint");
+  if (hintEl) hintEl.style.display = isPublicView ? "none" : "";
+
   $("badgeGrid").innerHTML = BADGES.map(b => {
     const unlocked = ach[b.id] === true;
     const dateStr = dates[b.id] || (unlocked ? "Đã đạt" : "Chưa đạt");
-    return `<div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-badge="${b.id}">
-      <div class="badge-help">?</div>
+    const helpIcon = isPublicView ? '' : '<div class="badge-help">?</div>';
+    const noHover = isPublicView ? ' no-hover' : '';
+    return `<div class="badge-item${noHover} ${unlocked ? 'unlocked' : 'locked'}" data-badge="${b.id}">
+      ${helpIcon}
       <span class="badge-icon">${b.icon}</span>
       <span class="badge-name">${b.name}</span>
       <span class="badge-date">${dateStr}</span>
     </div>`;
   }).join("");
 
-  $("badgeGrid").querySelectorAll(".badge-item").forEach(el => {
-    el.onclick = () => openBadgeDetail(el.dataset.badge);
-  });
+  if (!isPublicView) {
+    $("badgeGrid").querySelectorAll(".badge-item").forEach(el => {
+      el.onclick = () => openBadgeDetail(el.dataset.badge);
+    });
+  }
 }
 
 function openBadgeDetail(id) {
+  if (isPublicView) return;
   const def = BADGES.find(b => b.id === id);
   if (!def) return;
   const unlocked = currentAchievements[id] === true;
@@ -887,6 +964,9 @@ function openBadgeDetail(id) {
 $("badgeClose").onclick = () => $("badgeMask").classList.remove("on");
 $("badgeMask").onclick = (e) => { if (e.target === $("badgeMask")) $("badgeMask").classList.remove("on"); };
 
+/* ══════════════════════════════════════════════════════════════════
+   CHỈNH SỬA PROFILE (chỉ khi canEdit)
+   ══════════════════════════════════════════════════════════════════ */
 let selectedAvatar = "🐱";
 let selectedAvatarImg = "";
 
@@ -918,7 +998,8 @@ async function resizeImage(file, maxSize = 512, quality = 0.9) {
   });
 }
 
-$("btnEditProfile").onclick = () => {
+if ($("btnEditProfile")) $("btnEditProfile").onclick = () => {
+  if (!canEdit) return;
   selectedAvatar = currentProfile.avatar || "🐱";
   selectedAvatarImg = currentProfile.avatarImg || "";
   $("editBio").value = currentProfile.bio || "";
@@ -948,14 +1029,8 @@ $("editBio").oninput = () => { $("bioCount").textContent = $("editBio").value.le
 $("avatarFile").onchange = async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    showToast("Vui lòng chọn file ảnh", true);
-    return;
-  }
-  if (file.size > 20 * 1024 * 1024) {
-    showToast("Ảnh tối đa 20MB", true);
-    return;
-  }
+  if (!file.type.startsWith("image/")) { showToast("Vui lòng chọn file ảnh", true); return; }
+  if (file.size > 20 * 1024 * 1024) { showToast("Ảnh tối đa 20MB", true); return; }
   $("lblUpload").textContent = "⏳ Đang xử lý...";
   try {
     const dataUrl = await resizeImage(file, 512, 0.9);
@@ -979,13 +1054,14 @@ $("btnResetAvatar").onclick = () => {
 };
 
 $("saveEdit").onclick = async () => {
+  if (!canEdit) return;
   const bio = $("editBio").value.trim();
   if (bio.length > 100) { showToast("Bio tối đa 100 ký tự", true); return; }
 
   $("saveEdit").disabled = true;
   $("saveEdit").textContent = "Đang lưu...";
   try {
-    const profRef = ref(db, `profiles/${myKey}`);
+    const profRef = ref(db, `profiles/${viewedKey}`);
     const existing = await get(profRef);
     const payload = { avatar: selectedAvatar, avatarImg: selectedAvatarImg || "", bio };
     if (existing.exists()) {
@@ -1013,7 +1089,21 @@ $("saveEdit").onclick = async () => {
   }
 };
 
-$("btnChangePassword").onclick = () => {
+/* ══════════════════════════════════════════════════════════════════
+   SHARE + ĐỔI MẬT KHẨU
+   ══════════════════════════════════════════════════════════════════ */
+if ($("btnShare")) $("btnShare").onclick = async () => {
+  const url = `${location.origin}/profile_${encodeURIComponent(viewedUsername)}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("✅ Đã sao chép link hồ sơ!");
+  } catch(e) {
+    prompt("Link hồ sơ của bạn:", url);
+  }
+};
+
+if ($("btnChangePassword")) $("btnChangePassword").onclick = () => {
+  if (!canEdit) return;
   $("oldPassword").value = "";
   $("newPassword").value = "";
   $("confirmPassword").value = "";
@@ -1023,6 +1113,7 @@ $("btnChangePassword").onclick = () => {
 $("cancelPassword").onclick = () => $("passwordMask").classList.remove("on");
 
 $("savePassword").onclick = async () => {
+  if (!canEdit) return;
   const oldPass = $("oldPassword").value;
   const newPass = $("newPassword").value;
   const confirmPass = $("confirmPassword").value;
@@ -1038,13 +1129,13 @@ $("savePassword").onclick = async () => {
   $("savePassword").disabled = true;
   $("savePassword").textContent = "Đang kiểm tra...";
   try {
-    const accSnap = await get(ref(db, `accounts/${myKey}`));
+    const accSnap = await get(ref(db, `accounts/${viewedKey}`));
     if (!accSnap.exists()) { $("passwordErr").textContent = "Không tìm thấy tài khoản!"; return; }
     const acc = accSnap.val();
     const oldHash = await sha256Hex(oldPass);
     if (acc.passHash !== oldHash) { $("passwordErr").textContent = "Mật khẩu hiện tại không đúng!"; return; }
     const newHash = await sha256Hex(newPass);
-    await update(ref(db, `accounts/${myKey}`), { passHash: newHash });
+    await update(ref(db, `accounts/${viewedKey}`), { passHash: newHash });
     showToast("✅ Đã đổi mật khẩu thành công!");
     $("passwordMask").classList.remove("on");
   } catch (e) {
