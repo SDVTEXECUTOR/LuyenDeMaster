@@ -39,6 +39,13 @@ main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
   box-shadow: var(--shadow);
 }
 h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+.badge-counter {
+  margin-left: auto;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--ac); background: var(--acs);
+  padding: 4px 10px; border-radius: 99px;
+  white-space: nowrap;
+}
 .mut { color: var(--mut); font-size: 0.9rem; }
 
 .profile-header { text-align: center; padding: 32px 24px; }
@@ -80,17 +87,28 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .score-val { width: 40px; text-align: right; font-weight: 700; font-size: 0.9rem; }
 .score-na { color: var(--mut); font-style: italic; font-size: 0.85rem; flex: 1; }
 
-.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 10px; }
 .badge-item {
-  text-align: center; padding: 16px 8px; border-radius: 12px;
+  text-align: center; padding: 14px 8px 12px; border-radius: 12px;
   border: 1px solid var(--ln); background: rgba(255,255,255,0.4);
-  transition: all 0.2s; position: relative;
+  transition: all 0.2s; position: relative; cursor: pointer;
 }
+.badge-item:hover { transform: translateY(-2px); }
 .badge-item.unlocked { border-color: var(--warn); background: var(--warns); }
-.badge-item.locked { opacity: 0.5; filter: grayscale(1); cursor: help; }
-.badge-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
-.badge-name { font-size: 0.85rem; font-weight: 700; display: block; }
-.badge-date { font-size: 0.75rem; color: var(--mut); display: block; margin-top: 4px; }
+.badge-item.locked { opacity: 0.55; }
+.badge-item.locked .badge-icon { filter: grayscale(1); }
+.badge-help {
+  position: absolute; top: 6px; right: 6px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--ac); color: #fff;
+  font-size: 0.7rem; font-weight: 800;
+  display: grid; place-items: center;
+  opacity: 0.8; transition: opacity 0.2s, transform 0.2s;
+}
+.badge-item:hover .badge-help { opacity: 1; transform: scale(1.1); }
+.badge-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; line-height: 1; }
+.badge-name { font-size: 0.82rem; font-weight: 700; display: block; line-height: 1.3; }
+.badge-date { font-size: 0.7rem; color: var(--mut); display: block; margin-top: 4px; }
 
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -128,6 +146,7 @@ textarea { resize: vertical; min-height: 80px; }
 .hide { display: none !important; }
 .skel { height: 20px; border-radius: 6px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.empty-hint { padding: 20px; text-align: center; color: var(--mut); font-style: italic; }
 </style>
 </head>
 <body>
@@ -161,7 +180,8 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 
   <div class="card">
-    <h2>🎖️ THÀNH TÍCH</h2>
+    <h2>🎖️ THÀNH TÍCH <span class="badge-counter" id="badgeCounter">0/17 đạt</span></h2>
+    <div class="mut" style="margin: -8px 0 16px; font-size: 0.82rem;">Nhấn vào từng danh hiệu để xem cách đạt →</div>
     <div class="badge-grid" id="badgeGrid"></div>
   </div>
 
@@ -172,6 +192,14 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
   </div>
 </main>
+
+<!-- Modal badge detail -->
+<div class="mask" id="badgeMask">
+  <div class="card" style="max-width: 400px; text-align: center;">
+    <div id="badgeDetailBody"></div>
+    <button class="g" id="badgeClose" style="width: 100%; margin-top: 20px; justify-content: center;">Đóng</button>
+  </div>
+</div>
 
 <!-- Modal sửa profile -->
 <div class="mask" id="editMask">
@@ -229,6 +257,9 @@ async function sha256Hex(str) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   SESSION
+   ══════════════════════════════════════════════════════════════════════ */
 const session = loadSession();
 if (!session || !session.username) {
   window.location.href = "index.html";
@@ -236,105 +267,485 @@ if (!session || !session.username) {
 }
 saveSession(session);
 
-const myKey  = session.key || keyOf(session.username);
+const myKey = session.key || keyOf(session.username);
 const myName = session.name || session.username;
-const myCls  = session.cls  || "";
+const myCls = session.cls || "";
+const isAdmin = session.isAdmin === true;
 
 let currentProfile = { avatar: "🐱", bio: "" };
+let currentAchievements = {};
+let currentAchievementDates = {};
+
 const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢"];
 
 const SUBJECTS = [
-  { key: 'tinhoc', icon: '💻', name: 'Tin học 9' },
-  { key: 'gdcd', icon: '⚖️', name: 'GDCD 9' },
-  { key: 'english', icon: '🇬🇧', name: 'Tiếng Anh 9' },
-  { key: 'diali', icon: '🌍', name: 'Địa lí 9', subKeys: ['diali_choice', 'diali_manual', 'diali_memory'] },
-  { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9' }
+  { key: 'tinhoc',         icon: '💻', name: 'Tin học 9',    aliases: ['tinhoc'] },
+  { key: 'gdcd',           icon: '⚖️', name: 'GDCD 9',       aliases: ['gdcd'] },
+  { key: 'english',        icon: '🇬🇧', name: 'Tiếng Anh 9',  aliases: ['english'] },
+  { key: 'diali',          icon: '🌍', name: 'Địa lí 9',     aliases: ['diali_choice', 'diali_manual', 'diali_memory', 'diali'] },
+  { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9',       aliases: ['khoahoctunhien', 'khtn'] }
 ];
 
+// Nhóm môn để xếp hạng
+const SUBJECT_GROUPS = {
+  tinhoc:         ['tinhoc'],
+  gdcd:           ['gdcd'],
+  english:        ['english'],
+  diali:          ['diali_choice', 'diali_manual', 'diali_memory', 'diali'],
+  khoahoctunhien: ['khoahoctunhien', 'khtn']
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   BADGE DEFINITIONS — 17 danh hiệu
+   ══════════════════════════════════════════════════════════════════════ */
+const BADGES = [
+  { id: 'first_step', icon: '🎯', name: 'Khởi đầu',    req: 'Hoàn thành bài thi đầu tiên của bạn.' },
+  { id: 'first_blood',icon: '🥇', name: 'First Blood', req: 'Lần đầu lên <b>top 1</b> bảng xếp hạng của bất kỳ môn nào.' },
+  { id: 'cham_chi',   icon: '📚', name: 'Chăm chỉ',    req: 'Làm đề <b>3 ngày liên tiếp</b> (mỗi ngày ít nhất 1 bài).' },
+  { id: 'sieng_nang', icon: '💪', name: 'Siêng năng',  req: 'Làm đề <b>7 ngày liên tiếp</b> (mỗi ngày ít nhất 1 bài).' },
+  { id: 'vua_mon',    icon: '👑', name: 'Vua môn',     req: 'Giữ vị trí <b>top 1 một môn</b> trong <b>5 ngày</b> liên tục (không ai vượt qua).' },
+  { id: 'perfect',    icon: '🌟', name: 'Perfect',     req: 'Đạt <b>top 1 ở 4 môn học</b> khác nhau cùng lúc.' },
+  { id: 'diem_10',    icon: '💯', name: 'Điểm 10',     req: 'Đạt điểm <b>10 tuyệt đối</b> trong một bài thi.' },
+  { id: 'all_star',   icon: '⭐', name: 'All-Star',    req: 'Đạt từ <b>9 điểm trở lên</b> ở cả 5 môn học.' },
+  { id: 'da_nang',    icon: '🏆', name: 'Đa năng',     req: 'Lọt <b>top 10</b> bảng xếp hạng của cả 5 môn học.' },
+  { id: 'cay_cuoc',   icon: '🚀', name: 'Cày cuốc',    req: 'Làm tổng cộng <b>50 bài</b> (tính cả Tower).' },
+  { id: 'bac_thay',   icon: '🎓', name: 'Bậc thầy',    req: 'Làm tổng cộng <b>100 bài</b> (tính cả Tower).' },
+  { id: 'toc_do',     icon: '⚡', name: 'Tốc độ',      req: 'Đạt <b>≥ 9 điểm</b> với thời gian làm bài <b>dưới 3 phút</b>.' },
+  { id: 'leo_thap',   icon: '🏰', name: 'Leo tháp',    req: 'Chinh phục <b>tầng 10</b> của Tower.' },
+  { id: 'thap_than',  icon: '🗼', name: 'Tháp thần',   req: 'Chinh phục <b>tầng 20</b> của Tower.' },
+  { id: 'kim_cuong',  icon: '💎', name: 'Kim cương',   req: 'Chinh phục <b>tầng 30</b> của Tower.' },
+  { id: 'cu_dem',     icon: '🦉', name: 'Cú đêm',      req: 'Làm bài <b>sau 22 giờ đêm</b> (hoặc trước 5h sáng).' },
+  { id: 'chim_som',   icon: '🌅', name: 'Chim sớm',    req: 'Làm bài <b>trước 7 giờ sáng</b>.' }
+];
+
+/* ══════════════════════════════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════════════════════════════ */
+function tsToMs(ts) {
+  if (!ts) return 0;
+  if (typeof ts === "number") return ts;
+  if (typeof ts === "object") {
+    if (typeof ts.seconds === "number") return ts.seconds * 1000;
+    if (typeof ts.toDate === "function") return ts.toDate().getTime();
+  }
+  return 0;
+}
+function tsToVN(ts) {
+  const ms = tsToMs(ts);
+  if (!ms) return "Mới đây";
+  return new Date(ms).toLocaleString("vi-VN", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+function fmtScoreShort(n) {
+  const x = Number(n) || 0;
+  return String(x).replace(/\.?0+$/, "").replace(".", ",") || "0";
+}
+function dayKey(ms) {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ANALYZE — 1 pass, tính tất cả stats + achievements
+   ══════════════════════════════════════════════════════════════════════ */
+function analyzeUserData(myUsername, resSnap, khtnSnap, towerSnap) {
+  const uNorm = String(myUsername || "").trim().toLowerCase();
+  const now = Date.now();
+  const DAY = 86400000;
+
+  const byUserSubj = {};
+  const myTimestamps = [];
+  let myTotalQuizzes = 0;
+  let myTowerBest = 0;
+  let hasPerfect10 = false;
+  let hasSpeedrun = false;
+
+  // ── Process quizzes ──
+  const processQuiz = (snap) => {
+    if (!snap || !snap.exists()) return;
+    snap.forEach(ch => {
+      const v = ch.val();
+      if (!v || (v.type && v.type !== "quiz_result")) return;
+      const u = String(v.username || "").trim().toLowerCase();
+      const subj = String(v.subject || "").trim();
+      if (!u || !subj) return;
+      const score = Number(v.score) || 0;
+      const dur = Number(v.duration) || 0;
+      const ts = tsToMs(v.time || v.createdAt || v.timestamp);
+
+      if (u === uNorm) {
+        myTotalQuizzes++;
+        if (ts) myTimestamps.push(ts);
+        if (score === 10) hasPerfect10 = true;
+        if (score >= 9 && dur > 0 && dur < 180000) hasSpeedrun = true;
+      }
+
+      if (!byUserSubj[u]) byUserSubj[u] = {};
+      if (!byUserSubj[u][subj]) {
+        byUserSubj[u][subj] = { score, duration: dur, ts };
+      } else {
+        const cur = byUserSubj[u][subj];
+        if (score > cur.score || (score === cur.score && dur < cur.duration)) {
+          byUserSubj[u][subj] = { score, duration: dur, ts };
+        }
+      }
+    });
+  };
+  processQuiz(resSnap);
+  processQuiz(khtnSnap);
+
+  // ── Tower ──
+  if (towerSnap && towerSnap.exists()) {
+    towerSnap.forEach(ch => {
+      const v = ch.val();
+      if (!v) return;
+      const u = String(v.username || "").trim().toLowerCase();
+      if (u !== uNorm) return;
+      myTotalQuizzes++;
+      const s = Number(v.score) || 0;
+      if (s > myTowerBest) myTowerBest = s;
+    });
+  }
+
+  // ── Night / Early ──
+  let hasNightOwl = false, hasEarlyBird = false;
+  myTimestamps.forEach(ts => {
+    if (!ts) return;
+    const h = new Date(ts).getHours();
+    if (h >= 22 || h < 5) hasNightOwl = true;
+    if (h >= 5 && h < 7) hasEarlyBird = true;
+  });
+
+  // ── Group rankings ──
+  const groupRankings = {};
+  Object.entries(SUBJECT_GROUPS).forEach(([group, aliases]) => {
+    const userBests = {};
+    Object.entries(byUserSubj).forEach(([u, subjs]) => {
+      let best = null;
+      aliases.forEach(a => {
+        const cur = subjs[a];
+        if (!cur) return;
+        if (!best || cur.score > best.score || (cur.score === best.score && cur.duration < best.duration)) {
+          best = { ...cur };
+        }
+      });
+      if (best) userBests[u] = best;
+    });
+    const list = Object.entries(userBests).map(([u, d]) => ({ username: u, ...d }));
+    list.sort((a, b) => b.score - a.score || a.duration - b.duration);
+    list.forEach((e, i) => e.rank = i + 1);
+    groupRankings[group] = list;
+  });
+
+  const myRankInGroup = (group) => {
+    const list = groupRankings[group] || [];
+    const me = list.find(e => e.username === uNorm);
+    return me ? me.rank : Infinity;
+  };
+  const myDataInGroup = (group) => {
+    const list = groupRankings[group] || [];
+    return list.find(e => e.username === uNorm) || null;
+  };
+
+  // ── Best scores (alias-level, cho renderScores) ──
+  const bestScoresRaw = {};
+  Object.entries(byUserSubj[uNorm] || {}).forEach(([subj, d]) => {
+    bestScoresRaw[subj] = d.score;
+  });
+
+  // ── Streak of days ──
+  const daySet = new Set();
+  myTimestamps.forEach(ts => { if (ts) daySet.add(dayKey(ts)); });
+  const daysMs = [...daySet].map(s => {
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(y, m - 1, d).getTime();
+  }).sort((a, b) => a - b);
+  let longestStreak = 0, curStreak = 1;
+  if (daysMs.length === 1) longestStreak = 1;
+  for (let i = 1; i < daysMs.length; i++) {
+    if (daysMs[i] - daysMs[i-1] <= DAY + 1000) curStreak++;
+    else curStreak = 1;
+    if (curStreak > longestStreak) longestStreak = curStreak;
+  }
+  if (longestStreak < 1 && daysMs.length > 0) longestStreak = 1;
+
+  // ── BADGE COMPUTATION ──
+  const a = {};
+  a.first_step = myTotalQuizzes >= 1;
+
+  const top1Groups = Object.keys(SUBJECT_GROUPS).filter(g => myRankInGroup(g) === 1);
+  a.first_blood = top1Groups.length >= 1;
+
+  a.cham_chi = longestStreak >= 3;
+  a.sieng_nang = longestStreak >= 7;
+
+  // Vua môn: top1 một môn + best ts >= 5 ngày trước
+  let vuaMon = false;
+  top1Groups.forEach(g => {
+    const me = myDataInGroup(g);
+    if (me && me.ts && (now - me.ts) >= 5 * DAY) vuaMon = true;
+  });
+  a.vua_mon = vuaMon;
+
+  a.perfect = top1Groups.length >= 4;
+  a.diem_10 = hasPerfect10;
+
+  const groupBest = {};
+  Object.keys(SUBJECT_GROUPS).forEach(g => {
+    const me = myDataInGroup(g);
+    groupBest[g] = me ? me.score : 0;
+  });
+  a.all_star = Object.keys(SUBJECT_GROUPS).every(g => groupBest[g] >= 9);
+
+  const top10Count = Object.keys(SUBJECT_GROUPS).filter(g => myRankInGroup(g) <= 10).length;
+  a.da_nang = top10Count >= 5;
+
+  a.cay_cuoc = myTotalQuizzes >= 50;
+  a.bac_thay = myTotalQuizzes >= 100;
+  a.toc_do = hasSpeedrun;
+  a.leo_thap = myTowerBest >= 10;
+  a.thap_than = myTowerBest >= 20;
+  a.kim_cuong = myTowerBest >= 30;
+  a.cu_dem = hasNightOwl;
+  a.chim_som = hasEarlyBird;
+
+  // ── Activities ──
+  const activities = [];
+  const scanAct = (snap, isTower) => {
+    if (!snap || !snap.exists()) return;
+    snap.forEach(ch => {
+      const v = ch.val();
+      if (!v) return;
+      const u = String(v.username || "").trim().toLowerCase();
+      if (u !== uNorm) return;
+      if (isTower) {
+        activities.push({
+          icon: "🏰",
+          text: `Leo tháp: tầng ${Number(v.score) || 0}`,
+          ts: tsToMs(v.timestamp || v.createdAt || v.time)
+        });
+      } else {
+        if (v.type && v.type !== "quiz_result") return;
+        const subj = String(v.subject || "");
+        const icon = SUBJECTS.find(s => s.aliases.includes(subj))?.icon || "📝";
+        activities.push({
+          icon,
+          text: `Làm bài ${subj}: ${fmtScoreShort(v.score)}đ`,
+          ts: tsToMs(v.time || v.createdAt || v.timestamp)
+        });
+      }
+    });
+  };
+  scanAct(resSnap);
+  scanAct(khtnSnap);
+  scanAct(towerSnap, true);
+  activities.sort((x, y) => (y.ts || 0) - (x.ts || 0));
+  activities.forEach(x => x.time = tsToVN(x.ts));
+
+  return {
+    stats: { totalQuizzes: myTotalQuizzes, bestScores: bestScoresRaw },
+    achievements: a,
+    activities: activities.slice(0, 10),
+    meta: { longestStreak, top1Count: top1Groups.length, top10Count, myTowerBest }
+  };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOAD DATA
+   ══════════════════════════════════════════════════════════════════════ */
 async function loadData() {
+  $("pName").textContent = myName;
+  $("pUser").textContent = `@${session.username}` + (myCls ? ` · Lớp ${myCls}` : "");
+
   try {
-    const [accSnap, profSnap] = await Promise.all([
-      get(ref(db, `accounts/${myKey}`)),
-      get(ref(db, `profiles/${myKey}`))
+    const [accSnap, profSnap, resSnap, khtnSnap, towerSnap] = await Promise.all([
+      get(ref(db, `accounts/${myKey}`)).catch(() => null),
+      get(ref(db, `profiles/${myKey}`)).catch(() => null),
+      get(ref(db, "results")).catch(() => null),
+      get(ref(db, "results_khtn")).catch(() => null),
+      get(ref(db, "tower")).catch(() => null)
     ]);
-    const acc  = accSnap.val()  || {};
-    const prof = profSnap.val() || {};
-    if (!acc.name) acc.name = myName;
-    if (!acc.cls)  acc.cls  = myCls;
+
+    const acc  = (accSnap  && accSnap.val())  || {};
+    const prof = (profSnap && profSnap.val()) || {};
+
+    // Auto-create profile lần đầu
+    if (profSnap && !profSnap.exists() && !isAdmin) {
+      try {
+        await set(ref(db, `profiles/${myKey}`), { avatar: "🐱", bio: "", createdAt: Date.now() });
+      } catch (e) { console.warn("[profile] auto-create failed:", e); }
+    }
+
     currentProfile.avatar = prof.avatar || "🐱";
     currentProfile.bio    = prof.bio    || "";
-    renderHeader(acc, prof);
-    renderStats(prof);
-    renderScores(prof.bestScores || {});
-    renderBadges(prof);
-    renderActivity(prof.recentActivity || []);
+
+    // Analyze (1 pass)
+    const analysis = analyzeUserData(session.username, resSnap, khtnSnap, towerSnap);
+    currentAchievements = analysis.achievements;
+
+    // Merge achievement dates (chỉ lưu lần đầu đạt)
+    const existingDates = prof.achievementDates || {};
+    const newDates = { ...existingDates };
+    let hasNew = false;
+    Object.entries(currentAchievements).forEach(([id, unlocked]) => {
+      if (unlocked && !newDates[id]) {
+        newDates[id] = new Date().toLocaleDateString("vi-VN");
+        hasNew = true;
+      }
+    });
+    currentAchievementDates = newDates;
+
+    // Lưu date mới (nếu có + profile tồn tại + không phải admin)
+    if (hasNew && profSnap && profSnap.exists() && !isAdmin) {
+      try {
+        await update(ref(db, `profiles/${myKey}`), { achievementDates: newDates });
+      } catch (e) { console.warn("[profile] save dates:", e); }
+    }
+
+    const merged = {
+      avatar:           currentProfile.avatar,
+      bio:              currentProfile.bio,
+      totalQuizzes:     analysis.stats.totalQuizzes,
+      loginCount:       Number(prof.loginCount) || 1,
+      streak:           Number(prof.streak)     || 1,
+      bestScores:       analysis.stats.bestScores,
+      achievements:     currentAchievements,
+      achievementDates: currentAchievementDates,
+      recentActivity:   analysis.activities
+    };
+
+    renderHeader(acc, merged);
+    renderStats(merged);
+    renderScores(merged.bestScores);
+    renderBadges(merged);
+    renderActivity(merged.recentActivity);
+
   } catch (e) {
     console.error("[profile] loadData error:", e);
     showToast("Lỗi tải dữ liệu: " + (e.message || e), true);
     $("pName").textContent = myName;
-    $("pUser").textContent = `@${session.username}` + (myCls ? ` · ${myCls}` : "");
+    $("pUser").textContent = `@${session.username}` + (myCls ? ` · Lớp ${myCls}` : "");
+    $("pBio").textContent  = '"Chưa có tiểu sử"';
+    renderStats({ totalQuizzes: 0, loginCount: 1, streak: 1 });
+    renderScores({});
+    renderBadges({ achievements: {}, achievementDates: {} });
+    renderActivity([]);
   }
 }
 
-function renderHeader(acc, prof) {
-  $("pAvatar").textContent = prof.avatar || "🐱";
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════════════════════════════════ */
+function renderHeader(acc, merged) {
+  $("pAvatar").textContent = merged.avatar || "🐱";
   $("pName").textContent   = acc.name || myName || "Người dùng";
-  $("pUser").textContent   = `@${session.username}` + (acc.cls ? ` · Lớp ${acc.cls}` : "");
-  $("pBio").textContent    = prof.bio ? `"${prof.bio}"` : '"Chưa có tiểu sử"';
+  $("pUser").textContent   = `@${session.username}` + (acc.cls ? ` · Lớp ${acc.cls}` : (myCls ? ` · Lớp ${myCls}` : ""));
+  $("pBio").textContent    = merged.bio ? `"${merged.bio}"` : '"Chưa có tiểu sử"';
 }
-function renderStats(prof) {
+
+function renderStats(merged) {
   $("statsGrid").innerHTML = `
-    <div class="stat-item"><span class="stat-val">${prof.totalQuizzes || 0}</span><span class="stat-label">Bài đã làm</span></div>
-    <div class="stat-item"><span class="stat-val">${prof.loginCount || 1}</span><span class="stat-label">Lần đăng nhập</span></div>
-    <div class="stat-item"><span class="stat-val" style="color: var(--warn);">🔥 ${prof.streak || 1}</span><span class="stat-label">Ngày streak</span></div>`;
+    <div class="stat-item"><span class="stat-val">${merged.totalQuizzes || 0}</span><span class="stat-label">Bài đã làm</span></div>
+    <div class="stat-item"><span class="stat-val">${merged.loginCount   || 1}</span><span class="stat-label">Lần đăng nhập</span></div>
+    <div class="stat-item"><span class="stat-val" style="color: var(--warn);">🔥 ${merged.streak || 1}</span><span class="stat-label">Ngày streak</span></div>
+  `;
 }
+
 function renderScores(bestScores) {
   let html = '';
   SUBJECTS.forEach(sub => {
-    let score = bestScores[sub.key];
-    if (sub.subKeys) {
-      const vals = sub.subKeys.map(k => bestScores[k]).filter(v => typeof v === "number");
-      score = vals.length ? Math.max(...vals) : undefined;
+    let score = undefined;
+    for (const alias of sub.aliases) {
+      if (typeof bestScores[alias] === "number") {
+        if (typeof score !== "number" || bestScores[alias] > score) score = bestScores[alias];
+      }
     }
     if (typeof score === "number") {
       const pct = Math.min(100, (score / 10) * 100);
-      html += `<div class="score-row"><span class="score-icon">${sub.icon}</span><span class="score-name">${sub.name}</span><div class="score-bar-bg"><div class="score-bar-fill" style="width: ${pct}%"></div></div><span class="score-val">${score}</span></div>`;
+      html += `<div class="score-row">
+        <span class="score-icon">${sub.icon}</span>
+        <span class="score-name">${sub.name}</span>
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width: ${pct}%"></div></div>
+        <span class="score-val">${fmtScoreShort(score)}</span>
+      </div>`;
     } else {
-      html += `<div class="score-row"><span class="score-icon">${sub.icon}</span><span class="score-name">${sub.name}</span><span class="score-na">Chưa làm</span></div>`;
+      html += `<div class="score-row">
+        <span class="score-icon">${sub.icon}</span>
+        <span class="score-name">${sub.name}</span>
+        <span class="score-na">Chưa làm</span>
+      </div>`;
     }
   });
   $("scoresList").innerHTML = html;
 }
-function renderBadges(prof) {
-  const achievements = prof.achievements || {};
-  const badges = [
-    { id: 'first_blood',  icon: '🥇', name: 'First Blood',    req: 'Đạt 10 điểm đầu tiên' },
-    { id: 'streak_7',     icon: '🔥', name: 'Streak 7',        req: '7 ngày đăng nhập liên tục' },
-    { id: 'careful_50',   icon: '📚', name: 'Chăm chỉ',        req: 'Làm 50 bài' },
-    { id: 'diligent_100', icon: '💪', name: 'Siêng năng',      req: 'Làm 100 bài' },
-    { id: 'king',         icon: '👑', name: 'Vua môn',         req: 'Top 1 bất kỳ môn nào' },
-    { id: 'perfect',      icon: '🌟', name: 'Perfect',         req: '10 điểm trên 3 môn' }
-  ];
-  $("badgeGrid").innerHTML = badges.map(b => {
-    const unlocked = achievements[b.id] === true;
-    return `<div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" title="${b.req}">
+
+function renderBadges(merged) {
+  const ach = merged.achievements || {};
+  const dates = merged.achievementDates || {};
+  const totalUnlocked = BADGES.filter(b => ach[b.id] === true).length;
+  $("badgeCounter").textContent = `${totalUnlocked}/${BADGES.length} đạt`;
+
+  $("badgeGrid").innerHTML = BADGES.map(b => {
+    const unlocked = ach[b.id] === true;
+    const dateStr = dates[b.id] || (unlocked ? "Đã đạt" : "Chưa đạt");
+    return `<div class="badge-item ${unlocked ? 'unlocked' : 'locked'}" data-badge="${b.id}" title="${b.name}">
+      <div class="badge-help">?</div>
       <span class="badge-icon">${b.icon}</span>
       <span class="badge-name">${b.name}</span>
-      <span class="badge-date">${unlocked ? (prof.achievementDates?.[b.id] || 'Đã đạt') : 'Chưa đạt'}</span>
+      <span class="badge-date">${dateStr}</span>
     </div>`;
   }).join("");
+
+  // Click handler
+  $("badgeGrid").querySelectorAll(".badge-item").forEach(el => {
+    el.onclick = () => openBadgeDetail(el.dataset.badge);
+  });
 }
+
+function openBadgeDetail(id) {
+  const def = BADGES.find(b => b.id === id);
+  if (!def) return;
+  const unlocked = currentAchievements[id] === true;
+  const dateStr = currentAchievementDates[id] || null;
+
+  $("badgeDetailBody").innerHTML = `
+    <div style="font-size: 4rem; line-height: 1; margin-bottom: 8px; ${unlocked ? '' : 'filter: grayscale(1); opacity: 0.5;'}">${def.icon}</div>
+    <h2 style="margin: 0 0 8px; font-size: 1.3rem; justify-content: center;">${def.name}</h2>
+    <div style="display: inline-block; padding: 4px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; margin-bottom: 16px;
+      ${unlocked ? 'background: var(--oks); color: var(--ok);' : 'background: var(--bads); color: var(--bad);'}">
+      ${unlocked ? '✓ Đã đạt được' : '○ Chưa đạt'}
+    </div>
+    <div style="background: var(--acs); color: var(--fg); padding: 14px 16px; border-radius: 10px; font-size: 0.92rem; line-height: 1.65; text-align: left; border-left: 3px solid var(--ac);">
+      <b style="color: var(--ac); display: block; margin-bottom: 6px;">📋 Cách đạt:</b>
+      ${def.req}
+    </div>
+    ${dateStr ? `<div style="margin-top: 14px; font-size: 0.82rem; color: var(--mut);">🗓 Đạt được lần đầu: <b style="color: var(--fg);">${dateStr}</b></div>` : ''}
+  `;
+  $("badgeMask").classList.add("on");
+}
+
+$("badgeClose").onclick = () => $("badgeMask").classList.remove("on");
+$("badgeMask").onclick = (e) => { if (e.target === $("badgeMask")) $("badgeMask").classList.remove("on"); };
+
 function renderActivity(activities) {
-  const list = Array.isArray(activities) ? activities : Object.values(activities || {});
-  if (!list.length) { $("activityList").innerHTML = '<div style="padding: 12px; text-align: center;">Chưa có hoạt động nào.</div>'; return; }
-  $("activityList").innerHTML = list.slice(0, 5).map(act => `
-    <div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px;">
-      <span>${act.icon || '📌'}</span><span>${act.text || ''}</span>
-      <span style="margin-left: auto; color: var(--mut); font-size: 0.8rem;">${act.time || 'Mới đây'}</span>
+  const list = Array.isArray(activities) ? activities : [];
+  if (!list.length) {
+    $("activityList").innerHTML = '<div class="empty-hint">Chưa có hoạt động nào.</div>';
+    return;
+  }
+  $("activityList").innerHTML = list.map(act => `
+    <div style="padding: 8px 0; border-bottom: 1px solid var(--ln); display: flex; gap: 8px; align-items: baseline;">
+      <span>${act.icon || '📌'}</span>
+      <span style="flex: 1;">${act.text || ''}</span>
+      <span style="color: var(--mut); font-size: 0.78rem; white-space: nowrap;">${act.time || 'Mới đây'}</span>
     </div>`).join("");
 }
 
-/* ═══ EDIT PROFILE ═══ */
+/* ══════════════════════════════════════════════════════════════════════
+   EDIT PROFILE
+   ══════════════════════════════════════════════════════════════════════ */
 let selectedAvatar = "🐱";
 $("btnEditProfile").onclick = () => {
   selectedAvatar = currentProfile.avatar || "🐱";
@@ -354,9 +765,11 @@ $("btnEditProfile").onclick = () => {
 };
 $("cancelEdit").onclick = () => $("editMask").classList.remove("on");
 $("editBio").oninput = () => { $("bioCount").textContent = $("editBio").value.length; };
+
 $("saveEdit").onclick = async () => {
   const bio = $("editBio").value.trim();
   if (bio.length > 100) { showToast("Bio tối đa 100 ký tự", true); return; }
+
   $("saveEdit").disabled = true;
   $("saveEdit").textContent = "Đang lưu...";
   try {
@@ -378,6 +791,7 @@ $("saveEdit").onclick = async () => {
     $("editMask").classList.remove("on");
     loadData();
   } catch (e) {
+    console.error("[profile] saveEdit:", e);
     showToast("Lỗi: " + (e.message || e), true);
   } finally {
     $("saveEdit").disabled = false;
@@ -385,7 +799,9 @@ $("saveEdit").onclick = async () => {
   }
 };
 
-/* ═══ CHANGE PASSWORD ═══ */
+/* ══════════════════════════════════════════════════════════════════════
+   CHANGE PASSWORD
+   ══════════════════════════════════════════════════════════════════════ */
 $("btnChangePassword").onclick = () => {
   $("oldPassword").value = "";
   $("newPassword").value = "";
@@ -394,6 +810,7 @@ $("btnChangePassword").onclick = () => {
   $("passwordMask").classList.add("on");
 };
 $("cancelPassword").onclick = () => $("passwordMask").classList.remove("on");
+
 $("savePassword").onclick = async () => {
   const oldPass = $("oldPassword").value;
   const newPass = $("newPassword").value;
@@ -405,9 +822,10 @@ $("savePassword").onclick = async () => {
   if (newPass !== confirmPass) { $("passwordErr").textContent = "Mật khẩu xác nhận không khớp!"; return; }
   if (oldPass === newPass) { $("passwordErr").textContent = "Mật khẩu mới phải khác mật khẩu cũ!"; return; }
 
+  if (isAdmin) { $("passwordErr").textContent = "Tài khoản admin không đổi mật khẩu ở đây được."; return; }
+
   $("savePassword").disabled = true;
   $("savePassword").textContent = "Đang kiểm tra...";
-
   try {
     const accSnap = await get(ref(db, `accounts/${myKey}`));
     if (!accSnap.exists()) { $("passwordErr").textContent = "Không tìm thấy tài khoản!"; return; }
@@ -419,6 +837,7 @@ $("savePassword").onclick = async () => {
     showToast("✅ Đã đổi mật khẩu thành công!");
     $("passwordMask").classList.remove("on");
   } catch (e) {
+    console.error("[profile] savePassword:", e);
     $("passwordErr").textContent = "Lỗi: " + (e.message || e);
   } finally {
     $("savePassword").disabled = false;
