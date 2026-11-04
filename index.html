@@ -11,7 +11,7 @@
 :root {
 --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
 --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
---warn: #f59e0b; --warns: #fef3c7; --love: #ec4899; --loves: #fce7f3;
+--warn: #f59e0b; --warns: #fef3c7;
 --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 --glass: blur(12px) saturate(180%);
 box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -21,7 +21,6 @@ box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bott
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
 --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
---love: #f472b6; --loves: rgba(244, 114, 182, 0.15);
 --ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
@@ -30,7 +29,6 @@ box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bott
 --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
 --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
 --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
---love: #f472b6; --loves: rgba(244, 114, 182, 0.15);
 --ln: rgba(148, 163, 184, 0.15);
 --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
 }
@@ -322,7 +320,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
 .code-modal-card { max-width: 440px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -341,54 +338,43 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .code-error { color: var(--bad); font-size: 0.85rem; font-weight: 600; min-height: 1.3em; margin-top: 8px; text-align: center; transition: all 0.2s; }
 .code-loading { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ln); border-top-color: var(--ac); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
 
-/* ═══ MODAL SET LOVE ══ */
-.love-modal-card { max-width: 440px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.love-modal-icon { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.3)); animation: iconPulse 2s ease-in-out infinite; }
-.love-modal-title { margin: 0 0 8px; color: var(--love); font-size: 1.3rem; }
-
-/* ═══ MODAL LỜI MỜI KẾT ĐÔI ═══ */
-.invite-modal-card {
-  max-width: 440px; width: 100%; text-align: center;
-  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 2px solid var(--love) !important;
-  background: linear-gradient(135deg, var(--loves), var(--card)) !important;
+/* ═══ NEWS / THÔNG BÁO ═══ */
+.news-item {
+  padding: 14px; border: 1px solid var(--ln); border-radius: 10px;
+  margin-bottom: 10px; background: rgba(255,255,255,0.4);
 }
-.invite-modal-icon {
-  font-size: 4rem; margin-bottom: 8px;
-  filter: drop-shadow(0 4px 16px rgba(236, 72, 153, 0.4));
-  animation: heartBeat 1.4s ease-in-out infinite;
+.news-item.unread { border-color: var(--ac); background: var(--acs); }
+.news-item h3 { margin: 0 0 6px; font-size: 1rem; color: var(--fg); line-height: 1.4; }
+.news-item .news-meta { font-size: 0.75rem; color: var(--mut); margin-bottom: 8px; }
+.news-item .news-content { font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; color: var(--fg); }
+.news-banner {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: var(--ac); color: #fff; padding: 10px 16px;
+  border-radius: 99px; z-index: 145; display: flex; gap: 10px;
+  align-items: center; box-shadow: 0 4px 16px rgba(37,99,235,0.4);
+  font-weight: 600; font-size: 0.9rem;
+  animation: newsSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 92vw; flex-wrap: wrap;
 }
-@keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.15); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.1); }
+@keyframes newsSlideDown {
+  from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
-.invite-modal-title { margin: 0 0 8px; color: var(--love); font-size: 1.4rem; font-weight: 800; }
-.invite-sender {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  background: rgba(255,255,255,0.6); padding: 14px 18px; border-radius: 12px;
-  margin: 16px 0; border: 1.5px solid var(--love);
+.news-banner button {
+  background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 6px;
+  font-size: 0.8rem; color: #fff; border: 0; cursor: pointer;
+  box-shadow: none; width: auto; font-weight: 600;
 }
-.invite-sender .avatar {
-  width: 48px; height: 48px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--love), #f472b6);
-  display: grid; place-items: center; font-size: 1.5rem; color: #fff;
-  font-weight: 800; flex-shrink: 0;
+.news-banner button:hover { background: rgba(255,255,255,0.4); transform: none; }
+.news-badge-dot {
+  background: var(--bad); color: #fff; border-radius: 99px;
+  padding: 1px 6px; font-size: 0.7rem; margin-left: 4px;
+  font-weight: 700; vertical-align: middle;
 }
-.invite-sender .info { text-align: left; flex: 1; min-width: 0; }
-.invite-sender .info b { display: block; font-size: 1.05rem; color: var(--fg); }
-.invite-sender .info span { font-size: 0.85rem; color: var(--mut); }
-.invite-time { font-size: 0.8rem; color: var(--mut); margin-bottom: 12px; }
-.invite-actions { display: flex; gap: 10px; margin-top: 16px; }
-.invite-actions button { flex: 1; padding: 12px; font-size: 1rem; }
-.btn-accept { background: var(--love) !important; }
-.btn-accept:hover { background: #db2777 !important; }
-.btn-reject { background: transparent; color: var(--mut); border: 1.5px solid var(--ln); box-shadow: none; }
-.btn-reject:hover { background: var(--bads); color: var(--bad); border-color: var(--bad); }
 </style>
 </head>
 <body>
+
 <!-- ═══ BOOT SPINNER ═══ -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#f0f4f8;z-index:99999;text-align:center;padding:24px">
 <div>
@@ -396,6 +382,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 <div style="font-weight:600;color:#64748b">Đang tải Luyện Đề Master…</div>
 </div>
 </div>
+
 <!-- ═══ ERROR SCREEN ═══ -->
 <div id="errorScreen" style="display:none;position:fixed;inset:0;background:#f0f4f8;z-index:99999;place-items:center;text-align:center;padding:24px;font-family:system-ui,sans-serif">
 <div style="max-width:600px">
@@ -407,6 +394,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 <button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#64748b;border:1.5px solid #cbd5e1;border-radius:10px;font-weight:600;cursor:pointer;font-size:1rem;margin-left:8px"> Trang chủ</button>
 </div>
 </div>
+
 <script>
 window.__showFatalError = function(msg) {
 try {
@@ -430,7 +418,9 @@ var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason)
 window.__showFatalError(msg);
 });
 </script>
+
 <audio id="bgMusic"></audio>
+
 <!-- Cutscene -->
 <div id="cutscene" aria-hidden="true">
 <canvas id="csCanvas"></canvas>
@@ -448,17 +438,21 @@ window.__showFatalError(msg);
 <button class="cs-skip" id="csSkip" type="button">Bỏ qua ›</button>
 <div class="cs-flash"></div>
 </div>
+
 <!-- Iframe overlay -->
 <div id="iframe-overlay" class="hide">
 <button class="btn-back-float" id="btnBack">← Quay lại</button>
 <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
+
 <!-- Shake overlay -->
 <div id="shake-overlay" class="hide">
 <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
 <video id="shakeVideo" playsinline controls></video>
 </div>
+
 <div class="toast" id="toast"></div>
+
 <main>
 <!-- Auth -->
 <section id="auth" class="hide">
@@ -488,6 +482,7 @@ window.__showFatalError(msg);
 </div>
 </div>
 </section>
+
 <!-- App -->
 <section id="app" class="hide">
 <div class="card">
@@ -495,8 +490,8 @@ window.__showFatalError(msg);
 <div>
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
 <strong id="hiName" style="font-size:1.1rem"></strong>
-<button class="sm g" id="btnProfile" type="button" style="border-color:var(--love);color:var(--love)">👤 Profile</button>
-<button class="sm g" id="btnSetLove" type="button" style="border-color:var(--love);color:var(--love)">💘 Kết đôi</button>
+<button class="sm g" id="btnProfile" type="button" style="border-color:var(--ac);color:var(--ac)">👤 Profile</button>
+<button class="sm g" id="btnNews" type="button" style="border-color:var(--ac);color:var(--ac)">📢 News <span id="newsBadge" class="news-badge-dot hide">!</span></button>
 <button class="sm" id="btnShake" type="button">📳 Lắc</button>
 </div>
 <div class="mut" id="hiSub"></div>
@@ -510,7 +505,7 @@ window.__showFatalError(msg);
 <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
 <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
-<button class="tabbtn hide" id="tabBtnAdmin" type="button">️ AdminPanel</button>
+<button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
 </div>
 <div id="tab-practice">
 <div class="card">
@@ -621,6 +616,7 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
+
 <!-- Quiz -->
 <section id="quiz" class="hide">
 <div class="card" style="position:sticky;top:0;z-index:10">
@@ -644,6 +640,7 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </section>
+
 <!-- Result -->
 <section id="result" class="hide">
 <div class="card" id="resultCard">
@@ -671,6 +668,7 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 <div id="rv"></div>
 </section>
 </main>
+
 <div class="mask" id="mk">
 <div class="card">
 <h1 style="font-size:1.3rem;margin-bottom:8px" id="mkTitle">Nộp bài?</h1>
@@ -681,6 +679,7 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 </div>
+
 <div class="mask" id="musicMask">
 <div class="card" style="max-width: 440px; width: 100%;">
 <h2 style="margin-bottom: 16px;"> Chọn nhạc nền</h2>
@@ -721,45 +720,15 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 </div>
 </div>
 
-<!-- ═══ MODAL GỬI LỜI MỜI KẾT ĐÔI ═══ -->
-<div class="mask" id="loveMask">
-  <div class="card love-modal-card">
-    <div class="love-modal-icon">💘</div>
-    <h2 class="love-modal-title">Kết đôi</h2>
-    <p class="mut" style="font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5;">
-      Nhập <b>tên đăng nhập</b> của người bạn muốn kết đôi.<br>
-      <span style="color: var(--ac); font-size: 0.85rem;">💡 Lời mời sẽ được gửi đi.</span>
-    </p>
-    <label class="mut" style="font-size: 0.85rem; font-weight: 600; display:block; margin-bottom: 8px;">Tên đăng nhập đối phương</label>
-    <input type="text" id="targetUsername" placeholder="vd: linh2009" autocomplete="off">
-    <div id="loveErr" class="mut" style="color: var(--bad); font-size: 0.85rem; min-height: 1.2em; margin-bottom: 8px;"></div>
-    <div class="row">
-      <button class="g" id="cancelLove" style="flex: 1;">Hủy</button>
-      <button class="p" id="sendLoveInvite" style="flex: 1; background: var(--love);">Gửi lời mời 💌</button>
+<!-- ═══ MODAL TIN TỨC ═══ -->
+<div class="mask" id="newsMask">
+  <div class="card" style="max-width: 520px; width: 100%;">
+    <div class="top" style="margin-bottom: 16px">
+      <h2 style="margin: 0">📢 Tin tức & Thông báo</h2>
+      <button class="g sm" id="newsClose">✕ Đóng</button>
     </div>
-  </div>
-</div>
-
-<!-- ═══ MODAL NHẬN LỜI MỜI KẾT ĐÔI (MỚI) ═══ -->
-<div class="mask" id="inviteMask">
-  <div class="card invite-modal-card">
-    <div class="invite-modal-icon">💌</div>
-    <h2 class="invite-modal-title">Bạn có một lời mời kết đôi!</h2>
-    <div class="invite-sender">
-      <div class="avatar" id="inviteAvatar">💖</div>
-      <div class="info">
-        <b id="inviteSenderName">—</b>
-        <span id="inviteSenderCls"></span>
-      </div>
-    </div>
-    <div class="invite-time" id="inviteTime">Vừa xong</div>
-    <p class="mut" style="font-size:0.9rem; line-height:1.5;">
-      Muốn kết đôi và cùng nhau học tập? <br>
-      <span style="color:var(--love); font-weight:600;">Chấp nhận để bắt đầu hành trình đôi lứa 💕</span>
-    </p>
-    <div class="invite-actions">
-      <button class="btn-reject" id="btnRejectInvite">Từ chối</button>
-      <button class="btn-accept" id="btnAcceptInvite">💖 Chấp nhận</button>
+    <div id="newsList" style="max-height: 60vh; overflow-y: auto;">
+      <div class="skel"></div><div class="skel"></div>
     </div>
   </div>
 </div>
@@ -770,6 +739,7 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 <div id="ovtxt" style="font-weight:600">Đang xử lý…</div>
 </div>
 </div>
+
 <!-- ═══════════ CUTSCENE SCRIPT ═══════════ -->
 <script type="module">
 (async () => {
@@ -842,6 +812,7 @@ document.body.style.overflow = '';
 }
 })();
 </script>
+
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
@@ -857,6 +828,7 @@ console.error('[index] Import failed:', e);
 window.__showFatalError('Không tải được module:\n' + e.message);
 throw e;
 }
+
 const {
 db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
 normText, nameHash, checkProfanity, keyOf,
@@ -872,11 +844,13 @@ const {
 ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE,
 TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
 SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
-SHAKE_VIDEO
+SHAKE_VIDEO, NEWS_LAST_SEEN_KEY
 } = configMod;
 const { ref, push, set, get, serverTimestamp, runTransaction, remove, update } = firebaseMod;
+
 const __boot = document.getElementById('boot');
 if (__boot) __boot.style.display = 'none';
+
 try {
 if (!checkDomain()) {
 showDomainWarning();
@@ -885,12 +859,14 @@ throw new Error("DOMAIN_NOT_ALLOWED");
 } catch(e) {
 if (e.message === 'DOMAIN_NOT_ALLOWED') throw e;
 }
+
 const $ = id => {
   const el = document.getElementById(id);
   if (!el) console.warn(`[Cảnh báo] Không tìm thấy phần tử có id="${id}"`);
   return el;
 };
 const L = "ABCD";
+
 function showToast(msg, isErr) {
 const t = $("toast");
 t.textContent = msg;
@@ -985,11 +961,13 @@ const mod = await import('/js/data/' + key + '.js');
 _dataCache[key] = mod.default;
 return _dataCache[key];
 }
+
 let session = null;
 function _syncSession(s) {
 if (s) { saveSession(s); session = s; }
 else { clearSession(); session = null; }
 }
+
 let authMode = "login";
 $("atLogin").onclick = function() {
 authMode = "login";
@@ -1001,6 +979,7 @@ authMode = "register";
 $("atRegister").classList.add("active"); $("atLogin").classList.remove("active");
 $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
 };
+
 async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
@@ -1021,6 +1000,7 @@ return;
 if (!result.committed) throw new Error("Tên đăng nhập đã tồn tại.");
 _syncSession({ key, username: u, name, cls: cls || "" });
 }
+
 async function doLogin(u, p) {
 if (String(u).trim().toLowerCase() === ADMIN_USER) {
 const h = await sha256Hex(p);
@@ -1052,6 +1032,7 @@ const passHash = await sha256Hex(p);
 if (acc.passHash !== passHash) throw new Error("Sai mật khẩu.");
 _syncSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
 }
+
 $("auGo").onclick = async function() {
 $("auErr").textContent = "";
 const u = $("auUser").value.trim(), p = $("auPass").value;
@@ -1099,182 +1080,95 @@ $("auGo").disabled = false;
 };
 
 /* ═══════════════════════════════════════════════
-   KIỂM TRA LỜI MỜI KẾT ĐÔI KHI ĐĂNG NHẬP
+   TIN TỨC / THÔNG BÁO
    ═══════════════════════════════════════════════ */
-async function checkLoveInvitesOnLogin() {
-  if (!session || !db || isAdminSession()) return;
-  
+function fmtNewsDate(ts) {
+  if (!ts) return "";
+  return new Date(Number(ts)).toLocaleString("vi-VN", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
+async function loadNews() {
+  const el = $("newsList");
+  if (!el) return;
+  el.innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
-    // 1. Đọc lời mời gửi đến cho user hiện tại
-    const invitesSnap = await get(ref(db, `loveInvites/${session.username}`));
-    
-    if (!invitesSnap.exists()) {
-      console.log('[love] Không có lời mời nào.');
+    const items = await core.getAnnouncements();
+    if (!items.length) {
+      el.innerHTML = '<div class="mut" style="padding:30px;text-align:center">Chưa có thông báo nào.</div>';
       return;
     }
-    
-    const invites = invitesSnap.val();
-    const inviteKeys = Object.keys(invites);
-    
-    if (inviteKeys.length === 0) return;
-    
-    // Lấy lời mời đầu tiên (mới nhất)
-    const firstFromUsername = inviteKeys[0];
-    const inviteData = invites[firstFromUsername];
-    
-    console.log('[love] Có lời mời từ:', firstFromUsername, inviteData);
-    
-    // Hiển thị modal lời mời
-    showInviteModal(firstFromUsername, inviteData);
-    
-  } catch (e) {
-    console.error('[love] Lỗi kiểm tra lời mời:', e);
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    el.innerHTML = items.map(n => {
+      const isNew = Number(n.createdAt || 0) > lastSeen;
+      return `
+        <div class="news-item ${isNew ? 'unread' : ''}">
+          <h3>${esc(n.title)} ${isNew ? '<span class="news-badge-dot">MỚI</span>' : ''}</h3>
+          <div class="news-meta">👤 ${esc(n.author || 'Admin')} · 🕐 ${fmtNewsDate(n.createdAt)}</div>
+          <div class="news-content">${esc(n.content || '')}</div>
+        </div>`;
+    }).join("");
+
+    const newest = items[0]?.createdAt || 0;
+    if (newest > lastSeen) {
+      localStorage.setItem(NEWS_LAST_SEEN_KEY, String(newest));
+      updateNewsBadge();
+    }
+  } catch(e) {
+    el.innerHTML = '<div class="mut" style="padding:20px;color:var(--bad)">Lỗi tải tin: ' + esc(e.message) + '</div>';
   }
 }
 
-function showInviteModal(fromUsername, inviteData) {
-  const mask = $("inviteMask");
-  const avatar = $("inviteAvatar");
-  const nameEl = $("inviteSenderName");
-  const clsEl = $("inviteSenderCls");
-  const timeEl = $("inviteTime");
-  
-  // Hiển thị thông tin người gửi
-  const senderName = inviteData.name || fromUsername;
-  const senderCls = inviteData.cls || '';
-  const senderAvatar = inviteData.avatar || senderName.charAt(0).toUpperCase();
-  
-  avatar.textContent = senderAvatar;
-  nameEl.textContent = senderName;
-  clsEl.textContent = senderCls ? `@${fromUsername} · Lớp ${senderCls}` : `@${fromUsername}`;
-  
-  // Hiển thị thời gian
-  if (inviteData.timestamp) {
-    const diff = Date.now() - inviteData.timestamp;
-    if (diff < 60000) timeEl.textContent = 'Vừa xong';
-    else if (diff < 3600000) timeEl.textContent = Math.floor(diff / 60000) + ' phút trước';
-    else if (diff < 86400000) timeEl.textContent = Math.floor(diff / 3600000) + ' giờ trước';
-    else timeEl.textContent = Math.floor(diff / 86400000) + ' ngày trước';
-  } else {
-    timeEl.textContent = 'Vừa xong';
-  }
-  
-  // Lưu thông tin lời mời hiện tại để xử lý
-  mask.dataset.fromUsername = fromUsername;
-  
+async function checkNewsOnLogin() {
+  try {
+    const latest = await core.getLatestAnnouncementTime();
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    if (latest > lastSeen) showNewsBanner();
+    updateNewsBadge();
+  } catch(e) { console.warn("[news]", e); }
+}
+
+async function updateNewsBadge() {
+  try {
+    const latest = await core.getLatestAnnouncementTime();
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    const badge = $("newsBadge");
+    if (badge) badge.classList.toggle("hide", latest <= lastSeen);
+  } catch(e) {}
+}
+
+function showNewsBanner() {
+  const old = document.getElementById("newsBanner");
+  if (old) old.remove();
+  const banner = document.createElement("div");
+  banner.id = "newsBanner";
+  banner.className = "news-banner";
+  banner.innerHTML = `
+    <span>📢 Có tin tức mới! Bạn có thể xem tại 📢</span>
+    <button id="newsBannerView">Xem ngay</button>
+    <button id="newsBannerClose">✕</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => {
+    const view = document.getElementById("newsBannerView");
+    const close = document.getElementById("newsBannerClose");
+    if (view) view.onclick = () => { banner.remove(); openNewsModal(); };
+    if (close) close.onclick = () => banner.remove();
+  }, 100);
+}
+
+function openNewsModal() {
+  const mask = $("newsMask");
+  if (!mask) return;
   mask.classList.add("on");
+  loadNews();
 }
 
-async function acceptLoveInvite() {
-  const mask = $("inviteMask");
-  const fromUsername = mask.dataset.fromUsername;
-  
-  if (!fromUsername || !session) return;
-  
-  const btnAccept = $("btnAcceptInvite");
-  const btnReject = $("btnRejectInvite");
-  btnAccept.disabled = true;
-  btnReject.disabled = true;
-  btnAccept.textContent = "Đang xử lý...";
-  
-  try {
-    // Lấy thông tin người gửi và người nhận
-    const fromSnap = await get(ref(db, `accounts/${keyOf(fromUsername)}`));
-    if (!fromSnap.exists()) {
-      showToast("❌ Người gửi không tồn tại!", true);
-      mask.classList.remove("on");
-      return;
-    }
-    const fromAcc = fromSnap.val();
-    
-    // Lấy avatar của cả 2 (nếu có trong profiles)
-    const [myProfileSnap, fromProfileSnap] = await Promise.all([
-      get(ref(db, `profiles/${session.username}`)),
-      get(ref(db, `profiles/${fromUsername}`))
-    ]);
-    const myAvatar = myProfileSnap.exists() ? (myProfileSnap.val().avatar || session.name.charAt(0).toUpperCase()) : session.name.charAt(0).toUpperCase();
-    const fromAvatar = fromProfileSnap.exists() ? (fromProfileSnap.val().avatar || fromAcc.name.charAt(0).toUpperCase()) : fromAcc.name.charAt(0).toUpperCase();
-    
-    const now = Date.now();
-    
-    // Tạo couple cho CẢ HAI (cấu trúc 2 chiều)
-    const coupleDataA = {
-      partnerUsername: fromUsername,
-      partnerName: fromAcc.name,
-      partnerAvatar: fromAvatar,
-      loveCoins: 0,
-      streak: 0,
-      todaySubject: "",
-      doneA: false,
-      doneB: false,
-      createdAt: now
-    };
-    
-    const coupleDataB = {
-      partnerUsername: session.username,
-      partnerName: session.name,
-      partnerAvatar: myAvatar,
-      loveCoins: 0,
-      streak: 0,
-      todaySubject: "",
-      doneA: false,
-      doneB: false,
-      createdAt: now
-    };
-    
-    // Ghi đồng thời: couples cho A, couples cho B, và xóa lời mời
-    await Promise.all([
-      set(ref(db, `couples/${session.username}`), coupleDataA),
-      set(ref(db, `couples/${fromUsername}`), coupleDataB),
-      remove(ref(db, `loveInvites/${session.username}/${fromUsername}`))
-    ]);
-    
-    showToast("💖 Đã kết đôi thành công!");
-    mask.classList.remove("on");
-    
-  } catch (e) {
-    console.error('[love] Accept error:', e);
-    showToast("❌ Lỗi: " + e.message, true);
-  } finally {
-    btnAccept.disabled = false;
-    btnReject.disabled = false;
-    btnAccept.textContent = "💖 Chấp nhận";
-  }
-}
-
-async function rejectLoveInvite() {
-  const mask = $("inviteMask");
-  const fromUsername = mask.dataset.fromUsername;
-  
-  if (!fromUsername || !session) return;
-  
-  const btnReject = $("btnRejectInvite");
-  btnReject.disabled = true;
-  btnReject.textContent = "Đang xử lý...";
-  
-  try {
-    // Chỉ xóa lời mời
-    await remove(ref(db, `loveInvites/${session.username}/${fromUsername}`));
-    showToast("Đã từ chối lời mời.");
-    mask.classList.remove("on");
-  } catch (e) {
-    console.error('[love] Reject error:', e);
-    showToast("❌ Lỗi: " + e.message, true);
-  } finally {
-    btnReject.disabled = false;
-    btnReject.textContent = "Từ chối";
-  }
-}
-
-// Gán sự kiện cho nút Accept/Reject
-$("btnAcceptInvite").onclick = acceptLoveInvite;
-$("btnRejectInvite").onclick = rejectLoveInvite;
-
-$("inviteMask").onclick = (e) => {
-  if (e.target === $("inviteMask")) {
-    // Không cho đóng bằng cách click ra ngoài (buộc phải chọn)
-  }
-};
+if ($("btnNews")) $("btnNews").onclick = openNewsModal;
+if ($("newsClose")) $("newsClose").onclick = () => $("newsMask").classList.remove("on");
+if ($("newsMask")) $("newsMask").onclick = e => { if (e.target === $("newsMask")) $("newsMask").classList.remove("on"); };
 
 async function enterApp() {
 if (!session) { show("auth"); return; }
@@ -1295,10 +1189,12 @@ $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 
-// ⭐ KIỂM TRA LỜI MỜI KẾT ĐÔI SAU KHI VÀO APP
-await checkLoveInvitesOnLogin();
+// ⭐ KIỂM TRA TIN TỨC MỚI SAU KHI VÀO APP
+await checkNewsOnLogin();
 }
+
 $("logout").onclick = function() { _syncSession(null); show("auth"); };
+
 function switchTab(name) {
 $("tabBtnPractice").classList.toggle("active", name === "practice");
 $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
@@ -1318,6 +1214,7 @@ $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
+
 function wirePills(pillsId, listId, initial) {
 const el = $(pillsId);
 const filters = [
@@ -1342,6 +1239,7 @@ renderLeaderboard(listId, b.dataset.f);
 });
 renderLeaderboard(listId, initial);
 }
+
 async function renderLeaderboard(elId, filter) {
 const el = $(elId);
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
@@ -1408,6 +1306,7 @@ return '<div class="lbrow' + clsTop + '">'
 el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>';
 }
 }
+
 $("rfMain").onclick = function() {
 const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
@@ -1416,15 +1315,18 @@ $("rfResult").onclick = function() {
 const a = document.querySelector("#lbPillsResult .pill.active");
 renderLeaderboard("lbResult", a ? a.dataset.f : currentSubject);
 };
+
 let currentSubject, Q = null, order, opt, ans, cur, t0, tick;
 let currentMode = 'choice', maskMode = "submit";
 let autoSubmitTriggered = false, allAtOnce = false, isShuffled = false, _loadingQuiz = false;
+
 $("startTinhoc").onclick = () => startQuiz("tinhoc", "choice");
 $("startGdcd").onclick = () => startQuiz("gdcd", "choice");
 $("startEnglish").onclick = () => startQuiz("english", "choice");
 $("startDialyKhoanh").onclick = () => startQuiz("diali", "choice");
 $("startDialyViet").onclick = () => startQuiz("diali", "manual");
 $("startDialyNho").onclick = () => startQuiz("diali", "memory");
+
 async function startQuiz(subjectKey, mode = 'choice') {
 if (_loadingQuiz) return;
 _loadingQuiz = true;
@@ -1466,6 +1368,7 @@ ovOff();
 _loadingQuiz = false;
 }
 }
+
 function draw() {
 const qi = order[cur], q = Q[qi], multi = q[2].length > 1;
 let h = "";
@@ -1476,6 +1379,7 @@ headerNext.onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 
 } else {
 headerNext.style.display = "none";
 }
+
 if (currentMode === 'memory') {
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · 🧠 Ghi nhớ</span>';
 h += '<div style="background:linear-gradient(135deg, #f59e0b, #ef4444); color:#fff; padding:10px 14px; border-radius:10px; margin-bottom:14px; font-size:0.88rem; font-weight:700; text-align:center;">🔒 CHẾ ĐỘ GHI NHỚ — KHÔNG hiển thị đáp án A/B/C/D</div>';
@@ -1501,6 +1405,7 @@ $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'sm
 updateNavAndCount();
 return;
 }
+
 if (currentMode === 'manual') {
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + ' · ✍️ Ghi thủ công</span><div class="q">' + q[0] + '</div>';
 h += '<div style="margin-bottom:12px; font-size:0.95rem;">';
@@ -1528,6 +1433,7 @@ $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'sm
 updateNavAndCount();
 return;
 }
+
 h += '<span class="tag">Câu ' + (cur+1) + '/' + Q.length + (multi ? ' · Chọn tất cả đáp án đúng' : '') + '</span><div class="q">' + q[0] + '</div>';
 opt[qi].forEach((oi, k) => {
 const s = ans[qi].indexOf(oi) > -1;
@@ -1554,6 +1460,7 @@ $("pv").onclick = () => { cur--; draw(); window.scrollTo({ top: 0, behavior: 'sm
 $("nx").onclick = () => { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 updateNavAndCount();
 }
+
 function drawAll() {
 let h = '<div class="exam-hint"> Đề thi hiển thị đầy đủ — hãy cuộn xuống để làm tất cả ' + Q.length + ' câu hỏi</div>';
 ENGLISH_SECTIONS.forEach((block) => {
@@ -1568,6 +1475,7 @@ $("qc").innerHTML = h;
 attachAllHandlers();
 updateNavAndCount();
 }
+
 function renderQItem(flatIdx, q) {
 const isText = (typeof q[2] === "string");
 let h = '<div class="q-item" id="q-' + flatIdx + '">';
@@ -1598,6 +1506,7 @@ h += '<label class="opt' + (s ? ' sel' : '') + '"><input type="' + (multi ? 'che
 h += '</div>';
 return h;
 }
+
 window.fillSelectedText = function(flatIdx, event) {
 if (!event || !event.isTrusted) {
 showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
@@ -1611,6 +1520,7 @@ const cleanText = sel.replace(/\s+/g, ' ');
 const ta = document.getElementById("txt-" + flatIdx);
 if (ta) { ta.value = cleanText; ta.dispatchEvent(new Event('input', { isTrusted: true })); showToast("✅ Đã điền đáp án!"); }
 };
+
 function attachAllHandlers() {
 Q.forEach((q, flatIdx) => {
 const isText = (typeof q[2] === "string");
@@ -1652,6 +1562,7 @@ checkAutoSubmit();
 }
 });
 }
+
 function updateNavAndCount() {
 let done = 0, n = "";
 order.forEach((x, i) => {
@@ -1674,6 +1585,7 @@ cur = +b.dataset.i; draw(); window.scrollTo({ top: 0, behavior: 'smooth' });
 $("pb").style.width = (done / Q.length * 100) + "%";
 $("cnt").textContent = "Đã làm " + done + "/" + Q.length + " câu";
 }
+
 function checkAutoSubmit() {
 const done = ans.filter(a => a.length > 0).length;
 if (done === Q.length && !autoSubmitTriggered) {
@@ -1689,6 +1601,7 @@ $("mk").classList.add("on");
 }, 1200);
 }
 }
+
 document.addEventListener("keydown", function(e) {
 if (e.key !== "Enter") return;
 if ($("quiz").classList.contains("hide")) return;
@@ -1698,6 +1611,7 @@ if (e.target && (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT"
 e.preventDefault();
 if (cur < Q.length - 1) { cur++; draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 });
+
 $("sub").onclick = finish;
 $("exitQuiz").onclick = function() {
 maskMode = "exit";
@@ -1714,7 +1628,9 @@ $("mk").classList.remove("on");
 if (maskMode === "submit") showResults();
 else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("practice"); }
 };
+
 function finish() { clearInterval(tick); showResults(); }
+
 function showResults() {
 const ms = Date.now() - t0;
 let pts = 0, full = 0, h = "";
@@ -1778,21 +1694,26 @@ h += '<div class="opt rev ' + cl + '"><b>' + icon + '</b><span>' + L[k] + '. ' +
 h += '</div>';
 }
 });
+
 const sc = Math.round(pts / Q.length * 1000) / 100;
+
 if (sc >= 10 && ms < SUSPICIOUS_TIME_MS && !isAdminSession()) {
 showToast("⚠️ 10 điểm trong dưới " + (SUSPICIOUS_TIME_MS / 1000) + "s, nghi auto!", true);
 recordViolation(session.name, session.username);
 showBanScreen(session.name);
 return;
 }
+
 $("sc").textContent = fmtScore(sc);
 $("rc").textContent = full + "/" + Q.length;
 $("rw").textContent = (Q.length - full) + "";
 $("rt").textContent = fmtMs(ms);
+
 let modeLabel = "";
 if (currentMode === 'manual') modeLabel = " (Ghi)";
 else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
 $("rwho").textContent = session.name + (session.cls ? " – Lớp " + session.cls : "") + " · " + SUBJECTS_META[currentSubject].icon + " " + SUBJECTS_META[currentSubject].label + modeLabel;
+
 if (currentSubject === 'english') {
 const keyParts = [];
 order.forEach((qi, i) => {
@@ -1808,7 +1729,9 @@ h = `<div class="card" style="margin-bottom:16px; font-family:monospace; font-si
 <div style="margin-top:12px; color:var(--ac); font-weight:800;">📝 Đáp án tham khảo:<br>${grouped.join("<br>")}</div>
 </div>` + h;
 }
+
 $("rv").innerHTML = h;
+
 const resultCard = $("resultCard"), lowScoreMsg = $("lowScoreMsg");
 resultCard.classList.remove("punch-low-score");
 lowScoreMsg.innerHTML = "";
@@ -1817,6 +1740,7 @@ setTimeout(() => resultCard.classList.add("punch-low-score"), 300);
 const msgs = ["⚠️ Đây là điểm của bạn","⚠️ Cần cố gắng hơn!","⚠️ Đừng nản lòng!"];
 lowScoreMsg.innerHTML = '<div class="low-score-badge">' + msgs[Math.floor(Math.random() * msgs.length)] + '</div>';
 }
+
 const sponsorBlock = `
 <div class="card" style="text-align:center; margin-top:24px; border: 2px dashed var(--ac); background: var(--acs);">
 <div style="font-size:0.9rem; color:var(--mut); margin-bottom:4px;">Cảm ơn mọi người đã sử dụng web luyendemaster</div>
@@ -1825,8 +1749,10 @@ const sponsorBlock = `
 </div>`;
 $("rv").innerHTML += sponsorBlock;
 $("closeResultBtn").onclick = function() { show("app"); switchTab("practice"); };
+
 show("result");
 wirePills("lbPillsResult", "lbResult", currentSubject);
+
 let finalSubject = currentSubject;
 if (currentSubject === 'diali') {
 if (currentMode === 'manual') finalSubject = 'diali_manual';
@@ -1835,6 +1761,7 @@ else finalSubject = 'diali_choice';
 }
 saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
 }
+
 async function saveAndRefresh(res) {
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
 if (checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
@@ -1855,8 +1782,10 @@ return;
 }
 renderLeaderboard("lbResult", res.subject);
 }
+
 $("again").onclick = () => startQuiz(currentSubject, currentMode);
 $("home").onclick = () => { show("app"); switchTab("practice"); };
+
 const music = createMusicPlayer({
 audio: $("bgMusic"),
 onLabelChange: (html) => { $("currentSongLabel").innerHTML = html; },
@@ -1896,6 +1825,7 @@ if (m === "playlist" && ids.length === 0) { showToast("Vui lòng chọn ít nh�
 music.setMode(m, ids);
 $("musicMask").classList.remove("on");
 };
+
 function updateClock() {
 const now = new Date();
 const days = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
@@ -1904,6 +1834,7 @@ if (el) el.textContent = ` ${days[now.getDay()]}, ${now.toLocaleDateString("vi-V
 }
 setInterval(updateClock, 1000);
 updateClock();
+
 let musicWasPlaying = false;
 function openShakeVideo() {
 const v = $("shakeVideo");
@@ -1928,6 +1859,7 @@ setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
+
 function openFrameOverlay(src) {
 $("video-frame").src = src;
 $("iframe-overlay").classList.remove("hide");
@@ -1941,94 +1873,6 @@ $("video-frame").src = "";
 };
 $("btnProfile").onclick = () => {
   location.href = "/profile.html";
-};
-
-/* ═══ GỬI LỜI MỜI KẾT ĐÔI (ĐÃ SỬA - THÊM AVATAR) ═══ */
-const btnSetLove = $("btnSetLove");
-if (btnSetLove) {
-  btnSetLove.onclick = () => {
-    $("targetUsername").value = "";
-    $("loveErr").textContent = "";
-    $("loveMask").classList.add("on");
-  };
-}
-
-$("cancelLove").onclick = () => $("loveMask").classList.remove("on");
-
-$("sendLoveInvite").onclick = async () => {
-  const target = $("targetUsername").value.trim().toLowerCase();
-  if (!target) {
-    $("loveErr").textContent = "Vui lòng nhập tên đăng nhập.";
-    return;
-  }
-  if (target === session.username.toLowerCase()) {
-    $("loveErr").textContent = "Bạn không thể kết đôi với chính mình!";
-    return;
-  }
-
-  $("sendLoveInvite").disabled = true;
-  $("sendLoveInvite").textContent = "Đang gửi...";
-
-  try {
-    // 1. Kiểm tra tài khoản đối phương có tồn tại không
-    const targetAccSnap = await get(ref(db, `accounts/${keyOf(target)}`));
-    if (!targetAccSnap.exists()) {
-      $("loveErr").textContent = "❌ Không tìm thấy người dùng này.";
-      $("sendLoveInvite").disabled = false;
-      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
-      return;
-    }
-    const targetAcc = targetAccSnap.val();
-
-    // 2. Kiểm tra xem mình đã có couple chưa
-    const myCoupleSnap = await get(ref(db, `couples/${session.username}`));
-    if (myCoupleSnap.exists() && myCoupleSnap.val().partnerUsername) {
-      showToast("❌ Bạn đã có couple rồi!", true);
-      $("loveMask").classList.remove("on");
-      return;
-    }
-
-    // 3. Kiểm tra xem đối phương đã có couple chưa
-    const targetCoupleSnap = await get(ref(db, `couples/${target}`));
-    if (targetCoupleSnap.exists() && targetCoupleSnap.val().partnerUsername) {
-      $("loveErr").textContent = "❌ Người này đã có đôi rồi!";
-      $("sendLoveInvite").disabled = false;
-      $("sendLoveInvite").textContent = "Gửi lời mời 💌";
-      return;
-    }
-
-    // 4. Lấy avatar của người gửi (từ profiles hoặc mặc định)
-    const myProfileSnap = await get(ref(db, `profiles/${session.username}`));
-    const myAvatar = myProfileSnap.exists() 
-      ? (myProfileSnap.val().avatar || session.name.charAt(0).toUpperCase())
-      : session.name.charAt(0).toUpperCase();
-
-    // 5. GỬI LỜI MỜI - ĐÚNG CẤU TRÚC FIREBASE RULES
-    // Cấu trúc: loveInvites/{targetUsername}/{fromUsername}
-    await set(ref(db, `loveInvites/${target}/${session.username}`), {
-      from: session.username,
-      name: session.name,
-      cls: session.cls || "",
-      avatar: myAvatar,        // ⭐ BẮT BUỘC theo rules
-      timestamp: Date.now()    // ⭐ Dùng Date.now() thay vì serverTimestamp() để chắc chắn là number
-    });
-
-    showToast("💌 Đã gửi lời mời kết đôi thành công!");
-    $("loveMask").classList.remove("on");
-    
-  } catch (e) {
-    console.error('[love] Send invite error:', e);
-    $("loveErr").textContent = "❌ Lỗi: " + e.message;
-  } finally {
-    $("sendLoveInvite").disabled = false;
-    $("sendLoveInvite").textContent = "Gửi lời mời 💌";
-  }
-};
-
-$("loveMask").onclick = (e) => {
-  if (e.target === $("loveMask")) {
-    $("loveMask").classList.remove("on");
-  }
 };
 
 let tabSwitchCount = 0;
@@ -2050,6 +1894,7 @@ console.log("%c🛑 STOP!", "color:#ef4444;font-size:24px;font-weight:900");
 console.log("%cĐây là vùng cấm. Mọi hành vi can thiệp đều bị ghi nhận.", "color:#f59e0b;font-size:14px");
 }
 });
+
 document.addEventListener("visibilitychange", function() {
 if (document.hidden || !session) return;
 const tb = $("tab-leaderboard");
@@ -2058,6 +1903,7 @@ const a = document.querySelector("#lbPillsMain .pill.active");
 renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 }
 });
+
 (async function init() {
 try {
 await syncUnbanEpoch();
