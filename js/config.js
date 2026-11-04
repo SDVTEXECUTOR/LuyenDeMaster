@@ -20,6 +20,21 @@ export const ADMIN_USER      = "phamgiabao";
 export const ADMIN_PASS_HASH = "7fd23dbecef914f709fc8be1271cd604d0b808b6e877ab694658b904ab94734d";
 export const ADMIN_PROFILE   = { username: "PhamGiaBao", name: "Phạm Gia Bảo", cls: "Admin" };
 
+// ⭐ MỚI — danh sách admin (hỗ trợ nhiều tài khoản admin cùng lúc)
+export const ADMIN_LIST = [
+  { user: ADMIN_USER, passHash: ADMIN_PASS_HASH, profile: ADMIN_PROFILE },
+  {
+    user:     "announce-ai",
+    passHash: "895f82b0a04402dd1e2cbd0d907938a2f79be70b690d09d4584d42736c9bd8da",
+    profile:  { username: "Announce-AI", name: "QUẢN TRỊ", cls: "Admin" }
+  }
+];
+
+export function findAdmin(username) {
+  const u = String(username || "").trim().toLowerCase();
+  return ADMIN_LIST.find(a => a.user === u) || null;
+}
+
 /* ══ SESSION KEYS ══ */
 export const SESSION_KEY      = "qp_session_v2";
 export const SESSION_KEY_KHTN = "qp_session_khtn_v1";
