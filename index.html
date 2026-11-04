@@ -430,7 +430,7 @@ window.__showFatalError(msg);
 <div class="cs-ring"></div>
 <div class="cs-line cs-1">Trường TH&THCS Tân Trụ</div>
 <h2 class="cs-2" id="csTitle">Luyện Đề Trắc Nghiệm</h2>
-<div class="cs-line cs-3">Tin học 9 · GDCD 9 · Tiếng Anh 9 · Địa lí 9</div>
+<div class="cs-line cs-3">Tin học 9 · GDCD 9 · Tiếng Anh 9 · Địa lí 9 · Công nghệ 9</div>
 <div class="cs-line cs-quote">"Mỗi câu đúng là một bước gần hơn tới điểm 10"</div>
 <div class="cs-load"><i></i></div>
 <div class="cs-pct" id="csPct">0%</div>
@@ -556,6 +556,12 @@ window.__showFatalError(msg);
 <h2>Khoa Học Tự Nhiên 9</h2>
 <div class="mut" style="margin:8px 0 16px">Giữa học kì I · 58 câu</div>
 <button class="p" style="width:100%" id="startKhtn" type="button" onclick="event.stopPropagation();location.href='khoahoctunhien.html'">Vào bài thi ngay</button>
+</div>
+<div class="card link" style="text-align:center;margin:0">
+<div style="font-size:2.5rem;margin-bottom:8px">⚙️</div>
+<h2>Công nghệ 9</h2>
+<div class="mut" style="margin:8px 0 16px">Ôn tập giữa kì I · 28 câu</div>
+<button class="p" style="width:100%" id="startCongnghe">Luyện tập ngay</button>
 </div>
 </div>
 </div>
@@ -817,7 +823,6 @@ document.body.style.overflow = '';
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
-// ⭐ Cache busting mạnh — luôn tải bản mới nhất, không dính cache
 const BUILD_V = Date.now();
 try {
 core = await import(`/js/core.js?v=${BUILD_V}`);
@@ -870,13 +875,6 @@ const $ = id => {
 };
 const L = "ABCD";
 
-/* ══════════════════════════════════════════════════════════════════
-   ⭐ SAFE ANNOUNCEMENT HELPERS — Fallback nếu core.js chưa update
-   ══════════════════════════════════════════════════════════════════
-   Ưu tiên dùng core.getAnnouncements() nếu có.
-   Nếu core cũ (không có hàm) → tự đọc trực tiếp firebase.
-   → Code chạy được BẤT KỂ core có update hay chưa.
-   ══════════════════════════════════════════════════════════════════ */
 const ANN_NODE = "config/announcements";
 const NEWS_LAST_SEEN = NEWS_LAST_SEEN_KEY || "qp_news_last_seen";
 
@@ -885,7 +883,6 @@ async function safeGetAnnouncements() {
     try { return await core.getAnnouncements(); }
     catch(e) { console.warn("[news] core.getAnnouncements failed, fallback:", e.message); }
   }
-  // Fallback trực tiếp firebase
   try {
     if (!db) return [];
     const snap = await get(ref(db, ANN_NODE));
@@ -909,7 +906,6 @@ async function safeGetLatestAnnouncementTime() {
     try { return await core.getLatestAnnouncementTime(); }
     catch(e) { console.warn("[news] core.getLatestAnnouncementTime failed:", e.message); }
   }
-  // Fallback
   try {
     if (!db) return 0;
     const snap = await get(ref(db, ANN_NODE));
@@ -1136,9 +1132,6 @@ $("auErr").textContent = e.message;
 $("auGo").disabled = false;
 };
 
-/* ═══════════════════════════════════════════════
-   📢 TIN TỨC / THÔNG BÁO (dùng safe helpers)
-   ═══════════════════════════════════════════════ */
 function fmtNewsDate(ts) {
   if (!ts) return "";
   return new Date(Number(ts)).toLocaleString("vi-VN", {
@@ -1246,7 +1239,6 @@ $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 
-// ⭐ KIỂM TRA TIN TỨC MỚI SAU KHI VÀO APP
 await checkNewsOnLogin();
 }
 
@@ -1282,7 +1274,8 @@ const filters = [
 { id: "khoahoctunhien", label: " KHTN 9" },
 { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
 { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
-{ id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" }
+{ id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" },
+{ id: "congnghe", label: "⚙️ Công nghệ 9" }
 ];
 el.innerHTML = filters.map(f =>
 '<button class="pill' + (f.id === initial ? ' active' : '') + '" data-f="' + f.id + '">' + f.label + '</button>'
@@ -1383,6 +1376,7 @@ $("startEnglish").onclick = () => startQuiz("english", "choice");
 $("startDialyKhoanh").onclick = () => startQuiz("diali", "choice");
 $("startDialyViet").onclick = () => startQuiz("diali", "manual");
 $("startDialyNho").onclick = () => startQuiz("diali", "memory");
+$("startCongnghe").onclick = () => startQuiz("congnghe", "choice");
 
 async function startQuiz(subjectKey, mode = 'choice') {
 if (_loadingQuiz) return;
