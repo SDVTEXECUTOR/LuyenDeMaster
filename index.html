@@ -371,6 +371,53 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   padding: 1px 6px; font-size: 0.7rem; margin-left: 4px;
   font-weight: 700; vertical-align: middle;
 }
+
+/* 🔧 MỚI: Cộng đồng — user cards grid */
+.user-grid {
+  display: grid; grid-template-columns: 1fr; gap: 10px;
+}
+@media (min-width: 620px) {
+  .user-grid { grid-template-columns: 1fr 1fr; }
+}
+.user-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 12px;
+  border: 1.5px solid var(--ln); background: var(--card);
+  text-decoration: none; color: inherit; transition: all 0.15s;
+}
+.user-card:hover {
+  border-color: var(--ac); background: var(--acs);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+}
+.user-card.me {
+  border-color: var(--ok); background: var(--oks);
+}
+.user-card.me:hover { border-color: var(--ok); }
+.user-avatar {
+  flex: none; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--acs); display: grid; place-items: center;
+  font-size: 1.4rem; overflow: hidden;
+  border: 2px solid var(--card);
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.user-info { flex: 1; min-width: 0; }
+.user-name {
+  font-weight: 700; font-size: 0.95rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 6px;
+}
+.user-meta {
+  font-size: 0.78rem; color: var(--mut);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-action {
+  flex: none; padding: 6px 12px; border-radius: 8px;
+  background: var(--ac); color: #fff; font-size: 0.78rem; font-weight: 700;
+  white-space: nowrap;
+}
+.user-card.me .user-action { background: var(--ok); }
+.user-card:hover .user-action { transform: translateX(2px); }
 </style>
 </head>
 <body>
@@ -503,6 +550,7 @@ window.__showFatalError(msg);
 <div class="tabs">
 <button class="tabbtn active" id="tabBtnPractice" type="button">📚 Luyện Tập</button>
 <button class="tabbtn" id="tabBtnLeaderboard" type="button">🏆 Bảng xếp hạng</button>
+<button class="tabbtn" id="tabBtnCommunity" type="button">👥 Cộng đồng</button>
 <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
 <button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
@@ -575,6 +623,24 @@ window.__showFatalError(msg);
 <div class="pills" id="lbPillsMain"></div>
 <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 </div>
+</div>
+<!-- 🔧 MỚI: Tab Cộng đồng -->
+<div id="tab-community" class="hide">
+  <div class="card">
+    <div class="top" style="margin-bottom:16px">
+      <div>
+        <h2 style="margin-bottom:4px">👥 Cộng đồng</h2>
+        <div class="mut" style="font-size:0.85rem" id="communityCount">Đang tải...</div>
+      </div>
+      <button class="g sm" id="btnRefreshCommunity" type="button">🔄 Làm mới</button>
+    </div>
+    <div class="toolbar" style="margin-bottom:12px">
+      <input type="text" id="communitySearch" placeholder="🔍 Tìm theo tên, username hoặc lớp..." autocomplete="off">
+    </div>
+    <div id="communityGrid">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+  </div>
 </div>
 <div id="tab-gameplay" class="hide">
 <div class="card" style="text-align: center; padding: 40px 24px;">
@@ -1247,18 +1313,22 @@ $("logout").onclick = function() { _syncSession(null); show("auth"); };
 function switchTab(name) {
 $("tabBtnPractice").classList.toggle("active", name === "practice");
 $("tabBtnLeaderboard").classList.toggle("active", name === "leaderboard");
+$("tabBtnCommunity").classList.toggle("active", name === "community");
 $("tabBtnGameplay").classList.toggle("active", name === "gameplay");
 $("tabBtnDev").classList.toggle("active", name === "dev");
 $("tabBtnAdmin").classList.toggle("active", name === "admin");
 $("tab-practice").classList.toggle("hide", name !== "practice");
 $("tab-leaderboard").classList.toggle("hide", name !== "leaderboard");
+$("tab-community").classList.toggle("hide", name !== "community");
 $("tab-gameplay").classList.toggle("hide", name !== "gameplay");
 $("tab-dev").classList.toggle("hide", name !== "dev");
 $("tab-admin").classList.toggle("hide", name !== "admin");
 if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
+if (name === "community") loadCommunity();
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
+$("tabBtnCommunity").onclick = () => switchTab("community");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev");
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
@@ -1343,9 +1413,13 @@ const subj = LEADERBOARD_SUBJECTS_META[v.subject];
 const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
 const shufBadge = isShuf ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
 const timeStr = fmtDate(v.time || v.createdAt);
+// 🔧 Link tên tới profile nếu có username
+const profileLink = (!isBanned && v.username)
+  ? `<a href="/profile_${encodeURIComponent(String(v.username).toLowerCase())}" style="color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut);">${displayName}</a>`
+  : displayName;
 return '<div class="lbrow' + clsTop + '">'
 + '<span class="rk">' + medal + '</span>'
-+ '<span class="who2"><b>' + displayName + shufBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls && !isBanned ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
++ '<span class="who2"><b>' + profileLink + shufBadge + '</b><span class="mut" style="font-size:0.8rem">' + (v.cls && !isBanned ? '· ' + esc(v.cls) : '') + badge + '</span></span>'
 + '<span class="pts"><div style="font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums;">'
 + (isBanned ? '-' : fmtScore(v.score) + 'đ') + '</div>'
 + (timeStr && !isBanned ? '<div style="font-size:0.7rem;color:var(--mut);font-weight:500;white-space:nowrap;">📅 ' + timeStr + '</div>' : '')
@@ -1356,6 +1430,91 @@ return '<div class="lbrow' + clsTop + '">'
 el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div>';
 }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   🔧 MỚI: CỘNG ĐỒNG — DANH SÁCH HỌC SINH
+   ══════════════════════════════════════════════════════════════════ */
+let allCommunityUsers = [];
+let communityLoaded = false;
+
+async function loadCommunity(forceReload = false) {
+  if (communityLoaded && !forceReload) return;
+  $("communityGrid").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+  $("communityCount").textContent = "Đang tải...";
+  try {
+    const [accSnap, profSnap] = await Promise.all([
+      get(ref(db, "accounts")),
+      get(ref(db, "profiles"))
+    ]);
+    const profiles = {};
+    if (profSnap.exists()) profSnap.forEach(ch => { profiles[ch.key] = ch.val(); });
+
+    const users = [];
+    if (accSnap.exists()) {
+      accSnap.forEach(ch => {
+        const v = ch.val();
+        const prof = profiles[ch.key] || {};
+        users.push({
+          key: ch.key,
+          username: v.username || "",
+          name: v.name || "",
+          cls: v.cls || "",
+          createdAt: v.createdAt || 0,
+          avatar: prof.avatar || "🐱",
+          avatarImg: prof.avatarImg || ""
+        });
+      });
+    }
+    users.sort((a, b) =>
+      String(a.name || a.username).localeCompare(String(b.name || b.username), "vi")
+    );
+    allCommunityUsers = users;
+    communityLoaded = true;
+    $("communityCount").textContent = `👤 ${users.length} học sinh`;
+    renderCommunity();
+  } catch (e) {
+    console.error("[community] load failed:", e);
+    $("communityGrid").innerHTML =
+      '<div class="mut" style="text-align:center;padding:20px;color:var(--bad)">Không tải được danh sách: ' + esc(e.message) + '</div>';
+    $("communityCount").textContent = "";
+  }
+}
+
+function renderCommunity() {
+  const q = ($("communitySearch")?.value || "").trim().toLowerCase();
+  let list = allCommunityUsers.slice();
+  if (q) {
+    list = list.filter(u =>
+      u.username.toLowerCase().includes(q) ||
+      u.name.toLowerCase().includes(q) ||
+      u.cls.toLowerCase().includes(q)
+    );
+  }
+  if (!list.length) {
+    $("communityGrid").innerHTML =
+      '<div class="mut" style="text-align:center;padding:30px">Không có ai phù hợp.</div>';
+    return;
+  }
+  const meUsername = session?.username ? session.username.toLowerCase() : "";
+  $("communityGrid").innerHTML = '<div class="user-grid">' + list.map(u => {
+    const isMe = meUsername && u.username.toLowerCase() === meUsername;
+    const avatarEl = u.avatarImg
+      ? `<img src="${u.avatarImg}" alt="avatar">`
+      : esc(u.avatar || "🐱");
+    const href = `/profile_${encodeURIComponent(u.username.toLowerCase())}`;
+    return `<a href="${href}" class="user-card${isMe ? ' me' : ''}">
+      <div class="user-avatar">${avatarEl}</div>
+      <div class="user-info">
+        <div class="user-name">${esc(u.name || u.username)}${isMe ? ' <span style="font-size:0.7rem;color:var(--ok);font-weight:800">(bạn)</span>' : ''}</div>
+        <div class="user-meta">@${esc(u.username)}${u.cls ? ' · Lớp ' + esc(u.cls) : ''}</div>
+      </div>
+      <div class="user-action">Xem →</div>
+    </a>`;
+  }).join('') + '</div>';
+}
+
+$("btnRefreshCommunity").onclick = () => { communityLoaded = false; loadCommunity(true); };
+$("communitySearch").oninput = () => renderCommunity();
 
 $("rfMain").onclick = function() {
 const a = document.querySelector("#lbPillsMain .pill.active");
@@ -1923,7 +2082,7 @@ $("iframe-overlay").classList.add("hide");
 $("video-frame").src = "";
 };
 $("btnProfile").onclick = () => {
-  location.href = "/profile.html";
+  location.href = "/profile";
 };
 
 let tabSwitchCount = 0;
