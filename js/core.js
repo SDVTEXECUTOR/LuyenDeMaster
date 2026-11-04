@@ -1,16 +1,22 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
+   ══════════════════════════════════════════════════════════════════════
+   ⚠️ V2.0 — Đã thêm API quản lý Announcements (tin tức)
+   
+   Import bởi: index.html, khoahoctunhien.html, Tower.html,
+               adminpanel.html, profile.html
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, get, set, remove, serverTimestamp
+  getDatabase, ref, get, set, remove, push, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   FIREBASE_CONFIG,
   SESSION_KEY, SESSION_KEY_KHTN,
   UNBAN_NODE, UNBAN_LOCAL_KEY, BAN_PREFIX,
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
+  ANNOUNCEMENTS_NODE,                                    // ⭐ MỚI
   BAD_WORDS, ADMIN_USER,
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
@@ -23,7 +29,9 @@ try {
 }
 export const db = _db;
 
-/* ══ SESSION ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   SESSION
+   ══════════════════════════════════════════════════════════════════════ */
 let _session = null;
 export function getSession() { return _session; }
 
@@ -59,7 +67,9 @@ export function isAdminUsername(username) {
   return String(username || "").trim().toLowerCase() === ADMIN_USER;
 }
 
-/* ══ NORMALIZE ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   NORMALIZE
+   ══════════════════════════════════════════════════════════════════════ */
 export function normText(s) {
   return String(s || "").toLowerCase()
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -83,7 +93,9 @@ export function checkProfanity(str) {
   );
 }
 
-/* ══ KEY ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   KEY
+   ══════════════════════════════════════════════════════════════════════ */
 export function keyOf(u) {
   return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
 }
@@ -91,7 +103,9 @@ export function keyOf(u) {
 export function getBanKey(name)       { return BAN_PREFIX + "ban_" + nameHash(name); }
 export function getViolationKey(name) { return BAN_PREFIX + "vio_" + nameHash(name); }
 
-/* ══ BAN LOCAL ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   BAN LOCAL
+   ══════════════════════════════════════════════════════════════════════ */
 export function checkLocalBan(name) {
   try { return localStorage.getItem(getBanKey(name)) === "1"; }
   catch (e) { return false; }
@@ -121,7 +135,9 @@ export function clearAllLocalBans() {
   return ks.length;
 }
 
-/* ══ BAN FIREBASE ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   BAN FIREBASE
+   ══════════════════════════════════════════════════════════════════════ */
 export async function checkFirebaseBan(username) {
   if (!db || !username) return false;
   try {
@@ -155,7 +171,9 @@ export function recordViolation(nameOrUsername, username) {
   if (u) recordFirebaseViolation(u);
 }
 
-/* ══ UNBAN SYNC ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   UNBAN SYNC
+   ══════════════════════════════════════════════════════════════════════ */
 export async function syncUnbanEpoch() {
   if (!db) return;
   try {
@@ -173,7 +191,9 @@ export async function syncUnbanEpoch() {
   } catch (e) {}
 }
 
-/* ══ DOMAIN ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   DOMAIN GUARD
+   ══════════════════════════════════════════════════════════════════════ */
 export function checkDomain() {
   if (!ENFORCE_DOMAIN_CHECK) return true;
   const cur = String(location.hostname || "").toLowerCase();
@@ -198,7 +218,9 @@ export function showDomainWarning() {
     '</div></div>';
 }
 
-/* ══ ĐĂNG KÝ — KHÓA + MÃ 1 LẦN ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   ĐĂNG KÝ: KHÓA + MÃ 1 LẦN
+   ══════════════════════════════════════════════════════════════════════ */
 export async function checkRegistrationLock() {
   if (!db) return false;
   try {
@@ -314,7 +336,115 @@ export async function markCodeUsed(code, username) {
   }
 }
 
-/* ══ CLEANUP LEGACY ══ */
+/* ══════════════════════════════════════════════════════════════════════
+   📢 ANNOUNCEMENTS — TIN TỨC / THÔNG BÁO                     ⭐ MỚI
+   ══════════════════════════════════════════════════════════════════════
+   API:
+     • getAnnouncements()           → array (mới nhất trước)
+     • createAnnouncement(title,content,author)  → id | null (chỉ admin)
+     • deleteAnnouncement(id)       → true/false (chỉ admin)
+     • getLatestAnnouncementTime()  → number (epoch ms, 0 nếu chưa có)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Lấy TOÀN BỘ thông báo, đã sắp xếp mới nhất trước.
+ * Ai cũng gọi được (cả user thường lẫn admin).
+ * @returns {Promise<Array<{id:string, title:string, content:string, author:string, createdAt:number}>>}
+ */
+export async function getAnnouncements() {
+  if (!db) return [];
+  try {
+    const snap = await get(ref(db, ANNOUNCEMENTS_NODE));
+    const items = [];
+    if (snap.exists()) {
+      snap.forEach(ch => {
+        const v = ch.val();
+        if (v && v.title) items.push({ id: ch.key, ...v });
+      });
+    }
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return items;
+  } catch (e) {
+    console.warn("[core] getAnnouncements:", e);
+    return [];
+  }
+}
+
+/**
+ * Tạo thông báo mới. CHỈ ADMIN mới gọi được.
+ * @param {string} title   — 1-200 ký tự
+ * @param {string} content — 1-5000 ký tự
+ * @param {string} author  — tên admin (mặc định "Admin")
+ * @returns {Promise<string|null>} — push ID nếu thành công, null nếu fail
+ */
+export async function createAnnouncement(title, content, author = "Admin") {
+  if (!db || !isAdminSession()) {
+    console.warn("[core] createAnnouncement: chưa đăng nhập admin hoặc chưa có DB");
+    return null;
+  }
+  const t = String(title || "").trim();
+  const c = String(content || "").trim();
+  if (!t || t.length > 200) return null;
+  if (!c || c.length > 5000) return null;
+
+  try {
+    const newRef = push(ref(db, ANNOUNCEMENTS_NODE));
+    await set(newRef, {
+      title: t,
+      content: c,
+      author: String(author || "Admin").slice(0, 100),
+      createdAt: Date.now()
+    });
+    return newRef.key;
+  } catch (e) {
+    console.warn("[core] createAnnouncement:", e);
+    return null;
+  }
+}
+
+/**
+ * Xoá thông báo theo ID. CHỈ ADMIN mới gọi được.
+ * @param {string} id
+ * @returns {Promise<boolean>}
+ */
+export async function deleteAnnouncement(id) {
+  if (!db || !isAdminSession() || !id) return false;
+  try {
+    await remove(ref(db, ANNOUNCEMENTS_NODE + "/" + id));
+    return true;
+  } catch (e) {
+    console.warn("[core] deleteAnnouncement:", e);
+    return false;
+  }
+}
+
+/**
+ * Lấy thời điểm (epoch ms) của thông báo MỚI NHẤT.
+ * Dùng để so với localStorage để biết có tin mới hay không.
+ * @returns {Promise<number>} — 0 nếu chưa có tin nào
+ */
+export async function getLatestAnnouncementTime() {
+  if (!db) return 0;
+  try {
+    const snap = await get(ref(db, ANNOUNCEMENTS_NODE));
+    if (!snap.exists()) return 0;
+    let latest = 0;
+    snap.forEach(ch => {
+      const v = ch.val();
+      if (v && typeof v.createdAt === "number" && v.createdAt > latest) {
+        latest = v.createdAt;
+      }
+    });
+    return latest;
+  } catch (e) {
+    console.warn("[core] getLatestAnnouncementTime:", e);
+    return 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CLEANUP LEGACY STORAGE
+   ══════════════════════════════════════════════════════════════════════ */
 (function _cleanupLegacyStorage() {
   try {
     const oldKeys = [];
