@@ -2,6 +2,7 @@
    🧠 CORE.JS — LOGIC DÙNG CHUNG
    ══════════════════════════════════════════════════════════════════════
    ⚠️ V2.0 — Đã thêm API quản lý Announcements (tin tức)
+   ⚠️ V2.1 — Fix multi-admin: isAdminUsername() hỗ trợ ADMIN_LIST
    
    Import bởi: index.html, khoahoctunhien.html, Tower.html,
                adminpanel.html, profile.html
@@ -16,8 +17,8 @@ import {
   SESSION_KEY, SESSION_KEY_KHTN,
   UNBAN_NODE, UNBAN_LOCAL_KEY, BAN_PREFIX,
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
-  ANNOUNCEMENTS_NODE,                                    // ⭐ MỚI
-  BAD_WORDS, ADMIN_USER,
+  ANNOUNCEMENTS_NODE,
+  BAD_WORDS, ADMIN_USER, ADMIN_LIST,          // ⭐ V2.1 — thêm ADMIN_LIST
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
 
@@ -63,8 +64,19 @@ export function isAdminSession() {
   return !!(_session && _session.isAdmin === true);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   ⭐ V2.1 — FIX MULTI-ADMIN
+   Kiểm tra username có nằm trong ADMIN_LIST (bất kỳ admin nào).
+   So khớp cả a.user LẪN a.profile.username → không phân biệt
+   hoa/thường, không phụ thuộc session lưu field nào.
+   ══════════════════════════════════════════════════════════════════════ */
 export function isAdminUsername(username) {
-  return String(username || "").trim().toLowerCase() === ADMIN_USER;
+  const u = String(username || "").trim().toLowerCase();
+  if (!u) return false;
+  return ADMIN_LIST.some(a =>
+    String(a.user || "").toLowerCase() === u ||
+    String((a.profile && a.profile.username) || "").toLowerCase() === u
+  );
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -337,19 +349,11 @@ export async function markCodeUsed(code, username) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   📢 ANNOUNCEMENTS — TIN TỨC / THÔNG BÁO                     ⭐ MỚI
-   ══════════════════════════════════════════════════════════════════════
-   API:
-     • getAnnouncements()           → array (mới nhất trước)
-     • createAnnouncement(title,content,author)  → id | null (chỉ admin)
-     • deleteAnnouncement(id)       → true/false (chỉ admin)
-     • getLatestAnnouncementTime()  → number (epoch ms, 0 nếu chưa có)
+   📢 ANNOUNCEMENTS — TIN TỨC / THÔNG BÁO
    ══════════════════════════════════════════════════════════════════════ */
 
 /**
  * Lấy TOÀN BỘ thông báo, đã sắp xếp mới nhất trước.
- * Ai cũng gọi được (cả user thường lẫn admin).
- * @returns {Promise<Array<{id:string, title:string, content:string, author:string, createdAt:number}>>}
  */
 export async function getAnnouncements() {
   if (!db) return [];
@@ -372,10 +376,6 @@ export async function getAnnouncements() {
 
 /**
  * Tạo thông báo mới. CHỈ ADMIN mới gọi được.
- * @param {string} title   — 1-200 ký tự
- * @param {string} content — 1-5000 ký tự
- * @param {string} author  — tên admin (mặc định "Admin")
- * @returns {Promise<string|null>} — push ID nếu thành công, null nếu fail
  */
 export async function createAnnouncement(title, content, author = "Admin") {
   if (!db || !isAdminSession()) {
@@ -404,8 +404,6 @@ export async function createAnnouncement(title, content, author = "Admin") {
 
 /**
  * Xoá thông báo theo ID. CHỈ ADMIN mới gọi được.
- * @param {string} id
- * @returns {Promise<boolean>}
  */
 export async function deleteAnnouncement(id) {
   if (!db || !isAdminSession() || !id) return false;
@@ -420,8 +418,6 @@ export async function deleteAnnouncement(id) {
 
 /**
  * Lấy thời điểm (epoch ms) của thông báo MỚI NHẤT.
- * Dùng để so với localStorage để biết có tin mới hay không.
- * @returns {Promise<number>} — 0 nếu chưa có tin nào
  */
 export async function getLatestAnnouncementTime() {
   if (!db) return 0;
