@@ -20,7 +20,7 @@ export const ADMIN_USER      = "phamgiabao";
 export const ADMIN_PASS_HASH = "7fd23dbecef914f709fc8be1271cd604d0b808b6e877ab694658b904ab94734d";
 export const ADMIN_PROFILE   = { username: "PhamGiaBao", name: "Phạm Gia Bảo", cls: "Admin" };
 
-// ⭐ MỚI — danh sách admin (hỗ trợ nhiều tài khoản admin cùng lúc)
+// ⭐ Danh sách admin (hỗ trợ nhiều tài khoản admin cùng lúc)
 export const ADMIN_LIST = [
   { user: ADMIN_USER, passHash: ADMIN_PASS_HASH, profile: ADMIN_PROFILE },
   {
@@ -52,10 +52,10 @@ export const MUSIC_SELECTED_KEY = "qp_music_selected";
 /* ══ ĐĂNG KÝ: KHÓA + MÃ + THÔNG BÁO ══ */
 export const REGISTRATION_LOCK_NODE  = "config/registrationLock";
 export const REGISTRATION_CODES_NODE = "config/codes";
-export const ANNOUNCEMENTS_NODE      = "config/announcements";   // ⭐ MỚI
+export const ANNOUNCEMENTS_NODE      = "config/announcements";
 
 /* ══ TIN NHẮN / THÔNG BÁO — storage key ══ */
-export const NEWS_LAST_SEEN_KEY      = "qp_news_last_seen";      // ⭐ MỚI
+export const NEWS_LAST_SEEN_KEY      = "qp_news_last_seen";
 
 /* ══ BAD WORDS ══ */
 export const BAD_WORDS = [
@@ -84,10 +84,11 @@ export const MIN_REACTION_HOVER  = 250;
 
 /* ══ METADATA MÔN HỌC ══ */
 export const SUBJECTS_META = {
-  tinhoc:  { label: "Tin học 9",   icon: "💻", allAtOnce: false },
-  gdcd:    { label: "GDCD 9",      icon: "⚖️", allAtOnce: false },
-  english: { label: "Tiếng Anh 9", icon: "🇬🇧", allAtOnce: true  },
-  diali:   { label: "Địa lí 9",    icon: "🌍", allAtOnce: false }
+  tinhoc:   { label: "Tin học 9",   icon: "💻", allAtOnce: false },
+  gdcd:     { label: "GDCD 9",      icon: "⚖️", allAtOnce: false },
+  english:  { label: "Tiếng Anh 9", icon: "🇬🇧", allAtOnce: true  },
+  diali:    { label: "Địa lí 9",    icon: "🌍", allAtOnce: false },
+  congnghe: { label: "Công nghệ 9", icon: "⚙️", allAtOnce: false }
 };
 
 export const LEADERBOARD_SUBJECTS_META = {
