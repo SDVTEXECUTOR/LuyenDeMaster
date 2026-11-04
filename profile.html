@@ -347,22 +347,27 @@ let currentAchievementDates = {};
 
 const AVATARS = ["🐱","🐶","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐢","🌸","🌺","🌻","🌹","🍀","⭐","💫","🔥","💎","🎮","🎯","🎨","🎵","🎸","⚽","🏀","🏆"];
 
+// 🔧 ĐÃ THÊM: môn Công nghệ 9
 const SUBJECTS = [
   { key: 'tinhoc',         icon: '💻', name: 'Tin học 9',    aliases: ['tinhoc'] },
   { key: 'gdcd',           icon: '⚖️', name: 'GDCD 9',       aliases: ['gdcd'] },
   { key: 'english',        icon: '🇬🇧', name: 'Tiếng Anh 9',  aliases: ['english'] },
   { key: 'diali',          icon: '🌍', name: 'Địa lí 9',     aliases: ['diali_choice', 'diali_manual', 'diali_memory', 'diali'] },
-  { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9',       aliases: ['khoahoctunhien', 'khtn'] }
+  { key: 'khoahoctunhien', icon: '🧪', name: 'KHTN 9',       aliases: ['khoahoctunhien', 'khtn'] },
+  { key: 'congnghe',       icon: '⚙️', name: 'Công nghệ 9',  aliases: ['congnghe'] }
 ];
 
+// 🔧 ĐÃ THÊM: nhóm congnghe
 const SUBJECT_GROUPS = {
   tinhoc:         ['tinhoc'],
   gdcd:           ['gdcd'],
   english:        ['english'],
   diali:          ['diali_choice', 'diali_manual', 'diali_memory', 'diali'],
-  khoahoctunhien: ['khoahoctunhien', 'khtn']
+  khoahoctunhien: ['khoahoctunhien', 'khtn'],
+  congnghe:       ['congnghe']
 };
 
+// 🔧 Cập nhật mô tả 3 badge cho khớp logic thực tế khi có 6 môn
 const BADGES = [
   { id: 'first_step', icon: '🎯', name: 'Khởi đầu',    req: 'Hoàn thành bài thi đầu tiên của bạn.' },
   { id: 'first_blood',icon: '🥇', name: 'First Blood', req: 'Lần đầu lên <b>top 1</b> bảng xếp hạng của bất kỳ môn nào.' },
@@ -371,8 +376,8 @@ const BADGES = [
   { id: 'vua_mon',    icon: '👑', name: 'Vua môn',     req: 'Giữ vị trí <b>top 1 một môn</b> trong <b>5 ngày</b> liên tục (không ai vượt qua).' },
   { id: 'perfect',    icon: '🌟', name: 'Perfect',     req: 'Đạt <b>top 1 ở 4 môn học</b> khác nhau cùng lúc.' },
   { id: 'diem_10',    icon: '💯', name: 'Điểm 10',     req: 'Đạt điểm <b>10 tuyệt đối</b> trong một bài thi.' },
-  { id: 'all_star',   icon: '⭐', name: 'All-Star',    req: 'Đạt từ <b>9 điểm trở lên</b> ở cả 5 môn học.' },
-  { id: 'da_nang',    icon: '🏆', name: 'Đa năng',     req: 'Lọt <b>top 10</b> bảng xếp hạng của cả 5 môn học.' },
+  { id: 'all_star',   icon: '⭐', name: 'All-Star',    req: 'Đạt từ <b>9 điểm trở lên</b> ở <b>tất cả các môn học</b>.' },
+  { id: 'da_nang',    icon: '🏆', name: 'Đa năng',     req: 'Lọt <b>top 10</b> bảng xếp hạng của <b>ít nhất 5 môn học</b>.' },
   { id: 'cay_cuoc',   icon: '🚀', name: 'Cày cuốc',    req: 'Làm tổng cộng <b>50 bài</b> (tính cả Tower).' },
   { id: 'bac_thay',   icon: '🎓', name: 'Bậc thầy',    req: 'Làm tổng cộng <b>100 bài</b> (tính cả Tower).' },
   { id: 'toc_do',     icon: '⚡', name: 'Tốc độ',      req: 'Đạt <b>≥ 9 điểm</b> với thời gian làm bài <b>dưới 3 phút</b>.' },
@@ -889,7 +894,6 @@ function updateAvatarPreview() {
   renderAvatarEl($("avatarPreview"), selectedAvatar, selectedAvatarImg);
 }
 
-/* ⭐ NÉN ẢNH 512×512 JPEG quality 0.9 — nét hơn hẳn */
 async function resizeImage(file, maxSize = 512, quality = 0.9) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
