@@ -744,7 +744,8 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 <script type="module">
 (async () => {
 try {
-const { CUTSCENE_DURATION_MS } = await import('/js/config.js');
+const BUILD_V = Date.now();
+const { CUTSCENE_DURATION_MS } = await import(`/js/config.js?v=${BUILD_V}`);
 (function(){
 var cs=document.getElementById("cutscene"); if(!cs) return;
 var done=false,ready=false,raf;
@@ -816,12 +817,14 @@ document.body.style.overflow = '';
 <!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
+// ⭐ Cache busting mạnh — luôn tải bản mới nhất, không dính cache
+const BUILD_V = Date.now();
 try {
-core = await import('/js/core.js');
-utils = await import('/js/utils.js');
-musicMod = await import('/js/music.js');
-anticheatMod = await import('/js/anticheat.js');
-configMod = await import('/js/config.js');
+core = await import(`/js/core.js?v=${BUILD_V}`);
+utils = await import(`/js/utils.js?v=${BUILD_V}`);
+musicMod = await import(`/js/music.js?v=${BUILD_V}`);
+anticheatMod = await import(`/js/anticheat.js?v=${BUILD_V}`);
+configMod = await import(`/js/config.js?v=${BUILD_V}`);
 firebaseMod = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
 } catch (e) {
 console.error('[index] Import failed:', e);
@@ -866,6 +869,59 @@ const $ = id => {
   return el;
 };
 const L = "ABCD";
+
+/* ══════════════════════════════════════════════════════════════════
+   ⭐ SAFE ANNOUNCEMENT HELPERS — Fallback nếu core.js chưa update
+   ══════════════════════════════════════════════════════════════════
+   Ưu tiên dùng core.getAnnouncements() nếu có.
+   Nếu core cũ (không có hàm) → tự đọc trực tiếp firebase.
+   → Code chạy được BẤT KỂ core có update hay chưa.
+   ══════════════════════════════════════════════════════════════════ */
+const ANN_NODE = "config/announcements";
+const NEWS_LAST_SEEN = NEWS_LAST_SEEN_KEY || "qp_news_last_seen";
+
+async function safeGetAnnouncements() {
+  if (typeof core.getAnnouncements === "function") {
+    try { return await core.getAnnouncements(); }
+    catch(e) { console.warn("[news] core.getAnnouncements failed, fallback:", e.message); }
+  }
+  // Fallback trực tiếp firebase
+  try {
+    if (!db) return [];
+    const snap = await get(ref(db, ANN_NODE));
+    const items = [];
+    if (snap.exists()) {
+      snap.forEach(ch => {
+        const v = ch.val();
+        if (v && v.title) items.push({ id: ch.key, ...v });
+      });
+    }
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return items;
+  } catch(e) {
+    console.warn("[news] fallback get failed:", e);
+    return [];
+  }
+}
+
+async function safeGetLatestAnnouncementTime() {
+  if (typeof core.getLatestAnnouncementTime === "function") {
+    try { return await core.getLatestAnnouncementTime(); }
+    catch(e) { console.warn("[news] core.getLatestAnnouncementTime failed:", e.message); }
+  }
+  // Fallback
+  try {
+    if (!db) return 0;
+    const snap = await get(ref(db, ANN_NODE));
+    if (!snap.exists()) return 0;
+    let latest = 0;
+    snap.forEach(ch => {
+      const v = ch.val();
+      if (v && typeof v.createdAt === "number" && v.createdAt > latest) latest = v.createdAt;
+    });
+    return latest;
+  } catch(e) { return 0; }
+}
 
 function showToast(msg, isErr) {
 const t = $("toast");
@@ -957,7 +1013,7 @@ let ENGLISH_SECTIONS = [];
 let ENGLISH_QMETA = [];
 async function loadSubjectData(key) {
 if (_dataCache[key]) return _dataCache[key];
-const mod = await import('/js/data/' + key + '.js');
+const mod = await import(`/js/data/${key}.js?v=${BUILD_V}`);
 _dataCache[key] = mod.default;
 return _dataCache[key];
 }
@@ -1080,7 +1136,7 @@ $("auGo").disabled = false;
 };
 
 /* ═══════════════════════════════════════════════
-   TIN TỨC / THÔNG BÁO
+   📢 TIN TỨC / THÔNG BÁO (dùng safe helpers)
    ═══════════════════════════════════════════════ */
 function fmtNewsDate(ts) {
   if (!ts) return "";
@@ -1095,12 +1151,12 @@ async function loadNews() {
   if (!el) return;
   el.innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
-    const items = await core.getAnnouncements();
+    const items = await safeGetAnnouncements();
     if (!items.length) {
       el.innerHTML = '<div class="mut" style="padding:30px;text-align:center">Chưa có thông báo nào.</div>';
       return;
     }
-    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN) || 0);
     el.innerHTML = items.map(n => {
       const isNew = Number(n.createdAt || 0) > lastSeen;
       return `
@@ -1113,7 +1169,7 @@ async function loadNews() {
 
     const newest = items[0]?.createdAt || 0;
     if (newest > lastSeen) {
-      localStorage.setItem(NEWS_LAST_SEEN_KEY, String(newest));
+      localStorage.setItem(NEWS_LAST_SEEN, String(newest));
       updateNewsBadge();
     }
   } catch(e) {
@@ -1123,8 +1179,8 @@ async function loadNews() {
 
 async function checkNewsOnLogin() {
   try {
-    const latest = await core.getLatestAnnouncementTime();
-    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    const latest = await safeGetLatestAnnouncementTime();
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN) || 0);
     if (latest > lastSeen) showNewsBanner();
     updateNewsBadge();
   } catch(e) { console.warn("[news]", e); }
@@ -1132,8 +1188,8 @@ async function checkNewsOnLogin() {
 
 async function updateNewsBadge() {
   try {
-    const latest = await core.getLatestAnnouncementTime();
-    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN_KEY) || 0);
+    const latest = await safeGetLatestAnnouncementTime();
+    const lastSeen = Number(localStorage.getItem(NEWS_LAST_SEEN) || 0);
     const badge = $("newsBadge");
     if (badge) badge.classList.toggle("hide", latest <= lastSeen);
   } catch(e) {}
