@@ -393,6 +393,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
         <option value="diali_manual">✍️ Địa (Ghi)</option>
         <option value="diali_memory">🧠 Địa (Ghi nhớ)</option>
         <option value="khoahoctunhien">🧪 KHTN</option>
+        <!-- 🔧 THÊM MỚI: Công nghệ 9 -->
+        <option value="congnghe">⚙️ Công nghệ</option>
         <option value="tower">🏰 Tower</option>
       </select>
       <button class="danger" id="btnResetLeaderboard">🗑️ Reset</button>
@@ -498,7 +500,6 @@ try {
 const { ref, get, set, remove, serverTimestamp } = firebase;
 const $ = id => document.getElementById(id);
 
-// ⭐ CHECK EXPORTS — không throw nếu thiếu announcements
 const requiredExports = [
   'db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
   'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode'
@@ -509,7 +510,6 @@ if (missing.length) {
   throw new Error('Missing exports');
 }
 
-// ⭐ Cảnh báo nhẹ (KHÔNG throw) nếu core cũ chưa có announcements — fallback sẽ xử lý
 if (typeof core.getAnnouncements !== 'function') {
   console.warn('[adminpanel] core.js chưa có getAnnouncements — dùng fallback firebase trực tiếp');
 }
@@ -521,7 +521,6 @@ const {
 const { esc, fmtMsShort, fmtDate } = utils;
 const { ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY } = config;
 
-// ⭐ FALLBACK cho announcements — dùng được cả khi core cũ
 const ANN_NODE = "config/announcements";
 
 async function safeGetAnnouncements() {
@@ -549,7 +548,6 @@ async function safeCreateAnnouncement(title, content, author) {
     try { return await core.createAnnouncement(title, content, author); }
     catch(e) { console.warn("[ann] core.createAnnouncement failed:", e.message); }
   }
-  // Fallback: tạo trực tiếp
   try {
     if (!db) return null;
     const t = String(title || "").trim();
@@ -651,7 +649,6 @@ async function toggleLock() {
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("lockCheckbox").checked = !newState; }
 }
 
-/* ═══ ANNOUNCEMENTS (dùng safe helpers) ═══ */
 async function loadAnnouncements() {
   $("annList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
@@ -710,7 +707,6 @@ $("btnCreateAnn").onclick = async () => {
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
 };
 
-/* ═══ CODES ═══ */
 async function loadCodes() {
   $("codesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
@@ -780,11 +776,11 @@ async function deleteCode(code) {
 window.__copyCode = copyCode;
 window.__deleteCode = deleteCode;
 
-/* ═══ RESET LEADERBOARD — xoá từng child để khớp rules $id.write ═══ */
 $("btnResetLeaderboard").onclick = () => {
   const subj = $("resetSubject").value;
   if (!subj) { showToast("Vui lòng chọn bảng xếp hạng!", true); return; }
 
+  // 🔧 ĐÃ THÊM: congnghe
   const labels = {
     tinhoc:        "💻 Tin học",
     gdcd:          "⚖️ GDCD",
@@ -793,6 +789,7 @@ $("btnResetLeaderboard").onclick = () => {
     diali_manual:  "✍️ Địa (Ghi)",
     diali_memory:  "🧠 Địa (Ghi nhớ)",
     khoahoctunhien:"🧪 KHTN",
+    congnghe:      "⚙️ Công nghệ",
     tower:         "🏰 Tower"
   };
 
@@ -803,7 +800,6 @@ $("btnResetLeaderboard").onclick = () => {
     async () => {
       ovOn("Đang reset...");
       try {
-        // Helper: xoá từng child (rules chỉ cho phép xoá ở cấp $id, KHÔNG cho xoá cả node)
         const deleteAllChildren = async (nodePath, filterFn = null) => {
           const snap = await get(ref(db, nodePath));
           if (!snap.exists()) return 0;
@@ -843,7 +839,6 @@ $("btnResetLeaderboard").onclick = () => {
   );
 };
 
-/* ═══ LOAD DATA ═══ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -1035,10 +1030,12 @@ async function viewResults(username, name) {
     const quiz  = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
     const khtn  = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
+    // 🔧 ĐÃ THÊM: congnghe
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
       diali_choice: "🌍 Địa (Khoanh)", diali_manual: "✍️ Địa (Ghi)",
-      diali_memory: "🧠 Địa (Ghi nhớ)", khoahoctunhien: "🧪 KHTN"
+      diali_memory: "🧠 Địa (Ghi nhớ)", khoahoctunhien: "🧪 KHTN",
+      congnghe: "⚙️ Công nghệ"
     };
     const renderItem = (v) => `
       <div class="result-item">
