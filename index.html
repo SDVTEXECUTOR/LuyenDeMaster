@@ -844,7 +844,7 @@ const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = 
 const { createMusicPlayer } = musicMod;
 const { installAntiCheat } = anticheatMod;
 const {
-ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE,
+ADMIN_USER, ADMIN_PASS_HASH, ADMIN_PROFILE, ADMIN_LIST, findAdmin,
 TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
 SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
 SHAKE_VIDEO, NEWS_LAST_SEEN_KEY
@@ -1038,7 +1038,7 @@ $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $(
 
 async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
-if (String(u).trim().toLowerCase() === ADMIN_USER) throw new Error("Tên đăng nhập đã tồn tại.");
+if (findAdmin(u)) throw new Error("Tên đăng nhập đã tồn tại.");
 if (checkProfanity(u) || checkProfanity(name)) {
 recordViolation(name);
 throw new Error(" TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
@@ -1058,11 +1058,12 @@ _syncSession({ key, username: u, name, cls: cls || "" });
 }
 
 async function doLogin(u, p) {
-if (String(u).trim().toLowerCase() === ADMIN_USER) {
+const adminEntry = findAdmin(u);
+if (adminEntry) {
 const h = await sha256Hex(p);
-if (h !== ADMIN_PASS_HASH) throw new Error("Sai mật khẩu.");
-_syncSession({ key: keyOf(ADMIN_PROFILE.username), username: ADMIN_PROFILE.username,
-name: ADMIN_PROFILE.name, cls: ADMIN_PROFILE.cls, isAdmin: true });
+if (h !== adminEntry.passHash) throw new Error("Sai mật khẩu.");
+_syncSession({ key: keyOf(adminEntry.profile.username), username: adminEntry.profile.username,
+name: adminEntry.profile.name, cls: adminEntry.profile.cls, isAdmin: true });
 return;
 }
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
