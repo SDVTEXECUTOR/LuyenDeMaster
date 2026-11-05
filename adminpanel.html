@@ -134,6 +134,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .switch input:checked + .slider { background: var(--bad); }
 .switch input:checked + .slider:before { transform: translateX(28px); }
 
+/* 🔧 MỚI: Slider xanh cho toggle "kiểm duyệt" khi BẬT */
+.switch.green input:checked + .slider { background: var(--ok); }
+
 .code-row {
   display: grid; grid-template-columns: 1fr auto auto;
   gap: 12px; align-items: center;
@@ -343,6 +346,24 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
+  <!-- 🔧 MỚI: CARD KIỂM DUYỆT TỪ NGỮ -->
+  <div class="card">
+    <div class="top">
+      <div style="flex:1;min-width:0">
+        <h2 style="margin-bottom:4px">🚫 Kiểm duyệt từ ngữ</h2>
+        <div class="mut" id="profanityStatus">Đang tải…</div>
+      </div>
+      <label class="switch green">
+        <input type="checkbox" id="profanityCheckbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="mut" style="margin-top:12px;font-size:0.85rem;line-height:1.6;background:var(--warns);padding:10px 14px;border-radius:8px;border-left:3px solid var(--warn);color:var(--fg)">
+      💡 <b>BẬT:</b> Chặn/ẩn tên đăng nhập, họ tên, bảng xếp hạng có chứa từ ngữ không phù hợp.<br>
+      💡 <b>TẮT:</b> Không kiểm duyệt — mọi từ ngữ đều được chấp nhận.
+    </div>
+  </div>
+
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div style="flex:1;min-width:0">
@@ -393,7 +414,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
         <option value="diali_manual">✍️ Địa (Ghi)</option>
         <option value="diali_memory">🧠 Địa (Ghi nhớ)</option>
         <option value="khoahoctunhien">🧪 KHTN</option>
-        <!-- 🔧 THÊM MỚI: Công nghệ 9 -->
         <option value="congnghe">⚙️ Công nghệ</option>
         <option value="tower">🏰 Tower</option>
       </select>
@@ -502,7 +522,8 @@ const $ = id => document.getElementById(id);
 
 const requiredExports = [
   'db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
-  'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode'
+  'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode',
+  'checkProfanitySetting','setProfanitySetting'
 ];
 const missing = requiredExports.filter(k => typeof core[k] === 'undefined');
 if (missing.length) {
@@ -649,6 +670,31 @@ async function toggleLock() {
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("lockCheckbox").checked = !newState; }
 }
 
+/* 🔧 MỚI: PROFANITY TOGGLE */
+async function loadProfanityStatus() {
+  try {
+    const isEnabled = await core.checkProfanitySetting();
+    $("profanityCheckbox").checked = isEnabled;
+    $("profanityStatus").innerHTML = isEnabled
+      ? '<span style="color:var(--bad);font-weight:700">🚫 ĐANG BẬT</span> — Từ ngữ không phù hợp sẽ bị chặn'
+      : '<span style="color:var(--ok);font-weight:700">✅ ĐANG TẮT</span> — Không kiểm duyệt';
+  } catch (e) { $("profanityStatus").textContent = "Lỗi: " + e.message; }
+}
+
+async function toggleProfanity() {
+  const newState = $("profanityCheckbox").checked;
+  if (!confirm(newState ? "🚫 Bật kiểm duyệt từ ngữ?\n\nHọc sinh dùng từ ngữ không phù hợp sẽ bị chặn." : "✅ Tắt kiểm duyệt từ ngữ?\n\nTất cả từ ngữ đều được chấp nhận.")) {
+    $("profanityCheckbox").checked = !newState; return;
+  }
+  try {
+    ovOn("Đang cập nhật…");
+    const ok = await core.setProfanitySetting(newState);
+    ovOff();
+    if (ok) { showToast(newState ? "🚫 Đã bật kiểm duyệt" : "✅ Đã tắt kiểm duyệt"); loadProfanityStatus(); }
+    else { showToast("Không thể cập nhật.", true); $("profanityCheckbox").checked = !newState; }
+  } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("profanityCheckbox").checked = !newState; }
+}
+
 async function loadAnnouncements() {
   $("annList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
@@ -780,7 +826,6 @@ $("btnResetLeaderboard").onclick = () => {
   const subj = $("resetSubject").value;
   if (!subj) { showToast("Vui lòng chọn bảng xếp hạng!", true); return; }
 
-  // 🔧 ĐÃ THÊM: congnghe
   const labels = {
     tinhoc:        "💻 Tin học",
     gdcd:          "⚖️ GDCD",
@@ -1030,7 +1075,6 @@ async function viewResults(username, name) {
     const quiz  = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
     const khtn  = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
-    // 🔧 ĐÃ THÊM: congnghe
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
       diali_choice: "🌍 Địa (Khoanh)", diali_manual: "✍️ Địa (Ghi)",
@@ -1083,10 +1127,11 @@ window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
-$("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); loadAnnouncements(); };
+$("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); loadAnnouncements(); loadProfanityStatus(); };
 $("btnUnbanAll").onclick = unbanAll;
 $("btnCreateCode").onclick = createCode;
 $("lockCheckbox").onchange = toggleLock;
+$("profanityCheckbox").onchange = toggleProfanity;
 $("btnLogout").onclick = () => {
   try { localStorage.removeItem("qp_session_v2"); localStorage.removeItem("qp_session_khtn_v1"); } catch (e) {}
   location.href = "/";
@@ -1115,7 +1160,7 @@ document.addEventListener("keydown", (e) => {
     if (boot) boot.style.display = 'none';
     if (!checkAccess()) { $("denied").classList.remove("hide"); return; }
     $("panel").classList.remove("hide");
-    await Promise.all([loadData(), loadLockStatus(), loadCodes(), loadAnnouncements()]);
+    await Promise.all([loadData(), loadLockStatus(), loadCodes(), loadAnnouncements(), loadProfanityStatus()]);
   } catch (e) {
     console.error('Init failed:', e);
     showFatalError(e.message || 'Lỗi khởi tạo admin panel');
