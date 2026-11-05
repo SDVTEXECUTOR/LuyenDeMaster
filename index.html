@@ -308,7 +308,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .song-item span { font-weight: 500; font-size: 0.95rem; }
 
 /* ═══════════════════════════════════════════════════
-   ❤️ TRI ÂN OVERLAY — Màn đỏ + tim bay + video + chữ kết
+   ❤️ TRI ÂN OVERLAY — Màn đỏ + tim bay + video
    ═══════════════════════════════════════════════════ */
 #shake-overlay {
   position: fixed; inset: 0; z-index: 1100;
@@ -366,56 +366,46 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 #shake-overlay .btn-back-float { z-index: 12; }
 
-/* 🎉 Màn "ĐÃ LÀM TỐT R" hiện khi video kết thúc */
-.trian-done {
-  position: absolute; inset: 0;
-  display: none;
-  place-items: center;
-  background: radial-gradient(circle at center, rgba(220,38,38,0.9) 0%, rgba(15,23,42,0.97) 100%);
-  z-index: 5;
-  padding: 24px;
-}
-.trian-done.on { display: grid; }
-.trian-done-text {
-  font-size: clamp(2rem, 9vw, 5.5rem);
-  font-weight: 900;
-  line-height: 1.1;
-  text-align: center;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #fff 0%, #fca5a5 50%, #ef4444 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 60px rgba(255,80,80,0.9);
-  animation: trianDonePop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-}
-.trian-done-text::after {
-  content: "";
+/* ⏭ Nút "Bỏ qua" hiện khi đang phát video */
+.trian-skip-btn {
   position: absolute;
-  inset: -30px -60px;
-  background: radial-gradient(circle, rgba(255,80,80,0.4) 0%, transparent 70%);
-  z-index: -1;
-  animation: trianGlow 2s ease-in-out infinite alternate;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 13;
+  background: rgba(15, 23, 42, 0.75);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  padding: 10px 24px;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s;
 }
-@keyframes trianDonePop {
-  0%   { opacity: 0; transform: scale(0.2) rotate(-15deg); }
-  60%  { opacity: 1; transform: scale(1.15) rotate(3deg); }
-  80%  { transform: scale(0.98) rotate(-1deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0); }
+#shake-overlay.video-playing .trian-skip-btn {
+  display: inline-flex;
+  animation: skipPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-@keyframes trianGlow {
-  from { opacity: 0.5; transform: scale(0.95); }
-  to   { opacity: 1;   transform: scale(1.15); }
+.trian-skip-btn:hover {
+  background: rgba(220, 38, 38, 0.9);
+  border-color: #fff;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
 }
-
-/* 💖 Tim bay trong màn "ĐÃ LÀM TỐT R" — nằm dưới chữ */
-.trian-done .trian-hearts {
-  z-index: 0;
+.trian-skip-btn:active {
+  transform: translateX(-50%) translateY(1px);
 }
-.trian-done-text {
-  position: relative;
-  z-index: 1;
+@keyframes skipPopIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.8); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
@@ -607,10 +597,7 @@ window.__showFatalError(msg);
   <div class="trian-hearts" id="trianHearts"></div>
   <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
   <video id="shakeVideo" playsinline controls></video>
-  <div class="trian-done" id="trianDone">
-    <div class="trian-hearts" id="trianDoneHearts"></div>
-    <div class="trian-done-text">ĐÃ LÀM TỐT R</div>
-  </div>
+  <button class="trian-skip-btn" id="btnShakeSkip" type="button">⏭ Bỏ qua</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1078,8 +1065,7 @@ const L = "ABCD";
    ══════════════════════════════════════════════════════════════════ */
 const TRIAN_VIDEO_SRC = "cutscene/trian.mp4";
 const TRIAN_RED_DURATION_MS = 1400;      // thời gian hiện màn đỏ + tim bay trước khi phát video
-const TRIAN_DONE_DURATION_MS = 3500;     // thời gian hiện "ĐÃ LÀM TỐT R" sau khi video xong
-const TRIAN_LOW_SCORE_THRESHOLD = 7;     // điểm < 7 → tự động chạy video
+const TRIAN_LOW_SCORE_THRESHOLD = 8;     // điểm < 8 → tự động chạy video
 const TRIAN_LOW_SCORE_DELAY_MS = 3000;   // delay trước khi auto-chạy (để user xem điểm)
 
 const ANN_NODE = "config/announcements";
@@ -2114,7 +2100,7 @@ else finalSubject = 'diali_choice';
 }
 saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
 
-/* ❤️ Nếu điểm < 7 → tự động bật video tri ân để động viên (sau 3s xem điểm) */
+/* ❤️ Nếu điểm < 8 → tự động bật video tri ân để động viên (sau 3s xem điểm) */
 if (sc < TRIAN_LOW_SCORE_THRESHOLD && !isAdminSession() && !trianAutoTriggered) {
   trianAutoTriggered = true;
   setTimeout(() => {
@@ -2201,17 +2187,16 @@ setInterval(updateClock, 1000);
 updateClock();
 
 /* ══════════════════════════════════════════════════════════════════
-   ❤️ TRI ÂN — MÀN ĐỎ + TIM BAY + VIDEO + "ĐÃ LÀM TỐT R"
+   ❤️ TRI ÂN — MÀN ĐỎ + TIM BAY + VIDEO + NÚT BỎ QUA
    ══════════════════════════════════════════════════════════════════ */
 let musicWasPlaying = false;
 let trianTimer = null;
-let trianDoneTimer = null;
 let lastTrianOpen = 0;            // timestamp lần cuối mở tri ân (dùng cho auto-trigger)
 let trianAutoTriggered = false;   // cờ: đã auto-trigger trong lượt làm bài này chưa
 
-/* 💖 Tạo tim bay ngẫu nhiên vào container chỉ định */
-function spawnHearts(containerId) {
-  const container = $(containerId || "trianHearts");
+/* 💖 Tạo tim bay ngẫu nhiên */
+function spawnHearts() {
+  const container = $("trianHearts");
   if (!container) return;
   container.innerHTML = "";
   const emojis = ["❤️","💖","💕","💗","💝","🩷","💓","💞"];
@@ -2230,10 +2215,8 @@ function spawnHearts(containerId) {
 function openShakeVideo() {
   const overlay = $("shake-overlay");
   const v = $("shakeVideo");
-  const done = $("trianDone");
 
   clearTimeout(trianTimer);
-  clearTimeout(trianDoneTimer);
   musicWasPlaying = !$("bgMusic").paused;
   $("bgMusic").pause();
 
@@ -2243,19 +2226,15 @@ function openShakeVideo() {
   v.load();
   v.classList.remove("loaded");
 
-  // Ẩn màn "ĐÃ LÀM TỐT R"
-  done.classList.remove("on");
-  const doneHearts = $("trianDoneHearts");
-  if (doneHearts) doneHearts.innerHTML = "";
-
   // Hiện overlay + hiệu ứng đỏ
   overlay.classList.remove("hide");
   overlay.classList.remove("red-pulse");
+  overlay.classList.remove("video-playing");
   void overlay.offsetWidth;
   overlay.classList.add("red-pulse");
 
   // 💖 Bắn tim bay lên
-  spawnHearts("trianHearts");
+  spawnHearts();
 
   // Sau TRIAN_RED_DURATION_MS → fade-in video
   trianTimer = setTimeout(() => {
@@ -2272,29 +2251,25 @@ function openShakeVideo() {
     v.src = TRIAN_VIDEO_SRC;
     v.classList.add("loaded");
     overlay.classList.remove("red-pulse");
+    overlay.classList.add("video-playing");   // ⏭ Hiện nút "Bỏ qua"
     v.play().catch(() => {});
   }, TRIAN_RED_DURATION_MS);
 }
 
 function closeShakeVideo() {
   clearTimeout(trianTimer);
-  clearTimeout(trianDoneTimer);
   trianTimer = null;
-  trianDoneTimer = null;
   const overlay = $("shake-overlay");
   const v = $("shakeVideo");
-  const done = $("trianDone");
   v.pause();
   v.removeAttribute("src");
   v.load();
   v.classList.remove("loaded");
-  done.classList.remove("on");
   overlay.classList.add("hide");
   overlay.classList.remove("red-pulse");
+  overlay.classList.remove("video-playing");   // ⏭ Ẩn nút "Bỏ qua"
   const heartsBox = $("trianHearts");
   if (heartsBox) heartsBox.innerHTML = "";
-  const doneHearts = $("trianDoneHearts");
-  if (doneHearts) doneHearts.innerHTML = "";
   if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
   musicWasPlaying = false;
 }
@@ -2305,14 +2280,12 @@ $("btnShake").onclick = function() {
 };
 $("btnShakeClose").onclick = closeShakeVideo;
 
-/* 🎬 Khi video kết thúc → hiện "ĐÃ LÀM TỐT R" + tim bay → tự đóng sau 3.5s */
+/* ⏭ Nút "Bỏ qua" — hiện khi video đang phát */
+$("btnShakeSkip").onclick = closeShakeVideo;
+
+/* 🎬 Video kết thúc → đóng overlay */
 $("shakeVideo").addEventListener("ended", () => {
-  const done = $("trianDone");
-  done.classList.add("on");
-  spawnHearts("trianDoneHearts");   // 💖 Bắn tim ở màn "ĐÃ LÀM TỐT R"
-  trianDoneTimer = setTimeout(() => {
-    closeShakeVideo();
-  }, TRIAN_DONE_DURATION_MS);
+  closeShakeVideo();
 });
 
 document.addEventListener("keydown", e => {
