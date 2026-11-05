@@ -1,11 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   ══════════════════════════════════════════════════════════════════════
-   ⚠️ V2.0 — Đã thêm API quản lý Announcements (tin tức)
-   ⚠️ V2.1 — Fix multi-admin: isAdminUsername() hỗ trợ ADMIN_LIST
-   
-   Import bởi: index.html, khoahoctunhien.html, Tower.html,
-               adminpanel.html, profile.html
+   V2.2 — Thêm API quản lý PROFANITY setting (toggle ở admin panel)
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -18,7 +13,8 @@ import {
   UNBAN_NODE, UNBAN_LOCAL_KEY, BAN_PREFIX,
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
   ANNOUNCEMENTS_NODE,
-  BAD_WORDS, ADMIN_USER, ADMIN_LIST,          // ⭐ V2.1 — thêm ADMIN_LIST
+  PROFANITY_LOCK_NODE,
+  BAD_WORDS, ADMIN_USER, ADMIN_LIST,
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
 
@@ -64,12 +60,6 @@ export function isAdminSession() {
   return !!(_session && _session.isAdmin === true);
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   ⭐ V2.1 — FIX MULTI-ADMIN
-   Kiểm tra username có nằm trong ADMIN_LIST (bất kỳ admin nào).
-   So khớp cả a.user LẪN a.profile.username → không phân biệt
-   hoa/thường, không phụ thuộc session lưu field nào.
-   ══════════════════════════════════════════════════════════════════════ */
 export function isAdminUsername(username) {
   const u = String(username || "").trim().toLowerCase();
   if (!u) return false;
@@ -349,12 +339,33 @@ export async function markCodeUsed(code, username) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   📢 ANNOUNCEMENTS — TIN TỨC / THÔNG BÁO
+   🔧 MỚI: KIỂM DUYỆT TỪ NGỮ — TOGGLE ADMIN
    ══════════════════════════════════════════════════════════════════════ */
+export async function checkProfanitySetting() {
+  if (!db) return false;
+  try {
+    const snap = await get(ref(db, PROFANITY_LOCK_NODE));
+    return snap.exists() && snap.val() === true;
+  } catch (e) {
+    console.warn("[core] checkProfanitySetting:", e);
+    return false;
+  }
+}
 
-/**
- * Lấy TOÀN BỘ thông báo, đã sắp xếp mới nhất trước.
- */
+export async function setProfanitySetting(enabled) {
+  if (!db || !isAdminSession()) return false;
+  try {
+    await set(ref(db, PROFANITY_LOCK_NODE), !!enabled);
+    return true;
+  } catch (e) {
+    console.warn("[core] setProfanitySetting:", e);
+    return false;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   📢 ANNOUNCEMENTS
+   ══════════════════════════════════════════════════════════════════════ */
 export async function getAnnouncements() {
   if (!db) return [];
   try {
@@ -374,9 +385,6 @@ export async function getAnnouncements() {
   }
 }
 
-/**
- * Tạo thông báo mới. CHỈ ADMIN mới gọi được.
- */
 export async function createAnnouncement(title, content, author = "Admin") {
   if (!db || !isAdminSession()) {
     console.warn("[core] createAnnouncement: chưa đăng nhập admin hoặc chưa có DB");
@@ -402,9 +410,6 @@ export async function createAnnouncement(title, content, author = "Admin") {
   }
 }
 
-/**
- * Xoá thông báo theo ID. CHỈ ADMIN mới gọi được.
- */
 export async function deleteAnnouncement(id) {
   if (!db || !isAdminSession() || !id) return false;
   try {
@@ -416,9 +421,6 @@ export async function deleteAnnouncement(id) {
   }
 }
 
-/**
- * Lấy thời điểm (epoch ms) của thông báo MỚI NHẤT.
- */
 export async function getLatestAnnouncementTime() {
   if (!db) return 0;
   try {
