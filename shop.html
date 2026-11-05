@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🛒 LDM Shop · Luyện Đề Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f4f8;--card:rgba(255,255,255,.85);--fg:#0f172a;--mut:#64748b;
+  --ac:#2563eb;--acs:#dbeafe;--ok:#16a34a;--oks:#dcfce7;--bad:#dc2626;--bads:#fee2e2;
+  --warn:#f59e0b;--warns:#fef3c7;--gold:#fbbf24;--fire1:#f97316;--fire2:#dc2626;
+  --ln:rgba(148,163,184,.3);--shadow:0 8px 32px rgba(0,0,0,.06);
+  --glass:blur(12px) saturate(180%);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1120;--card:rgba(30,41,59,.75);--fg:#f1f5f9;--mut:#94a3b8;
+  --ac:#3b82f6;--acs:rgba(59,130,246,.15);--ok:#22c55e;--oks:rgba(34,197,94,.15);
+  --bad:#ef4444;--bads:rgba(239,68,68,.15);--warn:#f59e0b;--warns:rgba(245,158,11,.15);
+  --ln:rgba(148,163,184,.15);--shadow:0 8px 32px rgba(0,0,0,.3);color-scheme:dark;
+}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;background-attachment:fixed;min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 20%,rgba(251,191,36,.08) 0%,transparent 40%),
+    radial-gradient(circle at 90% 80%,rgba(220,38,38,.08) 0%,transparent 40%);}
+main{max-width:800px;margin:0 auto;padding:20px 16px}
+h1{font-size:1.6rem;font-weight:900;margin:0 0 4px;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#fbbf24,#f97316,#dc2626);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.card{background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--ln);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.mut{color:var(--mut);font-size:.9rem}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;
+  background:var(--ac);color:#fff;transition:all .2s;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(1px)}
+button.g{background:transparent;color:var(--fg);border:1.5px solid var(--ln);box-shadow:none}
+button.g:hover{background:var(--acs);border-color:var(--ac)}
+button.sm{padding:6px 12px;font-size:.85rem}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+
+/* ═══ BALANCE CARD ═══ */
+.balance-card{
+  background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#f97316 100%);
+  color:#fff;border:0;position:relative;overflow:hidden}
+.balance-card::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.3) 0%,transparent 50%),
+             radial-gradient(circle at 80% 80%,rgba(255,255,255,.15) 0%,transparent 50%);
+  pointer-events:none}
+.balance-card h2{color:#fff;margin:0 0 4px;font-size:1rem;font-weight:700;opacity:.95;
+  position:relative;z-index:1}
+.balance-card .num{font-size:2.8rem;font-weight:900;letter-spacing:-.03em;line-height:1.1;
+  position:relative;z-index:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.balance-card .num small{font-size:1.1rem;font-weight:700;opacity:.9}
+.balance-card .hint{margin-top:8px;font-size:.82rem;opacity:.9;position:relative;z-index:1}
+
+/* ═══ PACK CARD ═══ */
+.pack-card{position:relative;border-radius:18px;padding:28px 24px;text-align:center;
+  overflow:hidden;transition:all .3s}
+.pack-card::before{content:"";position:absolute;inset:-2px;
+  background:linear-gradient(135deg,#f97316,#dc2626,#fbbf24,#dc2626,#f97316);
+  background-size:300% 300%;border-radius:20px;z-index:-1;
+  animation:fireBorder 4s ease infinite}
+.pack-card.owned::before{background:linear-gradient(135deg,#16a34a,#22c55e,#4ade80,#22c55e,#16a34a);
+  background-size:300% 300%}
+@keyframes fireBorder{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pack-card .pack-badge{display:inline-block;background:rgba(0,0,0,.4);color:#fff;
+  padding:4px 12px;border-radius:99px;font-size:.72rem;font-weight:800;
+  letter-spacing:.08em;margin-bottom:16px}
+.pack-card .pack-icon{font-size:5.5rem;line-height:1;margin-bottom:12px;
+  display:inline-block;filter:drop-shadow(0 0 20px rgba(249,115,22,.7));
+  animation:fireFlicker 1.6s ease-in-out infinite alternate}
+@keyframes fireFlicker{
+  0%{transform:scale(1) rotate(-2deg);
+    filter:drop-shadow(0 0 20px rgba(249,115,22,.7))}
+  100%{transform:scale(1.08) rotate(2deg);
+    filter:drop-shadow(0 0 35px rgba(220,38,38,1))}
+}
+.pack-card h3{margin:0 0 8px;font-size:1.5rem;font-weight:900;
+  background:linear-gradient(135deg,#f97316,#dc2626);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pack-card .pack-desc{color:var(--mut);font-size:.92rem;margin-bottom:20px;
+  line-height:1.65;max-width:340px;margin-left:auto;margin-right:auto}
+.pack-card .pack-desc b{color:var(--fg)}
+.pack-price{font-size:2rem;font-weight:900;color:var(--gold);
+  margin-bottom:20px;font-variant-numeric:tabular-nums;
+  text-shadow:0 2px 8px rgba(251,191,36,.4)}
+.pack-price small{font-size:.9rem;color:var(--mut);font-weight:600;
+  margin-left:4px;text-shadow:none}
+.pack-btn{width:100%;padding:14px;font-size:1rem;border-radius:12px;
+  background:linear-gradient(135deg,#f97316,#dc2626);
+  box-shadow:0 6px 20px rgba(220,38,38,.4)}
+.pack-btn:not(:disabled):hover{filter:brightness(1.1);
+  box-shadow:0 8px 28px rgba(220,38,38,.55)}
+.pack-btn.owned{background:linear-gradient(135deg,#16a34a,#22c55e);
+  box-shadow:0 6px 20px rgba(22,163,74,.4)}
+.pack-btn.insufficient{background:linear-gradient(135deg,#64748b,#475569);
+  box-shadow:none}
+.pack-btn.insufficient:hover{transform:none;filter:none}
+
+/* ═══ EARN ROWS ═══ */
+.earn-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+  padding:14px 16px;border-radius:12px;border:1px solid var(--ln);
+  background:rgba(255,255,255,.4);margin-bottom:10px;transition:all .15s}
+.earn-row:last-child{margin-bottom:0}
+.earn-row:hover{transform:translateX(4px);border-color:var(--ac)}
+.earn-row .emoji{font-size:1.7rem;line-height:1}
+.earn-row .label{font-weight:700;font-size:.92rem}
+.earn-row .label small{display:block;color:var(--mut);font-weight:500;
+  font-size:.78rem;margin-top:2px}
+.earn-row .reward{font-weight:900;color:var(--gold);
+  font-variant-numeric:tabular-nums;font-size:1rem;
+  background:rgba(251,191,36,.15);padding:4px 12px;border-radius:8px}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-100px);
+  background:var(--ok);color:#fff;padding:12px 24px;border-radius:99px;
+  font-weight:700;box-shadow:0 8px 24px rgba(22,163,74,.3);z-index:150;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  max-width:90vw;text-align:center;font-size:.9rem}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{background:var(--bad);box-shadow:0 8px 24px rgba(220,38,38,.3)}
+
+/* ═══ OVERLAY ═══ */
+#ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:rgba(15,23,42,.7);backdrop-filter:blur(6px)}
+#ov.hide{display:none}
+.lbox{background:var(--card);border:1px solid var(--ln);border-radius:16px;
+  padding:32px;display:flex;flex-direction:column;align-items:center;
+  gap:16px;min-width:240px;text-align:center}
+.spinner{width:40px;height:40px;border-radius:50%;border:3px solid var(--ln);
+  border-top-color:var(--ac);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ MODAL ═══ */
+.mask{position:fixed;inset:0;background:rgba(15,23,42,.65);
+  backdrop-filter:blur(4px);display:none;place-items:center;padding:16px;z-index:100}
+.mask.on{display:grid}
+.mask .modal{background:var(--card);border:1px solid var(--ln);
+  border-radius:16px;padding:24px;max-width:400px;width:100%;text-align:center;
+  animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.confirm-icon{font-size:4rem;margin-bottom:12px;
+  filter:drop-shadow(0 4px 12px rgba(249,115,22,.4));
+  animation:iconPulse 1.5s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.confirm-title{font-size:1.25rem;font-weight:800;margin-bottom:12px}
+.confirm-body{color:var(--fg);font-size:.92rem;line-height:1.7;
+  margin-bottom:20px;padding:14px;background:var(--acs);
+  border-radius:10px;border-left:3px solid var(--ac);text-align:left}
+.confirm-body b{color:var(--ac)}
+.confirm-body .price{color:var(--gold);font-weight:900;font-size:1.05rem}
+.confirm-body .warn{color:var(--bad);font-weight:700;display:block;margin-top:8px}
+.confirm-actions{display:flex;gap:10px}
+.confirm-actions button{flex:1;padding:12px}
+.confirm-actions .buy{background:linear-gradient(135deg,#f97316,#dc2626);
+  box-shadow:0 4px 16px rgba(220,38,38,.4)}
+
+/* ═══ SUCCESS MODAL ═══ */
+.success-icon{font-size:5rem;margin-bottom:16px;
+  animation:successBounce .8s cubic-bezier(.34,1.56,.64,1)}
+@keyframes successBounce{
+  0%{transform:scale(0) rotate(-180deg)}
+  50%{transform:scale(1.2) rotate(10deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+.success-title{font-size:1.5rem;font-weight:900;margin-bottom:8px;
+  color:var(--ok)}
+.success-desc{color:var(--mut);font-size:.9rem;line-height:1.6;margin-bottom:20px}
+
+/* ═══ LOADING STATE ═══ */
+.loading-state{text-align:center;padding:40px 20px;color:var(--mut)}
+.loading-state .spinner{margin:0 auto 16px}
+
+/* ═══ EMPTY ═══ */
+.empty-notice{text-align:center;padding:20px;color:var(--mut);
+  font-style:italic;font-size:.9rem}
+
+@media (max-width:480px){
+  h1{font-size:1.4rem}
+  .balance-card .num{font-size:2.2rem}
+  .pack-card{padding:24px 18px}
+  .pack-card .pack-icon{font-size:4.5rem}
+  .pack-card h3{font-size:1.3rem}
+  .earn-row{padding:12px 14px;gap:10px}
+  .earn-row .emoji{font-size:1.5rem}
+  .earn-row .label{font-size:.85rem}
+  .earn-row .reward{font-size:.9rem;padding:3px 10px}
+}
+</style>
+</head>
+<body>
+
+<main>
+  <!-- ═══ HEADER ═══ -->
+  <div class="top" style="margin-bottom:16px">
+    <div>
+      <h1>🛒 LDM Shop</h1>
+      <div class="mut" style="font-size:.85rem">Mua sắm vật phẩm & trang bị cho hồ sơ của bạn</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="g sm" onclick="location.href='/profile'">👤 Profile</button>
+      <button class="g sm" onclick="location.href='/'">🏠 Trang chủ</button>
+    </div>
+  </div>
+
+  <!-- ═══ SỐ DƯ ═══ -->
+  <div class="card balance-card">
+    <h2>💰 Số dư hiện tại</h2>
+    <div class="num">
+      <span id="coinBalance">—</span>
+      <small>LDM</small>
+    </div>
+    <div class="hint" id="earnHint">Đang tải thông tin...</div>
+  </div>
+
+  <!-- ═══ PACK FIRE ═══ -->
+  <div id="packsContainer">
+    <div class="pack-card" id="firePackCard">
+      <div class="pack-badge">🔥 HOT PACK</div>
+      <div class="pack-icon">🔥</div>
+      <h3>PACK FIRE</h3>
+      <div class="pack-desc">
+        Trang bị <b>nền lửa rực cháy</b> cho hồ sơ của bạn.<br>
+        Hiệu ứng lửa bốc cháy + tia lửa bay khắp profile — cực chất!
+      </div>
+      <div class="pack-price">499 <small>LDM</small></div>
+      <button class="pack-btn" id="btnBuyFire" disabled>Đang tải...</button>
+    </div>
+  </div>
+
+  <!-- ═══ CÁCH KIẾM LDM ═══ -->
+  <div class="card">
+    <h2 style="margin:0 0 4px;font-size:1.15rem">💡 Cách kiếm LDM</h2>
+    <div class="mut" style="margin-bottom:16px;font-size:.85rem">
+      Tham gia học tập và chơi game để tích luỹ LDM
+    </div>
+
+    <div class="earn-row">
+      <div class="emoji">📚</div>
+      <div class="label">
+        Hoàn thành 1 bài thi
+        <small>Bất kỳ môn nào, điểm nào cũng được</small>
+      </div>
+      <div class="reward">+10 LDM</div>
+    </div>
+
+    <div class="earn-row">
+      <div class="emoji">⭐</div>
+      <div class="label">
+        Đạt điểm 10 tuyệt đối
+        <small>Bonus thêm khi perfect score</small>
+      </div>
+      <div class="reward">+40 LDM</div>
+    </div>
+
+    <div class="earn-row">
+      <div class="emoji">🏰</div>
+      <div class="label">
+        Chinh phục tầng tháp
+        <small>Mỗi tầng leo được trong Tower</small>
+      </div>
+      <div class="reward">+3 LDM</div>
+    </div>
+
+    <div class="earn-row">
+      <div class="emoji">📅</div>
+      <div class="label">
+        Đăng nhập hàng ngày
+        <small>Điểm danh mỗi ngày 1 lần</small>
+      </div>
+      <div class="reward">+15 LDM</div>
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;font-size:.85rem;color:var(--mut);padding:16px">
+    💡 LDM là tiền tệ trong hệ thống Luyện Đề Master.<br>
+    Sau khi mua, vào <a href="/profile" style="color:var(--ac);font-weight:700">Profile → Nền hồ sơ</a> để bật nền lửa.
+  </div>
+</main>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="mask" id="confirmMask">
+  <div class="modal">
+    <div class="confirm-icon">🔥</div>
+    <div class="confirm-title" id="cfTitle">Xác nhận mua</div>
+    <div class="confirm-body" id="cfBody"></div>
+    <div class="confirm-actions">
+      <button class="g" id="cfNo">Hủy</button>
+      <button class="buy" id="cfYes">Mua</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUCCESS MODAL ═══ -->
+<div class="mask" id="successMask">
+  <div class="modal">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Mua thành công!</div>
+    <div class="success-desc">
+      Bạn đã sở hữu <b>PACK FIRE</b>.<br>
+      Vào trang Profile để bật nền lửa ngay!
+    </div>
+    <button style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e)"
+            onclick="location.href='/profile'">👤 Vào Profile ngay</button>
+    <button class="g" style="width:100%;margin-top:8px" id="btnCloseSuccess">Ở lại Shop</button>
+  </div>
+</div>
+
+<div id="ov" class="hide">
+  <div class="lbox">
+    <div class="spinner"></div>
+    <div id="ovtxt" style="font-weight:600">Đang xử lý…</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {
+  db, loadSession,
+  getUserCoins, buyPack, getOwnedPacks, SHOP_ITEMS
+} from '/js/core.js';
+
+const $ = id => document.getElementById(id);
+const session = loadSession();
+
+/* ═══ HELPERS ═══ */
+function showToast(msg, isErr) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isErr ? " error" : "");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove("show"), 3500);
+}
+function ovOn(t) {
+  $("ovtxt").textContent = t || "Đang xử lý…";
+  $("ov").classList.remove("hide");
+}
+function ovOff() { $("ov").classList.add("hide"); }
+
+/* ═══ REFRESH UI ═══ */
+async function refreshUI() {
+  // Chưa login
+  if (!session || !session.username) {
+    $("coinBalance").textContent = "0";
+    $("earnHint").innerHTML =
+      '⚠️ Bạn cần <a href="/" style="color:#fff;text-decoration:underline;font-weight:800">đăng nhập</a> để mua hàng';
+    const btn = $("btnBuyFire");
+    btn.disabled = true;
+    btn.textContent = "🔒 Cần đăng nhập";
+    btn.classList.add("insufficient");
+    return;
+  }
+
+  try {
+    const [coins, owned] = await Promise.all([
+      getUserCoins(session.username),
+      getOwnedPacks(session.username)
+    ]);
+
+    $("coinBalance").textContent = coins.toLocaleString("vi-VN");
+
+    const price = SHOP_ITEMS.pack_fire.price;
+    const gap = Math.max(0, price - coins);
+
+    if (gap > 0) {
+      $("earnHint").textContent = `Chào ${session.name || session.username}! Cần thêm ${gap.toLocaleString("vi-VN")} LDM để mua PACK FIRE`;
+    } else {
+      $("earnHint").textContent = `Chào ${session.name || session.username}! Bạn đủ LDM để mua PACK FIRE 🎉`;
+    }
+
+    const btn = $("btnBuyFire");
+    const card = $("firePackCard");
+
+    if (owned.includes("pack_fire")) {
+      btn.textContent = "✓ Đã sở hữu";
+      btn.disabled = true;
+      btn.classList.remove("insufficient");
+      btn.classList.add("owned");
+      card.classList.add("owned");
+    } else if (coins >= price) {
+      btn.textContent = "🔥 Mua ngay";
+      btn.disabled = false;
+      btn.classList.remove("owned", "insufficient");
+    } else {
+      btn.textContent = `Thiếu ${gap.toLocaleString("vi-VN")} LDM`;
+      btn.disabled = true;
+      btn.classList.remove("owned");
+      btn.classList.add("insufficient");
+    }
+  } catch(e) {
+    console.error("[shop] refreshUI error:", e);
+    showToast("Lỗi tải số dư: " + e.message, true);
+    $("coinBalance").textContent = "?";
+  }
+}
+
+/* ═══ CONFIRM BOX ═══ */
+function confirmBox(title, body, onYes) {
+  $("cfTitle").textContent = title;
+  $("cfBody").innerHTML = body;
+  $("confirmMask").classList.add("on");
+
+  const cleanup = () => {
+    $("cfNo").onclick = null;
+    $("cfYes").onclick = null;
+    $("confirmMask").classList.remove("on");
+  };
+  $("cfNo").onclick = cleanup;
+  $("cfYes").onclick = async () => {
+    cleanup();
+    await onYes();
+  };
+}
+
+/* ═══ BUY HANDLER ═══ */
+$("btnBuyFire").onclick = () => {
+  if (!session || !session.username) {
+    showToast("Vui lòng đăng nhập trước!", true);
+    return;
+  }
+
+  confirmBox(
+    "🔥 Mua PACK FIRE?",
+    `Bạn sẽ mua <b>PACK FIRE</b> với giá <span class="price">499 LDM</span>.<br><br>
+    Sau khi mua, bạn có thể chọn nền lửa trong trang <b>Profile → Nền hồ sơ</b>.
+    <span class="warn">⚠️ Không thể hoàn tiền!</span>`,
+    async () => {
+      ovOn("Đang xử lý giao dịch…");
+      try {
+        const result = await buyPack(session.username, "pack_fire");
+        ovOff();
+
+        if (result.ok) {
+          $("successMask").classList.add("on");
+          await refreshUI();
+        } else {
+          showToast("❌ " + result.reason, true);
+        }
+      } catch(e) {
+        ovOff();
+        showToast("Lỗi: " + e.message, true);
+      }
+    }
+  );
+};
+
+/* ═══ SUCCESS MODAL CLOSE ═══ */
+$("btnCloseSuccess").onclick = () => {
+  $("successMask").classList.remove("on");
+};
+$("successMask").onclick = (e) => {
+  if (e.target === $("successMask")) {
+    $("successMask").classList.remove("on");
+  }
+};
+
+/* ═══ ESCAPE TO CLOSE ═══ */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    $("confirmMask").classList.remove("on");
+    $("successMask").classList.remove("on");
+  }
+});
+
+/* ═══ INIT ═══ */
+refreshUI();
+</script>
+</body>
+</html>
