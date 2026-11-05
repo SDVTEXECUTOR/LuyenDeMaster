@@ -306,17 +306,57 @@ border-bottom: 1px solid var(--ln);
 width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 .song-item span { font-weight: 500; font-size: 0.95rem; }
-#shake-overlay{position:fixed;inset:0;z-index:1100;background:#000;display:flex;align-items:center;justify-content:center}
-#shake-overlay video{width:100%;height:100%;object-fit:contain;background:#000}
-.shaking{animation:shakeAnim .6s cubic-bezier(.36,.07,.19,.97)}
-@keyframes shakeAnim{
-0%,100%{transform:translateX(0) rotate(0)}
-15%{transform:translateX(-14px) rotate(-2deg)}
-30%{transform:translateX(12px) rotate(2deg)}
-45%{transform:translateX(-10px) rotate(-1deg)}
-60%{transform:translateX(8px) rotate(1deg)}
-80%{transform:translateX(-4px)}
+
+/* ═══════════════════════════════════════════════════
+   ❤️ TRI ÂN OVERLAY — Màn hình đỏ + video
+   ═══════════════════════════════════════════════════ */
+#shake-overlay {
+  position: fixed; inset: 0; z-index: 1100;
+  background: radial-gradient(circle at center, #ff2222 0%, #7f1d1d 100%);
+  display: flex; align-items: center; justify-content: center;
+  animation: trianRedIntro 1.4s ease;
 }
+#shake-overlay.red-pulse {
+  animation: trianRedPulse 1.4s ease;
+}
+@keyframes trianRedIntro {
+  0%   { background: radial-gradient(circle at center, #ff0000 0%, #450a0a 100%); }
+  40%  { background: radial-gradient(circle at center, #ff4444 0%, #7f1d1d 100%); }
+  100% { background: radial-gradient(circle at center, #dc2626 0%, #991b1b 100%); }
+}
+@keyframes trianRedPulse {
+  0%   { background: radial-gradient(circle at center, #ff0000 0%, #450a0a 100%); opacity: 1; }
+  25%  { background: radial-gradient(circle at center, #ff6666 0%, #7f1d1d 100%); }
+  50%  { background: radial-gradient(circle at center, #ef4444 0%, #991b1b 100%); }
+  75%  { background: radial-gradient(circle at center, #dc2626 0%, #7f1d1d 100%); }
+  100% { background: radial-gradient(circle at center, #b91c1c 0%, #450a0a 100%); }
+}
+#shake-overlay .trian-heart {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(6rem, 25vw, 14rem);
+  line-height: 1;
+  pointer-events: none;
+  animation: trianHeart 1.4s cubic-bezier(.2,.8,.2,1);
+  filter: drop-shadow(0 0 40px rgba(255,255,255,0.5));
+}
+@keyframes trianHeart {
+  0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  40%  { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  60%  { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+  80%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+}
+#shake-overlay video {
+  width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; transition: opacity 0.6s ease;
+  background: transparent;
+}
+#shake-overlay video.loaded {
+  opacity: 1; background: #000;
+}
+#shake-overlay .btn-back-float { z-index: 12; }
+
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
@@ -418,6 +458,15 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 .user-card.me .user-action { background: var(--ok); }
 .user-card:hover .user-action { transform: translateX(2px); }
+
+/* 🔧 LOGO CSS */
+.brand-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--acs); color: var(--ac);
+  border-radius: 12px; padding: 8px; margin-right: 12px;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.15);
+}
+.brand-logo svg { width: 28px; height: 28px; }
 </style>
 </head>
 <body>
@@ -492,10 +541,11 @@ window.__showFatalError(msg);
 <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
 
-<!-- Shake overlay -->
+<!-- ❤️ Tri ân overlay -->
 <div id="shake-overlay" class="hide">
-<button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
-<video id="shakeVideo" playsinline controls></video>
+  <div class="trian-heart" id="trianHeart">❤️</div>
+  <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
+  <video id="shakeVideo" playsinline controls></video>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -505,8 +555,14 @@ window.__showFatalError(msg);
 <section id="auth" class="hide">
 <div style="display:flex;min-height:70vh;align-items:center;justify-content:center;padding:24px 0">
 <div class="card" style="max-width:440px;width:100%;text-align:center">
-<div style="font-size:3rem;margin-bottom:8px"></div>
-<h1>Luyện Đề Trắc Nghiệm</h1>
+<!-- 🔧 LOGO -->
+<div class="brand-logo" style="margin:0 auto 12px; width:64px; height:64px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+  </svg>
+</div>
+<h1>Luyện Đề Master</h1>
 <div class="mut">Trường TH&THCS Tân Trụ · Năm học 2026–2027</div>
 <div style="display:flex;gap:6px;background:var(--ln);border-radius:10px;padding:4px;margin:20px 0 4px">
 <button class="tabbtn active" id="atLogin" type="button">Đăng nhập</button>
@@ -532,19 +588,30 @@ window.__showFatalError(msg);
 
 <!-- App -->
 <section id="app" class="hide">
-<div class="card">
+<div class="card" style="padding:16px 20px">
 <div class="top">
+<div style="display:flex; align-items:center; gap:12px;">
+<!-- 🔧 LOGO HEADER -->
+<div class="brand-logo" style="padding:6px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+  </svg>
+</div>
 <div>
-<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-<strong id="hiName" style="font-size:1.1rem"></strong>
-<button class="sm g" id="btnProfile" type="button" style="border-color:var(--ac);color:var(--ac)">👤 Profile</button>
-<button class="sm g" id="btnNews" type="button" style="border-color:var(--ac);color:var(--ac)">📢 News <span id="newsBadge" class="news-badge-dot hide">!</span></button>
-<button class="sm" id="btnShake" type="button">📳 Lắc</button>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<!-- 🔧 XIN CHÀO -->
+<strong id="hiName" style="font-size:1.15rem;color:var(--ac)">Xin chào!</strong>
+<button class="sm g" id="btnProfile" type="button" style="border-color:var(--ac);color:var(--ac); padding:4px 10px">👤 Profile</button>
+<button class="sm g" id="btnNews" type="button" style="border-color:var(--ac);color:var(--ac); padding:4px 10px">📢 News <span id="newsBadge" class="news-badge-dot hide">!</span></button>
+<!-- ❤️ ĐÃ ĐỔI: Lắc → Tri ân -->
+<button class="sm" id="btnShake" type="button" style="padding:4px 12px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; box-shadow:0 4px 12px rgba(220,38,38,0.35); border:0;">❤️ Tri ân</button>
 </div>
-<div class="mut" id="hiSub"></div>
-<div class="mut" id="liveClock" style="font-size:0.85rem; margin-top:4px; font-weight:600; color: var(--ac);"></div>
+<div class="mut" id="hiSub" style="font-size:0.85rem"></div>
+<div class="mut" id="liveClock" style="font-size:0.8rem; margin-top:2px; font-weight:600; color: var(--mut);"></div>
 </div>
-<button class="g sm" id="logout">Đăng xuất</button>
+</div>
+<button class="g sm" id="logout" style="padding:8px 12px">Đăng xuất</button>
 </div>
 </div>
 <div class="tabs">
@@ -634,7 +701,7 @@ window.__showFatalError(msg);
       <button class="g sm" id="btnRefreshCommunity" type="button">🔄 Làm mới</button>
     </div>
     <div class="toolbar" style="margin-bottom:12px">
-      <input type="text" id="communitySearch" placeholder="🔍 Tìm theo tên, username hoặc lớp..." autocomplete="off">
+      <input type="text" id="communitySearch" placeholder="🔍 Tìm theo tên, username hoặc lớp..." autocomplete="off" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--ln);background:rgba(255,255,255,0.5);color:var(--fg);">
     </div>
     <div id="communityGrid">
       <div class="skel"></div><div class="skel"></div><div class="skel"></div>
@@ -918,7 +985,7 @@ const {
 findAdmin,
 TAB_SWITCH_WARN, SUSPICIOUS_TIME_MS,
 SUBJECTS_META, LEADERBOARD_SUBJECTS_META,
-SHAKE_VIDEO, NEWS_LAST_SEEN_KEY
+NEWS_LAST_SEEN_KEY
 } = configMod;
 const { ref, push, set, get, serverTimestamp, runTransaction, remove, update } = firebaseMod;
 
@@ -940,6 +1007,12 @@ const $ = id => {
   return el;
 };
 const L = "ABCD";
+
+/* ══════════════════════════════════════════════════════════════════
+   ❤️ TRI ÂN — Video tri ân (đường dẫn mới)
+   ══════════════════════════════════════════════════════════════════ */
+const TRIAN_VIDEO_SRC = "cutscene/trian.mp4";
+const TRIAN_RED_DURATION_MS = 1400;   // thời gian hiện màn hình đỏ trước khi phát video
 
 const ANN_NODE = "config/announcements";
 const NEWS_LAST_SEEN = NEWS_LAST_SEEN_KEY || "qp_news_last_seen";
@@ -1099,7 +1172,6 @@ $("atRegister").classList.add("active"); $("atLogin").classList.remove("active")
 $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
 };
 
-/* Đăng ký — chỉ kiểm duyệt khi admin BẬT toggle */
 async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (findAdmin(u)) throw new Error("Tên đăng nhập đã tồn tại.");
@@ -1302,8 +1374,11 @@ showBanScreen(session.name);
 return;
 }
 $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
-$("hiName").textContent = "👋 Xin chào, " + session.name;
+
+// 🔧 CẬP NHẬT LỜI CHÀO + TÊN
+$("hiName").textContent = "👋 Xin chào, " + session.name + "!";
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 
@@ -1375,7 +1450,6 @@ snap.forEach(ch => {
 const v = ch.val();
 if (!v || v.type !== "quiz_result") return;
 const rawName = v.name || v.username || "";
-/* Chỉ ẩn/ban khi admin bật kiểm duyệt */
 if (PROFANITY_ON && checkProfanity(rawName)) {
 toDelete.push(ch.key);
 if (session && normText(session.name) === normText(rawName)) {
@@ -1433,9 +1507,7 @@ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div
 }
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   CỘNG ĐỒNG — DANH SÁCH HỌC SINH
-   ══════════════════════════════════════════════════════════════════ */
+/* CỘNG ĐỒNG */
 let allCommunityUsers = [];
 let communityLoaded = false;
 
@@ -2047,30 +2119,72 @@ if (el) el.textContent = ` ${days[now.getDay()]}, ${now.toLocaleDateString("vi-V
 setInterval(updateClock, 1000);
 updateClock();
 
+/* ══════════════════════════════════════════════════════════════════
+   ❤️ TRI ÂN — MÀN HÌNH ĐỎ + VIDEO
+   ══════════════════════════════════════════════════════════════════ */
 let musicWasPlaying = false;
+let trianTimer = null;
+
 function openShakeVideo() {
-const v = $("shakeVideo");
-musicWasPlaying = !$("bgMusic").paused;
-$("bgMusic").pause();
-v.src = SHAKE_VIDEO;
-$("shake-overlay").classList.remove("hide");
-v.play().catch(() => {});
+  const overlay = $("shake-overlay");
+  const v = $("shakeVideo");
+  const heart = $("trianHeart");
+
+  clearTimeout(trianTimer);
+  musicWasPlaying = !$("bgMusic").paused;
+  $("bgMusic").pause();
+
+  // Reset video
+  v.pause();
+  v.removeAttribute("src");
+  v.load();
+  v.classList.remove("loaded");
+
+  // Reset heart animation (force reflow để restart animation)
+  if (heart) {
+    heart.style.animation = "none";
+    void heart.offsetHeight;
+    heart.style.animation = "";
+  }
+
+  // Hiện overlay + hiệu ứng đỏ
+  overlay.classList.remove("hide");
+  overlay.classList.remove("red-pulse");
+  void overlay.offsetWidth;
+  overlay.classList.add("red-pulse");
+
+  // Sau TRIAN_RED_DURATION_MS → load & fade-in video
+  trianTimer = setTimeout(() => {
+    v.src = TRIAN_VIDEO_SRC;
+    v.classList.add("loaded");
+    overlay.classList.remove("red-pulse");
+    v.play().catch(() => {});
+  }, TRIAN_RED_DURATION_MS);
 }
+
 function closeShakeVideo() {
-const v = $("shakeVideo");
-v.pause(); v.removeAttribute("src"); v.load();
-$("shake-overlay").classList.add("hide");
-if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
-musicWasPlaying = false;
+  clearTimeout(trianTimer);
+  trianTimer = null;
+  const overlay = $("shake-overlay");
+  const v = $("shakeVideo");
+  v.pause();
+  v.removeAttribute("src");
+  v.load();
+  v.classList.remove("loaded");
+  overlay.classList.add("hide");
+  overlay.classList.remove("red-pulse");
+  if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
+  musicWasPlaying = false;
 }
+
 $("btnShake").onclick = function() {
-const m = document.querySelector("main");
-m.classList.add("shaking");
-setTimeout(() => { m.classList.remove("shaking"); openShakeVideo(); }, 600);
+  openShakeVideo();
 };
 $("btnShakeClose").onclick = closeShakeVideo;
 $("shakeVideo").addEventListener("ended", closeShakeVideo);
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo(); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("shake-overlay").classList.contains("hide")) closeShakeVideo();
+});
 
 function openFrameOverlay(src) {
 $("video-frame").src = src;
