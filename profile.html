@@ -63,8 +63,9 @@ h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; alig
   width: 90px; height: 90px; border-radius: 50%; background: var(--acs);
   display: grid; place-items: center; font-size: 2.8rem; margin: 0 auto 12px;
   border: 3px solid var(--card); box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  overflow: hidden; position: relative;
+  overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s;
 }
+.avatar-lg:hover { transform: scale(1.05); }
 .avatar-lg img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
 .profile-user { color: var(--ac); font-weight: 600; font-size: 0.95rem; margin: 4px 0; }
@@ -204,6 +205,27 @@ textarea { resize: vertical; min-height: 80px; }
 .skel { height: 20px; border-radius: 6px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .empty-hint { padding: 20px; text-align: center; color: var(--mut); font-style: italic; }
+
+/* 🔧 MỚI: CSS CHO LIGHTBOX XEM FULL ẢNH VUÔNG */
+.avatar-lightbox {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  display: none; place-items: center; padding: 20px; cursor: zoom-out;
+}
+.avatar-lightbox.on { display: grid; }
+.avatar-lightbox-content {
+  width: 90vw; max-width: 500px; aspect-ratio: 1 / 1;
+  background: var(--card); border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center;
+  overflow: hidden; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.avatar-lightbox-content img {
+  width: 100%; height: 100%; object-fit: contain; background: #fff;
+}
+.avatar-lightbox-content .emoji-large {
+  font-size: 15rem; line-height: 1;
+}
 </style>
 </head>
 <body>
@@ -214,7 +236,7 @@ textarea { resize: vertical; min-height: 80px; }
   <button class="g sm" onclick="window.location.href='index.html'" style="margin-bottom: 16px;">← Quay lại trang chủ</button>
 
   <div class="card profile-header">
-    <div class="avatar-lg" id="pAvatar">🐱</div>
+    <div class="avatar-lg" id="pAvatar" title="Bấm để xem ảnh to">🐱</div>
     <h1 class="profile-name" id="pName">Đang tải...</h1>
     <div class="profile-user" id="pUser">@username · Lớp</div>
     <div id="publicNote" class="hide" style="display:inline-block;margin:8px 0 0;padding:4px 12px;background:var(--acs);color:var(--ac);border-radius:8px;font-size:0.78rem;font-weight:700">
@@ -262,6 +284,9 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="badge-grid" id="badgeGrid"></div>
   </div>
 </main>
+
+<!-- 🔧 MỚI: Khung chứa ảnh Full -->
+<div class="avatar-lightbox" id="avatarLightbox"></div>
 
 <div class="mask" id="badgeMask">
   <div class="card" style="max-width: 400px; text-align: center;">
@@ -335,12 +360,9 @@ async function sha256Hex(str) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-/* ══════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════
    URL PARSING
-   /profile          → hồ sơ của mình (canEdit = true)
-   /profile_foo      → hồ sơ người khác (canEdit = false)
-   /profile_me (nếu me = session.username) → coi như của mình
-   ══════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════ */
 const session = loadSession();
 const rawPath = location.pathname;
 const ownPaths = ["/profile", "/profile/", "/profile.html"];
@@ -385,9 +407,6 @@ const isPublicView = !canEdit;
 const myName = canEdit ? (session.name || session.username) : viewedUsername;
 const myCls  = canEdit ? (session.cls || "") : "";
 
-/* ══════════════════════════════════════════════════════════════════
-   TIÊU ĐỀ & UI PUBLIC VIEW
-   ══════════════════════════════════════════════════════════════════ */
 document.title = isPublicView
   ? `Hồ sơ · ${viewedUsername} · Luyện Đề Master`
   : "Hồ Sơ Cá Nhân · Luyện Đề Master";
@@ -398,9 +417,9 @@ if (isPublicView) {
   $("streakBanner").style.display = "none";
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   STATE
-   ══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════
+   STATE & LOGIC PHỤ
+   ══════════════════════════════════════════════════════════════════════ */
 let currentProfile = { avatar: "🐱", avatarImg: "", bio: "" };
 let currentAchievements = {};
 let currentAchievementDates = {};
@@ -964,9 +983,32 @@ function openBadgeDetail(id) {
 $("badgeClose").onclick = () => $("badgeMask").classList.remove("on");
 $("badgeMask").onclick = (e) => { if (e.target === $("badgeMask")) $("badgeMask").classList.remove("on"); };
 
-/* ══════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════
+   🔧 MỚI: CLICK AVATAR ĐỂ ZOOM FULL ẢNH
+   ══════════════════════════════════════════════════════════════════════ */
+$("pAvatar").onclick = () => {
+  const lightbox = $("avatarLightbox");
+  
+  if (currentProfile.avatarImg) {
+    lightbox.innerHTML = `<div class="avatar-lightbox-content"><img src="${currentProfile.avatarImg}" alt="avatar"></div>`;
+  } else if (currentProfile.avatar) {
+    lightbox.innerHTML = `<div class="avatar-lightbox-content"><div class="emoji-large">${currentProfile.avatar}</div></div>`;
+  } else {
+    return;
+  }
+  
+  lightbox.classList.add("on");
+};
+
+$("avatarLightbox").onclick = (e) => {
+  if (e.target === $("avatarLightbox")) {
+    $("avatarLightbox").classList.remove("on");
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════
    CHỈNH SỬA PROFILE (chỉ khi canEdit)
-   ══════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════ */
 let selectedAvatar = "🐱";
 let selectedAvatarImg = "";
 
@@ -1089,9 +1131,9 @@ $("saveEdit").onclick = async () => {
   }
 };
 
-/* ══════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════
    SHARE + ĐỔI MẬT KHẨU
-   ══════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════ */
 if ($("btnShare")) $("btnShare").onclick = async () => {
   const url = `${location.origin}/profile_${encodeURIComponent(viewedUsername)}`;
   try {
