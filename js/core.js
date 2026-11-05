@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.2 — Thêm API quản lý PROFANITY setting (toggle ở admin panel)
+   V2.3 — Fix lỗi xung đột cache config.js (Hardcode PROFANITY_LOCK_NODE)
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -13,10 +13,14 @@ import {
   UNBAN_NODE, UNBAN_LOCAL_KEY, BAN_PREFIX,
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
   ANNOUNCEMENTS_NODE,
-  PROFANITY_LOCK_NODE,
   BAD_WORDS, ADMIN_USER, ADMIN_LIST,
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
+
+/* ══════════════════════════════════════════════════════════════════════
+   🔧 FIX: Khai báo trực tiếp tại đây để tránh lỗi cache từ config.js
+   ══════════════════════════════════════════════════════════════════════ */
+const PROFANITY_LOCK_NODE = "config/profanityEnabled";
 
 let _db = null;
 try {
@@ -339,7 +343,7 @@ export async function markCodeUsed(code, username) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   🔧 MỚI: KIỂM DUYỆT TỪ NGỮ — TOGGLE ADMIN
+   KIỂM DUYỆT TỪ NGỮ — SETTING TOGGLE
    ══════════════════════════════════════════════════════════════════════ */
 export async function checkProfanitySetting() {
   if (!db) return false;
