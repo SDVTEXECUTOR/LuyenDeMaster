@@ -409,6 +409,15 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   to   { opacity: 1;   transform: scale(1.15); }
 }
 
+/* 💖 Tim bay trong màn "ĐÃ LÀM TỐT R" — nằm dưới chữ */
+.trian-done .trian-hearts {
+  z-index: 0;
+}
+.trian-done-text {
+  position: relative;
+  z-index: 1;
+}
+
 .card.link{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
@@ -599,6 +608,7 @@ window.__showFatalError(msg);
   <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
   <video id="shakeVideo" playsinline controls></video>
   <div class="trian-done" id="trianDone">
+    <div class="trian-hearts" id="trianDoneHearts"></div>
     <div class="trian-done-text">ĐÃ LÀM TỐT R</div>
   </div>
 </div>
@@ -1067,8 +1077,10 @@ const L = "ABCD";
    ❤️ TRI ÂN — cấu hình
    ══════════════════════════════════════════════════════════════════ */
 const TRIAN_VIDEO_SRC = "cutscene/trian.mp4";
-const TRIAN_RED_DURATION_MS = 1400;   // thời gian hiện màn đỏ + tim bay trước khi phát video
-const TRIAN_DONE_DURATION_MS = 3500;  // thời gian hiện "ĐÃ LÀM TỐT R" sau khi video xong
+const TRIAN_RED_DURATION_MS = 1400;      // thời gian hiện màn đỏ + tim bay trước khi phát video
+const TRIAN_DONE_DURATION_MS = 3500;     // thời gian hiện "ĐÃ LÀM TỐT R" sau khi video xong
+const TRIAN_LOW_SCORE_THRESHOLD = 7;     // điểm < 7 → tự động chạy video
+const TRIAN_LOW_SCORE_DELAY_MS = 3000;   // delay trước khi auto-chạy (để user xem điểm)
 
 const ANN_NODE = "config/announcements";
 const NEWS_LAST_SEEN = NEWS_LAST_SEEN_KEY || "qp_news_last_seen";
@@ -1692,6 +1704,7 @@ ans = Q.map(() => []);
 cur = 0;
 t0 = Date.now();
 autoSubmitTriggered = false;
+trianAutoTriggered = false;
 let modeLabel = "";
 if (currentMode === 'manual') modeLabel = " (Ghi)";
 else if (currentMode === 'memory') modeLabel = " (Ghi nhớ)";
@@ -2100,6 +2113,18 @@ else if (currentMode === 'memory') finalSubject = 'diali_memory';
 else finalSubject = 'diali_choice';
 }
 saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
+
+/* ❤️ Nếu điểm < 7 → tự động bật video tri ân để động viên (sau 3s xem điểm) */
+if (sc < TRIAN_LOW_SCORE_THRESHOLD && !isAdminSession() && !trianAutoTriggered) {
+  trianAutoTriggered = true;
+  setTimeout(() => {
+    if ($("result").classList.contains("hide")) return;          // đã rời trang kết quả
+    if (!$("shake-overlay").classList.contains("hide")) return;  // overlay đang mở
+    if (Date.now() - lastTrianOpen < 5000) return;               // user vừa mở thủ công < 5s
+    lastTrianOpen = Date.now();
+    openShakeVideo();
+  }, TRIAN_LOW_SCORE_DELAY_MS);
+}
 }
 
 async function saveAndRefresh(res) {
@@ -2181,10 +2206,12 @@ updateClock();
 let musicWasPlaying = false;
 let trianTimer = null;
 let trianDoneTimer = null;
+let lastTrianOpen = 0;            // timestamp lần cuối mở tri ân (dùng cho auto-trigger)
+let trianAutoTriggered = false;   // cờ: đã auto-trigger trong lượt làm bài này chưa
 
-/* 💖 Tạo tim bay ngẫu nhiên */
-function spawnHearts() {
-  const container = $("trianHearts");
+/* 💖 Tạo tim bay ngẫu nhiên vào container chỉ định */
+function spawnHearts(containerId) {
+  const container = $(containerId || "trianHearts");
   if (!container) return;
   container.innerHTML = "";
   const emojis = ["❤️","💖","💕","💗","💝","🩷","💓","💞"];
@@ -2218,6 +2245,8 @@ function openShakeVideo() {
 
   // Ẩn màn "ĐÃ LÀM TỐT R"
   done.classList.remove("on");
+  const doneHearts = $("trianDoneHearts");
+  if (doneHearts) doneHearts.innerHTML = "";
 
   // Hiện overlay + hiệu ứng đỏ
   overlay.classList.remove("hide");
@@ -2226,7 +2255,7 @@ function openShakeVideo() {
   overlay.classList.add("red-pulse");
 
   // 💖 Bắn tim bay lên
-  spawnHearts();
+  spawnHearts("trianHearts");
 
   // Sau TRIAN_RED_DURATION_MS → fade-in video
   trianTimer = setTimeout(() => {
@@ -2264,19 +2293,23 @@ function closeShakeVideo() {
   overlay.classList.remove("red-pulse");
   const heartsBox = $("trianHearts");
   if (heartsBox) heartsBox.innerHTML = "";
+  const doneHearts = $("trianDoneHearts");
+  if (doneHearts) doneHearts.innerHTML = "";
   if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
   musicWasPlaying = false;
 }
 
 $("btnShake").onclick = function() {
+  lastTrianOpen = Date.now();
   openShakeVideo();
 };
 $("btnShakeClose").onclick = closeShakeVideo;
 
-/* 🎬 Khi video kết thúc → hiện "ĐÃ LÀM TỐT R" → tự đóng sau 3.5s */
+/* 🎬 Khi video kết thúc → hiện "ĐÃ LÀM TỐT R" + tim bay → tự đóng sau 3.5s */
 $("shakeVideo").addEventListener("ended", () => {
   const done = $("trianDone");
   done.classList.add("on");
+  spawnHearts("trianDoneHearts");   // 💖 Bắn tim ở màn "ĐÃ LÀM TỐT R"
   trianDoneTimer = setTimeout(() => {
     closeShakeVideo();
   }, TRIAN_DONE_DURATION_MS);
