@@ -46,7 +46,7 @@ export const REGISTRATION_LOCK_NODE  = "config/registrationLock";
 export const REGISTRATION_CODES_NODE = "config/codes";
 export const ANNOUNCEMENTS_NODE      = "config/announcements";
 
-/* 🔧 MỚI: NODE BẬT/TẮT KIỂM DUYỆT TỪ NGỮ */
+/* 🔧 NODE BẬT/TẮT KIỂM DUYỆT TỪ NGỮ */
 export const PROFANITY_LOCK_NODE     = "config/profanityEnabled";
 
 export const NEWS_LAST_SEEN_KEY      = "qp_news_last_seen";
