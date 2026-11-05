@@ -372,7 +372,7 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   font-weight: 700; vertical-align: middle;
 }
 
-/* 🔧 MỚI: Cộng đồng — user cards grid */
+/* Cộng đồng — user cards grid */
 .user-grid {
   display: grid; grid-template-columns: 1fr; gap: 10px;
 }
@@ -624,7 +624,6 @@ window.__showFatalError(msg);
 <div id="lbMain"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 </div>
 </div>
-<!-- 🔧 MỚI: Tab Cộng đồng -->
 <div id="tab-community" class="hide">
   <div class="card">
     <div class="top" style="margin-bottom:16px">
@@ -909,7 +908,8 @@ normText, nameHash, checkProfanity, keyOf,
 getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
 checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
-checkRegistrationLock, validateRegistrationCode, markCodeUsed
+checkRegistrationLock, validateRegistrationCode, markCodeUsed,
+checkProfanitySetting
 } = core;
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
@@ -1081,6 +1081,7 @@ return _dataCache[key];
 }
 
 let session = null;
+let PROFANITY_ON = false;
 function _syncSession(s) {
 if (s) { saveSession(s); session = s; }
 else { clearSession(); session = null; }
@@ -1098,10 +1099,11 @@ $("atRegister").classList.add("active"); $("atLogin").classList.remove("active")
 $("regExtra").classList.remove("hide"); $("auGo").textContent = "Đăng kí"; $("auErr").textContent = "";
 };
 
+/* Đăng ký — chỉ kiểm duyệt khi admin BẬT toggle */
 async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (findAdmin(u)) throw new Error("Tên đăng nhập đã tồn tại.");
-if (checkProfanity(u) || checkProfanity(name)) {
+if (PROFANITY_ON && (checkProfanity(u) || checkProfanity(name))) {
 recordViolation(name);
 throw new Error(" TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
 }
@@ -1135,7 +1137,7 @@ let snap;
 try { snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
 if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
 const acc = snap.val();
-if (checkProfanity(acc.name) || checkProfanity(acc.username)) {
+if (PROFANITY_ON && (checkProfanity(acc.name) || checkProfanity(acc.username))) {
 await recordFirebaseViolation(acc.username);
 clearSession();
 showBanScreen(acc.name);
@@ -1288,7 +1290,7 @@ if ($("newsMask")) $("newsMask").onclick = e => { if (e.target === $("newsMask")
 
 async function enterApp() {
 if (!session) { show("auth"); return; }
-if (!isAdminSession() && (checkProfanity(session.name) || checkProfanity(session.username))) {
+if (!isAdminSession() && PROFANITY_ON && (checkProfanity(session.name) || checkProfanity(session.username))) {
 recordViolation(session.name, session.username);
 _syncSession(null);
 showBanScreen(session.name);
@@ -1373,7 +1375,8 @@ snap.forEach(ch => {
 const v = ch.val();
 if (!v || v.type !== "quiz_result") return;
 const rawName = v.name || v.username || "";
-if (checkProfanity(rawName)) {
+/* Chỉ ẩn/ban khi admin bật kiểm duyệt */
+if (PROFANITY_ON && checkProfanity(rawName)) {
 toDelete.push(ch.key);
 if (session && normText(session.name) === normText(rawName)) {
 recordViolation(rawName);
@@ -1404,7 +1407,7 @@ return a.duration - b.duration;
 if (!list.length) { el.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có ai nộp bài.</div>'; return; }
 el.innerHTML = list.map((v, i) => {
 const rawName = v.name || v.username || "?";
-const isBanned = checkProfanity(rawName);
+const isBanned = PROFANITY_ON && checkProfanity(rawName);
 const displayName = isBanned ? "🚫 Vi phạm" : esc(rawName);
 const isShuf = v.isShuffled === true && !isBanned;
 const medal = isShuf ? (i === 0 ? "🥇" : i === 1 ? "" : i === 2 ? "" : (i + 1)) : (i + 1);
@@ -1413,7 +1416,6 @@ const subj = LEADERBOARD_SUBJECTS_META[v.subject];
 const badge = filter === "all" && subj ? ' <span class="tag" style="margin-left:6px;font-size:0.7rem">' + subj.icon + ' ' + subj.label + '</span>' : '';
 const shufBadge = isShuf ? ' <span title="Đã bật xáo trộn" style="font-size:0.85rem;margin-left:4px">🎲</span>' : '';
 const timeStr = fmtDate(v.time || v.createdAt);
-// 🔧 Link tên tới profile nếu có username
 const profileLink = (!isBanned && v.username)
   ? `<a href="/profile_${encodeURIComponent(String(v.username).toLowerCase())}" style="color:inherit;text-decoration:none;border-bottom:1px dotted var(--mut);">${displayName}</a>`
   : displayName;
@@ -1432,7 +1434,7 @@ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   🔧 MỚI: CỘNG ĐỒNG — DANH SÁCH HỌC SINH
+   CỘNG ĐỒNG — DANH SÁCH HỌC SINH
    ══════════════════════════════════════════════════════════════════ */
 let allCommunityUsers = [];
 let communityLoaded = false;
@@ -1974,7 +1976,7 @@ saveAndRefresh({ subject: finalSubject, username: session.username, name: sessio
 
 async function saveAndRefresh(res) {
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
-if (checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
+if (PROFANITY_ON && checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
 try {
 ovOn("Đang lưu kết quả…");
 const r = push(ref(db, "results"));
@@ -2117,12 +2119,13 @@ renderLeaderboard("lbMain", a ? a.dataset.f : "all");
 (async function init() {
 try {
 await syncUnbanEpoch();
+try { PROFANITY_ON = await checkProfanitySetting(); } catch(e) { PROFANITY_ON = false; }
 const existing = loadSession();
 if (existing) {
 if (existing.isAdmin === true && isAdminUsername(existing.username)) {
 _syncSession(existing);
 await enterApp();
-} else if (checkProfanity(existing.name) || checkProfanity(existing.username)) {
+} else if (PROFANITY_ON && (checkProfanity(existing.name) || checkProfanity(existing.username))) {
 recordViolation(existing.name, existing.username);
 _syncSession(null);
 showBanScreen(existing.name);
