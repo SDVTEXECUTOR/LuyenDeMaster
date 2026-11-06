@@ -11,7 +11,7 @@
 :root{
   --bg:#f0f4f8;--card:rgba(255,255,255,.85);--fg:#0f172a;--mut:#64748b;
   --ac:#2563eb;--acs:#dbeafe;--ok:#16a34a;--oks:#dcfce7;--bad:#dc2626;--bads:#fee2e2;
-  --warn:#f59e0b;--warns:#fef3c7;--gold:#fbbf24;--fire1:#f97316;--fire2:#dc2626;
+  --warn:#f59e0b;--warns:#fef3c7;--gold:#fbbf24;
   --ln:rgba(148,163,184,.3);--shadow:0 8px 32px rgba(0,0,0,.06);
   --glass:blur(12px) saturate(180%);
 }
@@ -44,9 +44,7 @@ button.g:hover{background:var(--acs);border-color:var(--ac)}
 button.sm{padding:6px 12px;font-size:.85rem}
 button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 
-/* ═══ BALANCE CARD ═══ */
-.balance-card{
-  background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#f97316 100%);
+.balance-card{background:linear-gradient(135deg,#fbbf24 0%,#f59e0b 50%,#f97316 100%);
   color:#fff;border:0;position:relative;overflow:hidden}
 .balance-card::before{content:"";position:absolute;inset:0;
   background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.3) 0%,transparent 50%),
@@ -59,7 +57,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .balance-card .num small{font-size:1.1rem;font-weight:700;opacity:.9}
 .balance-card .hint{margin-top:8px;font-size:.82rem;opacity:.9;position:relative;z-index:1}
 
-/* ═══ PACK CARD ═══ */
 .pack-card{position:relative;border-radius:18px;padding:28px 24px;text-align:center;
   overflow:hidden;transition:all .3s}
 .pack-card::before{content:"";position:absolute;inset:-2px;
@@ -76,10 +73,8 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   display:inline-block;filter:drop-shadow(0 0 20px rgba(249,115,22,.7));
   animation:fireFlicker 1.6s ease-in-out infinite alternate}
 @keyframes fireFlicker{
-  0%{transform:scale(1) rotate(-2deg);
-    filter:drop-shadow(0 0 20px rgba(249,115,22,.7))}
-  100%{transform:scale(1.08) rotate(2deg);
-    filter:drop-shadow(0 0 35px rgba(220,38,38,1))}
+  0%{transform:scale(1) rotate(-2deg);filter:drop-shadow(0 0 20px rgba(249,115,22,.7))}
+  100%{transform:scale(1.08) rotate(2deg);filter:drop-shadow(0 0 35px rgba(220,38,38,1))}
 }
 .pack-card h3{margin:0 0 8px;font-size:1.5rem;font-weight:900;
   background:linear-gradient(135deg,#f97316,#dc2626);
@@ -93,7 +88,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .pack-price small{font-size:.9rem;color:var(--mut);font-weight:600;
   margin-left:4px;text-shadow:none}
 
-/* ═══ PACK ACTIONS ═══ */
 .pack-actions{display:flex;gap:10px;flex-wrap:wrap}
 .pack-actions .pack-btn{flex:1;min-width:150px;padding:14px;font-size:1rem;border-radius:12px;
   background:linear-gradient(135deg,#f97316,#dc2626);
@@ -111,7 +105,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .pack-actions .preview-trigger:hover{background:rgba(255,255,255,.2);
   border-color:rgba(255,180,80,.6);transform:translateY(-1px)}
 
-/* ═══ EARN ROWS ═══ */
 .earn-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
   padding:14px 16px;border-radius:12px;border:1px solid var(--ln);
   background:rgba(255,255,255,.4);margin-bottom:10px;transition:all .15s}
@@ -125,7 +118,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   font-variant-numeric:tabular-nums;font-size:1rem;
   background:rgba(251,191,36,.15);padding:4px 12px;border-radius:8px}
 
-/* ═══ TOAST ═══ */
 .toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-100px);
   background:var(--ok);color:#fff;padding:12px 24px;border-radius:99px;
   font-weight:700;box-shadow:0 8px 24px rgba(22,163,74,.3);z-index:150;
@@ -134,7 +126,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.error{background:var(--bad);box-shadow:0 8px 24px rgba(220,38,38,.3)}
 
-/* ═══ OVERLAY ═══ */
 #ov{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
   background:rgba(15,23,42,.7);backdrop-filter:blur(6px)}
 #ov.hide{display:none}
@@ -145,7 +136,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   border-top-color:var(--ac);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ═══ MODAL ═══ */
 .mask{position:fixed;inset:0;background:rgba(15,23,42,.65);
   backdrop-filter:blur(4px);display:none;place-items:center;padding:16px;z-index:100}
 .mask.on{display:grid}
@@ -169,7 +159,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .confirm-actions .buy{background:linear-gradient(135deg,#f97316,#dc2626);
   box-shadow:0 4px 16px rgba(220,38,38,.4)}
 
-/* ═══ SUCCESS MODAL ═══ */
 .success-icon{font-size:5rem;margin-bottom:16px;
   animation:successBounce .8s cubic-bezier(.34,1.56,.64,1)}
 @keyframes successBounce{
@@ -177,8 +166,7 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   50%{transform:scale(1.2) rotate(10deg)}
   100%{transform:scale(1) rotate(0)}
 }
-.success-title{font-size:1.5rem;font-weight:900;margin-bottom:8px;
-  color:var(--ok)}
+.success-title{font-size:1.5rem;font-weight:900;margin-bottom:8px;color:var(--ok)}
 .success-desc{color:var(--mut);font-size:.9rem;line-height:1.6;margin-bottom:20px}
 
 @media (max-width:480px){
@@ -194,186 +182,279 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   👁️ PREVIEW OVERLAY — Xem trước PACK FIRE
+   🔥 PREVIEW OVERLAY — Full Fire Scene
    ═══════════════════════════════════════════════════════════════════ */
-.preview-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  display: none; place-items: center;
-  padding: 20px; overflow: auto;
-  background: #050208;
-  background-image:
-    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(255,80,0,0.65) 0%, rgba(180,40,0,0.25) 30%, transparent 65%),
-    radial-gradient(ellipse 60% 40% at 20% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
-    linear-gradient(180deg, #050208 0%, #0a0300 40%, #1a0500 80%, #2a0800 100%);
-  animation: previewFadeIn 0.4s ease;
+.preview-overlay{
+  position:fixed;inset:0;z-index:300;
+  display:none;place-items:center;
+  padding:20px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 100%,#2b0500 0%,#0a0200 50%,#04060f 100%);
+  isolation:isolate;perspective:900px;
 }
-.preview-overlay.on { display: grid; }
-@keyframes previewFadeIn { from { opacity: 0 } to { opacity: 1 } }
+.preview-overlay.on{display:grid;animation:previewFadeIn .4s ease}
+@keyframes previewFadeIn{from{opacity:0}to{opacity:1}}
 
-.preview-overlay::before {
-  content: ""; position: fixed; inset: 0; pointer-events: none;
-  background: radial-gradient(circle at 50% 100%, rgba(255,120,30,0.5) 0%, transparent 50%);
-  animation: previewGlow 2.5s ease-in-out infinite alternate;
-  z-index: 0;
-}
-@keyframes previewGlow {
-  0% { opacity: 0.6; transform: scale(1) }
-  100% { opacity: 1; transform: scale(1.05) }
-}
-.preview-overlay::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none;
-  background-image:
-    radial-gradient(2px 2px at 15% 90%, #ffcc00, transparent),
-    radial-gradient(1.5px 1.5px at 25% 80%, #ff8800, transparent),
-    radial-gradient(2.5px 2.5px at 40% 95%, #ffaa00, transparent),
-    radial-gradient(1px 1px at 55% 85%, #ff6600, transparent),
-    radial-gradient(2px 2px at 70% 92%, #ffcc00, transparent),
-    radial-gradient(1.5px 1.5px at 85% 88%, #ff8800, transparent),
-    radial-gradient(1px 1px at 92% 78%, #ffaa00, transparent);
-  background-size: 100% 300%;
-  animation: previewEmber 8s linear infinite;
-  z-index: 1;
-}
-@keyframes previewEmber {
-  0% { background-position: 0 100%; opacity: 0 }
-  10%, 90% { opacity: 1 }
-  100% { background-position: 0 -200%; opacity: 0 }
+/* ── Ambient flicker ── */
+.pv-ambient{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 85%,rgba(255,120,30,.35),transparent 70%);
+  animation:pvAmbient 2.3s ease-in-out infinite;mix-blend-mode:overlay}
+@keyframes pvAmbient{0%,100%{opacity:.55}22%{opacity:.85}41%{opacity:.4}63%{opacity:.9}80%{opacity:.5}}
+
+/* ── SVG fire background ── */
+.pv-svg{position:absolute;left:0;right:0;bottom:0;width:100%;height:85%;z-index:1;
+  pointer-events:none;mix-blend-mode:screen;opacity:.95}
+
+/* ── Smoke ── */
+.pv-smoke{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+.pv-smoke span{position:absolute;bottom:38%;left:50%;
+  width:var(--sw,90px);height:var(--sw,90px);border-radius:50%;
+  background:radial-gradient(circle,rgba(70,60,60,.5) 0%,rgba(40,35,35,.25) 45%,transparent 75%);
+  filter:blur(10px);opacity:0;animation:pvSmokeRise var(--dur,6s) ease-out infinite;
+  animation-delay:var(--delay,0s)}
+@keyframes pvSmokeRise{
+  0%{transform:translate(-50%,0) scale(.3) rotate(0deg);opacity:0}
+  15%{opacity:.5}
+  60%{opacity:.35;transform:translate(calc(-50% + var(--dx,0)*.5),-180px) scale(1.3) rotate(40deg)}
+  100%{transform:translate(calc(-50% + var(--dx,0)),-340px) scale(2) rotate(90deg);opacity:0}
 }
 
-.preview-content {
-  position: relative; z-index: 2;
-  max-width: 400px; width: 100%;
-  margin: auto;
-  text-align: center;
+/* ── Flames ── */
+.pv-flame-back,.pv-flame-front{position:absolute;left:0;right:0;pointer-events:none}
+.pv-flame-back{bottom:0;height:80%;z-index:2}
+.pv-flame-front{bottom:0;height:55%;z-index:8;opacity:.75;mix-blend-mode:screen}
+.pv-flame{position:absolute;bottom:0;width:var(--w,40px);height:var(--h,100px);
+  left:var(--x,50%);margin-left:calc(var(--w,40px)/-2);
+  border-radius:50% 50% 35% 35%/70% 70% 30% 30%;
+  background:radial-gradient(ellipse 70% 90% at center bottom,
+    rgba(255,255,240,1) 0%,rgba(255,245,100,.95) 15%,rgba(255,180,30,.9) 35%,
+    rgba(255,100,0,.7) 60%,rgba(200,30,0,.35) 85%,rgba(120,10,0,0) 100%);
+  filter:blur(var(--blur,4px));transform-origin:center bottom;
+  animation:pvFlameDance var(--dur,1.5s) ease-in-out infinite alternate;
+  animation-delay:var(--delay,0s);will-change:transform,opacity}
+@keyframes pvFlameDance{
+  0%{transform:translateY(0) scaleY(.9) scaleX(1) rotate(0deg);opacity:.75}
+  30%{transform:translateY(-12px) scaleY(1.15) scaleX(.92) rotate(var(--r1,-3deg));opacity:1}
+  60%{transform:translateY(-8px) scaleY(1.05) scaleX(1.05) rotate(var(--r2,4deg));opacity:.9}
+  100%{transform:translateY(-18px) scaleY(1.25) scaleX(.88) rotate(var(--r3,-2deg));opacity:1}
 }
-.preview-badge {
-  display: inline-block;
-  background: rgba(255,140,50,0.2);
-  color: #ffb347;
-  padding: 6px 16px; border-radius: 99px;
-  font-size: 0.78rem; font-weight: 800;
-  letter-spacing: 0.08em; margin-bottom: 20px;
-  border: 1px solid rgba(255,140,50,0.4);
-  backdrop-filter: blur(10px);
-}
-.preview-close {
-  position: absolute; top: -10px; right: 0;
-  width: 40px; height: 40px; padding: 0;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  color: #fff; border: 1px solid rgba(255,255,255,0.2);
-  display: grid; place-items: center;
-  font-size: 1.2rem; cursor: pointer;
-  backdrop-filter: blur(10px); box-shadow: none;
-  transition: all 0.2s;
-}
-.preview-close:hover { background: rgba(220,38,38,0.8); transform: scale(1.1) }
+.pv-flame.mini{filter:blur(2px);opacity:.85}
+.pv-flame.big{filter:blur(8px);opacity:.7}
 
-/* Mock profile */
-.mock-profile {
-  background: rgba(20, 10, 5, 0.85);
-  border: 1px solid rgba(255, 100, 30, 0.35);
-  border-radius: 20px;
-  padding: 28px 24px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 60px rgba(255, 80, 0, 0.25),
-              inset 0 1px 0 rgba(255, 150, 60, 0.15);
-  animation: mockSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
-}
-@keyframes mockSlideUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.95) }
-  to { opacity: 1; transform: none }
+/* ── Embers ── */
+.pv-embers{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.pv-embers span{position:absolute;bottom:30%;left:50%;
+  width:var(--size,5px);height:var(--size,5px);border-radius:50%;
+  background:radial-gradient(circle,#fffde7 0%,#ffcc00 30%,#ff6a00 60%,#ff2200 100%);
+  box-shadow:0 0 8px #ff8800,0 0 16px #ff4400,0 0 24px rgba(255,60,0,.6);
+  filter:blur(.4px);opacity:0;
+  animation:pvEmberRise var(--dur,2.5s) ease-out infinite;
+  animation-delay:var(--delay,0s);will-change:transform,opacity}
+@keyframes pvEmberRise{
+  0%{transform:translate(-50%,0) scale(.2);opacity:0}
+  10%{opacity:1;transform:translate(calc(-50% + var(--dx,0)*.15),-20px) scale(1)}
+  70%{opacity:.9;transform:translate(calc(-50% + var(--dx,0)*.8),-160px) scale(.8)}
+  100%{transform:translate(calc(-50% + var(--dx,0)),-250px) scale(.2);opacity:0}
 }
 
-.mock-avatar {
-  width: 100px; height: 100px; border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #3a1a08, #0a0300);
-  display: grid; place-items: center;
-  font-size: 3.2rem;
-  margin: 0 auto 16px;
-  border: 3px solid rgba(255, 120, 30, 0.7);
-  box-shadow: 0 0 30px rgba(255, 80, 0, 0.6), 0 0 60px rgba(255, 40, 0, 0.3);
-  animation: mockAvatarPulse 2s ease-in-out infinite alternate;
-  overflow: hidden;
-}
-@keyframes mockAvatarPulse {
-  from { box-shadow: 0 0 30px rgba(255,80,0,0.6), 0 0 60px rgba(255,40,0,0.3) }
-  to   { box-shadow: 0 0 45px rgba(255,150,20,0.9), 0 0 90px rgba(255,60,0,0.5) }
-}
-.mock-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% }
+/* ── Heat haze ── */
+.pv-haze{position:absolute;left:0;right:0;bottom:30%;height:40%;z-index:9;
+  pointer-events:none;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);
+  -webkit-mask-image:linear-gradient(to top,black,transparent);
+  mask-image:linear-gradient(to top,black,transparent);
+  animation:mvHazeShift 2.6s ease-in-out infinite alternate;opacity:.5}
+@keyframes mvHazeShift{0%{transform:translateX(-4px) scaleY(1)}100%{transform:translateX(4px) scaleY(1.03)}}
 
-.mock-name {
-  font-size: 1.4rem; font-weight: 900;
-  margin: 0 0 4px; color: #fff5e6;
-  text-shadow: 0 0 20px rgba(255, 150, 50, 0.6);
-}
-.mock-user {
-  color: #ffaa44; font-weight: 600;
-  font-size: 0.9rem; margin-bottom: 20px;
-}
-.mock-stats {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 10px; margin-bottom: 16px;
-}
-.mock-stat {
-  background: rgba(255, 80, 0, 0.1);
-  border: 1px solid rgba(255, 100, 30, 0.35);
-  border-radius: 10px;
-  padding: 12px 8px;
-}
-.mock-stat-val {
-  font-size: 1.3rem; font-weight: 900;
-  color: #ffb347; line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-.mock-stat-lbl {
-  font-size: 0.7rem; color: #d4a574;
-  font-weight: 600; margin-top: 2px;
-  text-transform: uppercase; letter-spacing: 0.03em;
-}
-.mock-preview-note {
-  font-size: 0.78rem; color: #d4a574;
-  font-style: italic; padding: 10px;
-  background: rgba(255, 80, 0, 0.08);
-  border-radius: 8px; line-height: 1.5;
-}
-.mock-preview-note b { color: #ffb347; font-style: normal }
+/* ── God rays ── */
+.pv-rays{position:absolute;left:50%;top:52%;width:560px;height:560px;
+  margin:-280px 0 0 -280px;z-index:4;pointer-events:none;
+  mix-blend-mode:screen;opacity:.5;
+  background:repeating-conic-gradient(from 0deg,rgba(255,200,90,.35) 0deg 4deg,transparent 4deg 18deg);
+  -webkit-mask:radial-gradient(circle,black 10%,transparent 62%);
+  mask:radial-gradient(circle,black 10%,transparent 62%);
+  animation:pvRaysSpin 14s linear infinite}
+@keyframes pvRaysSpin{to{transform:rotate(360deg)}}
 
-.preview-actions {
-  display: flex; gap: 10px; margin-top: 20px;
-  animation: mockSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+/* ── Fire demon ── */
+.pv-demon{position:absolute;left:50%;bottom:-4%;transform:translateX(-50%);
+  width:320px;height:420px;z-index:3;pointer-events:none;
+  animation:pvDemonSway 7s ease-in-out infinite}
+.pv-demon svg{width:100%;height:100%;
+  filter:drop-shadow(0 0 30px rgba(255,80,0,.55)) drop-shadow(0 0 60px rgba(255,40,0,.3))}
+@keyframes pvDemonSway{
+  0%,100%{transform:translateX(-50%) rotate(-1.4deg) scale(1)}
+  50%{transform:translateX(-50%) rotate(1.4deg) scale(1.015)}
 }
-.preview-actions button { flex: 1; padding: 14px; font-size: 0.95rem }
-.preview-btn-close {
-  background: rgba(255,255,255,0.1);
-  color: #fff; border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: none;
+.pv-demon-eye{animation:pvEyePulse 1.4s ease-in-out infinite alternate}
+@keyframes pvEyePulse{
+  0%{opacity:.5;filter:drop-shadow(0 0 4px #ff2200)}
+  100%{opacity:1;filter:drop-shadow(0 0 14px #ff5500)}
 }
-.preview-btn-close:hover { background: rgba(255,255,255,0.2) }
-.preview-btn-buy {
-  background: linear-gradient(135deg, #f97316, #dc2626);
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
-}
-.preview-btn-buy:disabled {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-  opacity: 0.85; cursor: not-allowed;
-}
-.preview-btn-buy:disabled:hover { transform: none; filter: none }
 
-@media (max-width: 480px) {
-  .mock-avatar { width: 80px; height: 80px; font-size: 2.5rem }
-  .mock-name { font-size: 1.2rem }
-  .mock-stat-val { font-size: 1.1rem }
-  .preview-actions button { padding: 12px; font-size: 0.88rem }
-  .preview-content { max-width: 100% }
+/* ── Flying skulls ── */
+.pv-skulls{position:absolute;inset:0;z-index:12;pointer-events:none;overflow:visible}
+.pv-skull{position:absolute;left:-18%;top:var(--fy,30%);width:80px;height:66px;
+  transform:scale(var(--fsc,1));
+  animation:pvSkullFly var(--fdur,3.2s) ease-in-out forwards;
+  filter:drop-shadow(0 0 10px rgba(255,120,20,.85)) drop-shadow(0 0 24px rgba(255,60,0,.55))}
+.pv-skull svg{width:100%;height:100%;display:block}
+.pv-skull .pv-trail{position:absolute;right:90%;top:50%;width:48px;height:16px;
+  transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,rgba(255,140,30,.75));
+  filter:blur(5px);border-radius:999px}
+.pv-skull-eye{animation:pvEyePulse 1s ease-in-out infinite alternate}
+@keyframes pvSkullFly{
+  0%{transform:translate(0,0) rotate(-10deg) scale(calc(var(--fsc,1)*.6));opacity:0}
+  8%{opacity:1}
+  30%{transform:translate(32vw,calc(var(--arc,1)*-46px)) rotate(6deg) scale(var(--fsc,1))}
+  50%{transform:translate(58vw,calc(var(--arc,1)*34px)) rotate(-8deg) scale(calc(var(--fsc,1)*1.06))}
+  72%{transform:translate(84vw,calc(var(--arc,1)*-24px)) rotate(7deg) scale(var(--fsc,1))}
+  92%{opacity:1}
+  100%{transform:translate(118vw,0) rotate(-5deg) scale(calc(var(--fsc,1)*.6));opacity:0}
+}
+
+/* ── Streaks ── */
+.pv-streaks{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden}
+.pv-streak{position:absolute;left:var(--sx,0);top:var(--sy,50%);
+  width:var(--sl,220px);height:var(--sth,3px);border-radius:999px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,240,180,0) 0%,
+    rgba(255,220,120,.9) 55%,rgba(255,255,255,1) 100%);
+  filter:blur(.6px) drop-shadow(0 0 6px rgba(255,160,40,.9)) drop-shadow(0 0 14px rgba(255,90,0,.6));
+  transform:rotate(var(--sr,-18deg));opacity:0;
+  animation:pvStreakFly var(--sdur,1.1s) cubic-bezier(.2,.8,.3,1) forwards;
+  animation-delay:var(--sdelay,0s)}
+@keyframes pvStreakFly{
+  0%{opacity:0;transform:rotate(var(--sr,-18deg)) translateX(-60px) scaleX(.3)}
+  8%{opacity:1}
+  70%{opacity:.9}
+  100%{opacity:0;transform:rotate(var(--sr,-18deg)) translateX(var(--sdx,520px)) scaleX(1)}
+}
+
+/* ── Vignette ── */
+.pv-vignette{position:absolute;inset:0;z-index:10;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(2,2,6,.55) 100%)}
+
+/* ── Mock profile in center ── */
+.preview-content{position:relative;z-index:20;max-width:400px;width:100%;text-align:center}
+
+.preview-badge{display:inline-block;background:rgba(255,140,50,.2);color:#ffb347;
+  padding:6px 16px;border-radius:99px;font-size:.78rem;font-weight:800;
+  letter-spacing:.08em;margin-bottom:20px;border:1px solid rgba(255,140,50,.4);
+  backdrop-filter:blur(10px);position:relative}
+
+.preview-close{position:absolute;top:-10px;right:0;width:40px;height:40px;padding:0;
+  border-radius:50%;background:rgba(0,0,0,.5);color:#fff;
+  border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;
+  font-size:1.2rem;cursor:pointer;backdrop-filter:blur(10px);
+  box-shadow:none;transition:all .2s}
+.preview-close:hover{background:rgba(220,38,38,.8);transform:scale(1.1)}
+
+.mock-profile{background:rgba(20,10,5,.85);
+  border:1px solid rgba(255,100,30,.35);border-radius:20px;
+  padding:32px 24px;backdrop-filter:blur(20px);
+  box-shadow:0 20px 60px rgba(255,80,0,.25),inset 0 1px 0 rgba(255,150,60,.15);
+  animation:pvSlideUp .5s cubic-bezier(.34,1.56,.64,1) .15s both;position:relative}
+@keyframes pvSlideUp{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:none}}
+
+/* Avatar with fire effects (rim ring + glow + breathing) */
+.mock-avatar-stage{position:relative;width:160px;height:160px;
+  margin:0 auto 20px;display:grid;place-items:center;
+  animation:pvBreath 2.6s ease-in-out infinite}
+@keyframes pvBreath{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.03) translateY(-3px)}}
+.mock-avatar{width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#3a1a08,#0a0300);
+  display:grid;place-items:center;font-size:3rem;position:relative;z-index:5;
+  border:3px solid rgba(255,150,50,.5);
+  box-shadow:0 0 25px rgba(255,100,0,.7),0 0 50px rgba(255,60,0,.5),
+             0 0 80px rgba(255,40,0,.3),inset 0 0 15px rgba(255,150,50,.4);
+  animation:pvAvatarCore 1.8s ease-in-out infinite alternate;
+  overflow:hidden}
+@keyframes pvAvatarCore{
+  0%{box-shadow:0 0 25px rgba(255,100,0,.7),0 0 50px rgba(255,60,0,.5),
+    0 0 80px rgba(255,40,0,.3),inset 0 0 15px rgba(255,150,50,.4)}
+  100%{box-shadow:0 0 42px rgba(255,150,20,1),0 0 80px rgba(255,80,0,.75),
+    0 0 120px rgba(255,50,0,.55),inset 0 0 25px rgba(255,210,90,.65)}
+}
+.mock-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.mock-rim-ring{position:absolute;inset:-6px;border-radius:50%;z-index:6;
+  pointer-events:none;
+  background:conic-gradient(from 0deg,rgba(255,220,120,0) 0deg,
+    rgba(255,220,120,.9) 40deg,rgba(255,120,20,0) 90deg,
+    rgba(255,220,120,0) 300deg,rgba(255,220,120,.6) 340deg,
+    rgba(255,220,120,0) 360deg);
+  -webkit-mask:radial-gradient(circle,transparent 62%,black 64%,black 68%,transparent 70%);
+  mask:radial-gradient(circle,transparent 62%,black 64%,black 68%,transparent 70%);
+  animation:mvRingSpin 5s linear infinite;opacity:.85}
+@keyframes mvRingSpin{to{transform:rotate(360deg)}}
+.mock-avatar-glow{position:absolute;inset:-50px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,200,60,.5) 0%,
+    rgba(255,100,0,.35) 30%,rgba(200,30,0,.2) 55%,transparent 80%);
+  filter:blur(28px);z-index:3;animation:pvGlowPulse 2s ease-in-out infinite alternate;
+  pointer-events:none}
+@keyframes pvGlowPulse{0%{transform:scale(.95);opacity:.7}100%{transform:scale(1.15);opacity:1}}
+
+.mock-name{font-size:1.4rem;font-weight:900;margin:0 0 4px;color:#fff5e6;
+  text-shadow:0 0 20px rgba(255,150,50,.6);position:relative;z-index:1}
+.mock-user{color:#ffaa44;font-weight:600;font-size:.9rem;margin-bottom:20px;
+  position:relative;z-index:1}
+.mock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:16px;position:relative;z-index:1}
+.mock-stat{background:rgba(255,80,0,.1);border:1px solid rgba(255,100,30,.35);
+  border-radius:10px;padding:12px 8px}
+.mock-stat-val{font-size:1.3rem;font-weight:900;color:#ffb347;line-height:1.2;
+  font-variant-numeric:tabular-nums}
+.mock-stat-lbl{font-size:.7rem;color:#d4a574;font-weight:600;margin-top:2px;
+  text-transform:uppercase;letter-spacing:.03em}
+.mock-preview-note{font-size:.78rem;color:#d4a574;font-style:italic;padding:10px;
+  background:rgba(255,80,0,.08);border-radius:8px;line-height:1.5;
+  position:relative;z-index:1}
+.mock-preview-note b{color:#ffb347;font-style:normal}
+
+/* Equip burst effect */
+.pv-equip-burst{position:absolute;inset:0;pointer-events:none;z-index:100;
+  display:grid;place-items:center}
+.pv-equip-burst span{position:absolute;width:10px;height:10px;border-radius:50%;
+  background:#fff;box-shadow:0 0 16px currentColor,0 0 32px currentColor;
+  opacity:0;animation:pvBurstFly 1s ease-out forwards}
+@keyframes pvBurstFly{
+  0%{transform:translate(0,0) scale(1);opacity:1}
+  100%{transform:translate(var(--bx),var(--by)) scale(0);opacity:0}
+}
+.pv-shockwave{position:absolute;left:50%;top:50%;width:40px;height:40px;
+  margin:-20px 0 0 -20px;border-radius:50%;
+  border:3px solid rgba(255,200,100,.9);z-index:99;pointer-events:none;
+  animation:pvShockOut .7s ease-out forwards}
+@keyframes pvShockOut{
+  0%{transform:scale(1);opacity:.9}
+  100%{transform:scale(9);opacity:0}
+}
+
+.preview-actions{display:flex;gap:10px;margin-top:20px;position:relative;z-index:20;
+  animation:pvSlideUp .5s cubic-bezier(.34,1.56,.64,1) .25s both}
+.preview-actions button{flex:1;padding:14px;font-size:.95rem}
+.preview-btn-close{background:rgba(255,255,255,.1);color:#fff;
+  border:1px solid rgba(255,255,255,.2);box-shadow:none}
+.preview-btn-close:hover{background:rgba(255,255,255,.2)}
+.preview-btn-buy{background:linear-gradient(135deg,#f97316,#dc2626);
+  box-shadow:0 6px 20px rgba(220,38,38,.5)}
+.preview-btn-buy:disabled{background:linear-gradient(135deg,#16a34a,#22c55e);
+  opacity:.85;cursor:not-allowed}
+.preview-btn-buy:disabled:hover{transform:none;filter:none}
+
+@media (max-width: 480px){
+  .mock-avatar-stage{width:130px;height:130px}
+  .mock-avatar{width:80px;height:80px;font-size:2.4rem}
+  .mock-name{font-size:1.2rem}
+  .mock-stat-val{font-size:1.1rem}
+  .preview-actions button{padding:12px;font-size:.88rem}
+  .preview-content{max-width:100%}
+  .pv-demon{width:240px;height:320px}
+  .pv-skull{width:56px;height:46px}
 }
 </style>
 </head>
 <body>
 
 <main>
-  <!-- ═══ HEADER ═══ -->
   <div class="top" style="margin-bottom:16px">
     <div>
       <h1>🛒 LDM Shop</h1>
@@ -385,17 +466,12 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
     </div>
   </div>
 
-  <!-- ═══ SỐ DƯ ═══ -->
   <div class="card balance-card">
     <h2>💰 Số dư hiện tại</h2>
-    <div class="num">
-      <span id="coinBalance">—</span>
-      <small>LDM</small>
-    </div>
+    <div class="num"><span id="coinBalance">—</span><small>LDM</small></div>
     <div class="hint" id="earnHint">Đang tải thông tin...</div>
   </div>
 
-  <!-- ═══ PACK FIRE ═══ -->
   <div id="packsContainer">
     <div class="pack-card" id="firePackCard">
       <div class="pack-badge">🔥 HOT PACK</div>
@@ -413,48 +489,13 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
     </div>
   </div>
 
-  <!-- ═══ CÁCH KIẾM LDM ═══ -->
   <div class="card">
     <h2 style="margin:0 0 4px;font-size:1.15rem">💡 Cách kiếm LDM</h2>
-    <div class="mut" style="margin-bottom:16px;font-size:.85rem">
-      Tham gia học tập và chơi game để tích luỹ LDM
-    </div>
-
-    <div class="earn-row">
-      <div class="emoji">📚</div>
-      <div class="label">
-        Hoàn thành 1 bài thi
-        <small>Bất kỳ môn nào, điểm nào cũng được</small>
-      </div>
-      <div class="reward">+10 LDM</div>
-    </div>
-
-    <div class="earn-row">
-      <div class="emoji">⭐</div>
-      <div class="label">
-        Đạt điểm 10 tuyệt đối
-        <small>Bonus thêm khi perfect score</small>
-      </div>
-      <div class="reward">+40 LDM</div>
-    </div>
-
-    <div class="earn-row">
-      <div class="emoji">🏰</div>
-      <div class="label">
-        Chinh phục tầng tháp
-        <small>Mỗi tầng leo được trong Tower</small>
-      </div>
-      <div class="reward">+3 LDM</div>
-    </div>
-
-    <div class="earn-row">
-      <div class="emoji">📅</div>
-      <div class="label">
-        Đăng nhập hàng ngày
-        <small>Điểm danh mỗi ngày 1 lần</small>
-      </div>
-      <div class="reward">+15 LDM</div>
-    </div>
+    <div class="mut" style="margin-bottom:16px;font-size:.85rem">Tham gia học tập và chơi game để tích luỹ LDM</div>
+    <div class="earn-row"><div class="emoji">📚</div><div class="label">Hoàn thành 1 bài thi<small>Bất kỳ môn nào, điểm nào cũng được</small></div><div class="reward">+10 LDM</div></div>
+    <div class="earn-row"><div class="emoji">⭐</div><div class="label">Đạt điểm 10 tuyệt đối<small>Bonus thêm khi perfect score</small></div><div class="reward">+40 LDM</div></div>
+    <div class="earn-row"><div class="emoji">🏰</div><div class="label">Chinh phục tầng tháp<small>Mỗi tầng leo được trong Tower</small></div><div class="reward">+3 LDM</div></div>
+    <div class="earn-row"><div class="emoji">📅</div><div class="label">Đăng nhập hàng ngày<small>Điểm danh mỗi ngày 1 lần</small></div><div class="reward">+15 LDM</div></div>
   </div>
 
   <div class="card" style="text-align:center;font-size:.85rem;color:var(--mut);padding:16px">
@@ -481,38 +522,112 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   <div class="modal">
     <div class="success-icon">🎉</div>
     <div class="success-title">Mua thành công!</div>
-    <div class="success-desc">
-      Bạn đã sở hữu <b>PACK FIRE</b>.<br>
-      Vào trang Profile để bật nền lửa ngay!
-    </div>
+    <div class="success-desc">Bạn đã sở hữu <b>PACK FIRE</b>.<br>Vào trang Profile để bật nền lửa ngay!</div>
     <button style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e)"
             onclick="location.href='/profile'">👤 Vào Profile ngay</button>
     <button class="g" style="width:100%;margin-top:8px" id="btnCloseSuccess">Ở lại Shop</button>
   </div>
 </div>
 
-<!-- ═══ PREVIEW OVERLAY — Xem trước PACK FIRE ═══ -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔥 PREVIEW OVERLAY — Full Fire Scene
+     ═══════════════════════════════════════════════════════════════════ -->
 <div class="preview-overlay" id="previewOverlay">
+
+  <!-- Fire scene layers -->
+  <div class="pv-ambient"></div>
+
+  <svg class="pv-svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <filter id="pvTurbMain" x="-10%" y="-20%" width="120%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.1" numOctaves="3" seed="5">
+          <animate attributeName="baseFrequency" dur="3s" values="0.012 0.1;0.018 0.13;0.015 0.11;0.012 0.1" repeatCount="indefinite"/>
+          <animate attributeName="seed" dur="8s" values="5;15;25;5" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="55"/>
+      </filter>
+      <filter id="pvTurbDeep" x="-10%" y="-20%" width="120%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02 0.12" numOctaves="2" seed="20">
+          <animate attributeName="baseFrequency" dur="4.5s" values="0.02 0.12;0.025 0.15;0.02 0.12" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="40"/>
+      </filter>
+      <radialGradient id="pvFireCore" cx="50%" cy="75%" r="55%">
+        <stop offset="0%" stop-color="#fffde7"/><stop offset="15%" stop-color="#ffef5a"/>
+        <stop offset="35%" stop-color="#ffcc00"/><stop offset="55%" stop-color="#ff8800"/>
+        <stop offset="75%" stop-color="#ff4400"/><stop offset="90%" stop-color="#cc1100" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#440000" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="pvFireDeep" cx="50%" cy="80%" r="50%">
+        <stop offset="0%" stop-color="#ffcc00" stop-opacity="0.9"/>
+        <stop offset="40%" stop-color="#ff6600" stop-opacity="0.7"/>
+        <stop offset="70%" stop-color="#dc2626" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#7f1d1d" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="300" cy="540" rx="320" ry="160" fill="url(#pvFireDeep)" filter="url(#pvTurbDeep)" opacity="0.85"/>
+    <ellipse cx="300" cy="520" rx="240" ry="130" fill="url(#pvFireCore)" filter="url(#pvTurbMain)"/>
+    <ellipse cx="200" cy="420" rx="80" ry="100" fill="url(#pvFireCore)" filter="url(#pvTurbMain)" opacity="0.7"/>
+    <ellipse cx="400" cy="420" rx="80" ry="100" fill="url(#pvFireCore)" filter="url(#pvTurbMain)" opacity="0.7"/>
+  </svg>
+
+  <div class="pv-flame-back" id="pvFlameBack"></div>
+
+  <div class="pv-demon">
+    <svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="pvTurbDemon" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.03" numOctaves="2" seed="7">
+            <animate attributeName="seed" dur="6s" values="7;19;7" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" scale="14"/>
+        </filter>
+        <linearGradient id="pvDemonFill" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0%" stop-color="#ff5a00" stop-opacity="0.9"/>
+          <stop offset="30%" stop-color="#7a1200" stop-opacity="0.88"/>
+          <stop offset="65%" stop-color="#200400" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#0a0300" stop-opacity="0.95"/>
+        </linearGradient>
+        <radialGradient id="pvDemonEye" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff7cc"/>
+          <stop offset="35%" stop-color="#ffb020"/>
+          <stop offset="100%" stop-color="#ff2200"/>
+        </radialGradient>
+      </defs>
+      <g filter="url(#pvTurbDemon)">
+        <path d="M120,160 C85,172 62,220 52,282 L76,300 L64,340 L92,352 L80,392 L112,398 L100,432 L138,436 L126,472 L168,470 L160,512 L200,506 L240,512 L232,470 L274,472 L262,436 L300,432 L288,398 L320,392 L308,352 L336,340 L324,300 L348,282 C338,220 315,172 280,160 C258,142 230,130 200,128 C170,130 142,142 120,160 Z" fill="url(#pvDemonFill)" stroke="rgba(255,140,40,.55)" stroke-width="2"/>
+        <path d="M112,158 C66,150 32,112 24,58 C48,90 76,118 104,142 Z" fill="url(#pvDemonFill)" stroke="rgba(255,140,40,.5)" stroke-width="2"/>
+        <path d="M288,158 C334,150 368,112 376,58 C352,90 324,118 296,142 Z" fill="url(#pvDemonFill)" stroke="rgba(255,140,40,.5)" stroke-width="2"/>
+        <ellipse cx="200" cy="92" rx="46" ry="50" fill="#0c0300" stroke="rgba(255,120,30,.6)" stroke-width="2"/>
+        <path d="M168,58 C158,22 146,-10 122,-28 C140,-2 150,30 164,66 Z" fill="#0c0300" stroke="rgba(255,120,30,.6)" stroke-width="2"/>
+        <path d="M232,58 C242,22 254,-10 278,-28 C260,-2 250,30 236,66 Z" fill="#0c0300" stroke="rgba(255,120,30,.6)" stroke-width="2"/>
+      </g>
+      <ellipse class="pv-demon-eye" cx="180" cy="88" rx="7" ry="4.5" fill="url(#pvDemonEye)"/>
+      <ellipse class="pv-demon-eye" cx="220" cy="88" rx="7" ry="4.5" fill="url(#pvDemonEye)" style="animation-delay:.3s"/>
+    </svg>
+  </div>
+
+  <div class="pv-rays"></div>
+  <div class="pv-smoke" id="pvSmoke"></div>
+  <div class="pv-embers" id="pvEmbers"></div>
+  <div class="pv-streaks" id="pvStreaks"></div>
+
+  <!-- Center content (mock profile) -->
   <div class="preview-content">
     <button class="preview-close" id="previewClose" type="button">✕</button>
     <div class="preview-badge">🔍 ĐANG XEM TRƯỚC</div>
     <div class="mock-profile">
-      <div class="mock-avatar" id="mockAvatar">🐱</div>
+      <div class="mock-avatar-stage" id="mockAvatarStage">
+        <div class="mock-avatar-glow"></div>
+        <div class="mock-rim-ring"></div>
+        <div class="mock-avatar" id="mockAvatar">🐱</div>
+      </div>
       <h2 class="mock-name" id="mockName">Tên của bạn</h2>
       <div class="mock-user" id="mockUser">@username</div>
       <div class="mock-stats">
-        <div class="mock-stat">
-          <div class="mock-stat-val">42</div>
-          <div class="mock-stat-lbl">Bài đã làm</div>
-        </div>
-        <div class="mock-stat">
-          <div class="mock-stat-val">🔥 7</div>
-          <div class="mock-stat-lbl">Streak</div>
-        </div>
-        <div class="mock-stat">
-          <div class="mock-stat-val" id="mockCoins">—</div>
-          <div class="mock-stat-lbl">LDM</div>
-        </div>
+        <div class="mock-stat"><div class="mock-stat-val">42</div><div class="mock-stat-lbl">Bài đã làm</div></div>
+        <div class="mock-stat"><div class="mock-stat-val">🔥 7</div><div class="mock-stat-lbl">Streak</div></div>
+        <div class="mock-stat"><div class="mock-stat-val" id="mockCoins">—</div><div class="mock-stat-lbl">LDM</div></div>
       </div>
       <div class="mock-preview-note">
         💡 Đây chỉ là preview — sau khi mua, nền lửa sẽ áp dụng cho <b>toàn bộ Profile</b> của bạn
@@ -523,6 +638,11 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
       <button class="preview-btn-buy" id="previewBtnBuy" type="button">🔥 Mua ngay 499 LDM</button>
     </div>
   </div>
+
+  <div class="pv-haze"></div>
+  <div class="pv-flame-front" id="pvFlameFront"></div>
+  <div class="pv-skulls" id="pvSkulls"></div>
+  <div class="pv-vignette"></div>
 </div>
 
 <div id="ov" class="hide">
@@ -552,19 +672,14 @@ function showToast(msg, isErr) {
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => t.classList.remove("show"), 3500);
 }
-function ovOn(t) {
-  $("ovtxt").textContent = t || "Đang xử lý…";
-  $("ov").classList.remove("hide");
-}
+function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
 function ovOff() { $("ov").classList.add("hide"); }
 
 /* ═══ REFRESH UI ═══ */
 async function refreshUI() {
-  // Chưa login
   if (!session || !session.username) {
     $("coinBalance").textContent = "0";
-    $("earnHint").innerHTML =
-      '⚠️ Bạn cần <a href="/" style="color:#fff;text-decoration:underline;font-weight:800">đăng nhập</a> để mua hàng';
+    $("earnHint").innerHTML = '⚠️ Bạn cần <a href="/" style="color:#fff;text-decoration:underline;font-weight:800">đăng nhập</a> để mua hàng';
     const btn = $("btnBuyFire");
     btn.disabled = true;
     btn.textContent = "🔒 Cần đăng nhập";
@@ -579,7 +694,6 @@ async function refreshUI() {
     ]);
 
     $("coinBalance").textContent = coins.toLocaleString("vi-VN");
-
     const price = SHOP_ITEMS.pack_fire.price;
     const gap = Math.max(0, price - coins);
 
@@ -622,17 +736,13 @@ function confirmBox(title, body, onYes) {
   $("cfTitle").textContent = title;
   $("cfBody").innerHTML = body;
   $("confirmMask").classList.add("on");
-
   const cleanup = () => {
     $("cfNo").onclick = null;
     $("cfYes").onclick = null;
     $("confirmMask").classList.remove("on");
   };
   $("cfNo").onclick = cleanup;
-  $("cfYes").onclick = async () => {
-    cleanup();
-    await onYes();
-  };
+  $("cfYes").onclick = async () => { cleanup(); await onYes(); };
 }
 
 /* ═══ BUY HANDLER ═══ */
@@ -641,7 +751,6 @@ $("btnBuyFire").onclick = () => {
     showToast("Vui lòng đăng nhập trước!", true);
     return;
   }
-
   confirmBox(
     "🔥 Mua PACK FIRE?",
     `Bạn sẽ mua <b>PACK FIRE</b> với giá <span class="price">499 LDM</span>.<br><br>
@@ -652,7 +761,6 @@ $("btnBuyFire").onclick = () => {
       try {
         const result = await buyPack(session.username, "pack_fire");
         ovOff();
-
         if (result.ok) {
           $("successMask").classList.add("on");
           await refreshUI();
@@ -667,23 +775,209 @@ $("btnBuyFire").onclick = () => {
   );
 };
 
-/* ═══ SUCCESS MODAL CLOSE ═══ */
-$("btnCloseSuccess").onclick = () => {
-  $("successMask").classList.remove("on");
-};
-$("successMask").onclick = (e) => {
-  if (e.target === $("successMask")) {
-    $("successMask").classList.remove("on");
-  }
-};
+$("btnCloseSuccess").onclick = () => $("successMask").classList.remove("on");
+$("successMask").onclick = (e) => { if (e.target === $("successMask")) $("successMask").classList.remove("on"); };
 
 /* ═══════════════════════════════════════════════════════════════════
-   👁️ PREVIEW PACK FIRE
+   🔥 FIRE SCENE — Spawn tất cả hiệu ứng lửa cho preview
    ═══════════════════════════════════════════════════════════════════ */
+
+let pvEffectsSpawned = false;
+let pvSkullTimer = null;
+let pvStreakTimer = null;
+
+function pvCreateFlameBlob({x, w, h, dur, delay, blur, mini, big}) {
+  const r1 = (Math.random() - 0.5) * 16;
+  const r2 = (Math.random() - 0.5) * 16;
+  const r3 = (Math.random() - 0.5) * 16;
+  const cls = ['pv-flame'];
+  if (mini) cls.push('mini');
+  if (big) cls.push('big');
+  return `<div class="${cls.join(' ')}" style="--x:${x}%;--w:${w}px;--h:${h}px;--dur:${dur}s;--delay:${delay}s;--blur:${blur}px;--r1:${r1.toFixed(1)}deg;--r2:${r2.toFixed(1)}deg;--r3:${r3.toFixed(1)}deg;"></div>`;
+}
+
+function pvSpawnFlameBack() {
+  const container = $("pvFlameBack");
+  if (!container) return;
+  const blobs = [];
+  const N = 45;
+  for (let i = 0; i < N; i++) {
+    const xBase = (i / N) * 100;
+    const x = xBase + (Math.random() - 0.5) * 4;
+    const distFromCenter = Math.abs(x - 50) / 50;
+    const heightFactor = 1 - distFromCenter * 0.65;
+    const isBig = Math.random() < 0.3;
+    const isMini = Math.random() < 0.25;
+    const w = isBig ? 45 + Math.random() * 35 : isMini ? 14 + Math.random() * 18 : 28 + Math.random() * 26;
+    const h = (isBig ? 130 : isMini ? 45 : 75) * heightFactor + Math.random() * 55;
+    const dur = 1.2 + Math.random() * 1.5;
+    const delay = Math.random() * 2;
+    const blur = isBig ? 8 : isMini ? 2 : 4;
+    blobs.push(pvCreateFlameBlob({x, w, h, dur, delay, blur, mini: isMini, big: isBig}));
+  }
+  container.innerHTML = blobs.join('');
+}
+
+function pvSpawnFlameFront() {
+  const container = $("pvFlameFront");
+  if (!container) return;
+  const blobs = [];
+  const N = 18;
+  for (let i = 0; i < N; i++) {
+    const x = 20 + Math.random() * 60;
+    const w = 14 + Math.random() * 22;
+    const h = 28 + Math.random() * 55;
+    const dur = 1.5 + Math.random() * 1.2;
+    const delay = Math.random() * 2;
+    const blur = 2 + Math.random() * 2;
+    blobs.push(pvCreateFlameBlob({x, w, h, dur, delay, blur, mini: true}));
+  }
+  container.innerHTML = blobs.join('');
+}
+
+function pvSpawnEmbers() {
+  const el = $("pvEmbers");
+  if (!el) return;
+  let html = '';
+  const N = 28;
+  for (let i = 0; i < N; i++) {
+    const size = 3 + Math.random() * 7;
+    const dur = 2 + Math.random() * 2.5;
+    const delay = Math.random() * 3;
+    const dx = (Math.random() - 0.5) * 180;
+    html += `<span style="--size:${size.toFixed(1)}px;--dur:${dur.toFixed(2)}s;--delay:${delay.toFixed(2)}s;--dx:${dx.toFixed(0)}px;"></span>`;
+  }
+  el.innerHTML = html;
+}
+
+function pvSpawnSmoke() {
+  const el = $("pvSmoke");
+  if (!el) return;
+  let html = '';
+  const N = 9;
+  for (let i = 0; i < N; i++) {
+    const sw = 55 + Math.random() * 75;
+    const dur = 5 + Math.random() * 3;
+    const delay = Math.random() * 6;
+    const dx = (Math.random() - 0.5) * 140;
+    html += `<span style="--sw:${sw.toFixed(0)}px;--dur:${dur.toFixed(2)}s;--delay:${delay.toFixed(2)}s;--dx:${dx.toFixed(0)}px;left:${30 + Math.random() * 40}%;"></span>`;
+  }
+  el.innerHTML = html;
+}
+
+const PV_SKULL_SVG = `<svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="pvSkullFire" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#fff2b0"/><stop offset="30%" stop-color="#ffb020"/><stop offset="60%" stop-color="#ff5500"/><stop offset="100%" stop-color="#2a0500"/></radialGradient></defs><path d="M60,8 C30,8 16,30 16,52 C16,66 22,76 30,84 L34,96 L46,90 L50,98 L60,92 L70,98 L74,90 L86,96 L90,84 C98,76 104,66 104,52 C104,30 90,8 60,8 Z" fill="url(#pvSkullFire)" stroke="rgba(120,20,0,.6)" stroke-width="2"/><path d="M22,46 C14,34 14,16 24,4 C20,20 22,34 28,46 Z" fill="url(#pvSkullFire)"/><path d="M98,46 C106,34 106,16 96,4 C100,20 98,34 92,46 Z" fill="url(#pvSkullFire)"/><ellipse cx="42" cy="46" rx="11" ry="13" fill="#1a0300"/><ellipse cx="78" cy="46" rx="11" ry="13" fill="#1a0300"/><circle class="pv-skull-eye" cx="42" cy="46" r="5" fill="#ff2200"/><circle class="pv-skull-eye" cx="78" cy="46" r="5" fill="#ff2200" style="animation-delay:.25s"/><path d="M60,54 L66,66 L54,66 Z" fill="#1a0300"/></svg>`;
+
+function pvSpawnSkull() {
+  const el = $("pvSkulls");
+  if (!el) return;
+  const s = document.createElement('div');
+  s.className = 'pv-skull';
+  const fy = 10 + Math.random() * 50;
+  const arc = (Math.random() < 0.5 ? 1 : -1) * (0.7 + Math.random() * 0.8);
+  const fdur = 2.8 + Math.random() * 1.2;
+  const fsc = 0.7 + Math.random() * 0.5;
+  s.style.setProperty('--fy', fy + '%');
+  s.style.setProperty('--arc', arc.toFixed(2));
+  s.style.setProperty('--fdur', fdur.toFixed(2) + 's');
+  s.style.setProperty('--fsc', fsc.toFixed(2));
+  s.innerHTML = PV_SKULL_SVG + '<div class="pv-trail"></div>';
+  el.appendChild(s);
+  setTimeout(() => s.remove(), fdur * 1000 + 300);
+}
+
+function pvStartSkulls() {
+  pvSpawnSkull();
+  pvSkullTimer = setTimeout(pvStartSkulls, 4200 + Math.random() * 3200);
+}
+
+function pvSpawnStreak() {
+  const el = $("pvStreaks");
+  if (!el) return;
+  const s = document.createElement('div');
+  s.className = 'pv-streak';
+  const fromLeft = Math.random() < 0.5;
+  const sy = 20 + Math.random() * 55;
+  const sl = 150 + Math.random() * 160;
+  const sr = (Math.random() * 26 - 13) - (fromLeft ? 0 : 180);
+  const sdur = 0.8 + Math.random() * 0.6;
+  const sdx = (fromLeft ? 1 : -1) * (440 + Math.random() * 160);
+  s.style.setProperty('--sx', fromLeft ? '-10%' : '110%');
+  s.style.setProperty('--sy', sy + '%');
+  s.style.setProperty('--sl', sl.toFixed(0) + 'px');
+  s.style.setProperty('--sr', sr.toFixed(1) + 'deg');
+  s.style.setProperty('--sdur', sdur.toFixed(2) + 's');
+  s.style.setProperty('--sdx', sdx.toFixed(0) + 'px');
+  el.appendChild(s);
+  setTimeout(() => s.remove(), sdur * 1000 + 200);
+}
+
+function pvStartStreaks() {
+  pvSpawnStreak();
+  if (Math.random() < 0.4) setTimeout(pvSpawnStreak, 120 + Math.random() * 200);
+  pvStreakTimer = setTimeout(pvStartStreaks, 900 + Math.random() * 1400);
+}
+
+function pvPlayEquipEffect() {
+  const stage = $("mockAvatarStage");
+  if (!stage) return;
+  const avatar = $("mockAvatar");
+  if (avatar) {
+    avatar.style.filter = "brightness(3.5)";
+    setTimeout(() => { avatar.style.filter = ""; }, 600);
+  }
+  const shock = document.createElement('div');
+  shock.className = 'pv-shockwave';
+  stage.appendChild(shock);
+  setTimeout(() => shock.remove(), 750);
+
+  const burst = document.createElement('div');
+  burst.className = 'pv-equip-burst';
+  const colors = ['#ffcc00','#ffaa00','#ff6600','#ff2200','#fff7cc','#ff4400'];
+  const N = 50;
+  for (let i = 0; i < N; i++) {
+    const s = document.createElement('span');
+    const angle = (i / N) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 100 + Math.random() * 180;
+    s.style.setProperty('--bx', `${(Math.cos(angle) * dist).toFixed(0)}px`);
+    s.style.setProperty('--by', `${(Math.sin(angle) * dist).toFixed(0)}px`);
+    s.style.background = colors[Math.floor(Math.random() * colors.length)];
+    s.style.color = s.style.background;
+    s.style.width = s.style.height = `${4 + Math.random() * 10}px`;
+    s.style.animationDelay = `${Math.random() * 0.2}s`;
+    burst.appendChild(s);
+  }
+  stage.appendChild(burst);
+  setTimeout(() => burst.remove(), 1400);
+}
+
+function pvInitEffects() {
+  if (pvEffectsSpawned) return;
+  pvEffectsSpawned = true;
+  pvSpawnFlameBack();
+  pvSpawnFlameFront();
+  pvSpawnEmbers();
+  pvSpawnSmoke();
+  pvStartStreaks();
+  setTimeout(pvStartSkulls, 1200);
+}
+
+function pvStopEffects() {
+  clearTimeout(pvSkullTimer);
+  clearTimeout(pvStreakTimer);
+  pvSkullTimer = null;
+  pvStreakTimer = null;
+  pvEffectsSpawned = false;
+  ["pvSkulls", "pvStreaks"].forEach(id => {
+    const el = $(id);
+    if (el) el.innerHTML = "";
+  });
+}
+
+/* ═══ PREVIEW — open/close ═══ */
 async function openPreview() {
   const overlay = $("previewOverlay");
 
-  // Load avatar + tên thật từ profile nếu đã login
+  // Load profile data
   if (session && session.username) {
     try {
       const k = keyOf(session.username);
@@ -693,11 +987,12 @@ async function openPreview() {
       $("mockName").textContent = session.name || session.username;
       $("mockUser").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 
+      const avatarEl = $("mockAvatar");
       if (prof.avatarImg) {
-        $("mockAvatar").innerHTML = `<img src="${prof.avatarImg}" alt="avatar">`;
+        avatarEl.innerHTML = `<img src="${prof.avatarImg}" alt="avatar">`;
       } else {
-        $("mockAvatar").innerHTML = "";
-        $("mockAvatar").textContent = prof.avatar || "🐱";
+        avatarEl.innerHTML = "";
+        avatarEl.textContent = prof.avatar || "🐱";
       }
 
       const c = await getUserCoins(session.username);
@@ -711,7 +1006,7 @@ async function openPreview() {
     $("mockCoins").textContent = "0";
   }
 
-  // Cập nhật nút mua theo trạng thái
+  // Buy button state
   const btnBuy = $("previewBtnBuy");
   if (!session || !session.username) {
     btnBuy.textContent = "🔒 Cần đăng nhập";
@@ -729,11 +1024,16 @@ async function openPreview() {
 
   overlay.classList.add("on");
   document.body.style.overflow = "hidden";
+
+  // Init + play effects
+  pvInitEffects();
+  setTimeout(pvPlayEquipEffect, 300);
 }
 
 function closePreview() {
   $("previewOverlay").classList.remove("on");
   document.body.style.overflow = "";
+  pvStopEffects();
 }
 
 $("btnPreviewFire").onclick = openPreview;
@@ -743,16 +1043,14 @@ $("previewBtnClose").onclick = closePreview;
 $("previewBtnBuy").onclick = () => {
   if ($("previewBtnBuy").disabled) return;
   closePreview();
-  // Kích hoạt flow mua y như nút chính
   setTimeout(() => $("btnBuyFire").click(), 100);
 };
 
-// Đóng khi click ra ngoài mock profile
 $("previewOverlay").onclick = (e) => {
   if (e.target === $("previewOverlay")) closePreview();
 };
 
-/* ═══ ESCAPE TO CLOSE ALL ═══ */
+/* ═══ ESCAPE ═══ */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("confirmMask").classList.remove("on");
