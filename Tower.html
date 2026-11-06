@@ -90,20 +90,20 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 .skel { height: 40px; border-radius: 8px; margin: 8px 0; background: linear-gradient(90deg, var(--ln) 25%, var(--acs) 50%, var(--ln) 75%); background-size: 200% 100%; animation: sh 1.2s linear infinite; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-.giveup-btn {
-  background: transparent !important;
-  color: var(--bad) !important;
-  border: 1.5px solid var(--bad) !important;
-  box-shadow: none !important;
-  width: auto !important;
-}
-.giveup-btn:hover {
-  background: var(--bads) !important;
-  transform: translateY(-2px);
-}
+.giveup-btn { background: transparent !important; color: var(--bad) !important; border: 1.5px solid var(--bad) !important; box-shadow: none !important; width: auto !important; }
+.giveup-btn:hover { background: var(--bads) !important; transform: translateY(-2px); }
 </style>
 </head>
 <body>
+
+<div id="fatal-error" class="hide" style="position:fixed;inset:0;background:#0f172a;z-index:99999;display:grid;place-items:center;padding:24px;text-align:center;">
+  <div>
+    <h1 style="color:#ef4444;font-size:2rem;">⚠️ Lỗi Tải Trang</h1>
+    <p id="fatal-msg" style="color:#94a3b8;margin:16px 0;max-width:400px;line-height:1.6;"></p>
+    <button onclick="location.reload()" style="padding:12px 24px;background:#3b82f6;color:#fff;border:0;border-radius:8px;font-weight:bold;cursor:pointer;">Tải Lại Trang</button>
+    <button onclick="location.href='/'" style="padding:12px 24px;background:transparent;color:#94a3b8;border:1px solid #475569;border-radius:8px;font-weight:bold;cursor:pointer;margin-left:8px;">Về Trang Chủ</button>
+  </div>
+</div>
 
 <main>
   <section id="start-screen" class="card hide" style="text-align:center; margin-top:10vh;">
@@ -113,12 +113,9 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       🇬🇧 Tiếng Anh · ⚖️ GDCD · 🌍 Địa lí<br>
       <span style="color:var(--bad); font-weight:700;">⚠️ Lưu ý: F5 hoặc thoát tab giữa chừng sẽ bị tính là bỏ cuộc.</span>
     </p>
-
     <div id="user-greeting" style="font-size:1.2rem; font-weight:700; color:var(--ok); margin-bottom:24px; background:var(--oks); display:inline-block; padding:12px 24px; border-radius:12px;"></div>
-
     <button id="btn-start-game" style="font-size:1.1rem; padding:16px; background:var(--ok); box-shadow: 0 4px 16px rgba(34,197,94,0.3);">▶ Bắt Đầu Leo Tháp</button>
     <button id="btn-home-start" class="g" style="margin-top: 12px;">🏠 Trang chủ</button>
-
     <div style="margin-top:28px; text-align:left;">
       <h3 style="margin:0 0 12px;">🏆 Bảng Xếp Hạng Tháp</h3>
       <div id="leaderboard-container-start"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
@@ -150,7 +147,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       <div style="font-size:3rem; margin-bottom:8px;" id="result-icon">💀</div>
       <h2 style="margin:0 0 4px;" id="result-title">GÃY THÁP!</h2>
       <p style="color:var(--mut); margin:0 0 20px;" id="result-reason"></p>
-      
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
         <div style="background:var(--ln); padding:16px; border-radius:12px;">
           <div style="font-size:0.8rem; color:var(--mut); font-weight:600;">Tầng đạt được</div>
@@ -166,7 +162,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
         <button id="btn-home-result" class="g" style="flex:1;">🏠 Trang chủ</button>
       </div>
     </div>
-
     <div class="card">
       <h3 style="margin:0 0 16px; display:flex; align-items:center; gap:8px;">🏆 Bảng Xếp Hạng Tháp</h3>
       <div id="leaderboard-container">
@@ -189,630 +184,650 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 <audio id="bgMusic" style="display:none;"></audio>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { awardTowerCoins } from '/js/core.js';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
-  authDomain: "nightshift-51ded.firebaseapp.com",
-  databaseURL: "https://nightshift-51ded-default-rtdb.firebaseio.com",
-  projectId: "nightshift-51ded",
-  storageBucket: "nightshift-51ded.firebasestorage.app",
-  messagingSenderId: "1239554748",
-  appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const TOWER_NODE = "tower";
-
-if (location.hostname.toLowerCase() !== "luyendemaster.vercel.app" && location.hostname.toLowerCase() !== "localhost" && location.hostname.toLowerCase() !== "127.0.0.1") {
-  document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20vh;'>ĐỪNG CÓ ĂN CẮP MÀ BROOOOO!</h1>";
-  throw new Error("Domain mismatch");
-}
-
-/* 🎬 HIỆU ỨNG NHẬN THƯỞNG */
-function showCollectAnim(amount, reason, balance) {
-  return new Promise((resolve) => {
-    const existing = document.getElementById("collectOverlay");
-    if (existing) existing.remove();
-
-    const overlay = document.createElement("div");
-    overlay.id = "collectOverlay";
-    overlay.style.cssText = "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
-
-    const iframe = document.createElement("iframe");
-    const qs = new URLSearchParams({ amount: String(amount), reason: String(reason || "tower"), balance: String(balance || 0) });
-    iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
-    iframe.style.cssText = "width:100%;height:100%;border:0;background:transparent;display:block;";
-    iframe.setAttribute("allow", "autoplay");
-    iframe.setAttribute("scrolling", "no");
-
-    overlay.appendChild(iframe);
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
-
-    const cleanup = () => {
-      window.removeEventListener("message", handler);
-      overlay.style.opacity = "0";
-      setTimeout(() => { overlay.remove(); resolve(); }, 250);
-    };
-    const handler = (e) => {
-      if (e.origin !== window.location.origin) return;
-      if (e.data && e.data.type === "collect:done") cleanup();
-    };
-    window.addEventListener("message", handler);
-
-    setTimeout(() => { if (document.getElementById("collectOverlay")) cleanup(); }, 6000);
-  });
-}
-
-const Q_ENGLISH = [
-["Choose the word whose underlined part differs from the others: h<u>ou</u>se, m<u>ou</u>se, c<u>ou</u>ntry, ab<u>ou</u>t",["house","mouse","country","about"],[2]],
-["My hometown is _______ for handicrafts, such as paper fans and lanterns.",["famously","famous","fame","infamous"],[1]],
-["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.",["handicrafts","festivals","dishes","costumes"],[0]],
-["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"",["That would be great!","Sure","Here you are.","Yes, I am"],[1]],
-["In their community, the eldest child is usually _______ for his or her parents.",["responsibility","responsibly","responsible","irresponsible"],[2]],
-["Our _______ help keep law and order in our community.",["artisans","police officers","craftsmen","electricians"],[1]],
-["The more carefully students listen, the _______ they understand the lesson.",["good","well","better","best"],[2]],
-["Could you tell me _______ the assignment?",["when to hand in","when hand in","when handing in","when handed in"],[0]],
-["The friendlier the community is, _______ people feel.",["the happier","the more happy","happier","the happiest"],[0]],
-["People try to save water because they sometimes _______ clean water during the dry season.",["run out","run out of","run into","run away"],[1]]
-];
-
-const Q_GDCD = [
-["Sống có lí tưởng là",["xác định được mục đích cao đẹp và có kế hoạch hành động, quyết tâm phấn đấu để đạt được mục đích đó.","xác định được mục đích cao đẹp và phấn đấu để đạt được mục đích đó.","xác định được mục đích, kế hoạch hành động của bản thân.","xác định được mục đích cao đẹp, kế hoạch hành động của bản thân."],[0]],
-["Biểu hiện sống thiếu lí tưởng của thanh niên hiện nay là",["vượt khó trong học tập.","đấu tranh chống các hiện tượng tiêu cực.","năng động, sáng tạo trong công việc.","sống ỷ lại, thực dụng."],[3]],
-["Người biết tha thứ cho chính mình và người khác là biểu hiện của:",["Khiêm tốn","Khoan dung","Giản dị","Trung thực"],[1]],
-["Biểu hiện nào sau đây thể hiện người có lòng khoan dung?",["Phê phán tất cả những người mắc lỗi lầm.","Ích kỉ, hẹp hòi với người mình không thích.","Chấp nhận cá tính, sở thích của người khác.","Không bỏ qua lỗi lầm của người khác."],[2]],
-["Loại hoạt động cộng đồng nào tập trung vào việc cải thiện môi trường?",["Hoạt động xã hội.","Hoạt động bảo vệ môi trường.","Hoạt động văn hóa.","Hoạt động quyên góp tiền."],[1]],
-["Ý nào sau đây là đúng khi nói về ý nghĩa của sống có lí tưởng?",["Luôn được mọi người tôn trọng và thành công trong cuộc sống.","Luôn được mọi người hâm mộ.","Luôn có nhiều tiền bạc.","Luôn giàu có về tâm hồn và tiền bạc."],[0]],
-["Lòng khoan dung có thể giúp giảm thiểu:",["Sự xung đột và căng thẳng.","Sự đa dạng.","Sự hiểu biết.","Sự giao tiếp."],[0]],
-["Tại sao cần tích cực tổ chức hoạt động cộng đồng?",["Để tăng cường sự đoàn kết và cùng nhau xây dựng đất nước giàu mạnh.","Chỉ để giữ gìn truyền thống.","Mang lại lợi ích cho cá nhân.","Để tạo lợi nhuận."],[0]],
-["Câu thành ngữ nào sau đây thể hiện người sống có lí tưởng?",["Thắng không kiêu, bại không nản.","Dễ làm, khó bỏ.","Nước đến chân mới nhảy.","Thân ai người đó lo."],[0]],
-["Mục tiêu chính của hoạt động cộng đồng là gì?",["Cải thiện chất lượng cuộc sống.","Nâng cao danh tiếng cá nhân.","Kiếm lợi nhuận.","Có tiếng nói trong tổ chức."],[0]]
-];
-
-const Q_DIALI = [
-["Các dân tộc thiểu số ở Việt Nam sinh sống chủ yếu ở",["đồng bằng châu thổ","vùng đồi núi và cao nguyên","vùng ven biển","các đô thị lớn"],[1]],
-["Người Kinh (Việt) ở nước ta sinh sống chủ yếu ở khu vực nào?",["Vùng núi cao phía Bắc","Vùng cao nguyên Tây Nguyên","Đồng bằng, ven biển và trung du","Vùng biên giới"],[2]],
-["Cơ cấu dân số theo nhóm tuổi ở nước ta hiện nay đang chuyển dịch theo hướng nào?",["Tỉ lệ nhóm 0–14 tuổi tăng, tỉ lệ nhóm từ 65 tuổi trở lên giảm","Tỉ lệ nhóm 0–14 tuổi giảm, tỉ lệ nhóm từ 65 tuổi trở lên tăng","Tỉ lệ cả hai nhóm tuổi đều tăng","Tỉ lệ cả hai nhóm tuổi đều giảm"],[1]],
-["Đặc điểm nào sau đây đúng với quần cư thành thị ở nước ta?",["Dân cư thưa thớt, sống phân tán","Hoạt động kinh tế chủ yếu là nông nghiệp","Dân cư tập trung mật độ cao, hoạt động kinh tế chủ yếu là công nghiệp, dịch vụ","Nhà ở chủ yếu là nhà sàn"],[2]],
-["Ở nước ta, tình trạng thiếu việc làm diễn ra gay gắt nhất ở khu vực nào?",["Thành thị","Miền núi","Ven biển","Nông thôn"],[3]],
-["Hạn chế lớn nhất của nguồn lao động nước ta hiện nay là",["thiếu kinh nghiệm sản xuất nông nghiệp","số lượng lao động ít","tỉ lệ lao động đã qua đào tạo còn thấp, thiếu lao động tay nghề cao","lao động không cần cù"],[2]],
-["Thế mạnh nổi bật của nguồn lao động nước ta là",["có trình độ chuyên môn cao hoàn toàn","số lượng ít nhưng chất lượng cao","chủ yếu làm việc trong ngành công nghệ cao","dồi dào, cần cù, tỉ lệ lao động qua đào tạo ngày càng được nâng cao"],[3]],
-["Hai vùng trồng lúa trọng điểm lớn nhất nước ta là",["Trung du và miền núi phía Bắc và Tây Nguyên","Đồng bằng sông Hồng và Đồng bằng sông Cửu Long","Bắc Trung Bộ và Duyên hải Nam Trung Bộ","Đông Nam Bộ và Tây Nguyên"],[1]],
-["Các cây công nghiệp lâu năm như cà phê, cao su, hồ tiêu ở nước ta được trồng tập trung nhiều nhất ở",["Tây Nguyên và Đông Nam Bộ","Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Trung du và miền núi phía Bắc"],[0]],
-["Vùng có sản lượng nuôi trồng thủy sản lớn nhất cả nước là",["Đồng bằng sông Hồng","Duyên hải Nam Trung Bộ","Đồng bằng sông Cửu Long","Bắc Trung Bộ"],[2]]
-];
-
-const POOL = [
-  ...Q_ENGLISH.map(q => ({ q, subject: "🇬🇧 Tiếng Anh" })),
-  ...Q_GDCD.map(q => ({ q, subject: "⚖️ GDCD" })),
-  ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" }))
-];
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-const $ = id => document.getElementById(id);
-const SESSION_KEY = "qp_session_v2";
-let session = null;
-
-function loadSession() {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
-  catch(e) { return null; }
-}
-
-function normText(s) {
-  return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
-}
-
-const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'lồn', 'cặc', 'cứt', 'ngu', 'khốn nạn', 'sex', 'lol', 'vl', 'vãi', 'địt'];
-function checkProfanity(str) {
-  if (!str) return false;
-  const lowerStr = String(str).toLowerCase();
-  const noAccentStr = normText(str);
-  return BAD_WORDS.some(w => noAccentStr.includes(w) || lowerStr.includes(w));
-}
-
-function keyOf(u) {
-  return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
-}
-
-function getUsername() {
-  return session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
-}
-
-function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return String(text || "").replace(/[&<>"']/g, m => map[m]);
-}
-
-let currentFloor = 1;
-let gameQuestions = [];
-let startTime = 0;
-let timerInterval = null;
-let isGameActive = false;
-let questionRenderTime = 0;
-let hoveredOptions = new Set();
-let gameId = "";
-
-function fmtTime(ms) {
-  ms = Math.max(0, ms || 0);
-  const m = Math.floor(ms / 60000);
-  const s = Math.floor((ms % 60000) / 1000);
-  const cs = Math.floor((ms % 1000) / 10);
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
-}
-
-async function checkActiveGameOnLoad() {
-  const username = getUsername();
-  const k = keyOf(username);
-  let activeRecord = null;
-
+// Bọc toàn bộ trong try-catch để bắt mọi lỗi (như lỗi import, lỗi mạng...)
+(async function init() {
   try {
-    const snap = await get(ref(db, "tower_active/" + k));
-    if (snap.exists()) activeRecord = snap.val();
-  } catch(e) {
-    console.warn("Firebase read failed, using localStorage fallback");
-  }
+    const firebaseApp = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const firebaseDb = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+    const core = await import(`/js/core.js?v=${Date.now()}`);
+    
+    const { initializeApp } = firebaseApp;
+    const { getDatabase, ref, push, set, get, remove, serverTimestamp } = firebaseDb;
+    const awardTowerCoins = core.awardTowerCoins;
 
-  if (!activeRecord) {
-    const lsData = localStorage.getItem("tower_active_v1");
-    if (lsData) {
-      try { activeRecord = JSON.parse(lsData); } catch(e) {}
+    const firebaseConfig = {
+      apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
+      authDomain: "nightshift-51ded.firebaseapp.com",
+      databaseURL: "https://nightshift-51ded-default-rtdb.firebaseio.com",
+      projectId: "nightshift-51ded",
+      storageBucket: "nightshift-51ded.firebasestorage.app",
+      messagingSenderId: "1239554748",
+      appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const TOWER_NODE = "tower";
+
+    // Kiểm tra tên miền (cho phép localhost và vercel)
+    const host = location.hostname.toLowerCase();
+    if (!host.includes("vercel.app") && host !== "localhost" && host !== "127.0.0.1") {
+      throw new Error("Tên miền không hợp lệ. Trang web chỉ chạy trên luyendemaster.vercel.app");
     }
-  }
 
-  if (activeRecord && activeRecord.username === username) {
-    const score = Math.max(0, (activeRecord.floor || 1) - 1);
-    const time = (activeRecord.lastActive || 0) - (activeRecord.startTime || 0);
+    /* 🎬 HIỆU ỨNG NHẬN THƯỞNG */
+    function showCollectAnim(amount, reason, balance) {
+      return new Promise((resolve) => {
+        const existing = document.getElementById("collectOverlay");
+        if (existing) existing.remove();
 
-    try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
-    localStorage.removeItem("tower_active_v1");
+        const overlay = document.createElement("div");
+        overlay.id = "collectOverlay";
+        overlay.style.cssText = "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
 
-    showAbandonedResult(score, time);
-    await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
-  } else {
-    if (location.pathname.match(/^\/Tower_\d+$/i)) {
+        const iframe = document.createElement("iframe");
+        const qs = new URLSearchParams({ amount: String(amount), reason: String(reason || "tower"), balance: String(balance || 0) });
+        iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
+        iframe.style.cssText = "width:100%;height:100%;border:0;background:transparent;display:block;";
+        iframe.setAttribute("allow", "autoplay");
+        iframe.setAttribute("scrolling", "no");
+
+        overlay.appendChild(iframe);
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+        const cleanup = () => {
+          window.removeEventListener("message", handler);
+          overlay.style.opacity = "0";
+          setTimeout(() => { overlay.remove(); resolve(); }, 250);
+        };
+        const handler = (e) => {
+          if (e.origin !== window.location.origin) return;
+          if (e.data && e.data.type === "collect:done") cleanup();
+        };
+        window.addEventListener("message", handler);
+
+        setTimeout(() => { if (document.getElementById("collectOverlay")) cleanup(); }, 6000);
+      });
+    }
+
+    const Q_ENGLISH = [
+    ["Choose the word whose underlined part differs from the others: h<u>ou</u>se, m<u>ou</u>se, c<u>ou</u>ntry, ab<u>ou</u>t",["house","mouse","country","about"],[2]],
+    ["My hometown is _______ for handicrafts, such as paper fans and lanterns.",["famously","famous","fame","infamous"],[1]],
+    ["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.",["handicrafts","festivals","dishes","costumes"],[0]],
+    ["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"",["That would be great!","Sure","Here you are.","Yes, I am"],[1]],
+    ["In their community, the eldest child is usually _______ for his or her parents.",["responsibility","responsibly","responsible","irresponsible"],[2]],
+    ["Our _______ help keep law and order in our community.",["artisans","police officers","craftsmen","electricians"],[1]],
+    ["The more carefully students listen, the _______ they understand the lesson.",["good","well","better","best"],[2]],
+    ["Could you tell me _______ the assignment?",["when to hand in","when hand in","when handing in","when handed in"],[0]],
+    ["The friendlier the community is, _______ people feel.",["the happier","the more happy","happier","the happiest"],[0]],
+    ["People try to save water because they sometimes _______ clean water during the dry season.",["run out","run out of","run into","run away"],[1]]
+    ];
+
+    const Q_GDCD = [
+    ["Sống có lí tưởng là",["xác định được mục đích cao đẹp và có kế hoạch hành động, quyết tâm phấn đấu để đạt được mục đích đó.","xác định được mục đích cao đẹp và phấn đấu để đạt được mục đích đó.","xác định được mục đích, kế hoạch hành động của bản thân.","xác định được mục đích cao đẹp, kế hoạch hành động của bản thân."],[0]],
+    ["Biểu hiện sống thiếu lí tưởng của thanh niên hiện nay là",["vượt khó trong học tập.","đấu tranh chống các hiện tượng tiêu cực.","năng động, sáng tạo trong công việc.","sống ỷ lại, thực dụng."],[3]],
+    ["Người biết tha thứ cho chính mình và người khác là biểu hiện của:",["Khiêm tốn","Khoan dung","Giản dị","Trung thực"],[1]],
+    ["Biểu hiện nào sau đây thể hiện người có lòng khoan dung?",["Phê phán tất cả những người mắc lỗi lầm.","Ích kỉ, hẹp hòi với người mình không thích.","Chấp nhận cá tính, sở thích của người khác.","Không bỏ qua lỗi lầm của người khác."],[2]],
+    ["Loại hoạt động cộng đồng nào tập trung vào việc cải thiện môi trường?",["Hoạt động xã hội.","Hoạt động bảo vệ môi trường.","Hoạt động văn hóa.","Hoạt động quyên góp tiền."],[1]],
+    ["Ý nào sau đây là đúng khi nói về ý nghĩa của sống có lí tưởng?",["Luôn được mọi người tôn trọng và thành công trong cuộc sống.","Luôn được mọi người hâm mộ.","Luôn có nhiều tiền bạc.","Luôn giàu có về tâm hồn và tiền bạc."],[0]],
+    ["Lòng khoan dung có thể giúp giảm thiểu:",["Sự xung đột và căng thẳng.","Sự đa dạng.","Sự hiểu biết.","Sự giao tiếp."],[0]],
+    ["Tại sao cần tích cực tổ chức hoạt động cộng đồng?",["Để tăng cường sự đoàn kết và cùng nhau xây dựng đất nước giàu mạnh.","Chỉ để giữ gìn truyền thống.","Mang lại lợi ích cho cá nhân.","Để tạo lợi nhuận."],[0]],
+    ["Câu thành ngữ nào sau đây thể hiện người sống có lí tưởng?",["Thắng không kiêu, bại không nản.","Dễ làm, khó bỏ.","Nước đến chân mới nhảy.","Thân ai người đó lo."],[0]],
+    ["Mục tiêu chính của hoạt động cộng đồng là gì?",["Cải thiện chất lượng cuộc sống.","Nâng cao danh tiếng cá nhân.","Kiếm lợi nhuận.","Có tiếng nói trong tổ chức."],[0]]
+    ];
+
+    const Q_DIALI = [
+    ["Các dân tộc thiểu số ở Việt Nam sinh sống chủ yếu ở",["đồng bằng châu thổ","vùng đồi núi và cao nguyên","vùng ven biển","các đô thị lớn"],[1]],
+    ["Người Kinh (Việt) ở nước ta sinh sống chủ yếu ở khu vực nào?",["Vùng núi cao phía Bắc","Vùng cao nguyên Tây Nguyên","Đồng bằng, ven biển và trung du","Vùng biên giới"],[2]],
+    ["Cơ cấu dân số theo nhóm tuổi ở nước ta hiện nay đang chuyển dịch theo hướng nào?",["Tỉ lệ nhóm 0–14 tuổi tăng, tỉ lệ nhóm từ 65 tuổi trở lên giảm","Tỉ lệ nhóm 0–14 tuổi giảm, tỉ lệ nhóm từ 65 tuổi trở lên tăng","Tỉ lệ cả hai nhóm tuổi đều tăng","Tỉ lệ cả hai nhóm tuổi đều giảm"],[1]],
+    ["Đặc điểm nào sau đây đúng với quần cư thành thị ở nước ta?",["Dân cư thưa thớt, sống phân tán","Hoạt động kinh tế chủ yếu là nông nghiệp","Dân cư tập trung mật độ cao, hoạt động kinh tế chủ yếu là công nghiệp, dịch vụ","Nhà ở chủ yếu là nhà sàn"],[2]],
+    ["Ở nước ta, tình trạng thiếu việc làm diễn ra gay gắt nhất ở khu vực nào?",["Thành thị","Miền núi","Ven biển","Nông thôn"],[3]],
+    ["Hạn chế lớn nhất của nguồn lao động nước ta hiện nay là",["thiếu kinh nghiệm sản xuất nông nghiệp","số lượng lao động ít","tỉ lệ lao động đã qua đào tạo còn thấp, thiếu lao động tay nghề cao","lao động không cần cù"],[2]],
+    ["Thế mạnh nổi bật của nguồn lao động nước ta là",["có trình độ chuyên môn cao hoàn toàn","số lượng ít nhưng chất lượng cao","chủ yếu làm việc trong ngành công nghệ cao","dồi dào, cần cù, tỉ lệ lao động qua đào tạo ngày càng được nâng cao"],[3]],
+    ["Hai vùng trồng lúa trọng điểm lớn nhất nước ta là",["Trung du và miền núi phía Bắc và Tây Nguyên","Đồng bằng sông Hồng và Đồng bằng sông Cửu Long","Bắc Trung Bộ và Duyên hải Nam Trung Bộ","Đông Nam Bộ và Tây Nguyên"],[1]],
+    ["Các cây công nghiệp lâu năm như cà phê, cao su, hồ tiêu ở nước ta được trồng tập trung nhiều nhất ở",["Tây Nguyên và Đông Nam Bộ","Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Trung du và miền núi phía Bắc"],[0]],
+    ["Vùng có sản lượng nuôi trồng thủy sản lớn nhất cả nước là",["Đồng bằng sông Hồng","Duyên hải Nam Trung Bộ","Đồng bằng sông Cửu Long","Bắc Trung Bộ"],[2]]
+    ];
+
+    const POOL = [
+      ...Q_ENGLISH.map(q => ({ q, subject: "🇬🇧 Tiếng Anh" })),
+      ...Q_GDCD.map(q => ({ q, subject: "⚖️ GDCD" })),
+      ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" }))
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const $ = id => document.getElementById(id);
+    const SESSION_KEY = "qp_session_v2";
+    let session = null;
+
+    function loadSession() {
+      try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
+      catch(e) { return null; }
+    }
+
+    function normText(s) {
+      return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    const BAD_WORDS = ['dm', 'dcm', 'vcl', 'đm', 'đéo', 'đụ', 'lồn', 'cặc', 'cứt', 'ngu', 'khốn nạn', 'sex', 'lol', 'vl', 'vãi', 'địt'];
+    function checkProfanity(str) {
+      if (!str) return false;
+      const lowerStr = String(str).toLowerCase();
+      const noAccentStr = normText(str);
+      return BAD_WORDS.some(w => noAccentStr.includes(w) || lowerStr.includes(w));
+    }
+
+    function keyOf(u) {
+      return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
+    }
+
+    function getUsername() {
+      if (!session) return "guest_unknown";
+      return session.username || ("guest_" + normText(session.name).replace(/\s+/g, "_"));
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text || "").replace(/[&<>"']/g, m => map[m]);
+    }
+
+    let currentFloor = 1;
+    let gameQuestions = [];
+    let startTime = 0;
+    let timerInterval = null;
+    let isGameActive = false;
+    let questionRenderTime = 0;
+    let hoveredOptions = new Set();
+    let gameId = "";
+
+    function fmtTime(ms) {
+      ms = Math.max(0, ms || 0);
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      const cs = Math.floor((ms % 1000) / 10);
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+    }
+
+    async function checkActiveGameOnLoad() {
+      const username = getUsername();
+      const k = keyOf(username);
+      let activeRecord = null;
+
+      try {
+        const snap = await get(ref(db, "tower_active/" + k));
+        if (snap.exists()) activeRecord = snap.val();
+      } catch(e) {
+        console.warn("Firebase read failed, using localStorage fallback");
+      }
+
+      if (!activeRecord) {
+        const lsData = localStorage.getItem("tower_active_v1");
+        if (lsData) {
+          try { activeRecord = JSON.parse(lsData); } catch(e) {}
+        }
+      }
+
+      if (activeRecord && activeRecord.username === username) {
+        const score = Math.max(0, (activeRecord.floor || 1) - 1);
+        const time = (activeRecord.lastActive || 0) - (activeRecord.startTime || 0);
+
+        try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
+        localStorage.removeItem("tower_active_v1");
+
+        showAbandonedResult(score, time);
+        await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
+      } else {
+        if (location.pathname.match(/^\/Tower_\d+$/i)) {
+          window.history.replaceState({}, '', '/Tower');
+        }
+        showStartScreen();
+      }
+    }
+
+    function showAbandonedResult(score, time) {
+      $("start-screen").classList.add("hide");
+      $("game-screen").classList.add("hide");
+      $("result-screen").classList.remove("hide");
+      $("result-icon").textContent = "🏳️";
+      $("result-title").textContent = "ĐÃ BỎ CUỘC";
+      $("result-title").style.color = "var(--bad)";
+      $("result-reason").textContent = "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.";
+      $("final-floor").textContent = score;
+      $("final-time").textContent = fmtTime(time);
       window.history.replaceState({}, '', '/Tower');
     }
-    showStartScreen();
-  }
-}
 
-function showAbandonedResult(score, time) {
-  $("start-screen").classList.add("hide");
-  $("game-screen").classList.add("hide");
-  $("result-screen").classList.remove("hide");
-  $("result-icon").textContent = "🏳️";
-  $("result-title").textContent = "ĐÃ BỎ CUỘC";
-  $("result-title").style.color = "var(--bad)";
-  $("result-reason").textContent = "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.";
-  $("final-floor").textContent = score;
-  $("final-time").textContent = fmtTime(time);
-  window.history.replaceState({}, '', '/Tower');
-}
-
-function showStartScreen() {
-  $("user-greeting").innerHTML = `👤 Xin chào, <b>${escapeHtml(session.name)}</b>${session.cls ? ' (' + escapeHtml(session.cls) + ')' : ''}!`;
-  $("start-screen").classList.remove("hide");
-  loadLeaderboard();
-}
-
-function startGame() {
-  gameId = Date.now() + "_" + Math.random().toString(36).slice(2);
-  currentFloor = 1;
-  gameQuestions = shuffle([...POOL]);
-  startTime = Date.now();
-  isGameActive = true;
-
-  const username = getUsername();
-  const k = keyOf(username);
-  const record = {
-    gameId,
-    name: session.name,
-    cls: session.cls || "",
-    username: username,
-    floor: 1,
-    startTime: Date.now(),
-    lastActive: Date.now()
-  };
-
-  localStorage.setItem("tower_active_v1", JSON.stringify(record));
-  try {
-    set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase set failed", e));
-  } catch(e) {}
-
-  $("start-screen").classList.add("hide");
-  $("result-screen").classList.add("hide");
-  $("game-screen").classList.remove("hide");
-  $("display-name").textContent = session.name;
-
-  window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
-
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (isGameActive) $("timer-display").textContent = fmtTime(Date.now() - startTime);
-  }, 50);
-
-  renderQuestion();
-}
-
-function updateActiveRecord() {
-  if (!isGameActive) return;
-  const username = getUsername();
-  const k = keyOf(username);
-  const record = {
-    gameId,
-    name: session.name,
-    cls: session.cls || "",
-    username: username,
-    floor: currentFloor,
-    startTime: startTime,
-    lastActive: Date.now()
-  };
-
-  localStorage.setItem("tower_active_v1", JSON.stringify(record));
-  try {
-    set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase update failed", e));
-  } catch(e) {}
-}
-
-function checkMultiTab() {
-  const lsData = localStorage.getItem("tower_active_v1");
-  if (lsData) {
-    try {
-      const record = JSON.parse(lsData);
-      if (record.gameId !== gameId) {
-        triggerCheat("Phát hiện mở nhiều tab/ván cùng lúc.");
-      }
-    } catch(e) {}
-  } else {
-    triggerCheat("Phát hiện mất dữ liệu phiên làm việc (có thể do tab khác ghi đè).");
-  }
-}
-
-function renderQuestion() {
-  if (!isGameActive) return;
-  checkMultiTab();
-  if (!isGameActive) return;
-
-  if (currentFloor > gameQuestions.length) {
-    endGame(true, "Bạn đã chinh phục toàn bộ tháp!");
-    return;
-  }
-
-  window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
-
-  const item = gameQuestions[currentFloor - 1];
-  const q = item.q;
-
-  $("floor-display").textContent = currentFloor;
-  $("q-subject").textContent = item.subject;
-  $("q-text").innerHTML = q[0];
-
-  const container = $("options-container");
-  container.innerHTML = "";
-
-  questionRenderTime = Date.now();
-  hoveredOptions.clear();
-
-  const labels = ["A", "B", "C", "D"];
-  q[1].forEach((optText, idx) => {
-    const div = document.createElement("div");
-    div.className = "opt";
-    div.innerHTML = `<b>${labels[idx]}</b><span>${optText}</span>`;
-    div.addEventListener("pointerenter", () => {
-      if (isGameActive) hoveredOptions.add(idx);
-    });
-    div.onclick = (e) => handleAnswer(idx, q[2], div, e);
-    container.appendChild(div);
-  });
-}
-
-function handleAnswer(selectedIdx, correctIndices, element, event) {
-  if (!isGameActive) return;
-  checkMultiTab();
-  if (!isGameActive) return;
-
-  if (!event.isTrusted) {
-    triggerCheat("Phát hiện click ảo (event.isTrusted = false). Script auto-click bị chặn.");
-    return;
-  }
-  const reactionTime = Date.now() - questionRenderTime;
-  if (reactionTime < 80) {
-    triggerCheat(`Tốc độ phản xạ: ${reactionTime}ms. Con người không thể nhìn và click nhanh hơn 80ms.`);
-    return;
-  }
-  if (reactionTime < 250 && !hoveredOptions.has(selectedIdx)) {
-    triggerCheat(`Click không có dấu vết di chuột (Hover Trace). Phản xạ: ${reactionTime}ms.`);
-    return;
-  }
-
-  const allOpts = document.querySelectorAll(".opt");
-  allOpts.forEach(el => { el.style.pointerEvents = "none"; el.style.opacity = "0.7"; });
-  element.style.opacity = "1";
-
-  const isCorrect = correctIndices.includes(selectedIdx);
-  if (isCorrect) {
-    element.classList.add("ok");
-    setTimeout(() => {
-      if (!isGameActive) return;
-      currentFloor++;
-      updateActiveRecord();
-      renderQuestion();
-    }, 350);
-  } else {
-    element.classList.add("bad");
-    document.body.classList.add("shake-screen");
-    setTimeout(() => {
-      document.body.classList.remove("shake-screen");
-      endGame(false, "Bạn đã chọn sai đáp án.");
-    }, 500);
-  }
-}
-
-async function clearActiveGame() {
-  const k = keyOf(getUsername());
-  localStorage.removeItem("tower_active_v1");
-  try {
-    await remove(ref(db, "tower_active/" + k));
-  } catch(e) {
-    console.warn("Failed to remove active game", e);
-  }
-}
-
-async function endGame(isWin, reason) {
-  if (!isGameActive) return;
-  isGameActive = false;
-  clearInterval(timerInterval);
-  const finalTime = Date.now() - startTime;
-  const score = Math.max(0, currentFloor - 1);
-
-  await clearActiveGame();
-
-  window.history.replaceState({}, '', '/Tower');
-
-  $("game-screen").classList.add("hide");
-  $("result-screen").classList.remove("hide");
-
-  $("result-icon").textContent = isWin ? "👑" : (reason.indexOf("bỏ cuộc") > -1 ? "🏳️" : "💀");
-  $("result-title").textContent = isWin ? "CHIẾN THẮNG!" : (reason.indexOf("bỏ cuộc") > -1 ? "ĐÃ BỎ CUỘC" : "GÃY THÁP!");
-  $("result-title").style.color = isWin ? "var(--ok)" : "var(--bad)";
-  $("result-reason").textContent = reason;
-  $("final-floor").textContent = score;
-  $("final-time").textContent = fmtTime(finalTime);
-
-  await saveScore(score, finalTime, reason, false);
-}
-
-async function saveScore(score, time, reason, isAbandoned) {
-  if (checkProfanity(session.name)) {
-    console.warn("Blocked save due to profanity in name");
-    return;
-  }
-
-  if (score < 1) {
-    loadLeaderboard();
-    return;
-  }
-
-  try {
-    const newRef = push(ref(db, TOWER_NODE));
-    await set(newRef, {
-      name: session.name,
-      username: getUsername(),
-      cls: session.cls || "",
-      score: score,
-      time: time,
-      isAbandoned: isAbandoned || false,
-      timestamp: serverTimestamp()
-    });
-  } catch (e) {
-    console.error("Lỗi lưu điểm:", e);
-  }
-
-  // 🪙 Cộng LDM Tower + hiệu ứng
-  awardTowerCoins(getUsername(), score).then(reward => {
-    if (reward.earned > 0) {
-      setTimeout(() => {
-        showCollectAnim(reward.earned, "tower", reward.balance);
-      }, 400);
+    function showStartScreen() {
+      $("user-greeting").innerHTML = `👤 Xin chào, <b>${escapeHtml(session.name)}</b>${session.cls ? ' (' + escapeHtml(session.cls) + ')' : ''}!`;
+      $("start-screen").classList.remove("hide");
+      loadLeaderboard();
     }
-  }).catch(e => console.warn("[reward]", e));
 
-  loadLeaderboard();
-}
+    function startGame() {
+      gameId = Date.now() + "_" + Math.random().toString(36).slice(2);
+      currentFloor = 1;
+      gameQuestions = shuffle([...POOL]);
+      startTime = Date.now();
+      isGameActive = true;
 
-function triggerCheat(evidence) {
-  if (!isGameActive) return;
+      const username = getUsername();
+      const k = keyOf(username);
+      const record = {
+        gameId,
+        name: session.name,
+        cls: session.cls || "",
+        username: username,
+        floor: 1,
+        startTime: Date.now(),
+        lastActive: Date.now()
+      };
 
-  isGameActive = false;
-  clearInterval(timerInterval);
+      localStorage.setItem("tower_active_v1", JSON.stringify(record));
+      try {
+        set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase set failed", e));
+      } catch(e) {}
 
-  window.history.replaceState({}, '', '/Tower');
+      $("start-screen").classList.add("hide");
+      $("result-screen").classList.add("hide");
+      $("game-screen").classList.remove("hide");
+      $("display-name").textContent = session.name;
 
-  $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
-  $("cheat-overlay").classList.add("active");
+      window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
 
-  clearActiveGame();
-}
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (isGameActive) $("timer-display").textContent = fmtTime(Date.now() - startTime);
+      }, 50);
 
-async function loadLeaderboard() {
-  const targets = ["leaderboard-container", "leaderboard-container-start"].map(id => $(id)).filter(Boolean);
-  const setAll = html => targets.forEach(c => { c.innerHTML = html; });
-  setAll('<div class="skel"></div><div class="skel"></div><div class="skel"></div>');
+      renderQuestion();
+    }
 
-  try {
-    const snapshot = await get(ref(db, TOWER_NODE));
-    const best = new Map();
+    function updateActiveRecord() {
+      if (!isGameActive) return;
+      const username = getUsername();
+      const k = keyOf(username);
+      const record = {
+        gameId,
+        name: session.name,
+        cls: session.cls || "",
+        username: username,
+        floor: currentFloor,
+        startTime: startTime,
+        lastActive: Date.now()
+      };
 
-    snapshot.forEach(child => {
-      const r = child.val();
-      if (!r || typeof r.score !== "number" || typeof r.time !== "number") return;
-      if (r.score < 1 || checkProfanity(r.name)) return;
-      const u = String(r.username || ("guest_" + normText(r.name).replace(/\s+/g, "_"))).toLowerCase();
-      const prev = best.get(u);
-      if (!prev || r.score > prev.score || (r.score === prev.score && r.time < prev.time)) {
-        best.set(u, { ...r, u });
+      localStorage.setItem("tower_active_v1", JSON.stringify(record));
+      try {
+        set(ref(db, "tower_active/" + k), record).catch(e => console.warn("Firebase update failed", e));
+      } catch(e) {}
+    }
+
+    function checkMultiTab() {
+      const lsData = localStorage.getItem("tower_active_v1");
+      if (lsData) {
+        try {
+          const record = JSON.parse(lsData);
+          if (record.gameId !== gameId) {
+            triggerCheat("Phát hiện mở nhiều tab/ván cùng lúc.");
+          }
+        } catch(e) {}
+      } else {
+        triggerCheat("Phát hiện mất dữ liệu phiên làm việc (có thể do tab khác ghi đè).");
+      }
+    }
+
+    function renderQuestion() {
+      if (!isGameActive) return;
+      checkMultiTab();
+      if (!isGameActive) return;
+
+      if (currentFloor > gameQuestions.length) {
+        endGame(true, "Bạn đã chinh phục toàn bộ tháp!");
+        return;
+      }
+
+      window.history.replaceState({ floor: currentFloor }, '', '/Tower_' + currentFloor);
+
+      const item = gameQuestions[currentFloor - 1];
+      const q = item.q;
+
+      $("floor-display").textContent = currentFloor;
+      $("q-subject").textContent = item.subject;
+      $("q-text").innerHTML = q[0];
+
+      const container = $("options-container");
+      container.innerHTML = "";
+
+      questionRenderTime = Date.now();
+      hoveredOptions.clear();
+
+      const labels = ["A", "B", "C", "D"];
+      q[1].forEach((optText, idx) => {
+        const div = document.createElement("div");
+        div.className = "opt";
+        div.innerHTML = `<b>${labels[idx]}</b><span>${optText}</span>`;
+        div.addEventListener("pointerenter", () => {
+          if (isGameActive) hoveredOptions.add(idx);
+        });
+        div.onclick = (e) => handleAnswer(idx, q[2], div, e);
+        container.appendChild(div);
+      });
+    }
+
+    function handleAnswer(selectedIdx, correctIndices, element, event) {
+      if (!isGameActive) return;
+      checkMultiTab();
+      if (!isGameActive) return;
+
+      if (!event.isTrusted) {
+        triggerCheat("Phát hiện click ảo (event.isTrusted = false). Script auto-click bị chặn.");
+        return;
+      }
+      const reactionTime = Date.now() - questionRenderTime;
+      if (reactionTime < 80) {
+        triggerCheat(`Tốc độ phản xạ: ${reactionTime}ms. Con người không thể nhìn và click nhanh hơn 80ms.`);
+        return;
+      }
+      if (reactionTime < 250 && !hoveredOptions.has(selectedIdx)) {
+        triggerCheat(`Click không có dấu vết di chuột (Hover Trace). Phản xạ: ${reactionTime}ms.`);
+        return;
+      }
+
+      const allOpts = document.querySelectorAll(".opt");
+      allOpts.forEach(el => { el.style.pointerEvents = "none"; el.style.opacity = "0.7"; });
+      element.style.opacity = "1";
+
+      const isCorrect = correctIndices.includes(selectedIdx);
+      if (isCorrect) {
+        element.classList.add("ok");
+        setTimeout(() => {
+          if (!isGameActive) return;
+          currentFloor++;
+          updateActiveRecord();
+          renderQuestion();
+        }, 350);
+      } else {
+        element.classList.add("bad");
+        document.body.classList.add("shake-screen");
+        setTimeout(() => {
+          document.body.classList.remove("shake-screen");
+          endGame(false, "Bạn đã chọn sai đáp án.");
+        }, 500);
+      }
+    }
+
+    async function clearActiveGame() {
+      const k = keyOf(getUsername());
+      localStorage.removeItem("tower_active_v1");
+      try {
+        await remove(ref(db, "tower_active/" + k));
+      } catch(e) {
+        console.warn("Failed to remove active game", e);
+      }
+    }
+
+    async function endGame(isWin, reason) {
+      if (!isGameActive) return;
+      isGameActive = false;
+      clearInterval(timerInterval);
+      const finalTime = Date.now() - startTime;
+      const score = Math.max(0, currentFloor - 1);
+
+      await clearActiveGame();
+
+      window.history.replaceState({}, '', '/Tower');
+
+      $("game-screen").classList.add("hide");
+      $("result-screen").classList.remove("hide");
+
+      $("result-icon").textContent = isWin ? "👑" : (reason.indexOf("bỏ cuộc") > -1 ? "🏳️" : "💀");
+      $("result-title").textContent = isWin ? "CHIẾN THẮNG!" : (reason.indexOf("bỏ cuộc") > -1 ? "ĐÃ BỎ CUỘC" : "GÃY THÁP!");
+      $("result-title").style.color = isWin ? "var(--ok)" : "var(--bad)";
+      $("result-reason").textContent = reason;
+      $("final-floor").textContent = score;
+      $("final-time").textContent = fmtTime(finalTime);
+
+      await saveScore(score, finalTime, reason, false);
+    }
+
+    async function saveScore(score, time, reason, isAbandoned) {
+      if (checkProfanity(session.name)) {
+        console.warn("Blocked save due to profanity in name");
+        return;
+      }
+
+      if (score < 1) {
+        loadLeaderboard();
+        return;
+      }
+
+      try {
+        const newRef = push(ref(db, TOWER_NODE));
+        await set(newRef, {
+          name: session.name,
+          username: getUsername(),
+          cls: session.cls || "",
+          score: score,
+          time: time,
+          isAbandoned: isAbandoned || false,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Lỗi lưu điểm:", e);
+      }
+
+      // 🪙 Cộng LDM Tower + hiệu ứng (Bọc try-catch đề phòng lỗi từ core.js)
+      if (typeof awardTowerCoins === "function") {
+        awardTowerCoins(getUsername(), score).then(reward => {
+          if (reward.earned > 0) {
+            setTimeout(() => {
+              showCollectAnim(reward.earned, "tower", reward.balance);
+            }, 400);
+          }
+        }).catch(e => console.warn("[reward]", e));
+      }
+
+      loadLeaderboard();
+    }
+
+    function triggerCheat(evidence) {
+      if (!isGameActive) return;
+
+      isGameActive = false;
+      clearInterval(timerInterval);
+
+      window.history.replaceState({}, '', '/Tower');
+
+      $("cheat-evidence").textContent = `> EVIDENCE: ${evidence}`;
+      $("cheat-overlay").classList.add("active");
+
+      clearActiveGame();
+    }
+
+    async function loadLeaderboard() {
+      const targets = ["leaderboard-container", "leaderboard-container-start"].map(id => $(id)).filter(Boolean);
+      const setAll = html => targets.forEach(c => { c.innerHTML = html; });
+      setAll('<div class="skel"></div><div class="skel"></div><div class="skel"></div>');
+
+      try {
+        const snapshot = await get(ref(db, TOWER_NODE));
+        const best = new Map();
+
+        snapshot.forEach(child => {
+          const r = child.val();
+          if (!r || typeof r.score !== "number" || typeof r.time !== "number") return;
+          if (r.score < 1 || checkProfanity(r.name)) return;
+          const u = String(r.username || ("guest_" + normText(r.name).replace(/\s+/g, "_"))).toLowerCase();
+          const prev = best.get(u);
+          if (!prev || r.score > prev.score || (r.score === prev.score && r.time < prev.time)) {
+            best.set(u, { ...r, u });
+          }
+        });
+
+        const list = [...best.values()].sort((a, b) => b.score - a.score || a.time - b.time);
+
+        if (!list.length) {
+          setAll('<div style="text-align:center;color:var(--mut);padding:20px;">Chưa có ai leo tháp.</div>');
+          return;
+        }
+
+        const me = getUsername().toLowerCase();
+        const row = (r, i) => {
+          const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+          return '<div class="lb-row' + (r.u === me ? ' me' : '') + '">'
+            + '<div class="lb-rk">' + medal + '</div>'
+            + '<div><div class="lb-name">' + escapeHtml(r.name) + (r.cls ? ' <span class="lb-sub">(' + escapeHtml(r.cls) + ')</span>' : '') + '</div>'
+            + '<div class="lb-time">' + fmtTime(r.time) + '</div></div>'
+            + '<div class="lb-score">' + r.score + ' tầng</div></div>';
+        };
+
+        let html = list.slice(0, 20).map(row).join("");
+        const myIdx = list.findIndex(r => r.u === me);
+        if (myIdx >= 20) {
+          html += '<div style="text-align:center;color:var(--mut);padding:4px 0;">···</div>' + row(list[myIdx], myIdx);
+        }
+        setAll(html);
+      } catch (e) {
+        setAll('<div style="text-align:center;color:var(--bad);padding:20px;">Không thể tải bảng xếp hạng.</div>');
+      }
+    }
+
+    $("btn-start-game").onclick = () => { startMusic(); startGame(); };
+    $("btn-retry").onclick = () => { $("result-screen").classList.add("hide"); startMusic(); startGame(); };
+    $("btn-giveup").onclick = () => {
+      if (!isGameActive) return;
+      const ok = confirm("Bạn có chắc muốn bỏ cuộc?\n\n• Điểm số tầng hiện tại sẽ được lưu vào bảng xếp hạng.\n• Bạn sẽ không thể tiếp tục ván này.");
+      if (ok) endGame(false, "Bạn đã chủ động bỏ cuộc.");
+    };
+    $("btn-home-start").onclick = () => { location.href = "/"; };
+    $("btn-home-result").onclick = () => { location.href = "/"; };
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key)) || (e.ctrlKey && /^[us]$/i.test(e.key))) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("visibilitychange", () => {
+      if (isGameActive && document.hidden) {
+        triggerCheat("Phát hiện chuyển tab / ẩn cửa sổ trình duyệt.");
+      }
+    });
+    window.addEventListener("storage", (e) => {
+      if (e.key === "tower_active_v1" && isGameActive) { checkMultiTab(); }
+    });
+    window.addEventListener("pagehide", () => {
+      if (isGameActive) {
+        const record = { gameId, name: session.name, cls: session.cls || "", username: getUsername(), floor: currentFloor, startTime, lastActive: Date.now() };
+        localStorage.setItem("tower_active_v1", JSON.stringify(record));
       }
     });
 
-    const list = [...best.values()].sort((a, b) => b.score - a.score || a.time - b.time);
+    const bgMusic = $("bgMusic");
+    const SONGS = [
+      { id: 'grateful', title: 'Grateful', src: '/onemore/Grateful.mp3' },
+      { id: 'shapeofyou', title: 'Shape of You', src: '/onemore/ShapeofYou.mp3' },
+      { id: 'spencerhillcool', title: 'Spencer Hill Cool', src: '/onemore/Spencerhillcool.mp3' },
+      { id: 'haruharu', title: 'Haru Haru', src: '/onemore/haruharu.mp3' },
+      { id: 'luunien', title: 'Lưu Niên', src: '/onemore/luunien.mp3' },
+      { id: 'nguoidung', title: 'Người Dưng', src: '/onemore/nguoidung.mp3' },
+      { id: 'tamthaitu', title: 'Tam Thái Tử', src: '/onemore/tamthaitu.mp3' }
+    ];
 
-    if (!list.length) {
-      setAll('<div style="text-align:center;color:var(--mut);padding:20px;">Chưa có ai leo tháp.</div>');
+    let currentPlaylist = [];
+    let currentPlayIndex = 0;
+
+    function buildPlaylist() {
+      const mode = localStorage.getItem("qp_music_mode") || "random";
+      let selected = [];
+      try { selected = JSON.parse(localStorage.getItem("qp_music_selected") || "[]"); } catch(e) {}
+
+      if (mode === "random") {
+        return shuffle([...SONGS]);
+      } else {
+        const list = SONGS.filter(s => selected.includes(s.id));
+        return list.length > 0 ? list : [SONGS[0]];
+      }
+    }
+
+    function playCurrentSong() {
+      if (localStorage.getItem("qp_music") !== "on") return;
+      if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
+
+      const song = currentPlaylist[currentPlayIndex];
+      if (bgMusic.src !== location.origin + song.src) {
+        bgMusic.src = song.src;
+      }
+      bgMusic.play().catch(() => {});
+    }
+
+    function playNextSong() {
+      if (localStorage.getItem("qp_music") !== "on") return;
+      currentPlayIndex++;
+      if (currentPlayIndex >= currentPlaylist.length) {
+        currentPlayIndex = 0;
+        if (localStorage.getItem("qp_music_mode") === "random") {
+          currentPlaylist = buildPlaylist();
+        }
+      }
+      playCurrentSong();
+    }
+
+    bgMusic.addEventListener("ended", playNextSong);
+    bgMusic.addEventListener("error", () => { if (currentPlaylist.length > 1) playNextSong(); });
+
+    function startMusic() {
+      if (localStorage.getItem("qp_music") === "on" && bgMusic.paused) {
+        currentPlaylist = buildPlaylist();
+        currentPlayIndex = 0;
+        playCurrentSong();
+      }
+    }
+
+    // KHỞI TẠO TRỰC TIẾP (Không dùng DOMContentLoaded để tránh bị lỡ sự kiện)
+    const existing = loadSession();
+
+    if (!existing || !existing.name) {
+      $("start-screen").innerHTML = `
+        <div style="text-align:center; padding:40px 20px;">
+          <div style="font-size:5rem; margin-bottom:16px;">🔒</div>
+          <h2 style="margin:0 0 12px;">Yêu cầu đăng nhập</h2>
+          <p style="color:var(--mut); margin-bottom:32px; line-height:1.6;">Vui lòng quay lại trang chủ để đăng nhập trước khi tham gia leo tháp.</p>
+          <a href="/" style="display:inline-block; padding:16px 32px; background:var(--ac); color:#fff; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 16px rgba(59,130,246,0.3);">← Về trang chủ</a>
+        </div>
+      `;
+      $("start-screen").classList.remove("hide");
       return;
     }
 
-    const me = getUsername().toLowerCase();
-    const row = (r, i) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-      return '<div class="lb-row' + (r.u === me ? ' me' : '') + '">'
-        + '<div class="lb-rk">' + medal + '</div>'
-        + '<div><div class="lb-name">' + escapeHtml(r.name) + (r.cls ? ' <span class="lb-sub">(' + escapeHtml(r.cls) + ')</span>' : '') + '</div>'
-        + '<div class="lb-time">' + fmtTime(r.time) + '</div></div>'
-        + '<div class="lb-score">' + r.score + ' tầng</div></div>';
-    };
+    session = existing;
 
-    let html = list.slice(0, 20).map(row).join("");
-    const myIdx = list.findIndex(r => r.u === me);
-    if (myIdx >= 20) {
-      html += '<div style="text-align:center;color:var(--mut);padding:4px 0;">···</div>' + row(list[myIdx], myIdx);
+    if (checkProfanity(session.name)) {
+      $("cheat-overlay").querySelector("h1").textContent = "🚫 TÊN KHÔNG HỢP LỆ";
+      $("cheat-overlay").querySelector(".glitch-text").textContent = "Tên tài khoản chứa từ ngữ không phù hợp. Vui lòng đổi tên ở trang chủ.";
+      $("cheat-evidence").textContent = `> NAME: ${session.name}`;
+      $("cheat-overlay").classList.add("active");
+      return;
     }
-    setAll(html);
-  } catch (e) {
-    setAll('<div style="text-align:center;color:var(--bad);padding:20px;">Không thể tải bảng xếp hạng.</div>');
+
+    await checkActiveGameOnLoad();
+
+  } catch (err) {
+    // Bắt mọi lỗi (kể cả lỗi import, sai domain, v.v.)
+    console.error("[Tower] Fatal error:", err);
+    document.getElementById("fatal-error").classList.remove("hide");
+    document.getElementById("fatal-error").style.display = "grid";
+    document.getElementById("fatal-msg").textContent = err.message || String(err);
   }
-}
-
-$("btn-start-game").onclick = () => { startMusic(); startGame(); };
-$("btn-retry").onclick = () => { $("result-screen").classList.add("hide"); startMusic(); startGame(); };
-$("btn-giveup").onclick = () => {
-  if (!isGameActive) return;
-  const ok = confirm("Bạn có chắc muốn bỏ cuộc?\n\n• Điểm số tầng hiện tại sẽ được lưu vào bảng xếp hạng.\n• Bạn sẽ không thể tiếp tục ván này.");
-  if (ok) endGame(false, "Bạn đã chủ động bỏ cuộc.");
-};
-$("btn-home-start").onclick = () => { location.href = "/"; };
-$("btn-home-result").onclick = () => { location.href = "/"; };
-
-document.addEventListener("keydown", e => {
-  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key)) || (e.ctrlKey && /^[us]$/i.test(e.key))) {
-    e.preventDefault();
-  }
-});
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("visibilitychange", () => {
-  if (isGameActive && document.hidden) {
-    triggerCheat("Phát hiện chuyển tab / ẩn cửa sổ trình duyệt.");
-  }
-});
-window.addEventListener("storage", (e) => {
-  if (e.key === "tower_active_v1" && isGameActive) { checkMultiTab(); }
-});
-window.addEventListener("pagehide", () => {
-  if (isGameActive) {
-    const record = { gameId, name: session.name, cls: session.cls || "", username: getUsername(), floor: currentFloor, startTime, lastActive: Date.now() };
-    localStorage.setItem("tower_active_v1", JSON.stringify(record));
-  }
-});
-
-const bgMusic = $("bgMusic");
-const SONGS = [
-  { id: 'grateful', title: 'Grateful', src: '/onemore/Grateful.mp3' },
-  { id: 'shapeofyou', title: 'Shape of You', src: '/onemore/ShapeofYou.mp3' },
-  { id: 'spencerhillcool', title: 'Spencer Hill Cool', src: '/onemore/Spencerhillcool.mp3' },
-  { id: 'haruharu', title: 'Haru Haru', src: '/onemore/haruharu.mp3' },
-  { id: 'luunien', title: 'Lưu Niên', src: '/onemore/luunien.mp3' },
-  { id: 'nguoidung', title: 'Người Dưng', src: '/onemore/nguoidung.mp3' },
-  { id: 'tamthaitu', title: 'Tam Thái Tử', src: '/onemore/tamthaitu.mp3' }
-];
-
-let currentPlaylist = [];
-let currentPlayIndex = 0;
-
-function buildPlaylist() {
-  const mode = localStorage.getItem("qp_music_mode") || "random";
-  let selected = [];
-  try { selected = JSON.parse(localStorage.getItem("qp_music_selected") || "[]"); } catch(e) {}
-
-  if (mode === "random") {
-    return shuffle([...SONGS]);
-  } else {
-    const list = SONGS.filter(s => selected.includes(s.id));
-    return list.length > 0 ? list : [SONGS[0]];
-  }
-}
-
-function playCurrentSong() {
-  if (localStorage.getItem("qp_music") !== "on") return;
-  if (currentPlaylist.length === 0) currentPlaylist = buildPlaylist();
-
-  const song = currentPlaylist[currentPlayIndex];
-  if (bgMusic.src !== location.origin + song.src) {
-    bgMusic.src = song.src;
-  }
-  bgMusic.play().catch(() => {});
-}
-
-function playNextSong() {
-  if (localStorage.getItem("qp_music") !== "on") return;
-  currentPlayIndex++;
-  if (currentPlayIndex >= currentPlaylist.length) {
-    currentPlayIndex = 0;
-    if (localStorage.getItem("qp_music_mode") === "random") {
-      currentPlaylist = buildPlaylist();
-    }
-  }
-  playCurrentSong();
-}
-
-bgMusic.addEventListener("ended", playNextSong);
-bgMusic.addEventListener("error", () => { if (currentPlaylist.length > 1) playNextSong(); });
-
-function startMusic() {
-  if (localStorage.getItem("qp_music") === "on" && bgMusic.paused) {
-    currentPlaylist = buildPlaylist();
-    currentPlayIndex = 0;
-    playCurrentSong();
-  }
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const existing = loadSession();
-
-  if (!existing || !existing.name) {
-    $("start-screen").innerHTML = `
-      <div style="text-align:center; padding:40px 20px;">
-        <div style="font-size:5rem; margin-bottom:16px;">🔒</div>
-        <h2 style="margin:0 0 12px;">Yêu cầu đăng nhập</h2>
-        <p style="color:var(--mut); margin-bottom:32px; line-height:1.6;">Vui lòng quay lại trang chủ để đăng nhập trước khi tham gia leo tháp.</p>
-        <a href="/" style="display:inline-block; padding:16px 32px; background:var(--ac); color:#fff; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 16px rgba(59,130,246,0.3);">← Về trang chủ</a>
-      </div>
-    `;
-    $("start-screen").classList.remove("hide");
-    return;
-  }
-
-  session = existing;
-
-  if (checkProfanity(session.name)) {
-    $("cheat-overlay").querySelector("h1").textContent = "🚫 TÊN KHÔNG HỢP LỆ";
-    $("cheat-overlay").querySelector(".glitch-text").textContent = "Tên tài khoản chứa từ ngữ không phù hợp. Vui lòng đổi tên ở trang chủ.";
-    $("cheat-evidence").textContent = `> NAME: ${session.name}`;
-    $("cheat-overlay").classList.add("active");
-    return;
-  }
-
-  await checkActiveGameOnLoad();
-});
+})();
 </script>
 </body>
 </html>
