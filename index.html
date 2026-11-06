@@ -307,9 +307,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 .song-item span { font-weight: 500; font-size: 0.95rem; }
 
-/* ═══════════════════════════════════════════════════
-   ❤️ TRI ÂN OVERLAY — Màn đỏ + tim bay + video
-   ═══════════════════════════════════════════════════ */
 #shake-overlay {
   position: fixed; inset: 0; z-index: 1100;
   background: radial-gradient(circle at center, #ff2222 0%, #7f1d1d 100%);
@@ -333,7 +330,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   100% { background: radial-gradient(circle at center, #b91c1c 0%, #450a0a 100%); }
 }
 
-/* 💖 Tim bay lên khắp màn hình */
 .trian-hearts {
   position: absolute; inset: 0;
   pointer-events: none;
@@ -366,7 +362,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 }
 #shake-overlay .btn-back-float { z-index: 12; }
 
-/* ⏭ Nút "Bỏ qua" hiện khi đang phát video */
 .trian-skip-btn {
   position: absolute;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
@@ -412,7 +407,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .card.link:hover{transform:translateY(-4px)}
 .card.link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--acs)}
 
-/* ══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ */
 .code-modal-card { max-width: 440px; width: 100%; text-align: center; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .code-modal-icon { font-size: 3.5rem; margin-bottom: 8px; filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.3)); animation: iconPulse 2s ease-in-out infinite; }
 @keyframes iconPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
@@ -429,7 +423,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .code-error { color: var(--bad); font-size: 0.85rem; font-weight: 600; min-height: 1.3em; margin-top: 8px; text-align: center; transition: all 0.2s; }
 .code-loading { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ln); border-top-color: var(--ac); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
 
-/* ═══ NEWS / THÔNG BÁO ═══ */
 .news-item {
   padding: 14px; border: 1px solid var(--ln); border-radius: 10px;
   margin-bottom: 10px; background: rgba(255,255,255,0.4);
@@ -463,7 +456,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
   font-weight: 700; vertical-align: middle;
 }
 
-/* Cộng đồng — user cards grid */
 .user-grid {
   display: grid; grid-template-columns: 1fr; gap: 10px;
 }
@@ -510,7 +502,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 .user-card.me .user-action { background: var(--ok); }
 .user-card:hover .user-action { transform: translateX(2px); }
 
-/* 🔧 LOGO CSS */
 .brand-logo {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--acs); color: var(--ac);
@@ -522,7 +513,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 </head>
 <body>
 
-<!-- ═══ BOOT SPINNER ═══ -->
 <div id="boot" style="position:fixed;inset:0;display:grid;place-items:center;background:#f0f4f8;z-index:99999;text-align:center;padding:24px">
 <div>
 <div style="width:50px;height:50px;border:4px solid #cbd5e1;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px"></div>
@@ -530,7 +520,6 @@ width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer; flex: none;
 </div>
 </div>
 
-<!-- ═══ ERROR SCREEN ═══ -->
 <div id="errorScreen" style="display:none;position:fixed;inset:0;background:#f0f4f8;z-index:99999;place-items:center;text-align:center;padding:24px;font-family:system-ui,sans-serif">
 <div style="max-width:600px">
 <div style="font-size:5rem;margin-bottom:12px">⚠️</div>
@@ -568,7 +557,6 @@ window.__showFatalError(msg);
 
 <audio id="bgMusic"></audio>
 
-<!-- Cutscene -->
 <div id="cutscene" aria-hidden="true">
 <canvas id="csCanvas"></canvas>
 <div class="cs-bg"></div><div class="cs-grid"></div><div class="cs-vignette"></div>
@@ -586,13 +574,11 @@ window.__showFatalError(msg);
 <div class="cs-flash"></div>
 </div>
 
-<!-- Iframe overlay -->
 <div id="iframe-overlay" class="hide">
 <button class="btn-back-float" id="btnBack">← Quay lại</button>
 <iframe id="video-frame" src="" allow="autoplay"></iframe>
 </div>
 
-<!-- ❤️ Tri ân overlay -->
 <div id="shake-overlay" class="hide">
   <div class="trian-hearts" id="trianHearts"></div>
   <button class="btn-back-float" id="btnShakeClose" type="button">✕ Đóng</button>
@@ -603,11 +589,9 @@ window.__showFatalError(msg);
 <div class="toast" id="toast"></div>
 
 <main>
-<!-- Auth -->
 <section id="auth" class="hide">
 <div style="display:flex;min-height:70vh;align-items:center;justify-content:center;padding:24px 0">
 <div class="card" style="max-width:440px;width:100%;text-align:center">
-<!-- 🔧 LOGO -->
 <div class="brand-logo" style="margin:0 auto 12px; width:64px; height:64px;">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
@@ -638,12 +622,10 @@ window.__showFatalError(msg);
 </div>
 </section>
 
-<!-- App -->
 <section id="app" class="hide">
 <div class="card" style="padding:16px 20px">
 <div class="top">
 <div style="display:flex; align-items:center; gap:12px;">
-<!-- 🔧 LOGO HEADER -->
 <div class="brand-logo" style="padding:6px;">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
@@ -652,11 +634,9 @@ window.__showFatalError(msg);
 </div>
 <div>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-<!-- 🔧 XIN CHÀO -->
 <strong id="hiName" style="font-size:1.15rem;color:var(--ac)">Xin chào!</strong>
 <button class="sm g" id="btnProfile" type="button" style="border-color:var(--ac);color:var(--ac); padding:4px 10px">👤 Profile</button>
 <button class="sm g" id="btnNews" type="button" style="border-color:var(--ac);color:var(--ac); padding:4px 10px">📢 News <span id="newsBadge" class="news-badge-dot hide">!</span></button>
-<!-- ❤️ Nút Tri ân -->
 <button class="sm" id="btnShake" type="button" style="padding:4px 12px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; box-shadow:0 4px 12px rgba(220,38,38,0.35); border:0;">❤️ Tri ân</button>
 </div>
 <div class="mut" id="hiSub" style="font-size:0.85rem"></div>
@@ -807,7 +787,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </section>
 
-<!-- Quiz -->
 <section id="quiz" class="hide">
 <div class="card" style="position:sticky;top:0;z-index:10">
 <div class="top">
@@ -831,7 +810,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </section>
 
-<!-- Result -->
 <section id="result" class="hide">
 <div class="card" id="resultCard">
 <div class="mut" id="rwho" style="font-weight:600"></div>
@@ -885,7 +863,6 @@ Quản lý tài khoản, ban/unban, khoá đăng ký, cấp mã đăng ký, xoá
 </div>
 </div>
 
-<!-- ═══ MODAL NHẬP MÃ ĐĂNG KÝ ═══ -->
 <div class="mask" id="codeMask">
 <div class="card code-modal-card">
 <div class="code-modal-icon">🔒</div>
@@ -910,7 +887,6 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 </div>
 </div>
 
-<!-- ═══ MODAL TIN TỨC ═══ -->
 <div class="mask" id="newsMask">
   <div class="card" style="max-width: 520px; width: 100%;">
     <div class="top" style="margin-bottom: 16px">
@@ -930,7 +906,6 @@ Vui lòng nhập <b>mã đăng ký</b> do quản trị viên cấp để tiếp 
 </div>
 </div>
 
-<!-- ═══════════ CUTSCENE SCRIPT ═══════════ -->
 <script type="module">
 (async () => {
 try {
@@ -1004,7 +979,6 @@ document.body.style.overflow = '';
 })();
 </script>
 
-<!-- ═══════════ MAIN APP ═══════════ -->
 <script type="module">
 let core, utils, musicMod, anticheatMod, configMod, firebaseMod;
 const BUILD_V = Date.now();
@@ -1028,7 +1002,8 @@ getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
 checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
 checkRegistrationLock, validateRegistrationCode, markCodeUsed,
-checkProfanitySetting
+checkProfanitySetting,
+awardQuizCoins, checkAndAwardDaily
 } = core;
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
@@ -1060,13 +1035,10 @@ const $ = id => {
 };
 const L = "ABCD";
 
-/* ══════════════════════════════════════════════════════════════════
-   ❤️ TRI ÂN — cấu hình
-   ══════════════════════════════════════════════════════════════════ */
 const TRIAN_VIDEO_SRC = "cutscene/trian.mp4";
-const TRIAN_RED_DURATION_MS = 1400;      // thời gian hiện màn đỏ + tim bay trước khi phát video
-const TRIAN_LOW_SCORE_THRESHOLD = 8;     // điểm < 8 → tự động chạy video
-const TRIAN_LOW_SCORE_DELAY_MS = 3000;   // delay trước khi auto-chạy (để user xem điểm)
+const TRIAN_RED_DURATION_MS = 1400;
+const TRIAN_LOW_SCORE_THRESHOLD = 8;
+const TRIAN_LOW_SCORE_DELAY_MS = 3000;
 
 const ANN_NODE = "config/announcements";
 const NEWS_LAST_SEEN = NEWS_LAST_SEEN_KEY || "qp_news_last_seen";
@@ -1429,12 +1401,20 @@ return;
 }
 $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 
-// 🔧 CẬP NHẬT LỜI CHÀO + TÊN
 $("hiName").textContent = "👋 Xin chào, " + session.name + "!";
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
+
+// 🪙 Điểm danh hàng ngày (+15 LDM)
+if (!isAdminSession()) {
+  checkAndAwardDaily(session.username, 15).then(gotDaily => {
+    if (gotDaily) {
+      setTimeout(() => showToast("🎁 +15 LDM điểm danh hàng ngày!"), 2000);
+    }
+  }).catch(e => console.warn("[daily]", e));
+}
 
 await checkNewsOnLogin();
 }
@@ -1503,6 +1483,7 @@ const toDelete = [];
 snap.forEach(ch => {
 const v = ch.val();
 if (!v || v.type !== "quiz_result") return;
+if (isAdminUsername(v.username)) return;
 const rawName = v.name || v.username || "";
 if (PROFANITY_ON && checkProfanity(rawName)) {
 toDelete.push(ch.key);
@@ -1561,7 +1542,6 @@ el.innerHTML = '<div class="mut">Không tải được bảng xếp hạng.</div
 }
 }
 
-/* CỘNG ĐỒNG */
 let allCommunityUsers = [];
 let communityLoaded = false;
 
@@ -2100,13 +2080,12 @@ else finalSubject = 'diali_choice';
 }
 saveAndRefresh({ subject: finalSubject, username: session.username, name: session.name, cls: session.cls, score: sc, correct: full, total: Q.length, duration: ms, isShuffled });
 
-/* ❤️ Nếu điểm < 8 → tự động bật video tri ân để động viên (sau 3s xem điểm) */
 if (sc < TRIAN_LOW_SCORE_THRESHOLD && !isAdminSession() && !trianAutoTriggered) {
   trianAutoTriggered = true;
   setTimeout(() => {
-    if ($("result").classList.contains("hide")) return;          // đã rời trang kết quả
-    if (!$("shake-overlay").classList.contains("hide")) return;  // overlay đang mở
-    if (Date.now() - lastTrianOpen < 5000) return;               // user vừa mở thủ công < 5s
+    if ($("result").classList.contains("hide")) return;
+    if (!$("shake-overlay").classList.contains("hide")) return;
+    if (Date.now() - lastTrianOpen < 5000) return;
     lastTrianOpen = Date.now();
     openShakeVideo();
   }, TRIAN_LOW_SCORE_DELAY_MS);
@@ -2115,6 +2094,11 @@ if (sc < TRIAN_LOW_SCORE_THRESHOLD && !isAdminSession() && !trianAutoTriggered) 
 
 async function saveAndRefresh(res) {
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
+if (isAdminSession()) {
+  // ✅ Admin không lưu kết quả vào bảng xếp hạng
+  renderLeaderboard("lbResult", res.subject);
+  return;
+}
 if (PROFANITY_ON && checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
 try {
 ovOn("Đang lưu kết quả…");
@@ -2131,6 +2115,18 @@ ovOff();
 $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
 return;
 }
+
+// 🪙 Cộng LDM tự động
+awardQuizCoins(res.username, res.score).then(reward => {
+  if (reward.earned > 0) {
+    const isPerfect = res.score === 10;
+    const msg = isPerfect
+      ? `🪙 +${reward.earned} LDM (bao gồm +40 bonus 10 điểm! 🎉) · Số dư: ${reward.balance.toLocaleString("vi-VN")}`
+      : `🪙 +${reward.earned} LDM · Số dư: ${reward.balance.toLocaleString("vi-VN")}`;
+    setTimeout(() => showToast(msg), 800);
+  }
+}).catch(e => console.warn("[reward]", e));
+
 renderLeaderboard("lbResult", res.subject);
 }
 
@@ -2186,15 +2182,11 @@ if (el) el.textContent = ` ${days[now.getDay()]}, ${now.toLocaleDateString("vi-V
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ══════════════════════════════════════════════════════════════════
-   ❤️ TRI ÂN — MÀN ĐỎ + TIM BAY + VIDEO + NÚT BỎ QUA
-   ══════════════════════════════════════════════════════════════════ */
 let musicWasPlaying = false;
 let trianTimer = null;
-let lastTrianOpen = 0;            // timestamp lần cuối mở tri ân (dùng cho auto-trigger)
-let trianAutoTriggered = false;   // cờ: đã auto-trigger trong lượt làm bài này chưa
+let lastTrianOpen = 0;
+let trianAutoTriggered = false;
 
-/* 💖 Tạo tim bay ngẫu nhiên */
 function spawnHearts() {
   const container = $("trianHearts");
   if (!container) return;
@@ -2220,25 +2212,20 @@ function openShakeVideo() {
   musicWasPlaying = !$("bgMusic").paused;
   $("bgMusic").pause();
 
-  // Reset video
   v.pause();
   v.removeAttribute("src");
   v.load();
   v.classList.remove("loaded");
 
-  // Hiện overlay + hiệu ứng đỏ
   overlay.classList.remove("hide");
   overlay.classList.remove("red-pulse");
   overlay.classList.remove("video-playing");
   void overlay.offsetWidth;
   overlay.classList.add("red-pulse");
 
-  // 💖 Bắn tim bay lên
   spawnHearts();
 
-  // Sau TRIAN_RED_DURATION_MS → fade-in video
   trianTimer = setTimeout(() => {
-    // Xoá tim khi video bắt đầu để không bị rối
     const heartsBox = $("trianHearts");
     if (heartsBox) {
       heartsBox.querySelectorAll("span").forEach(s => {
@@ -2251,7 +2238,7 @@ function openShakeVideo() {
     v.src = TRIAN_VIDEO_SRC;
     v.classList.add("loaded");
     overlay.classList.remove("red-pulse");
-    overlay.classList.add("video-playing");   // ⏭ Hiện nút "Bỏ qua"
+    overlay.classList.add("video-playing");
     v.play().catch(() => {});
   }, TRIAN_RED_DURATION_MS);
 }
@@ -2267,7 +2254,7 @@ function closeShakeVideo() {
   v.classList.remove("loaded");
   overlay.classList.add("hide");
   overlay.classList.remove("red-pulse");
-  overlay.classList.remove("video-playing");   // ⏭ Ẩn nút "Bỏ qua"
+  overlay.classList.remove("video-playing");
   const heartsBox = $("trianHearts");
   if (heartsBox) heartsBox.innerHTML = "";
   if (musicWasPlaying && music.isOn) $("bgMusic").play().catch(() => {});
@@ -2280,10 +2267,8 @@ $("btnShake").onclick = function() {
 };
 $("btnShakeClose").onclick = closeShakeVideo;
 
-/* ⏭ Nút "Bỏ qua" — hiện khi video đang phát */
 $("btnShakeSkip").onclick = closeShakeVideo;
 
-/* 🎬 Video kết thúc → đóng overlay */
 $("shakeVideo").addEventListener("ended", () => {
   closeShakeVideo();
 });
