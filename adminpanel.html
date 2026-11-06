@@ -100,6 +100,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .acc-table tbody tr:hover { background: var(--acs); }
 .acc-table tbody tr.banned { background: rgba(239, 68, 68, 0.05); }
 .acc-table tbody tr.banned:hover { background: var(--bads); }
+.acc-table tbody tr.is-admin-row { background: rgba(251, 191, 36, 0.06); }
+.acc-table tbody tr.is-admin-row:hover { background: rgba(251, 191, 36, 0.12); }
 .acc-table td { padding: 12px 10px; vertical-align: middle; }
 .acc-table td.center { text-align: center; }
 .acc-table td.actions { text-align: right; white-space: nowrap; }
@@ -113,6 +115,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .badge.ok { background: var(--oks); color: var(--ok); }
 .badge.bad { background: var(--bads); color: var(--bad); }
+.badge.admin { background: var(--warns); color: var(--warn); }
 .vio-count {
   font-weight: 800; font-variant-numeric: tabular-nums;
   padding: 2px 8px; border-radius: 6px; background: var(--ln);
@@ -469,7 +472,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- 🎁 GIFT CODES -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div>
@@ -498,7 +500,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div id="giftCodesList"><div class="skel"></div><div class="skel"></div></div>
   </div>
 
-  <!-- 💰 GIVE LDM -->
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div>
@@ -948,6 +949,9 @@ $("btnResetLeaderboard").onclick = () => {
     }, true);
 };
 
+/* ══════════════════════════════════════════════════════════════════════
+   ✅ FIX #2: loadData — đảm bảo admin luôn có trong accounts
+   ══════════════════════════════════════════════════════════════════════ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
   $("accountsList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
@@ -969,18 +973,59 @@ async function loadData() {
       accounts.push({
         key: ch.key, username: v.username || "", name: v.name || "",
         cls: v.cls || "", createdAt: v.createdAt || null,
-        isBanned: !!banInfo.isBanned, violations: Number(banInfo.violations || 0)
+        isBanned: !!banInfo.isBanned, violations: Number(banInfo.violations || 0),
+        isAdmin: false
       });
     });
+
+    // ✅ Admin luôn xuất hiện trong accounts
+    if (currentAdmin && currentAdmin.username) {
+      const admKey = keyOf(currentAdmin.username);
+      const admNorm = String(currentAdmin.username).toLowerCase();
+      const found = accounts.find(a =>
+        a.key === admKey || String(a.username).toLowerCase() === admNorm
+      );
+      if (found) {
+        found.isAdmin = true;
+      } else {
+        // Tạo record trong accounts nếu chưa có (để lần sau admin có thể đăng nhập qua accounts)
+        try {
+          const accRef = ref(db, "accounts/" + admKey);
+          const accSnap2 = await get(accRef);
+          if (!accSnap2.exists()) {
+            await set(accRef, {
+              username: currentAdmin.username,
+              passHash: "admin-managed",
+              name: currentAdmin.name || "Admin",
+              cls: currentAdmin.cls || "Admin",
+              createdAt: Date.now()
+            });
+          }
+        } catch(e) {
+          console.warn("[adminpanel] ensure admin account:", e);
+        }
+        accounts.push({
+          key: admKey,
+          username: currentAdmin.username,
+          name: currentAdmin.name || "Admin",
+          cls: currentAdmin.cls || "Admin",
+          createdAt: Date.now(),
+          isBanned: false,
+          violations: 0,
+          isAdmin: true
+        });
+      }
+    }
+
     allAccounts = accounts;
 
     const totalBanned = accounts.filter(a => a.isBanned).length;
-    $("stTotal").textContent = accounts.length;
-    $("stActive").textContent = accounts.length - totalBanned;
-    $("stBanned").textContent = totalBanned;
-    $("stVio").textContent = accounts.reduce((s, a) => s + a.violations, 0);
+    $("stTotal").textContent   = accounts.length;
+    $("stActive").textContent  = accounts.length - totalBanned;
+    $("stBanned").textContent  = totalBanned;
+    $("stVio").textContent     = accounts.reduce((s, a) => s + a.violations, 0);
     $("stResults").textContent = (resSnap.exists() ? resSnap.size : 0) + (khtnSnap.exists() ? khtnSnap.size : 0);
-    $("stTower").textContent = towerSnap.exists() ? towerSnap.size : 0;
+    $("stTower").textContent   = towerSnap.exists() ? towerSnap.size : 0;
 
     if (unbanSnap.exists()) {
       $("unbanStatus").textContent = "Lần Unban All gần nhất: " + new Date(Number(unbanSnap.val())).toLocaleString("vi-VN");
@@ -1012,6 +1057,8 @@ function renderAccounts() {
   }
 
   list.sort((a, b) => {
+    // Admin luôn lên đầu
+    if (a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
     if (a.isBanned !== b.isBanned) return a.isBanned ? -1 : 1;
     if (b.violations !== a.violations) return b.violations - a.violations;
     return String(a.name || a.username).localeCompare(String(b.name || b.username), "vi");
@@ -1022,14 +1069,22 @@ function renderAccounts() {
     return;
   }
 
+  // ✅ Admin badge + không có nút xoá
   const rows = list.map(a => {
     const statusBadge = a.isBanned
       ? '<span class="badge bad">🔴 Bị ban</span>'
       : '<span class="badge ok">🟢 Hoạt động</span>';
+    const adminBadge = a.isAdmin
+      ? '<span class="badge admin" style="margin-left:4px">👑 ADMIN</span>'
+      : '';
+    const deleteBtn = a.isAdmin
+      ? `<button class="sm" style="background:var(--ln);color:var(--mut);cursor:not-allowed" disabled title="Không thể xoá admin">🔒</button>`
+      : `<button class="sm danger" onclick="window.__adminDeleteAccount('${esc(a.key)}','${esc(a.username)}','${esc(a.name)}')">🗑️</button>`;
+
     return `
-      <tr class="${a.isBanned ? 'banned' : ''}">
+      <tr class="${a.isBanned ? 'banned' : ''} ${a.isAdmin ? 'is-admin-row' : ''}">
         <td>
-          <div class="acc-user">@${esc(a.username)}</div>
+          <div class="acc-user">@${esc(a.username)}${adminBadge}</div>
           <div class="acc-name">${esc(a.name || "—")}${a.cls ? " · Lớp " + esc(a.cls) : ""}</div>
           <div class="acc-name" style="font-size:0.72rem">📅 ${fmtDate(a.createdAt)}</div>
         </td>
@@ -1042,8 +1097,7 @@ function renderAccounts() {
           </button>
           <button class="sm" style="background:var(--ac)"
                   onclick="window.__adminViewResults('${esc(a.username)}','${esc(a.name)}')">📊</button>
-          <button class="sm danger"
-                  onclick="window.__adminDeleteAccount('${esc(a.key)}','${esc(a.username)}','${esc(a.name)}')">🗑️</button>
+          ${deleteBtn}
         </td>
       </tr>
     `;
@@ -1086,6 +1140,13 @@ async function toggleBan(username, name, currentlyBanned) {
 }
 
 async function deleteAccount(key, username, name) {
+  // ✅ Chặn xoá admin ở tầng logic
+  const target = allAccounts.find(a => a.key === key);
+  if (target && target.isAdmin) {
+    showToast("🚫 Không thể xoá tài khoản admin!", true);
+    return;
+  }
+
   confirmBox("🗑️ Xoá tài khoản?",
     `<div>Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br><span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
     async () => {
@@ -1189,9 +1250,7 @@ window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
-/* ═══════════════════════════════════════════════════════════════════
-   🎁 GIFT CODES
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ GIFT CODES ═══ */
 async function loadGiftCodes() {
   $("giftCodesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
   try {
@@ -1217,7 +1276,7 @@ async function loadGiftCodes() {
             <div class="code-value" style="color:${isFull ? 'var(--mut)' : 'var(--ac)'}">
               ${esc(c.code)}
               ${isFull ? '<span class="badge bad" style="margin-left:8px;font-size:0.7rem">HẾT NGƯỜI</span>' : ''}
-              ${isUnlimited && !isFull ? '<span class="badge ok" style="margin-left:8px;font-size:0.7rem">♾️ UNLIMITED</span>' : ''}
+              ${isUnlimited ? '<span class="badge ok" style="margin-left:8px;font-size:0.7rem">♾️ UNLIMITED</span>' : ''}
             </div>
             <div class="code-meta">
               💰 <b style="color:var(--gold)">${Number(c.amount).toLocaleString("vi-VN")} LDM</b>
@@ -1304,9 +1363,7 @@ window.__copyGiftCode = copyGiftCode;
 window.__deleteGiftCode = deleteGiftCode;
 $("btnRefreshGiftCodes").onclick = loadGiftCodes;
 
-/* ═══════════════════════════════════════════════════════════════════
-   💰 GIVE LDM
-   ═══════════════════════════════════════════════════════════════════ */
+/* ═══ GIVE LDM ═══ */
 function populateGiveUsers() {
   const sel = $("giveUserSelect");
   if (!sel) return;
@@ -1319,6 +1376,7 @@ function populateGiveUsers() {
   }
 
   allAccounts
+    .filter(a => !a.isAdmin)
     .filter(a => !currentAdmin || a.username.toLowerCase() !== currentAdmin.username.toLowerCase())
     .forEach(a => {
       const label = `${esc(a.name || a.username)} (@${esc(a.username)})${a.cls ? ' · ' + esc(a.cls) : ''}`;
