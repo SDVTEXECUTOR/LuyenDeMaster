@@ -1,8 +1,14 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.7 — Fix gift code unlimited (runTransaction, atomic)
+   V3.0 — Full
+   ├─ V2.6: Gift code unlimited
+   ├─ V2.7: redeemGiftCode dùng runTransaction (atomic)
+   └─ V3.0: Thêm Reward System (awardQuizCoins, awardTowerCoins)
    ══════════════════════════════════════════════════════════════════════ */
 
+/* ──────────────────────────────────────────────────────────────────────
+   📦 IMPORTS
+   ────────────────────────────────────────────────────────────────────── */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getDatabase, ref, get, set, remove, push, serverTimestamp, runTransaction, update
@@ -20,6 +26,9 @@ import {
 const PROFANITY_LOCK_NODE = "config/profanityEnabled";
 const GIFT_CODES_NODE = "config/giftCodes";
 
+/* ──────────────────────────────────────────────────────────────────────
+   🔥 FIREBASE INIT
+   ────────────────────────────────────────────────────────────────────── */
 let _db = null;
 try {
   _db = getDatabase(initializeApp(FIREBASE_CONFIG));
@@ -28,8 +37,9 @@ try {
 }
 export const db = _db;
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   SESSION
+   🔐 SECTION 1 — SESSION
    ══════════════════════════════════════════════════════════════════════ */
 let _session = null;
 export function getSession() { return _session; }
@@ -71,8 +81,9 @@ export function isAdminUsername(username) {
   );
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   NORMALIZE
+   🔤 SECTION 2 — NORMALIZE / TEXT UTILS
    ══════════════════════════════════════════════════════════════════════ */
 export function normText(s) {
   return String(s || "").toLowerCase()
@@ -97,8 +108,9 @@ export function checkProfanity(str) {
   );
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   KEY
+   🔑 SECTION 3 — KEY
    ══════════════════════════════════════════════════════════════════════ */
 export function keyOf(u) {
   return encodeURIComponent(String(u).trim().toLowerCase()).replace(/[.#$\[\]]/g, "_");
@@ -107,8 +119,9 @@ export function keyOf(u) {
 export function getBanKey(name)       { return BAN_PREFIX + "ban_" + nameHash(name); }
 export function getViolationKey(name) { return BAN_PREFIX + "vio_" + nameHash(name); }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   BAN LOCAL
+   🚫 SECTION 4 — BAN LOCAL
    ══════════════════════════════════════════════════════════════════════ */
 export function checkLocalBan(name) {
   try { return localStorage.getItem(getBanKey(name)) === "1"; }
@@ -139,8 +152,9 @@ export function clearAllLocalBans() {
   return ks.length;
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   BAN FIREBASE
+   🚫 SECTION 5 — BAN FIREBASE
    ══════════════════════════════════════════════════════════════════════ */
 export async function checkFirebaseBan(username) {
   if (!db || !username) return false;
@@ -160,7 +174,7 @@ export async function recordFirebaseViolation(username) {
     await set(banRef, {
       isBanned: true,
       violations: cur + 1,
-      timestamp: serverTimestamp()
+      timestamp: Date.now()
     });
     return true;
   } catch (e) {
@@ -175,8 +189,9 @@ export function recordViolation(nameOrUsername, username) {
   if (u) recordFirebaseViolation(u);
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   UNBAN SYNC
+   🔓 SECTION 6 — UNBAN SYNC
    ══════════════════════════════════════════════════════════════════════ */
 export async function syncUnbanEpoch() {
   if (!db) return;
@@ -195,8 +210,9 @@ export async function syncUnbanEpoch() {
   } catch (e) {}
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   DOMAIN GUARD
+   🌐 SECTION 7 — DOMAIN GUARD
    ══════════════════════════════════════════════════════════════════════ */
 export function checkDomain() {
   if (!ENFORCE_DOMAIN_CHECK) return true;
@@ -222,8 +238,9 @@ export function showDomainWarning() {
     '</div></div>';
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   ĐĂNG KÝ: KHÓA + MÃ 1 LẦN
+   🔑 SECTION 8 — ĐĂNG KÝ: KHÓA + MÃ 1 LẦN
    ══════════════════════════════════════════════════════════════════════ */
 export async function checkRegistrationLock() {
   if (!db) return false;
@@ -315,8 +332,9 @@ export async function markCodeUsed(code, username) {
   } catch (e) { return false; }
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   KIỂM DUYỆT TỪ NGỮ
+   🚫 SECTION 9 — KIỂM DUYỆT TỪ NGỮ
    ══════════════════════════════════════════════════════════════════════ */
 export async function checkProfanitySetting() {
   if (!db) return false;
@@ -334,8 +352,9 @@ export async function setProfanitySetting(enabled) {
   } catch (e) { return false; }
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   📢 ANNOUNCEMENTS
+   📢 SECTION 10 — ANNOUNCEMENTS
    ══════════════════════════════════════════════════════════════════════ */
 export async function getAnnouncements() {
   if (!db) return [];
@@ -390,8 +409,9 @@ export async function getLatestAnnouncementTime() {
   } catch (e) { return 0; }
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   💰 LDM CURRENCY & SHOP SYSTEM
+   💰 SECTION 11 — LDM CURRENCY & SHOP SYSTEM
    ══════════════════════════════════════════════════════════════════════ */
 export const SHOP_ITEMS = {
   pack_fire: {
@@ -509,6 +529,7 @@ export async function setActiveBackground(username, bgId) {
 
 export async function checkAndAwardDaily(username, amount = 15) {
   if (!db || !username) return false;
+  if (isAdminSession() || isAdminUsername(username)) return false;
   await ensureProfile(username);
   try {
     const k = keyOf(username);
@@ -523,8 +544,81 @@ export async function checkAndAwardDaily(username, amount = 15) {
   } catch(e) { return false; }
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   🎁 GIFT CODES SYSTEM
+   🪙 SECTION 12 — REWARD SYSTEM (MỚI)
+   ══════════════════════════════════════════════════════════════════════
+   Tự động cộng LDM khi user hoàn thành quiz/tower
+   Admin bị loại trừ hoàn toàn
+   ══════════════════════════════════════════════════════════════════════ */
+const QUIZ_BASE_REWARD     = 10;   // LDM mỗi bài quiz hoàn thành
+const QUIZ_PERFECT_BONUS   = 40;   // LDM cộng thêm nếu đạt 10 điểm
+const TOWER_PER_FLOOR      = 3;    // LDM mỗi tầng Tower đạt được
+
+/**
+ * Cộng LDM khi hoàn thành quiz
+ * @param {string} username
+ * @param {number} score — điểm 0..10
+ * @returns {Promise<{ earned: number, balance: number }>}
+ *
+ * Công thức:
+ *   - Điểm bất kỳ (0..10): +10 LDM
+ *   - Điểm 10:            +10 + 40 = +50 LDM
+ *   - Admin:              0 LDM (bị loại trừ)
+ */
+export async function awardQuizCoins(username, score) {
+  if (!db || !username) return { earned: 0, balance: 0 };
+  if (isAdminSession() || isAdminUsername(username)) return { earned: 0, balance: 0 };
+
+  const sc = Number(score) || 0;
+  if (sc < 0) return { earned: 0, balance: 0 };
+
+  let earned = QUIZ_BASE_REWARD;
+  if (sc === 10) earned += QUIZ_PERFECT_BONUS;
+
+  try {
+    const newBal = await addCoins(username, earned);
+    return { earned, balance: newBal };
+  } catch (e) {
+    console.warn("[reward] awardQuizCoins:", e);
+    return { earned: 0, balance: 0 };
+  }
+}
+
+/**
+ * Cộng LDM khi chơi Tower
+ * @param {string} username
+ * @param {number} floors — số tầng đạt được (0 = không cộng)
+ * @returns {Promise<{ earned: number, balance: number }>}
+ *
+ * Công thức:
+ *   LDM = floors × 3
+ *   - floors = 0: 0 LDM
+ *   - floors = 5: 15 LDM
+ *   - floors = 20: 60 LDM
+ *   - Admin: 0 LDM
+ */
+export async function awardTowerCoins(username, floors) {
+  if (!db || !username) return { earned: 0, balance: 0 };
+  if (isAdminSession() || isAdminUsername(username)) return { earned: 0, balance: 0 };
+
+  const f = Math.max(0, Math.floor(Number(floors) || 0));
+  if (f <= 0) return { earned: 0, balance: 0 };
+
+  const earned = f * TOWER_PER_FLOOR;
+
+  try {
+    const newBal = await addCoins(username, earned);
+    return { earned, balance: newBal };
+  } catch (e) {
+    console.warn("[reward] awardTowerCoins:", e);
+    return { earned: 0, balance: 0 };
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   🎁 SECTION 13 — GIFT CODES
    ══════════════════════════════════════════════════════════════════════
    - maxUses = 0   → KHÔNG GIỚI HẠN số người (mỗi người vẫn 1 lần)
    - maxUses > 0   → Giới hạn N người (mỗi người vẫn 1 lần)
@@ -542,7 +636,6 @@ export async function createGiftCode(code, amount, maxUses = 1, note = "") {
   if (!amt || amt <= 0) return { ok: false, reason: "Số LDM phải > 0" };
   if (amt > 100000) return { ok: false, reason: "Tối đa 100.000 LDM/mã" };
 
-  // maxUses = 0 → KHÔNG GIỚI HẠN số người (mỗi người vẫn 1 lần)
   const mx = Math.max(0, Math.floor(Number(maxUses) || 0));
   if (mx > 1000) return { ok: false, reason: "Tối đa 1000 người/mã" };
 
@@ -591,15 +684,7 @@ export async function deleteGiftCode(code) {
 }
 
 /* ──────────────────────────────────────────────────────────────────────
-   ✅ FIX #1: redeemGiftCode dùng runTransaction (atomic)
-   ──────────────────────────────────────────────────────────────────────
-   Trước đây: get + update riêng → race condition khi nhiều user cùng nhập
-   Bây giờ:  toàn bộ check + update diễn ra trong 1 transaction duy nhất
-   
-   Logic:
-     - Mã unlimited (maxUses = 0): useCount tăng vô hạn, used = false mãi mãi
-     - Mã giới hạn (maxUses > 0):  useCount >= maxUses thì báo hết lượt
-     - Mỗi user chỉ nhập được 1 lần (check trong redeemedBy)
+   redeemGiftCode — atomic runTransaction (V2.7)
    ────────────────────────────────────────────────────────────────────── */
 export async function redeemGiftCode(code, username) {
   if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
@@ -617,7 +702,7 @@ export async function redeemGiftCode(code, username) {
     await runTransaction(codeRef, (current) => {
       if (current === null) {
         result = { ok: false, reason: "Mã không tồn tại" };
-        return current; // abort — trả nguyên giá trị null
+        return current;
       }
 
       const v = current || {};
@@ -628,14 +713,14 @@ export async function redeemGiftCode(code, username) {
       // Chỉ chặn khi mã có giới hạn VÀ đã đủ người
       if (!isUnlimited && useCount >= maxUses) {
         result = { ok: false, reason: "Mã đã hết lượt sử dụng" };
-        return current; // abort — không đổi gì
+        return current;
       }
 
       const k = keyOf(username);
       const redeemedBy = v.redeemedBy || {};
       if (redeemedBy[k]) {
         result = { ok: false, reason: "Bạn đã sử dụng mã này rồi" };
-        return current; // abort
+        return current;
       }
 
       const newUseCount = useCount + 1;
@@ -650,7 +735,7 @@ export async function redeemGiftCode(code, username) {
       };
     });
 
-    // Cộng LDM SAU KHI transaction commit thành công
+    // Cộng LDM sau khi transaction commit thành công
     if (result.ok && amount > 0) {
       await addCoins(username, amount);
     }
@@ -660,8 +745,9 @@ export async function redeemGiftCode(code, username) {
   }
 }
 
+
 /* ══════════════════════════════════════════════════════════════════════
-   CLEANUP LEGACY STORAGE
+   🧹 SECTION 14 — CLEANUP LEGACY STORAGE
    ══════════════════════════════════════════════════════════════════════ */
 (function _cleanupLegacyStorage() {
   try {
