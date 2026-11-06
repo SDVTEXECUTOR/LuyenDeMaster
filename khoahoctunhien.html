@@ -77,7 +77,6 @@ a.back:hover{background:var(--acs);border-color:var(--ac)}
 .toast.show{transform:translateX(-50%) translateY(0)}.toast.error{background:var(--bad)}
 .ban-screen{position:fixed;inset:0;z-index:9999;background:#0f172a;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
 .ban-screen h1{color:var(--bad);font-size:2.2rem}.ban-screen p{color:#94a3b8;max-width:500px}
-/* ===== Nút "Thông tin cần thiết" + popup ===== */
 .ctx-btn{display:flex;width:max-content;align-items:center;gap:8px;background:var(--acs);color:var(--ac);border:1.5px solid var(--ac);border-radius:99px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;margin:0 0 12px;box-shadow:none;transition:all .2s}
 .ctx-btn:hover{background:var(--ac);color:#fff;transform:none}
 .ctx-modal{position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(4px);display:none;place-items:center;padding:16px;z-index:120}
@@ -85,7 +84,6 @@ a.back:hover{background:var(--acs);border-color:var(--ac)}
 .ctx-modal .box{background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--ln);border-radius:16px;padding:20px;max-width:520px;width:100%;max-height:85vh;overflow:auto;box-shadow:var(--shadow)}
 .ctx-opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--ln);border-radius:10px;padding:12px;margin:8px 0;background:rgba(255,255,255,.4)}
 .ctx-opt b{flex:none;width:28px;height:28px;border-radius:6px;border:1.5px solid var(--ln);display:grid;place-items:center;font-size:.85rem;font-weight:700}
-/* ===== Nhạc nền + đồng hồ ===== */
 .xm-box{margin:4px auto 16px;max-width:360px;text-align:left}
 .xm-chk{display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:600;justify-content:center}
 .xm-chk input{width:20px;height:20px;accent-color:var(--ac);cursor:pointer}
@@ -102,7 +100,6 @@ a.back:hover{background:var(--acs);border-color:var(--ac)}
 </head>
 <body>
 <script>
-/* Khoá tên miền */
 (function(){
 var _e=[108,117,121,101,110,100,101,109,97,115,116,101,114,46,118,101,114,99,101,108,46,97,112,112];
 var _h=""; for(var i=0;i<_e.length;i++)_h+=String.fromCharCode(_e[i]);
@@ -122,7 +119,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 </script>
 <div class="toast" id="toast"></div>
 <main>
-  <!-- Thanh trên -->
   <div class="card" style="position:sticky;top:0;z-index:10;padding:16px 20px">
     <div class="top">
       <div>
@@ -140,7 +136,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     </div>
   </div>
 
-  <!-- Màn hình chọn chế độ -->
   <section id="start">
     <div class="card" style="text-align:center">
       <div style="font-size:3rem">🧪</div>
@@ -164,7 +159,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     </div>
   </section>
 
-  <!-- Màn hình làm bài -->
   <section id="quiz" class="hide">
     <div class="card" id="qc" style="min-height:200px"></div>
     <div class="card">
@@ -176,7 +170,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
     </div>
   </section>
 
-  <!-- Màn hình kết quả -->
   <section id="result" class="hide">
     <div class="card">
       <div class="mut" id="rwho" style="font-weight:600"></div>
@@ -225,7 +218,6 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 </div>
 <button id="xmFab" type="button" title="Bật/tắt nhạc nền">🎵</button>
 
-<!-- Popup thông tin cần thiết -->
 <div class="ctx-modal" id="ctxModal">
   <div class="box">
     <div class="top" style="margin-bottom:12px">
@@ -241,6 +233,8 @@ var s=document.getElementById("__dl"); if(s&&s.parentNode)s.parentNode.removeChi
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { awardQuizCoins } from '/js/core.js';
+
 const firebaseConfig = {
 apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
 authDomain: "nightshift-51ded.firebaseapp.com",
@@ -255,7 +249,42 @@ if (window.__STOLEN__) throw new Error("STOLEN_DOMAIN");
 let db = null;
 try { db = getDatabase(initializeApp(firebaseConfig)); } catch (e) { console.warn("Firebase init error:", e); }
 
-/* ================= Dữ liệu câu hỏi ================= */
+/* 🎬 HIỆU ỨNG NHẬN THƯỞNG */
+function showCollectAnim(amount, reason, balance) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("collectOverlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "collectOverlay";
+    overlay.style.cssText = "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
+
+    const iframe = document.createElement("iframe");
+    const qs = new URLSearchParams({ amount: String(amount), reason: String(reason || "quiz"), balance: String(balance || 0) });
+    iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
+    iframe.style.cssText = "width:100%;height:100%;border:0;background:transparent;display:block;";
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
+
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+      overlay.style.opacity = "0";
+      setTimeout(() => { overlay.remove(); resolve(); }, 250);
+    };
+    const handler = (e) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data && e.data.type === "collect:done") cleanup();
+    };
+    window.addEventListener("message", handler);
+
+    setTimeout(() => { if (document.getElementById("collectOverlay")) cleanup(); }, 6000);
+  });
+}
+
 const QUESTIONS = [
 {"id":1,"q":"Dụng cụ nào phù hợp nhất để đo thể tích khoảng 25 mL nước trong thí nghiệm?","options":["Cốc thủy tinh","Ống nhỏ giọt","Đũa thủy tinh","Ống đong"],"answer":3},
 {"id":2,"q":"Khi cần lấy từng giọt dung dịch vào ống nghiệm, nên dùng dụng cụ nào?","options":["Ống nhỏ giọt","Ống đong","Phễu","Kẹp gỗ"],"answer":0},
@@ -319,7 +348,6 @@ const STATE_KEY = "khtn_state_v1";
 const MAX_VIO = 100;
 const L = "ABCD";
 
-/* ================= Tiện ích ================= */
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function normText(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[.,!?;:'"()\-–—]/g, " ").replace(/\s+/g, " ").trim(); }
@@ -331,15 +359,12 @@ function ovOn(t){ $("ovtxt").textContent=t||"Đang xử lý…"; $("ov").classLi
 function ovOff(){ $("ov").classList.add("hide"); }
 function showScreen(id){ ["start","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id)); $("prog").classList.toggle("hide",id!=="quiz"); window.scrollTo({top:0,behavior:"smooth"}); }
 
-/* ================= Popup thông tin cần thiết ================= */
 function openCtx(refId){
 const q = QUESTIONS.find(x => x.id === refId);
 if (!q) return;
 let h = '<div class="tag">Câu hỏi tham khảo</div>';
 h += '<div class="q" style="margin-top:4px">'+esc(q.q)+'</div>';
-q.options.forEach((op, k) => {
-h += '<div class="ctx-opt"><b>'+L[k]+'</b><span>'+esc(op)+'</span></div>';
-});
+q.options.forEach((op, k) => { h += '<div class="ctx-opt"><b>'+L[k]+'</b><span>'+esc(op)+'</span></div>'; });
 $("ctxBody").innerHTML = h;
 $("ctxTitle").textContent = "📌 Thông tin cần thiết";
 $("ctxModal").classList.add("on");
@@ -348,12 +373,8 @@ function closeCtx(){ $("ctxModal").classList.remove("on"); }
 $("ctxClose").onclick = closeCtx;
 $("ctxModal").onclick = e => { if (e.target === $("ctxModal")) closeCtx(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeCtx(); });
-document.addEventListener("click", e => {
-const b = e.target.closest(".ctx-btn");
-if (b) { e.preventDefault(); e.stopPropagation(); openCtx(+b.dataset.ref); }
-});
+document.addEventListener("click", e => { const b = e.target.closest(".ctx-btn"); if (b) { e.preventDefault(); e.stopPropagation(); openCtx(+b.dataset.ref); } });
 
-/* ================= Phiên đăng nhập & khoá tài khoản ================= */
 let session = null;
 try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem("qp_session_v2") || "null"); } catch(e){}
 if (!session || !session.username) { location.replace("index.html"); throw new Error("NO_SESSION"); }
@@ -379,7 +400,6 @@ $("hiName").textContent = "👋 " + session.name;
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "") + " · 🧪 KHTN 9";
 $("nq").textContent = QUESTIONS.length;
 
-/* ================= Trạng thái bài làm ================= */
 let S = null, tick = null, mode = false;
 const saveState = () => { try { sessionStorage.setItem(STATE_KEY, JSON.stringify({u:session.username, S})); } catch(e){} };
 const clearState = () => { try { sessionStorage.removeItem(STATE_KEY); } catch(e){} };
@@ -389,7 +409,6 @@ return null;
 }
 const quizActive = () => S && !S.done && !$("quiz").classList.contains("hide");
 
-/* ================= Chọn chế độ ================= */
 function setMode(m){
 mode = m;
 $("mOrig").classList.toggle("active", !m); $("mShuf").classList.toggle("active", m);
@@ -418,7 +437,6 @@ let _seenAt = 0;
 tick = setInterval(() => { if (S && !S.done) { const n = Date.now(); $("tm").textContent = fmtMs(n - S.t0); if (n - _seenAt > 1000) { _seenAt = n; S.seen = n; saveState(); } } }, 30);
 }
 
-/* ================= Hiển thị câu hỏi ================= */
 function gridHTML(review){
 return S.order.map((qi, i) => {
 let c = "";
@@ -453,7 +471,6 @@ function choose(oi){ S.ans[S.order[S.cur]] = oi; saveState(); draw(); }
 function go(i){ if (i < 0 || i >= QUESTIONS.length) return; S.cur = i; saveState(); draw(); window.scrollTo({top:0,behavior:"smooth"}); }
 $("nv").onclick = e => { const b = e.target.closest("button"); if (b && quizActive()) go(+b.dataset.i); };
 
-/* ================= Nộp bài ================= */
 function askSubmit(){
 const left = S.ans.filter(a => a < 0).length;
 $("mt").innerHTML = left ? 'Bạn còn <b>'+left+'</b> câu chưa làm (tính là sai). Vẫn nộp bài?' : 'Bạn đã làm đủ <b>'+QUESTIONS.length+'</b> câu. Nộp bài ngay?';
@@ -519,7 +536,6 @@ $("again").onclick = () => { clearState(); S = null; $("tm").textContent = "00:0
 $("home").onclick = () => { location.href = "index.html"; };
 $("homeLink").onclick = e => { if (quizActive() && !confirm("Rời khỏi trang sẽ được tính là NỘP BÀI ngay (các câu chưa làm tính là sai). Bạn chắc chắn muốn rời đi?")) e.preventDefault(); };
 
-/* ================= Firebase: nộp kết quả & bảng xếp hạng ================= */
 async function pushResult(){
 if (!S || S.pushed) return;
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
@@ -536,6 +552,17 @@ ovOff();
 $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: '+esc(e.message)+'</div>';
 return;
 }
+
+// 🪙 Cộng LDM + hiệu ứng nhận thưởng
+awardQuizCoins(session.username, r.score).then(reward => {
+  if (reward.earned > 0) {
+    const reason = r.score === 10 ? "perfect" : "quiz";
+    setTimeout(() => {
+      showCollectAnim(reward.earned, reason, reward.balance);
+    }, 500);
+  }
+}).catch(e => console.warn("[reward]", e));
+
 renderLeaderboard("lbResult");
 }
 async function renderLeaderboard(elId){
@@ -577,7 +604,6 @@ return '<div class="lbrow'+clsTop+'"><span class="rk">'+medal+'</span>'
 $("rfStart").onclick = () => renderLeaderboard("lbStart");
 $("rfResult").onclick = () => renderLeaderboard("lbResult");
 
-/* ================= Chống gian lận ================= */
 async function flagViolation(){
 try { const k = "qpb3_vio_" + nameHash(session.name); localStorage.setItem(k, String((parseInt(localStorage.getItem(k) || "0", 10)) + 1)); } catch(e){}
 if (!db || isAdmin) return;
@@ -610,7 +636,6 @@ const m = "1234".indexOf(k) > -1 && k ? "1234".indexOf(k) : "abcd".indexOf(k.toL
 if (k.length === 1 && m > -1) { e.preventDefault(); choose(S.perm[S.order[S.cur]][m]); }
 }, true);
 
-/* ================= Rời khỏi trang = nộp bài ================= */
 function leaveSubmit(){
 if (!quizActive()) return;
 S.done = true; S.left = true; S.dur = Date.now() - S.t0;
@@ -628,7 +653,6 @@ score: r.score, correct: r.correct, total: r.total, duration: S.dur, isShuffled:
 window.addEventListener("pagehide", leaveSubmit);
 window.addEventListener("beforeunload", e => { if (quizActive()) { e.preventDefault(); e.returnValue = ""; } });
 
-/* ================= Khởi động ================= */
 (function init(){
 const saved = loadState();
 if (saved) {
@@ -641,7 +665,6 @@ else { beginTimer(); showScreen("quiz"); draw(); }
 </script>
 
 <script>
-/* ================= Nhạc nền + đồng hồ trực tiếp ================= */
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var SONGS = [
@@ -747,7 +770,6 @@ else { beginTimer(); showScreen("quiz"); draw(); }
   };
   $("xmFab").onclick = function (e) { e.stopPropagation(); setOn(!isOn); };
 
-  /* Tiếp tục bài đang nghe */
   playlist = build();
   try {
     var saved = JSON.parse(sessionStorage.getItem(POS_KEY) || "null");
@@ -768,7 +790,6 @@ else { beginTimer(); showScreen("quiz"); draw(); }
   document.body.addEventListener("keydown", kick);
   setOn(isOn);
 
-  /* Đồng hồ trực tiếp */
   var sub = $("hiSub");
   if (sub) {
     var clk = document.createElement("div");
