@@ -1,11 +1,11 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.4 — Thêm hệ thống LDM Currency + Shop
+   V2.5 — Thêm Gift Code + Give LDM system
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, get, set, remove, push, serverTimestamp, runTransaction
+  getDatabase, ref, get, set, remove, push, serverTimestamp, runTransaction, update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   FIREBASE_CONFIG,
@@ -17,10 +17,8 @@ import {
   ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
 
-/* ══════════════════════════════════════════════════════════════════════
-   🔧 FIX: Khai báo trực tiếp tại đây để tránh lỗi cache từ config.js
-   ══════════════════════════════════════════════════════════════════════ */
 const PROFANITY_LOCK_NODE = "config/profanityEnabled";
+const GIFT_CODES_NODE = "config/giftCodes";
 
 let _db = null;
 try {
@@ -232,10 +230,7 @@ export async function checkRegistrationLock() {
   try {
     const snap = await get(ref(db, REGISTRATION_LOCK_NODE));
     return snap.exists() && snap.val() === true;
-  } catch (e) {
-    console.warn("[core] checkRegistrationLock:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 export async function setRegistrationLock(locked) {
@@ -243,10 +238,7 @@ export async function setRegistrationLock(locked) {
   try {
     await set(ref(db, REGISTRATION_LOCK_NODE), !!locked);
     return true;
-  } catch (e) {
-    console.warn("[core] setRegistrationLock:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 export function generateRegistrationCode() {
@@ -264,17 +256,11 @@ export async function createRegistrationCode(note = "") {
   try {
     const code = generateRegistrationCode();
     await set(ref(db, REGISTRATION_CODES_NODE + "/" + code), {
-      used: false,
-      createdAt: Date.now(),
-      usedBy: "",
-      usedAt: 0,
-      note: String(note).slice(0, 200)
+      used: false, createdAt: Date.now(),
+      usedBy: "", usedAt: 0, note: String(note).slice(0, 200)
     });
     return code;
-  } catch (e) {
-    console.warn("[core] createRegistrationCode:", e);
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 export async function getRegistrationCodes() {
@@ -282,14 +268,9 @@ export async function getRegistrationCodes() {
   try {
     const snap = await get(ref(db, REGISTRATION_CODES_NODE));
     const codes = [];
-    if (snap.exists()) {
-      snap.forEach(ch => codes.push({ code: ch.key, ...ch.val() }));
-    }
+    if (snap.exists()) snap.forEach(ch => codes.push({ code: ch.key, ...ch.val() }));
     return codes;
-  } catch (e) {
-    console.warn("[core] getRegistrationCodes:", e);
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
 export async function deleteRegistrationCode(code) {
@@ -297,10 +278,7 @@ export async function deleteRegistrationCode(code) {
   try {
     await remove(ref(db, REGISTRATION_CODES_NODE + "/" + code));
     return true;
-  } catch (e) {
-    console.warn("[core] deleteRegistrationCode:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 export async function validateRegistrationCode(code) {
@@ -329,31 +307,23 @@ export async function markCodeUsed(code, username) {
     const v = snap.val();
     if (v.used) return false;
     await set(cRef, {
-      used: true,
-      createdAt: v.createdAt || Date.now(),
+      used: true, createdAt: v.createdAt || Date.now(),
       usedBy: String(username || "").slice(0, 100),
-      usedAt: Date.now(),
-      note: v.note || ""
+      usedAt: Date.now(), note: v.note || ""
     });
     return true;
-  } catch (e) {
-    console.warn("[core] markCodeUsed:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   KIỂM DUYỆT TỪ NGỮ — SETTING TOGGLE
+   KIỂM DUYỆT TỪ NGỮ
    ══════════════════════════════════════════════════════════════════════ */
 export async function checkProfanitySetting() {
   if (!db) return false;
   try {
     const snap = await get(ref(db, PROFANITY_LOCK_NODE));
     return snap.exists() && snap.val() === true;
-  } catch (e) {
-    console.warn("[core] checkProfanitySetting:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 export async function setProfanitySetting(enabled) {
@@ -361,10 +331,7 @@ export async function setProfanitySetting(enabled) {
   try {
     await set(ref(db, PROFANITY_LOCK_NODE), !!enabled);
     return true;
-  } catch (e) {
-    console.warn("[core] setProfanitySetting:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -375,43 +342,30 @@ export async function getAnnouncements() {
   try {
     const snap = await get(ref(db, ANNOUNCEMENTS_NODE));
     const items = [];
-    if (snap.exists()) {
-      snap.forEach(ch => {
-        const v = ch.val();
-        if (v && v.title) items.push({ id: ch.key, ...v });
-      });
-    }
+    if (snap.exists()) snap.forEach(ch => {
+      const v = ch.val();
+      if (v && v.title) items.push({ id: ch.key, ...v });
+    });
     items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     return items;
-  } catch (e) {
-    console.warn("[core] getAnnouncements:", e);
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
 export async function createAnnouncement(title, content, author = "Admin") {
-  if (!db || !isAdminSession()) {
-    console.warn("[core] createAnnouncement: chưa đăng nhập admin hoặc chưa có DB");
-    return null;
-  }
+  if (!db || !isAdminSession()) return null;
   const t = String(title || "").trim();
   const c = String(content || "").trim();
   if (!t || t.length > 200) return null;
   if (!c || c.length > 5000) return null;
-
   try {
     const newRef = push(ref(db, ANNOUNCEMENTS_NODE));
     await set(newRef, {
-      title: t,
-      content: c,
+      title: t, content: c,
       author: String(author || "Admin").slice(0, 100),
       createdAt: Date.now()
     });
     return newRef.key;
-  } catch (e) {
-    console.warn("[core] createAnnouncement:", e);
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 export async function deleteAnnouncement(id) {
@@ -419,10 +373,7 @@ export async function deleteAnnouncement(id) {
   try {
     await remove(ref(db, ANNOUNCEMENTS_NODE + "/" + id));
     return true;
-  } catch (e) {
-    console.warn("[core] deleteAnnouncement:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
 export async function getLatestAnnouncementTime() {
@@ -433,30 +384,15 @@ export async function getLatestAnnouncementTime() {
     let latest = 0;
     snap.forEach(ch => {
       const v = ch.val();
-      if (v && typeof v.createdAt === "number" && v.createdAt > latest) {
-        latest = v.createdAt;
-      }
+      if (v && typeof v.createdAt === "number" && v.createdAt > latest) latest = v.createdAt;
     });
     return latest;
-  } catch (e) {
-    console.warn("[core] getLatestAnnouncementTime:", e);
-    return 0;
-  }
+  } catch (e) { return 0; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
    💰 LDM CURRENCY & SHOP SYSTEM
-   ══════════════════════════════════════════════════════════════════════
-   - ensureProfile()          : tự tạo profile nếu chưa có (tránh rules chặn)
-   - getUserCoins()           : lấy số dư LDM
-   - addCoins()               : cộng LDM (dùng cho quiz, tower, daily)
-   - getOwnedPacks()          : danh sách pack đã mua
-   - buyPack()                : mua pack (atomic, không overspend)
-   - getActiveBackground()    : nền đang dùng
-   - setActiveBackground()    : đổi nền
-   - checkAndAwardDaily()     : điểm danh hàng ngày
    ══════════════════════════════════════════════════════════════════════ */
-
 export const SHOP_ITEMS = {
   pack_fire: {
     id: "pack_fire",
@@ -467,57 +403,31 @@ export const SHOP_ITEMS = {
   }
 };
 
-/* ──────────────────────────────────────────────────────────────────────
-   ENSURE PROFILE — tạo profile tối thiểu nếu chưa có
-   Bắt buộc phải có avatar (rules yêu cầu) để không bị PERMISSION_DENIED
-   ────────────────────────────────────────────────────────────────────── */
 async function ensureProfile(username) {
   if (!db || !username) return false;
   try {
     const k = keyOf(username);
     const snap = await get(ref(db, `profiles/${k}`));
     if (snap.exists()) return true;
-
     await set(ref(db, `profiles/${k}`), {
-      avatar: "🐱",
-      avatarImg: "",
-      bio: "",
-      coins: 0,
-      totalQuizzes: 0,
-      loginCount: 1,
-      streak: 1,
-      lastLogin: Date.now(),
-      bestScores: {},
-      achievements: {},
-      achievementDates: {},
-      recentActivity: [],
+      avatar: "🐱", avatarImg: "", bio: "", coins: 0,
+      totalQuizzes: 0, loginCount: 1, streak: 1, lastLogin: Date.now(),
+      bestScores: {}, achievements: {}, achievementDates: {}, recentActivity: [],
       createdAt: Date.now()
     });
     return true;
-  } catch (e) {
-    console.warn("[core] ensureProfile:", e);
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   GET COINS
-   ────────────────────────────────────────────────────────────────────── */
 export async function getUserCoins(username) {
   if (!db || !username) return 0;
   try {
     const k = keyOf(username);
     const snap = await get(ref(db, `profiles/${k}/coins`));
     return snap.exists() ? Number(snap.val()) || 0 : 0;
-  } catch (e) {
-    console.warn("[core] getUserCoins:", e);
-    return 0;
-  }
+  } catch (e) { return 0; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   ADD COINS (atomic, dùng runTransaction để tránh race condition)
-   ────────────────────────────────────────────────────────────────────── */
 export async function addCoins(username, amount) {
   if (!db || !username || !amount) return 0;
   await ensureProfile(username);
@@ -527,21 +437,14 @@ export async function addCoins(username, amount) {
     await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
       const c = Number(cur) || 0;
       newVal = c + Number(amount);
-      // Chặn vượt trần rules (1.000.000)
       if (newVal > 1000000) newVal = 1000000;
       if (newVal < 0) newVal = 0;
       return newVal;
     });
     return newVal;
-  } catch (e) {
-    console.warn("[core] addCoins:", e);
-    return 0;
-  }
+  } catch (e) { return 0; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   GET OWNED PACKS
-   ────────────────────────────────────────────────────────────────────── */
 export async function getOwnedPacks(username) {
   if (!db || !username) return [];
   try {
@@ -552,60 +455,39 @@ export async function getOwnedPacks(username) {
     if (Array.isArray(v)) return v.filter(Boolean);
     if (typeof v === "object") return Object.values(v).filter(Boolean);
     return [];
-  } catch (e) {
-    console.warn("[core] getOwnedPacks:", e);
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   BUY PACK — Atomic: check owned → trừ tiền → thêm ownedPacks
-   ────────────────────────────────────────────────────────────────────── */
 export async function buyPack(username, packId) {
   const item = SHOP_ITEMS[packId];
   if (!item) return { ok: false, reason: "Pack không tồn tại" };
   if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
-
   await ensureProfile(username);
-
   try {
     const k = keyOf(username);
-
-    // 1. Kiểm tra đã sở hữu
     const owned = await getOwnedPacks(username);
     if (owned.includes(packId)) {
       return { ok: false, reason: "Bạn đã sở hữu pack này rồi" };
     }
-
-    // 2. Trừ tiền (atomic — không overspend)
-    let paid = false;
-    let reason = "";
+    let paid = false, reason = "";
     await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
       const c = Number(cur) || 0;
       if (c < item.price) {
         reason = `Bạn cần thêm ${item.price - c} LDM nữa (hiện có ${c} LDM)`;
-        return c; // không đổi
+        return c;
       }
       paid = true;
       return c - item.price;
     });
-
     if (!paid) return { ok: false, reason: reason || "Không đủ LDM" };
-
-    // 3. Thêm vào ownedPacks
     const newOwned = [...owned, packId];
     await set(ref(db, `profiles/${k}/ownedPacks`), newOwned);
-
     return { ok: true };
   } catch(e) {
-    console.warn("[core] buyPack:", e);
     return { ok: false, reason: "Lỗi: " + e.message };
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   BACKGROUND
-   ────────────────────────────────────────────────────────────────────── */
 export async function getActiveBackground(username) {
   if (!db || !username) return "default";
   try {
@@ -622,31 +504,125 @@ export async function setActiveBackground(username, bgId) {
     const k = keyOf(username);
     await set(ref(db, `profiles/${k}/activeBg`), bgId || "default");
     return true;
-  } catch(e) {
-    console.warn("[core] setActiveBackground:", e);
-    return false;
-  }
+  } catch(e) { return false; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   DAILY BONUS — trả về true nếu vừa trao thưởng hôm nay
-   ────────────────────────────────────────────────────────────────────── */
 export async function checkAndAwardDaily(username, amount = 15) {
   if (!db || !username) return false;
   await ensureProfile(username);
   try {
     const k = keyOf(username);
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     const ref_ = ref(db, `profiles/${k}/lastDailyBonus`);
     const snap = await get(ref_);
     const last = snap.exists() ? String(snap.val()) : "";
-    if (last === today) return false; // đã nhận hôm nay
+    if (last === today) return false;
     await set(ref_, today);
     await addCoins(username, amount);
     return true;
-  } catch(e) {
-    console.warn("[core] checkAndAwardDaily:", e);
-    return false;
+  } catch(e) { return false; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   🎁 GIFT CODES SYSTEM
+   ══════════════════════════════════════════════════════════════════════ */
+export async function createGiftCode(code, amount, maxUses = 1, note = "") {
+  if (!db || !isAdminSession()) return { ok: false, reason: "Chưa đăng nhập admin" };
+
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return { ok: false, reason: "Mã không được rỗng" };
+  if (!/^[A-Z0-9_-]{3,30}$/.test(c)) {
+    return { ok: false, reason: "Mã chỉ gồm A-Z, 0-9, gạch dưới, 3-30 ký tự" };
+  }
+
+  const amt = Number(amount);
+  if (!amt || amt <= 0) return { ok: false, reason: "Số LDM phải > 0" };
+  if (amt > 100000) return { ok: false, reason: "Tối đa 100.000 LDM/mã" };
+
+  const mx = Math.max(1, Math.floor(Number(maxUses) || 1));
+  if (mx > 1000) return { ok: false, reason: "Tối đa 1000 lượt/mã" };
+
+  try {
+    const codeRef = ref(db, `${GIFT_CODES_NODE}/${c}`);
+    const snap = await get(codeRef);
+    if (snap.exists()) return { ok: false, reason: "Mã đã tồn tại" };
+
+    await set(codeRef, {
+      amount: amt, maxUses: mx, useCount: 0, used: false,
+      createdAt: Date.now(),
+      createdBy: (_session && _session.username) || "admin",
+      note: String(note || "").slice(0, 200),
+      redeemedBy: {}
+    });
+
+    return { ok: true, code: c };
+  } catch (e) {
+    return { ok: false, reason: e.message };
+  }
+}
+
+export async function getGiftCodes() {
+  if (!db) return [];
+  try {
+    const snap = await get(ref(db, GIFT_CODES_NODE));
+    if (!snap.exists()) return [];
+    const codes = [];
+    snap.forEach(ch => {
+      const v = ch.val() || {};
+      codes.push({ code: ch.key, ...v });
+    });
+    codes.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return codes;
+  } catch (e) { return []; }
+}
+
+export async function deleteGiftCode(code) {
+  if (!db || !isAdminSession()) return false;
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return false;
+  try {
+    await remove(ref(db, `${GIFT_CODES_NODE}/${c}`));
+    return true;
+  } catch (e) { return false; }
+}
+
+export async function redeemGiftCode(code, username) {
+  if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
+
+  const c = String(code || "").trim().toUpperCase();
+  if (!c) return { ok: false, reason: "Vui lòng nhập mã" };
+
+  await ensureProfile(username);
+
+  try {
+    const codeRef = ref(db, `${GIFT_CODES_NODE}/${c}`);
+    const snap = await get(codeRef);
+    if (!snap.exists()) return { ok: false, reason: "Mã không tồn tại" };
+
+    const v = snap.val() || {};
+    const useCount = Number(v.useCount) || 0;
+    const maxUses = Number(v.maxUses) || 1;
+
+    if (useCount >= maxUses) return { ok: false, reason: "Mã đã hết lượt sử dụng" };
+
+    const k = keyOf(username);
+    const redeemedBy = v.redeemedBy || {};
+    if (redeemedBy[k]) return { ok: false, reason: "Bạn đã sử dụng mã này rồi" };
+
+    const newUseCount = useCount + 1;
+    const updates = {};
+    updates["useCount"] = newUseCount;
+    updates["used"] = newUseCount >= maxUses;
+    updates["redeemedBy/" + k] = Date.now();
+
+    await update(codeRef, updates);
+
+    const amount = Number(v.amount) || 0;
+    await addCoins(username, amount);
+
+    return { ok: true, amount };
+  } catch (e) {
+    return { ok: false, reason: e.message };
   }
 }
 
