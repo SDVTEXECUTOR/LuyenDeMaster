@@ -6,7 +6,7 @@
 <title>Hồ Sơ Cá Nhân · Luyện Đề Master</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
@@ -147,12 +147,19 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .badge-name { font-size: 0.82rem; font-weight: 700; display: block; line-height: 1.3; }
 .badge-date { font-size: 0.7rem; color: var(--mut); display: block; margin-top: 4px; }
 
+/* ═══════ FIX SCROLL CHO MODAL ═══════ */
 .mask {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
-  display: none; place-items: center; padding: 16px; z-index: 100; opacity: 0; transition: opacity 0.3s;
+  display: none; z-index: 100; opacity: 0; transition: opacity 0.3s;
+  overflow-y: auto; /* Cho phép cuộn */
+  padding: 40px 16px; /* Tăng padding trên dưới để không sát mép */
 }
-.mask.on { display: grid; opacity: 1; }
-.mask .card { max-width: 440px; width: 100%; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.mask.on { display: flex; opacity: 1; }
+.mask .card { 
+  max-width: 440px; width: 100%; 
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+  margin: auto; /* Căn giữa hoàn hảo */
+}
 @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 input[type="text"], input[type="password"], textarea {
@@ -320,116 +327,40 @@ body.fire-theme .badge-item { background: rgba(20,10,5,0.6); border-color: rgba(
   color: var(--ac);
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   ✅ FIX #3: FIRE FX LAYER (giống firepack preview)
-   ══════════════════════════════════════════════════════════════════ */
+/* FIRE FX LAYER */
 .fire-fx-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: none; overflow: hidden; }
 body.fire-theme .fire-fx-layer { display: block; }
-
-.fire-fx-ambient { position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 85%, rgba(255,120,30,.35), transparent 70%);
-  animation: fxAmbient 2.3s ease-in-out infinite; mix-blend-mode: overlay; }
+.fire-fx-ambient { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 85%, rgba(255,120,30,.35), transparent 70%); animation: fxAmbient 2.3s ease-in-out infinite; mix-blend-mode: overlay; }
 @keyframes fxAmbient { 0%,100%{opacity:.55} 22%{opacity:.85} 41%{opacity:.4} 63%{opacity:.9} 80%{opacity:.5} }
-
-.fire-fx-svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 85%;
-  pointer-events: none; mix-blend-mode: screen; opacity: .95; }
-
+.fire-fx-svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 85%; pointer-events: none; mix-blend-mode: screen; opacity: .95; }
 .fire-fx-flames-back, .fire-fx-flames-front { position: absolute; left: 0; right: 0; pointer-events: none; }
 .fire-fx-flames-back { bottom: 0; height: 80%; }
 .fire-fx-flames-front { bottom: 0; height: 55%; opacity: .75; mix-blend-mode: screen; }
-
-.fire-fx-flame { position: absolute; bottom: 0; width: var(--w, 40px); height: var(--h, 100px);
-  left: var(--x, 50%); margin-left: calc(var(--w, 40px) / -2);
-  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-  background: radial-gradient(ellipse 70% 90% at center bottom,
-    rgba(255,255,240,1) 0%, rgba(255,245,100,.95) 15%, rgba(255,180,30,.9) 35%,
-    rgba(255,100,0,.7) 60%, rgba(200,30,0,.35) 85%, rgba(120,10,0,0) 100%);
-  filter: blur(var(--blur, 4px)); transform-origin: center bottom;
-  animation: fxFlame var(--dur, 1.5s) ease-in-out infinite alternate;
-  animation-delay: var(--delay, 0s); will-change: transform, opacity; }
-@keyframes fxFlame {
-  0% { transform: translateY(0) scaleY(.9) scaleX(1) rotate(0deg); opacity: .75; }
-  30% { transform: translateY(-12px) scaleY(1.15) scaleX(.92) rotate(var(--r1, -3deg)); opacity: 1; }
-  60% { transform: translateY(-8px) scaleY(1.05) scaleX(1.05) rotate(var(--r2, 4deg)); opacity: .9; }
-  100% { transform: translateY(-18px) scaleY(1.25) scaleX(.88) rotate(var(--r3, -2deg)); opacity: 1; }
-}
+.fire-fx-flame { position: absolute; bottom: 0; width: var(--w, 40px); height: var(--h, 100px); left: var(--x, 50%); margin-left: calc(var(--w, 40px) / -2); border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%; background: radial-gradient(ellipse 70% 90% at center bottom, rgba(255,255,240,1) 0%, rgba(255,245,100,.95) 15%, rgba(255,180,30,.9) 35%, rgba(255,100,0,.7) 60%, rgba(200,30,0,.35) 85%, rgba(120,10,0,0) 100%); filter: blur(var(--blur, 4px)); transform-origin: center bottom; animation: fxFlame var(--dur, 1.5s) ease-in-out infinite alternate; animation-delay: var(--delay, 0s); will-change: transform, opacity; }
+@keyframes fxFlame { 0% { transform: translateY(0) scaleY(.9) scaleX(1) rotate(0deg); opacity: .75; } 30% { transform: translateY(-12px) scaleY(1.15) scaleX(.92) rotate(var(--r1, -3deg)); opacity: 1; } 60% { transform: translateY(-8px) scaleY(1.05) scaleX(1.05) rotate(var(--r2, 4deg)); opacity: .9; } 100% { transform: translateY(-18px) scaleY(1.25) scaleX(.88) rotate(var(--r3, -2deg)); opacity: 1; } }
 .fire-fx-flame.mini { filter: blur(2px); opacity: .85; }
 .fire-fx-flame.big  { filter: blur(8px); opacity: .7; }
-
 .fire-fx-embers { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.fire-fx-embers span { position: absolute; bottom: 30%; left: 50%; width: var(--size, 5px); height: var(--size, 5px);
-  border-radius: 50%;
-  background: radial-gradient(circle, #fffde7 0%, #ffcc00 30%, #ff6a00 60%, #ff2200 100%);
-  box-shadow: 0 0 8px #ff8800, 0 0 16px #ff4400, 0 0 24px rgba(255,60,0,.6);
-  filter: blur(.4px); opacity: 0; animation: fxEmber var(--dur, 2.5s) ease-out infinite;
-  animation-delay: var(--delay, 0s); will-change: transform, opacity; }
-@keyframes fxEmber {
-  0% { transform: translate(-50%, 0) scale(.2); opacity: 0; }
-  10% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0) * .15), -20px) scale(1); }
-  70% { opacity: .9; transform: translate(calc(-50% + var(--dx, 0) * .8), -160px) scale(.8); }
-  100% { transform: translate(calc(-50% + var(--dx, 0)), -250px) scale(.2); opacity: 0; }
-}
-
+.fire-fx-embers span { position: absolute; bottom: 30%; left: 50%; width: var(--size, 5px); height: var(--size, 5px); border-radius: 50%; background: radial-gradient(circle, #fffde7 0%, #ffcc00 30%, #ff6a00 60%, #ff2200 100%); box-shadow: 0 0 8px #ff8800, 0 0 16px #ff4400, 0 0 24px rgba(255,60,0,.6); filter: blur(.4px); opacity: 0; animation: fxEmber var(--dur, 2.5s) ease-out infinite; animation-delay: var(--delay, 0s); will-change: transform, opacity; }
+@keyframes fxEmber { 0% { transform: translate(-50%, 0) scale(.2); opacity: 0; } 10% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0) * .15), -20px) scale(1); } 70% { opacity: .9; transform: translate(calc(-50% + var(--dx, 0) * .8), -160px) scale(.8); } 100% { transform: translate(calc(-50% + var(--dx, 0)), -250px) scale(.2); opacity: 0; } }
 .fire-fx-smoke { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.fire-fx-smoke span { position: absolute; bottom: 38%; left: 50%; width: var(--sw, 90px); height: var(--sw, 90px);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(70,60,60,.5) 0%, rgba(40,35,35,.25) 45%, transparent 75%);
-  filter: blur(10px); opacity: 0; animation: fxSmoke var(--dur, 6s) ease-out infinite;
-  animation-delay: var(--delay, 0s); }
-@keyframes fxSmoke {
-  0% { transform: translate(-50%, 0) scale(.3) rotate(0deg); opacity: 0; }
-  15% { opacity: .5; }
-  60% { opacity: .35; transform: translate(calc(-50% + var(--dx, 0) * .5), -180px) scale(1.3) rotate(40deg); }
-  100% { transform: translate(calc(-50% + var(--dx, 0)), -340px) scale(2) rotate(90deg); opacity: 0; }
-}
-
+.fire-fx-smoke span { position: absolute; bottom: 38%; left: 50%; width: var(--sw, 90px); height: var(--sw, 90px); border-radius: 50%; background: radial-gradient(circle, rgba(70,60,60,.5) 0%, rgba(40,35,35,.25) 45%, transparent 75%); filter: blur(10px); opacity: 0; animation: fxSmoke var(--dur, 6s) ease-out infinite; animation-delay: var(--delay, 0s); }
+@keyframes fxSmoke { 0% { transform: translate(-50%, 0) scale(.3) rotate(0deg); opacity: 0; } 15% { opacity: .5; } 60% { opacity: .35; transform: translate(calc(-50% + var(--dx, 0) * .5), -180px) scale(1.3) rotate(40deg); } 100% { transform: translate(calc(-50% + var(--dx, 0)), -340px) scale(2) rotate(90deg); opacity: 0; } }
 .fire-fx-streaks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.fire-fx-streak { position: absolute; left: var(--sx, 0); top: var(--sy, 50%); width: var(--sl, 220px); height: var(--sth, 3px);
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,220,120,.9) 55%, rgba(255,255,255,1) 100%);
-  filter: blur(.6px) drop-shadow(0 0 6px rgba(255,160,40,.9)) drop-shadow(0 0 14px rgba(255,90,0,.6));
-  transform: rotate(var(--sr, -18deg)); opacity: 0;
-  animation: fxStreak var(--sdur, 1.1s) cubic-bezier(.2, .8, .3, 1) forwards;
-  animation-delay: var(--sdelay, 0s); }
-@keyframes fxStreak {
-  0% { opacity: 0; transform: rotate(var(--sr, -18deg)) translateX(-60px) scaleX(.3); }
-  8% { opacity: 1; }
-  70% { opacity: .9; }
-  100% { opacity: 0; transform: rotate(var(--sr, -18deg)) translateX(var(--sdx, 520px)) scaleX(1); }
-}
-
-.fire-fx-vignette { position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 45%, rgba(2,2,6,.55) 100%); }
-
+.fire-fx-streak { position: absolute; left: var(--sx, 0); top: var(--sy, 50%); width: var(--sl, 220px); height: var(--sth, 3px); border-radius: 999px; background: linear-gradient(90deg, transparent 0%, rgba(255,220,120,.9) 55%, rgba(255,255,255,1) 100%); filter: blur(.6px) drop-shadow(0 0 6px rgba(255,160,40,.9)) drop-shadow(0 0 14px rgba(255,90,0,.6)); transform: rotate(var(--sr, -18deg)); opacity: 0; animation: fxStreak var(--sdur, 1.1s) cubic-bezier(.2, .8, .3, 1) forwards; animation-delay: var(--sdelay, 0s); }
+@keyframes fxStreak { 0% { opacity: 0; transform: rotate(var(--sr, -18deg)) translateX(-60px) scaleX(.3); } 8% { opacity: 1; } 70% { opacity: .9; } 100% { opacity: 0; transform: rotate(var(--sr, -18deg)) translateX(var(--sdx, 520px)) scaleX(1); } }
+.fire-fx-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 45%, rgba(2,2,6,.55) 100%); }
 .fire-fx-skulls { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
-.fire-fx-skull { position: absolute; left: -18%; top: var(--fy, 30%); width: 80px; height: 66px;
-  transform: scale(var(--fsc, 1)); animation: fxSkull var(--fdur, 3.2s) ease-in-out forwards;
-  filter: drop-shadow(0 0 10px rgba(255,120,20,.85)) drop-shadow(0 0 24px rgba(255,60,0,.55)); }
+.fire-fx-skull { position: absolute; left: -18%; top: var(--fy, 30%); width: 80px; height: 66px; transform: scale(var(--fsc, 1)); animation: fxSkull var(--fdur, 3.2s) ease-in-out forwards; filter: drop-shadow(0 0 10px rgba(255,120,20,.85)) drop-shadow(0 0 24px rgba(255,60,0,.55)); }
 .fire-fx-skull svg { width: 100%; height: 100%; display: block; }
 .fire-fx-skull-eye { animation: fxEyePulse 1s ease-in-out infinite alternate; }
-@keyframes fxSkull {
-  0% { transform: translate(0, 0) rotate(-10deg) scale(calc(var(--fsc, 1) * .6)); opacity: 0; }
-  8% { opacity: 1; }
-  30% { transform: translate(32vw, calc(var(--arc, 1) * -46px)) rotate(6deg) scale(var(--fsc, 1)); }
-  50% { transform: translate(58vw, calc(var(--arc, 1) * 34px)) rotate(-8deg) scale(calc(var(--fsc, 1) * 1.06)); }
-  72% { transform: translate(84vw, calc(var(--arc, 1) * -24px)) rotate(7deg) scale(var(--fsc, 1)); }
-  92% { opacity: 1; }
-  100% { transform: translate(118vw, 0) rotate(-5deg) scale(calc(var(--fsc, 1) * .6)); opacity: 0; }
-}
-@keyframes fxEyePulse {
-  0% { opacity: .5; filter: drop-shadow(0 0 4px #ff2200); }
-  100% { opacity: 1; filter: drop-shadow(0 0 14px #ff5500); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fire-fx-flame, .fire-fx-embers span, .fire-fx-smoke span,
-  .fire-fx-ambient, .fire-fx-streak, .fire-fx-skull { animation: none !important; }
-}
+@keyframes fxSkull { 0% { transform: translate(0, 0) rotate(-10deg) scale(calc(var(--fsc, 1) * .6)); opacity: 0; } 8% { opacity: 1; } 30% { transform: translate(32vw, calc(var(--arc, 1) * -46px)) rotate(6deg) scale(var(--fsc, 1)); } 50% { transform: translate(58vw, calc(var(--arc, 1) * 34px)) rotate(-8deg) scale(calc(var(--fsc, 1) * 1.06)); } 72% { transform: translate(84vw, calc(var(--arc, 1) * -24px)) rotate(7deg) scale(var(--fsc, 1)); } 92% { opacity: 1; } 100% { transform: translate(118vw, 0) rotate(-5deg) scale(calc(var(--fsc, 1) * .6)); opacity: 0; } }
+@keyframes fxEyePulse { 0% { opacity: .5; filter: drop-shadow(0 0 4px #ff2200); } 100% { opacity: 1; filter: drop-shadow(0 0 14px #ff5500); } }
+@media (prefers-reduced-motion: reduce) { .fire-fx-flame, .fire-fx-embers span, .fire-fx-smoke span, .fire-fx-ambient, .fire-fx-streak, .fire-fx-skull { animation: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ═══ FIRE FX LAYER ═══ -->
 <div id="fireFxLayer" class="fire-fx-layer" aria-hidden="true">
   <div class="fire-fx-ambient"></div>
   <svg class="fire-fx-svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMax slice">
@@ -645,6 +576,50 @@ function showToast(msg, isErr) {
 async function sha256Hex(str) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+/* 🎬 HIỆU ỨNG NHẬN QUÀ TẶNG (IFRAME OVERLAY) */
+function showCollectAnim(amount, reason, balance) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("collectOverlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "collectOverlay";
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
+
+    const iframe = document.createElement("iframe");
+    const qs = new URLSearchParams({
+      amount: String(amount),
+      reason: String(reason || "gift"),
+      balance: String(balance || 0)
+    });
+    iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
+    iframe.style.cssText =
+      "width:100%;height:100%;border:0;background:transparent;display:block;";
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
+
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+      overlay.style.opacity = "0";
+      setTimeout(() => { overlay.remove(); resolve(); }, 250);
+    };
+    const handler = (e) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data && e.data.type === "collect:done") cleanup();
+    };
+    window.addEventListener("message", handler);
+
+    setTimeout(() => {
+      if (document.getElementById("collectOverlay")) cleanup();
+    }, 6000);
+  });
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1498,7 +1473,7 @@ $("savePassword").onclick = async () => {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   ✅ FIX #3: FIRE FX (firepack-style) + BACKGROUND SELECTOR
+   🎨 BACKGROUND SELECTOR
    ══════════════════════════════════════════════════════════════════════ */
 let fireFxActive = false;
 let fireSkullTimer = null;
@@ -1732,8 +1707,17 @@ if ($("giftConfirm")) {
       const result = await redeemGiftCode(code, viewedUsername);
       if (result.ok) {
         closeGiftModal();
-        showToast(`🎉 Nhận thành công ${result.amount.toLocaleString("vi-VN")} LDM!`);
-        setTimeout(() => loadData(), 400);
+        
+        // Lấy số dư mới để truyền vào hiệu ứng
+        const newBal = await getUserCoins(viewedUsername);
+        
+        // Bật hiệu ứng nhận quà
+        setTimeout(() => {
+          showCollectAnim(result.amount, "gift", newBal);
+        }, 300);
+
+        // Load lại data để cập nhật UI ngầm
+        setTimeout(() => loadData(), 800);
       } else {
         $("giftError").textContent = "❌ " + result.reason;
       }
