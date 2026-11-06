@@ -92,16 +92,24 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   text-shadow:0 2px 8px rgba(251,191,36,.4)}
 .pack-price small{font-size:.9rem;color:var(--mut);font-weight:600;
   margin-left:4px;text-shadow:none}
-.pack-btn{width:100%;padding:14px;font-size:1rem;border-radius:12px;
+
+/* ═══ PACK ACTIONS ═══ */
+.pack-actions{display:flex;gap:10px;flex-wrap:wrap}
+.pack-actions .pack-btn{flex:1;min-width:150px;padding:14px;font-size:1rem;border-radius:12px;
   background:linear-gradient(135deg,#f97316,#dc2626);
   box-shadow:0 6px 20px rgba(220,38,38,.4)}
-.pack-btn:not(:disabled):hover{filter:brightness(1.1);
+.pack-actions .pack-btn:not(:disabled):hover{filter:brightness(1.1);
   box-shadow:0 8px 28px rgba(220,38,38,.55)}
-.pack-btn.owned{background:linear-gradient(135deg,#16a34a,#22c55e);
+.pack-actions .pack-btn.owned{background:linear-gradient(135deg,#16a34a,#22c55e);
   box-shadow:0 6px 20px rgba(22,163,74,.4)}
-.pack-btn.insufficient{background:linear-gradient(135deg,#64748b,#475569);
+.pack-actions .pack-btn.insufficient{background:linear-gradient(135deg,#64748b,#475569);
   box-shadow:none}
-.pack-btn.insufficient:hover{transform:none;filter:none}
+.pack-actions .pack-btn.insufficient:hover{transform:none;filter:none}
+.pack-actions .preview-trigger{flex:1;min-width:120px;padding:14px;font-size:1rem;
+  border-radius:12px;background:rgba(255,255,255,.1);color:var(--fg);
+  border:1.5px solid rgba(255,255,255,.25);box-shadow:none}
+.pack-actions .preview-trigger:hover{background:rgba(255,255,255,.2);
+  border-color:rgba(255,180,80,.6);transform:translateY(-1px)}
 
 /* ═══ EARN ROWS ═══ */
 .earn-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
@@ -173,14 +181,6 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   color:var(--ok)}
 .success-desc{color:var(--mut);font-size:.9rem;line-height:1.6;margin-bottom:20px}
 
-/* ═══ LOADING STATE ═══ */
-.loading-state{text-align:center;padding:40px 20px;color:var(--mut)}
-.loading-state .spinner{margin:0 auto 16px}
-
-/* ═══ EMPTY ═══ */
-.empty-notice{text-align:center;padding:20px;color:var(--mut);
-  font-style:italic;font-size:.9rem}
-
 @media (max-width:480px){
   h1{font-size:1.4rem}
   .balance-card .num{font-size:2.2rem}
@@ -191,6 +191,182 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   .earn-row .emoji{font-size:1.5rem}
   .earn-row .label{font-size:.85rem}
   .earn-row .reward{font-size:.9rem;padding:3px 10px}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   👁️ PREVIEW OVERLAY — Xem trước PACK FIRE
+   ═══════════════════════════════════════════════════════════════════ */
+.preview-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: none; place-items: center;
+  padding: 20px; overflow: auto;
+  background: #050208;
+  background-image:
+    radial-gradient(ellipse 120% 60% at 50% 100%, rgba(255,80,0,0.65) 0%, rgba(180,40,0,0.25) 30%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 20% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
+    linear-gradient(180deg, #050208 0%, #0a0300 40%, #1a0500 80%, #2a0800 100%);
+  animation: previewFadeIn 0.4s ease;
+}
+.preview-overlay.on { display: grid; }
+@keyframes previewFadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.preview-overlay::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 100%, rgba(255,120,30,0.5) 0%, transparent 50%);
+  animation: previewGlow 2.5s ease-in-out infinite alternate;
+  z-index: 0;
+}
+@keyframes previewGlow {
+  0% { opacity: 0.6; transform: scale(1) }
+  100% { opacity: 1; transform: scale(1.05) }
+}
+.preview-overlay::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 15% 90%, #ffcc00, transparent),
+    radial-gradient(1.5px 1.5px at 25% 80%, #ff8800, transparent),
+    radial-gradient(2.5px 2.5px at 40% 95%, #ffaa00, transparent),
+    radial-gradient(1px 1px at 55% 85%, #ff6600, transparent),
+    radial-gradient(2px 2px at 70% 92%, #ffcc00, transparent),
+    radial-gradient(1.5px 1.5px at 85% 88%, #ff8800, transparent),
+    radial-gradient(1px 1px at 92% 78%, #ffaa00, transparent);
+  background-size: 100% 300%;
+  animation: previewEmber 8s linear infinite;
+  z-index: 1;
+}
+@keyframes previewEmber {
+  0% { background-position: 0 100%; opacity: 0 }
+  10%, 90% { opacity: 1 }
+  100% { background-position: 0 -200%; opacity: 0 }
+}
+
+.preview-content {
+  position: relative; z-index: 2;
+  max-width: 400px; width: 100%;
+  margin: auto;
+  text-align: center;
+}
+.preview-badge {
+  display: inline-block;
+  background: rgba(255,140,50,0.2);
+  color: #ffb347;
+  padding: 6px 16px; border-radius: 99px;
+  font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 0.08em; margin-bottom: 20px;
+  border: 1px solid rgba(255,140,50,0.4);
+  backdrop-filter: blur(10px);
+}
+.preview-close {
+  position: absolute; top: -10px; right: 0;
+  width: 40px; height: 40px; padding: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  color: #fff; border: 1px solid rgba(255,255,255,0.2);
+  display: grid; place-items: center;
+  font-size: 1.2rem; cursor: pointer;
+  backdrop-filter: blur(10px); box-shadow: none;
+  transition: all 0.2s;
+}
+.preview-close:hover { background: rgba(220,38,38,0.8); transform: scale(1.1) }
+
+/* Mock profile */
+.mock-profile {
+  background: rgba(20, 10, 5, 0.85);
+  border: 1px solid rgba(255, 100, 30, 0.35);
+  border-radius: 20px;
+  padding: 28px 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(255, 80, 0, 0.25),
+              inset 0 1px 0 rgba(255, 150, 60, 0.15);
+  animation: mockSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+@keyframes mockSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95) }
+  to { opacity: 1; transform: none }
+}
+
+.mock-avatar {
+  width: 100px; height: 100px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #3a1a08, #0a0300);
+  display: grid; place-items: center;
+  font-size: 3.2rem;
+  margin: 0 auto 16px;
+  border: 3px solid rgba(255, 120, 30, 0.7);
+  box-shadow: 0 0 30px rgba(255, 80, 0, 0.6), 0 0 60px rgba(255, 40, 0, 0.3);
+  animation: mockAvatarPulse 2s ease-in-out infinite alternate;
+  overflow: hidden;
+}
+@keyframes mockAvatarPulse {
+  from { box-shadow: 0 0 30px rgba(255,80,0,0.6), 0 0 60px rgba(255,40,0,0.3) }
+  to   { box-shadow: 0 0 45px rgba(255,150,20,0.9), 0 0 90px rgba(255,60,0,0.5) }
+}
+.mock-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% }
+
+.mock-name {
+  font-size: 1.4rem; font-weight: 900;
+  margin: 0 0 4px; color: #fff5e6;
+  text-shadow: 0 0 20px rgba(255, 150, 50, 0.6);
+}
+.mock-user {
+  color: #ffaa44; font-weight: 600;
+  font-size: 0.9rem; margin-bottom: 20px;
+}
+.mock-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 16px;
+}
+.mock-stat {
+  background: rgba(255, 80, 0, 0.1);
+  border: 1px solid rgba(255, 100, 30, 0.35);
+  border-radius: 10px;
+  padding: 12px 8px;
+}
+.mock-stat-val {
+  font-size: 1.3rem; font-weight: 900;
+  color: #ffb347; line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.mock-stat-lbl {
+  font-size: 0.7rem; color: #d4a574;
+  font-weight: 600; margin-top: 2px;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.mock-preview-note {
+  font-size: 0.78rem; color: #d4a574;
+  font-style: italic; padding: 10px;
+  background: rgba(255, 80, 0, 0.08);
+  border-radius: 8px; line-height: 1.5;
+}
+.mock-preview-note b { color: #ffb347; font-style: normal }
+
+.preview-actions {
+  display: flex; gap: 10px; margin-top: 20px;
+  animation: mockSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+}
+.preview-actions button { flex: 1; padding: 14px; font-size: 0.95rem }
+.preview-btn-close {
+  background: rgba(255,255,255,0.1);
+  color: #fff; border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: none;
+}
+.preview-btn-close:hover { background: rgba(255,255,255,0.2) }
+.preview-btn-buy {
+  background: linear-gradient(135deg, #f97316, #dc2626);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+}
+.preview-btn-buy:disabled {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  opacity: 0.85; cursor: not-allowed;
+}
+.preview-btn-buy:disabled:hover { transform: none; filter: none }
+
+@media (max-width: 480px) {
+  .mock-avatar { width: 80px; height: 80px; font-size: 2.5rem }
+  .mock-name { font-size: 1.2rem }
+  .mock-stat-val { font-size: 1.1rem }
+  .preview-actions button { padding: 12px; font-size: 0.88rem }
+  .preview-content { max-width: 100% }
 }
 </style>
 </head>
@@ -230,7 +406,10 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
         Hiệu ứng lửa bốc cháy + tia lửa bay khắp profile — cực chất!
       </div>
       <div class="pack-price">499 <small>LDM</small></div>
-      <button class="pack-btn" id="btnBuyFire" disabled>Đang tải...</button>
+      <div class="pack-actions">
+        <button class="pack-btn" id="btnBuyFire" disabled>Đang tải...</button>
+        <button class="preview-trigger" id="btnPreviewFire">👁️ Xem trước</button>
+      </div>
     </div>
   </div>
 
@@ -312,6 +491,40 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   </div>
 </div>
 
+<!-- ═══ PREVIEW OVERLAY — Xem trước PACK FIRE ═══ -->
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-content">
+    <button class="preview-close" id="previewClose" type="button">✕</button>
+    <div class="preview-badge">🔍 ĐANG XEM TRƯỚC</div>
+    <div class="mock-profile">
+      <div class="mock-avatar" id="mockAvatar">🐱</div>
+      <h2 class="mock-name" id="mockName">Tên của bạn</h2>
+      <div class="mock-user" id="mockUser">@username</div>
+      <div class="mock-stats">
+        <div class="mock-stat">
+          <div class="mock-stat-val">42</div>
+          <div class="mock-stat-lbl">Bài đã làm</div>
+        </div>
+        <div class="mock-stat">
+          <div class="mock-stat-val">🔥 7</div>
+          <div class="mock-stat-lbl">Streak</div>
+        </div>
+        <div class="mock-stat">
+          <div class="mock-stat-val" id="mockCoins">—</div>
+          <div class="mock-stat-lbl">LDM</div>
+        </div>
+      </div>
+      <div class="mock-preview-note">
+        💡 Đây chỉ là preview — sau khi mua, nền lửa sẽ áp dụng cho <b>toàn bộ Profile</b> của bạn
+      </div>
+    </div>
+    <div class="preview-actions">
+      <button class="preview-btn-close" id="previewBtnClose" type="button">Đóng</button>
+      <button class="preview-btn-buy" id="previewBtnBuy" type="button">🔥 Mua ngay 499 LDM</button>
+    </div>
+  </div>
+</div>
+
 <div id="ov" class="hide">
   <div class="lbox">
     <div class="spinner"></div>
@@ -324,8 +537,9 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 <script type="module">
 import {
   db, loadSession,
-  getUserCoins, buyPack, getOwnedPacks, SHOP_ITEMS
+  getUserCoins, buyPack, getOwnedPacks, SHOP_ITEMS, keyOf
 } from '/js/core.js';
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const $ = id => document.getElementById(id);
 const session = loadSession();
@@ -388,11 +602,13 @@ async function refreshUI() {
       btn.textContent = "🔥 Mua ngay";
       btn.disabled = false;
       btn.classList.remove("owned", "insufficient");
+      card.classList.remove("owned");
     } else {
       btn.textContent = `Thiếu ${gap.toLocaleString("vi-VN")} LDM`;
       btn.disabled = true;
       btn.classList.remove("owned");
       btn.classList.add("insufficient");
+      card.classList.remove("owned");
     }
   } catch(e) {
     console.error("[shop] refreshUI error:", e);
@@ -461,11 +677,87 @@ $("successMask").onclick = (e) => {
   }
 };
 
-/* ═══ ESCAPE TO CLOSE ═══ */
+/* ═══════════════════════════════════════════════════════════════════
+   👁️ PREVIEW PACK FIRE
+   ═══════════════════════════════════════════════════════════════════ */
+async function openPreview() {
+  const overlay = $("previewOverlay");
+
+  // Load avatar + tên thật từ profile nếu đã login
+  if (session && session.username) {
+    try {
+      const k = keyOf(session.username);
+      const snap = await get(ref(db, `profiles/${k}`));
+      const prof = snap.exists() ? snap.val() : {};
+
+      $("mockName").textContent = session.name || session.username;
+      $("mockUser").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+
+      if (prof.avatarImg) {
+        $("mockAvatar").innerHTML = `<img src="${prof.avatarImg}" alt="avatar">`;
+      } else {
+        $("mockAvatar").innerHTML = "";
+        $("mockAvatar").textContent = prof.avatar || "🐱";
+      }
+
+      const c = await getUserCoins(session.username);
+      $("mockCoins").textContent = c.toLocaleString("vi-VN");
+    } catch(e) {
+      console.warn("[preview] load profile:", e);
+    }
+  } else {
+    $("mockName").textContent = "Tên của bạn";
+    $("mockUser").textContent = "@username";
+    $("mockCoins").textContent = "0";
+  }
+
+  // Cập nhật nút mua theo trạng thái
+  const btnBuy = $("previewBtnBuy");
+  if (!session || !session.username) {
+    btnBuy.textContent = "🔒 Cần đăng nhập";
+    btnBuy.disabled = true;
+  } else {
+    const owned = await getOwnedPacks(session.username);
+    if (owned.includes("pack_fire")) {
+      btnBuy.textContent = "✓ Đã sở hữu";
+      btnBuy.disabled = true;
+    } else {
+      btnBuy.textContent = "🔥 Mua ngay 499 LDM";
+      btnBuy.disabled = false;
+    }
+  }
+
+  overlay.classList.add("on");
+  document.body.style.overflow = "hidden";
+}
+
+function closePreview() {
+  $("previewOverlay").classList.remove("on");
+  document.body.style.overflow = "";
+}
+
+$("btnPreviewFire").onclick = openPreview;
+$("previewClose").onclick = closePreview;
+$("previewBtnClose").onclick = closePreview;
+
+$("previewBtnBuy").onclick = () => {
+  if ($("previewBtnBuy").disabled) return;
+  closePreview();
+  // Kích hoạt flow mua y như nút chính
+  setTimeout(() => $("btnBuyFire").click(), 100);
+};
+
+// Đóng khi click ra ngoài mock profile
+$("previewOverlay").onclick = (e) => {
+  if (e.target === $("previewOverlay")) closePreview();
+};
+
+/* ═══ ESCAPE TO CLOSE ALL ═══ */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("confirmMask").classList.remove("on");
     $("successMask").classList.remove("on");
+    if ($("previewOverlay").classList.contains("on")) closePreview();
   }
 });
 
