@@ -1,15 +1,12 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V3.0 — Full
-   ├─ V2.6: Gift code unlimited
-   ├─ V2.7: redeemGiftCode dùng runTransaction (atomic)
-   └─ V3.0: Thêm Reward System (awardQuizCoins, awardTowerCoins)
+   V3.1 — Admin có thể nhận LDM (fix theo yêu cầu)
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ──────────────────────────────────────────────────────────────────────
    📦 IMPORTS
    ────────────────────────────────────────────────────────────────────── */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getDatabase, ref, get, set, remove, push, serverTimestamp, runTransaction, update
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -31,7 +28,9 @@ const GIFT_CODES_NODE = "config/giftCodes";
    ────────────────────────────────────────────────────────────────────── */
 let _db = null;
 try {
-  _db = getDatabase(initializeApp(FIREBASE_CONFIG));
+  // Dedupe: Nếu app đã được init ở file khác (như KHTN), dùng lại
+  const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
+  _db = getDatabase(app);
 } catch (e) {
   console.warn("[core] Firebase init error:", e);
 }
@@ -420,6 +419,13 @@ export const SHOP_ITEMS = {
     description: "Trang bị nền lửa rực cháy cho hồ sơ của bạn.",
     price: 499,
     icon: "🔥"
+  },
+  pack_sakura: {
+    id: "pack_sakura",
+    name: "PACK SAKURA",
+    description: "Hoa anh đào rơi chầm chậm — chill và thư giãn.",
+    price: 599,
+    icon: "🌸"
   }
 };
 
@@ -457,7 +463,7 @@ export async function addCoins(username, amount) {
     await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
       const c = Number(cur) || 0;
       newVal = c + Number(amount);
-      if (newVal > 1000000) newVal = 1000000;
+      if (newVal > 1000000) newVal = 1000000; // Cap 1 triệu LDM
       if (newVal < 0) newVal = 0;
       return newVal;
     });
@@ -527,9 +533,9 @@ export async function setActiveBackground(username, bgId) {
   } catch(e) { return false; }
 }
 
+/* ✅ FIX: Bỏ check admin → Admin cũng được điểm danh +15 LDM */
 export async function checkAndAwardDaily(username, amount = 15) {
   if (!db || !username) return false;
-  if (isAdminSession() || isAdminUsername(username)) return false;
   await ensureProfile(username);
   try {
     const k = keyOf(username);
@@ -546,10 +552,9 @@ export async function checkAndAwardDaily(username, amount = 15) {
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   🪙 SECTION 12 — REWARD SYSTEM (MỚI)
+   🪙 SECTION 12 — REWARD SYSTEM
    ══════════════════════════════════════════════════════════════════════
-   Tự động cộng LDM khi user hoàn thành quiz/tower
-   Admin bị loại trừ hoàn toàn
+   Cấu hình phần thưởng
    ══════════════════════════════════════════════════════════════════════ */
 const QUIZ_BASE_REWARD     = 10;   // LDM mỗi bài quiz hoàn thành
 const QUIZ_PERFECT_BONUS   = 40;   // LDM cộng thêm nếu đạt 10 điểm
@@ -557,18 +562,11 @@ const TOWER_PER_FLOOR      = 3;    // LDM mỗi tầng Tower đạt được
 
 /**
  * Cộng LDM khi hoàn thành quiz
- * @param {string} username
- * @param {number} score — điểm 0..10
- * @returns {Promise<{ earned: number, balance: number }>}
- *
- * Công thức:
- *   - Điểm bất kỳ (0..10): +10 LDM
- *   - Điểm 10:            +10 + 40 = +50 LDM
- *   - Admin:              0 LDM (bị loại trừ)
+ * ✅ FIX: Admin cũng nhận LDM
  */
 export async function awardQuizCoins(username, score) {
   if (!db || !username) return { earned: 0, balance: 0 };
-  if (isAdminSession() || isAdminUsername(username)) return { earned: 0, balance: 0 };
+  // ĐÃ BỎ CHECK ADMIN: if (isAdminSession() || isAdminUsername(username)) return ...
 
   const sc = Number(score) || 0;
   if (sc < 0) return { earned: 0, balance: 0 };
@@ -587,20 +585,11 @@ export async function awardQuizCoins(username, score) {
 
 /**
  * Cộng LDM khi chơi Tower
- * @param {string} username
- * @param {number} floors — số tầng đạt được (0 = không cộng)
- * @returns {Promise<{ earned: number, balance: number }>}
- *
- * Công thức:
- *   LDM = floors × 3
- *   - floors = 0: 0 LDM
- *   - floors = 5: 15 LDM
- *   - floors = 20: 60 LDM
- *   - Admin: 0 LDM
+ * ✅ FIX: Admin cũng nhận LDM
  */
 export async function awardTowerCoins(username, floors) {
   if (!db || !username) return { earned: 0, balance: 0 };
-  if (isAdminSession() || isAdminUsername(username)) return { earned: 0, balance: 0 };
+  // ĐÃ BỎ CHECK ADMIN: if (isAdminSession() || isAdminUsername(username)) return ...
 
   const f = Math.max(0, Math.floor(Number(floors) || 0));
   if (f <= 0) return { earned: 0, balance: 0 };
@@ -619,9 +608,6 @@ export async function awardTowerCoins(username, floors) {
 
 /* ══════════════════════════════════════════════════════════════════════
    🎁 SECTION 13 — GIFT CODES
-   ══════════════════════════════════════════════════════════════════════
-   - maxUses = 0   → KHÔNG GIỚI HẠN số người (mỗi người vẫn 1 lần)
-   - maxUses > 0   → Giới hạn N người (mỗi người vẫn 1 lần)
    ══════════════════════════════════════════════════════════════════════ */
 export async function createGiftCode(code, amount, maxUses = 1, note = "") {
   if (!db || !isAdminSession()) return { ok: false, reason: "Chưa đăng nhập admin" };
@@ -683,9 +669,6 @@ export async function deleteGiftCode(code) {
   } catch (e) { return false; }
 }
 
-/* ──────────────────────────────────────────────────────────────────────
-   redeemGiftCode — atomic runTransaction (V2.7)
-   ────────────────────────────────────────────────────────────────────── */
 export async function redeemGiftCode(code, username) {
   if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
 
@@ -710,7 +693,6 @@ export async function redeemGiftCode(code, username) {
       const maxUses  = Number(v.maxUses)  || 0;
       const isUnlimited = maxUses === 0;
 
-      // Chỉ chặn khi mã có giới hạn VÀ đã đủ người
       if (!isUnlimited && useCount >= maxUses) {
         result = { ok: false, reason: "Mã đã hết lượt sử dụng" };
         return current;
@@ -735,7 +717,6 @@ export async function redeemGiftCode(code, username) {
       };
     });
 
-    // Cộng LDM sau khi transaction commit thành công
     if (result.ok && amount > 0) {
       await addCoins(username, amount);
     }
