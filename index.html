@@ -1003,7 +1003,7 @@ checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
 checkRegistrationLock, validateRegistrationCode, markCodeUsed,
 checkProfanitySetting,
-awardQuizCoins, checkAndAwardDaily
+awardQuizCoins, checkAndAwardDaily, getUserCoins
 } = core;
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
@@ -1034,6 +1034,52 @@ const $ = id => {
   return el;
 };
 const L = "ABCD";
+
+/* ══════════════════════════════════════════════════════════════════
+   🎬 HIỆU ỨNG NHẬN THƯỞNG (IFRAME OVERLAY)
+   ══════════════════════════════════════════════════════════════════ */
+function showCollectAnim(amount, reason, balance) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("collectOverlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "collectOverlay";
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
+
+    const iframe = document.createElement("iframe");
+    const qs = new URLSearchParams({
+      amount: String(amount),
+      reason: String(reason || "quiz"),
+      balance: String(balance || 0)
+    });
+    iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
+    iframe.style.cssText =
+      "width:100%;height:100%;border:0;background:transparent;display:block;";
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
+
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+      overlay.style.opacity = "0";
+      setTimeout(() => { overlay.remove(); resolve(); }, 250);
+    };
+    const handler = (e) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data && e.data.type === "collect:done") cleanup();
+    };
+    window.addEventListener("message", handler);
+
+    setTimeout(() => {
+      if (document.getElementById("collectOverlay")) cleanup();
+    }, 6000);
+  });
+}
 
 const TRIAN_VIDEO_SRC = "cutscene/trian.mp4";
 const TRIAN_RED_DURATION_MS = 1400;
@@ -1407,11 +1453,12 @@ $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 
-// 🪙 Điểm danh hàng ngày (+15 LDM)
+// 🪙 Điểm danh hàng ngày (+15 LDM) + hiệu ứng
 if (!isAdminSession()) {
-  checkAndAwardDaily(session.username, 15).then(gotDaily => {
+  checkAndAwardDaily(session.username, 15).then(async (gotDaily) => {
     if (gotDaily) {
-      setTimeout(() => showToast("🎁 +15 LDM điểm danh hàng ngày!"), 2000);
+      const bal = await getUserCoins(session.username).catch(() => 0);
+      setTimeout(() => showCollectAnim(15, "daily", bal), 1500);
     }
   }).catch(e => console.warn("[daily]", e));
 }
@@ -2116,14 +2163,13 @@ $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' 
 return;
 }
 
-// 🪙 Cộng LDM tự động
+// 🪙 Cộng LDM tự động + hiệu ứng nhận thưởng
 awardQuizCoins(res.username, res.score).then(reward => {
   if (reward.earned > 0) {
-    const isPerfect = res.score === 10;
-    const msg = isPerfect
-      ? `🪙 +${reward.earned} LDM (bao gồm +40 bonus 10 điểm! 🎉) · Số dư: ${reward.balance.toLocaleString("vi-VN")}`
-      : `🪙 +${reward.earned} LDM · Số dư: ${reward.balance.toLocaleString("vi-VN")}`;
-    setTimeout(() => showToast(msg), 800);
+    const reason = res.score === 10 ? "perfect" : "quiz";
+    setTimeout(() => {
+      showCollectAnim(reward.earned, reason, reward.balance);
+    }, 600);
   }
 }).catch(e => console.warn("[reward]", e));
 
