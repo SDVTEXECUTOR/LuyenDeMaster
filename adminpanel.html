@@ -11,7 +11,7 @@
 :root {
   --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
   --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
-  --warn: #f59e0b; --warns: #fef3c7;
+  --warn: #f59e0b; --warns: #fef3c7; --gold: #fbbf24;
   --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   --glass: blur(12px) saturate(180%);
 }
@@ -133,8 +133,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .switch input:checked + .slider { background: var(--bad); }
 .switch input:checked + .slider:before { transform: translateX(28px); }
-
-/* 🔧 MỚI: Slider xanh cho toggle "kiểm duyệt" khi BẬT */
 .switch.green input:checked + .slider { background: var(--ok); }
 
 .code-row {
@@ -260,11 +258,46 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .reset-row select:focus { outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs); }
 
+/* ═══ GIFT CODE FORM ═══ */
+.gift-form {
+  display: grid; grid-template-columns: 2fr 1fr 80px auto;
+  gap: 8px; margin-bottom: 12px;
+}
+.gift-form input, .give-form input {
+  padding: 10px 14px; font: inherit;
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  background: rgba(255,255,255,0.5); color: var(--fg);
+}
+.gift-form input:focus, .give-form input:focus {
+  outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs);
+}
+#giftCodeInput {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800; letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.give-form {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.give-form select {
+  flex: 1; min-width: 200px; padding: 10px 14px; font: inherit;
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  background: rgba(255,255,255,0.5); color: var(--fg);
+}
+.give-form select:focus {
+  outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs);
+}
+.give-form input[type=number] { width: 140px; }
+
 @media (max-width: 720px) {
   .acc-table thead th:nth-child(2), .acc-table tbody td:nth-child(2) { display: none; }
   .acc-table { font-size: 0.82rem; }
   .acc-table td, .acc-table th { padding: 8px 6px; }
   .stat-card .num { font-size: 1.5rem; }
+}
+@media (max-width: 600px) {
+  .gift-form { grid-template-columns: 1fr 1fr; }
+  .gift-form button { grid-column: span 2; }
 }
 @media (max-width: 480px) {
   .acc-table thead th:nth-child(3), .acc-table tbody td:nth-child(3) { display: none; }
@@ -346,7 +379,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
-  <!-- 🔧 MỚI: CARD KIỂM DUYỆT TỪ NGỮ -->
   <div class="card">
     <div class="top">
       <div style="flex:1;min-width:0">
@@ -368,7 +400,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="top" style="margin-bottom:12px">
       <div style="flex:1;min-width:0">
         <h2 style="margin-bottom:4px">📢 Tin tức & Thông báo</h2>
-        <div class="mut" style="font-size:0.85rem">Đăng thông báo để hiển thị với tất cả học sinh. Học sinh sẽ thấy banner "Có tin tức mới" khi vào web.</div>
+        <div class="mut" style="font-size:0.85rem">Đăng thông báo để hiển thị với tất cả học sinh.</div>
       </div>
     </div>
     <div class="news-form">
@@ -392,7 +424,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
       </div>
     </div>
     <div class="mut" style="margin-bottom:12px;font-size:0.85rem">
-      Mỗi mã dùng được <b>1 lần</b>. Mặc định chỉ hiện mã khả dụng — bấm "Xem tất cả" để xem cả mã đã dùng.
+      Mỗi mã dùng được <b>1 lần</b>. Mặc định chỉ hiện mã khả dụng.
     </div>
     <div id="codesList"><div class="skel"></div><div class="skel"></div></div>
   </div>
@@ -418,6 +450,52 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
         <option value="tower">🏰 Tower</option>
       </select>
       <button class="danger" id="btnResetLeaderboard">🗑️ Reset</button>
+    </div>
+  </div>
+
+  <!-- 🎁 GIFT CODES -->
+  <div class="card">
+    <div class="top" style="margin-bottom:12px">
+      <div>
+        <h2 style="margin-bottom:4px">🎁 Mã quà tặng</h2>
+        <div class="mut" style="font-size:0.85rem">
+          Tạo mã để tặng LDM. VD: mã <b>HAPPYDAY</b> = 100 LDM × 10 lượt
+        </div>
+      </div>
+      <button class="g sm" id="btnRefreshGiftCodes">🔄 Làm mới</button>
+    </div>
+
+    <div class="gift-form">
+      <input type="text" id="giftCodeInput" placeholder="TÊN MÃ (VD: HAPPYDAY)" maxlength="30" autocomplete="off" spellcheck="false">
+      <input type="number" id="giftAmountInput" placeholder="Số LDM" min="1" max="100000">
+      <input type="number" id="giftMaxUsesInput" placeholder="Lượt" value="1" min="1" max="1000">
+      <button class="success" id="btnCreateGiftCode">+ Tạo</button>
+    </div>
+
+    <div id="giftCodesList"><div class="skel"></div><div class="skel"></div></div>
+  </div>
+
+  <!-- 💰 GIVE LDM -->
+  <div class="card">
+    <div class="top" style="margin-bottom:12px">
+      <div>
+        <h2 style="margin-bottom:4px">💰 Tặng LDM</h2>
+        <div class="mut" style="font-size:0.85rem">
+          Tặng LDM trực tiếp cho bản thân hoặc bất kỳ học sinh nào
+        </div>
+      </div>
+    </div>
+
+    <div class="give-form">
+      <select id="giveUserSelect">
+        <option value="">— Chọn người nhận —</option>
+      </select>
+      <input type="number" id="giveAmountInput" placeholder="Số LDM" min="1" max="1000000">
+      <button class="success" id="btnGiveLDM">💰 Tặng</button>
+    </div>
+
+    <div class="mut" style="margin-top:12px;font-size:0.8rem;padding:10px 14px;background:var(--acs);border-radius:8px;border-left:3px solid var(--ac)">
+      💡 Bạn có thể chọn chính mình (👑 ADMIN) trong danh sách để tự tặng LDM test.
     </div>
   </div>
 
@@ -531,10 +609,6 @@ if (missing.length) {
   throw new Error('Missing exports');
 }
 
-if (typeof core.getAnnouncements !== 'function') {
-  console.warn('[adminpanel] core.js chưa có getAnnouncements — dùng fallback firebase trực tiếp');
-}
-
 const {
   db, loadSession, saveSession, isAdminSession, isAdminUsername,
   clearAllLocalBans, keyOf
@@ -547,27 +621,25 @@ const ANN_NODE = "config/announcements";
 async function safeGetAnnouncements() {
   if (typeof core.getAnnouncements === "function") {
     try { return await core.getAnnouncements(); }
-    catch(e) { console.warn("[ann] core.getAnnouncements failed:", e.message); }
+    catch(e) { console.warn("[ann] failed:", e.message); }
   }
   try {
     if (!db) return [];
     const snap = await get(ref(db, ANN_NODE));
     const items = [];
-    if (snap.exists()) {
-      snap.forEach(ch => {
-        const v = ch.val();
-        if (v && v.title) items.push({ id: ch.key, ...v });
-      });
-    }
+    if (snap.exists()) snap.forEach(ch => {
+      const v = ch.val();
+      if (v && v.title) items.push({ id: ch.key, ...v });
+    });
     items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     return items;
-  } catch(e) { console.warn("[ann] fallback get failed:", e); return []; }
+  } catch(e) { return []; }
 }
 
 async function safeCreateAnnouncement(title, content, author) {
   if (typeof core.createAnnouncement === "function") {
     try { return await core.createAnnouncement(title, content, author); }
-    catch(e) { console.warn("[ann] core.createAnnouncement failed:", e.message); }
+    catch(e) { console.warn("[ann] failed:", e.message); }
   }
   try {
     if (!db) return null;
@@ -581,19 +653,19 @@ async function safeCreateAnnouncement(title, content, author) {
       createdAt: Date.now()
     });
     return newRef.key;
-  } catch(e) { console.warn("[ann] fallback create failed:", e); return null; }
+  } catch(e) { return null; }
 }
 
 async function safeDeleteAnnouncement(id) {
   if (typeof core.deleteAnnouncement === "function") {
     try { return await core.deleteAnnouncement(id); }
-    catch(e) { console.warn("[ann] core.deleteAnnouncement failed:", e.message); }
+    catch(e) { console.warn("[ann] failed:", e.message); }
   }
   try {
     if (!db || !id) return false;
     await remove(ref(db, ANN_NODE + "/" + id));
     return true;
-  } catch(e) { console.warn("[ann] fallback delete failed:", e); return false; }
+  } catch(e) { return false; }
 }
 
 function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
@@ -658,39 +730,38 @@ async function loadLockStatus() {
 
 async function toggleLock() {
   const newState = $("lockCheckbox").checked;
-  if (!confirm(newState ? "🔒 Bật KHÓA đăng ký?\n\nHọc sinh sẽ KHÔNG thể tự tạo tài khoản." : "🔓 MỞ khóa đăng ký?\n\nAi cũng có thể tự tạo tài khoản.")) {
+  if (!confirm(newState ? "🔒 Bật KHÓA đăng ký?" : "🔓 MỞ khóa đăng ký?")) {
     $("lockCheckbox").checked = !newState; return;
   }
   try {
     ovOn("Đang cập nhật…");
     const ok = await core.setRegistrationLock(newState);
     ovOff();
-    if (ok) { showToast(newState ? "🔒 Đã khóa đăng ký" : "🔓 Đã mở đăng ký"); loadLockStatus(); }
+    if (ok) { showToast(newState ? "🔒 Đã khóa" : "🔓 Đã mở"); loadLockStatus(); }
     else { showToast("Không thể cập nhật.", true); $("lockCheckbox").checked = !newState; }
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("lockCheckbox").checked = !newState; }
 }
 
-/* 🔧 MỚI: PROFANITY TOGGLE */
 async function loadProfanityStatus() {
   try {
     const isEnabled = await core.checkProfanitySetting();
     $("profanityCheckbox").checked = isEnabled;
     $("profanityStatus").innerHTML = isEnabled
-      ? '<span style="color:var(--bad);font-weight:700">🚫 ĐANG BẬT</span> — Từ ngữ không phù hợp sẽ bị chặn'
-      : '<span style="color:var(--ok);font-weight:700">✅ ĐANG TẮT</span> — Không kiểm duyệt';
+      ? '<span style="color:var(--bad);font-weight:700">🚫 ĐANG BẬT</span>'
+      : '<span style="color:var(--ok);font-weight:700">✅ ĐANG TẮT</span>';
   } catch (e) { $("profanityStatus").textContent = "Lỗi: " + e.message; }
 }
 
 async function toggleProfanity() {
   const newState = $("profanityCheckbox").checked;
-  if (!confirm(newState ? "🚫 Bật kiểm duyệt từ ngữ?\n\nHọc sinh dùng từ ngữ không phù hợp sẽ bị chặn." : "✅ Tắt kiểm duyệt từ ngữ?\n\nTất cả từ ngữ đều được chấp nhận.")) {
+  if (!confirm(newState ? "🚫 Bật kiểm duyệt?" : "✅ Tắt kiểm duyệt?")) {
     $("profanityCheckbox").checked = !newState; return;
   }
   try {
     ovOn("Đang cập nhật…");
     const ok = await core.setProfanitySetting(newState);
     ovOff();
-    if (ok) { showToast(newState ? "🚫 Đã bật kiểm duyệt" : "✅ Đã tắt kiểm duyệt"); loadProfanityStatus(); }
+    if (ok) { showToast(newState ? "🚫 Đã bật" : "✅ Đã tắt"); loadProfanityStatus(); }
     else { showToast("Không thể cập nhật.", true); $("profanityCheckbox").checked = !newState; }
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); $("profanityCheckbox").checked = !newState; }
 }
@@ -700,7 +771,7 @@ async function loadAnnouncements() {
   try {
     const items = await safeGetAnnouncements();
     if (!items.length) {
-      $("annList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có thông báo nào. Hãy đăng thông báo đầu tiên!</div>';
+      $("annList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có thông báo nào.</div>';
       return;
     }
     $("annList").innerHTML = items.map(n => `
@@ -721,12 +792,12 @@ async function loadAnnouncements() {
 }
 
 async function deleteAnn(id) {
-  confirmBox("🗑️ Xoá thông báo?", "Bạn có chắc muốn xoá thông báo này?<br><br><span style='color:var(--bad);font-weight:700'>Không thể hoàn tác!</span>", async () => {
+  confirmBox("🗑️ Xoá thông báo?", "Bạn có chắc muốn xoá?", async () => {
     ovOn("Đang xoá...");
     try {
       const ok = await safeDeleteAnnouncement(id);
       ovOff();
-      if (ok) { showToast("✅ Đã xoá thông báo!"); loadAnnouncements(); }
+      if (ok) { showToast("✅ Đã xoá"); loadAnnouncements(); }
       else showToast("Không thể xoá.", true);
     } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
   }, true);
@@ -738,17 +809,14 @@ $("btnCreateAnn").onclick = async () => {
   const content = $("annContent").value.trim();
   if (!title) { showToast("Vui lòng nhập tiêu đề!", true); return; }
   if (!content) { showToast("Vui lòng nhập nội dung!", true); return; }
-  if (title.length > 200) { showToast("Tiêu đề tối đa 200 ký tự!", true); return; }
-  if (content.length > 5000) { showToast("Nội dung tối đa 5000 ký tự!", true); return; }
-
   ovOn("Đang đăng...");
   try {
     const id = await safeCreateAnnouncement(title, content, currentAdmin?.name || "Admin");
     ovOff();
-    if (!id) { showToast("Không thể đăng thông báo.", true); return; }
+    if (!id) { showToast("Không thể đăng.", true); return; }
     $("annTitle").value = "";
     $("annContent").value = "";
-    showToast("✅ Đã đăng thông báo!");
+    showToast("✅ Đã đăng!");
     loadAnnouncements();
   } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
 };
@@ -807,15 +875,14 @@ async function copyCode(code) {
   catch (e) { prompt("Copy mã này:", code); }
 }
 async function deleteCode(code) {
-  confirmBox("🗑️ Xoá mã?",
-    `Bạn có chắc muốn xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?`,
+  confirmBox("🗑️ Xoá mã?", `Xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?`,
     async () => {
       try {
         ovOn("Đang xoá…");
         const ok = await core.deleteRegistrationCode(code);
         ovOff();
-        if (ok) { showToast("✅ Đã xoá mã"); loadCodes(); }
-        else showToast("Không thể xoá mã", true);
+        if (ok) { showToast("✅ Đã xoá"); loadCodes(); }
+        else showToast("Không thể xoá", true);
       } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     }, true);
 }
@@ -824,24 +891,13 @@ window.__deleteCode = deleteCode;
 
 $("btnResetLeaderboard").onclick = () => {
   const subj = $("resetSubject").value;
-  if (!subj) { showToast("Vui lòng chọn bảng xếp hạng!", true); return; }
-
+  if (!subj) { showToast("Vui lòng chọn bảng!", true); return; }
   const labels = {
-    tinhoc:        "💻 Tin học",
-    gdcd:          "⚖️ GDCD",
-    english:       "🇬🇧 Tiếng Anh",
-    diali_choice:  "🌍 Địa (Khoanh)",
-    diali_manual:  "✍️ Địa (Ghi)",
-    diali_memory:  "🧠 Địa (Ghi nhớ)",
-    khoahoctunhien:"🧪 KHTN",
-    congnghe:      "⚙️ Công nghệ",
-    tower:         "🏰 Tower"
+    tinhoc:"💻 Tin học", gdcd:"⚖️ GDCD", english:"🇬🇧 Tiếng Anh",
+    diali_choice:"🌍 Địa (Khoanh)", diali_manual:"✍️ Địa (Ghi)", diali_memory:"🧠 Địa (Ghi nhớ)",
+    khoahoctunhien:"🧪 KHTN", congnghe:"⚙️ Công nghệ", tower:"🏰 Tower"
   };
-
-  confirmBox(
-    "🗑️ Reset bảng xếp hạng?",
-    `Xoá TOÀN BỘ kết quả của <b>${labels[subj] || subj}</b> khỏi bảng xếp hạng?<br><br>
-     <span style="color:var(--bad);font-weight:700">⚠️ Không thể hoàn tác!</span>`,
+  confirmBox("🗑️ Reset bảng?", `Xoá TOÀN BỘ kết quả của <b>${labels[subj] || subj}</b>?<br><br><span style="color:var(--bad);font-weight:700">⚠️ Không thể hoàn tác!</span>`,
     async () => {
       ovOn("Đang reset...");
       try {
@@ -853,35 +909,19 @@ $("btnResetLeaderboard").onclick = () => {
             const v = ch.val();
             if (!filterFn || filterFn(v)) keys.push(ch.key);
           });
-          const results = await Promise.allSettled(
-            keys.map(k => remove(ref(db, nodePath + "/" + k)))
-          );
-          const okCount = results.filter(r => r.status === "fulfilled").length;
-          const failCount = results.length - okCount;
-          if (failCount > 0) console.warn(`[reset] ${failCount}/${results.length} xoá thất bại`);
-          return okCount;
+          const results = await Promise.allSettled(keys.map(k => remove(ref(db, nodePath + "/" + k))));
+          return results.filter(r => r.status === "fulfilled").length;
         };
-
         let deleted = 0;
-        if (subj === "tower") {
-          deleted = await deleteAllChildren("tower");
-        } else if (subj === "khoahoctunhien") {
-          deleted = await deleteAllChildren("results_khtn");
-        } else {
-          deleted = await deleteAllChildren("results", (v) => v && v.subject === subj);
-        }
-
+        if (subj === "tower") deleted = await deleteAllChildren("tower");
+        else if (subj === "khoahoctunhien") deleted = await deleteAllChildren("results_khtn");
+        else deleted = await deleteAllChildren("results", (v) => v && v.subject === subj);
         ovOff();
         showToast(`✅ Đã reset ${deleted} kết quả!`);
         $("resetSubject").value = "";
         await loadData();
-      } catch (e) {
-        ovOff();
-        showToast("Lỗi: " + e.message, true);
-      }
-    },
-    true
-  );
+      } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, true);
 };
 
 async function loadData() {
@@ -898,18 +938,16 @@ async function loadData() {
     if (banSnap.exists()) banSnap.forEach(ch => { bans[ch.key] = ch.val(); });
 
     const accounts = [];
-    if (accSnap.exists()) {
-      accSnap.forEach(ch => {
-        const v = ch.val();
-        const banKey = encodeURIComponent(String(v.username || ch.key).toLowerCase());
-        const banInfo = bans[banKey] || { isBanned: false, violations: 0 };
-        accounts.push({
-          key: ch.key, username: v.username || "", name: v.name || "",
-          cls: v.cls || "", createdAt: v.createdAt || null,
-          isBanned: !!banInfo.isBanned, violations: Number(banInfo.violations || 0)
-        });
+    if (accSnap.exists()) accSnap.forEach(ch => {
+      const v = ch.val();
+      const banKey = encodeURIComponent(String(v.username || ch.key).toLowerCase());
+      const banInfo = bans[banKey] || { isBanned: false, violations: 0 };
+      accounts.push({
+        key: ch.key, username: v.username || "", name: v.name || "",
+        cls: v.cls || "", createdAt: v.createdAt || null,
+        isBanned: !!banInfo.isBanned, violations: Number(banInfo.violations || 0)
       });
-    }
+    });
     allAccounts = accounts;
 
     const totalBanned = accounts.filter(a => a.isBanned).length;
@@ -927,9 +965,10 @@ async function loadData() {
     }
 
     renderAccounts();
+    populateGiveUsers();
   } catch (e) {
     console.error(e);
-    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Không tải được dữ liệu: ' + esc(e.message) + '</div>';
+    $("accountsList").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Không tải được: ' + esc(e.message) + '</div>';
   }
 }
 
@@ -955,7 +994,7 @@ function renderAccounts() {
   });
 
   if (!list.length) {
-    $("accountsList").innerHTML = '<div class="mut" style="padding:30px;text-align:center">Không có tài khoản nào phù hợp.</div>';
+    $("accountsList").innerHTML = '<div class="mut" style="padding:30px;text-align:center">Không có tài khoản phù hợp.</div>';
     return;
   }
 
@@ -1002,8 +1041,7 @@ function renderAccounts() {
 }
 
 async function toggleBan(username, name, currentlyBanned) {
-  confirmBox(
-    currentlyBanned ? "✅ Gỡ ban?" : "🚫 Ban?",
+  confirmBox(currentlyBanned ? "✅ Gỡ ban?" : "🚫 Ban?",
     `Bạn có chắc muốn <b>${currentlyBanned ? "gỡ ban" : "ban"}</b> <b>"${esc(name)}"</b> (@${esc(username)})?`,
     async () => {
       ovOn("Đang xử lý…");
@@ -1025,9 +1063,9 @@ async function toggleBan(username, name, currentlyBanned) {
 
 async function deleteAccount(key, username, name) {
   confirmBox("🗑️ Xoá tài khoản?",
-    `<div style="line-height:1.7">Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br><span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
+    `<div>Xoá vĩnh viễn <b>"${esc(name)}"</b> (@${esc(username)})?<br><span style="color:var(--bad);font-weight:700">Không thể hoàn tác!</span></div>`,
     async () => {
-      ovOn("Đang xoá tài khoản…");
+      ovOn("Đang xoá…");
       try {
         const uNorm = String(username).trim().toLowerCase();
         await remove(ref(db, "accounts/" + key));
@@ -1072,8 +1110,8 @@ async function viewResults(username, name) {
       });
       return out;
     };
-    const quiz  = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
-    const khtn  = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+    const quiz = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
+    const khtn = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
@@ -1101,7 +1139,7 @@ async function viewResults(username, name) {
           <div class="time">📅 ${fmtDate(v.timestamp)}${v.isAbandoned ? " · 🏳️ Bỏ cuộc" : ""}</div></div>
           <div class="score">${v.time ? fmtMsShort(v.time) : "—"}<small>thời gian</small></div>
         </div>`).join("");
-    if (!html) html = '<div class="mut" style="padding:30px;text-align:center">Học sinh này chưa có kết quả nào.</div>';
+    if (!html) html = '<div class="mut" style="padding:30px;text-align:center">Chưa có kết quả nào.</div>';
     $("rmBody").innerHTML = html;
   } catch (e) {
     $("rmBody").innerHTML = '<div class="mut" style="padding:20px;text-align:center;color:var(--bad)">Lỗi: ' + esc(e.message) + '</div>';
@@ -1109,7 +1147,7 @@ async function viewResults(username, name) {
 }
 
 async function unbanAll() {
-  confirmBox("🔓 Unban toàn bộ?", `Bạn sẽ mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.`,
+  confirmBox("🔓 Unban toàn bộ?", `Mở ban cho <b>TẤT CẢ</b> học sinh đang bị ban.`,
     async () => {
       ovOn("Đang mở ban…");
       try {
@@ -1127,7 +1165,151 @@ window.__adminToggleBan = toggleBan;
 window.__adminDeleteAccount = deleteAccount;
 window.__adminViewResults = viewResults;
 
-$("btnRefresh").onclick = () => { loadData(); loadCodes(); loadLockStatus(); loadAnnouncements(); loadProfanityStatus(); };
+/* ═══════════════════════════════════════════════════════════════════
+   🎁 GIFT CODES
+   ═══════════════════════════════════════════════════════════════════ */
+async function loadGiftCodes() {
+  $("giftCodesList").innerHTML = '<div class="skel"></div><div class="skel"></div>';
+  try {
+    const codes = await core.getGiftCodes();
+    if (!codes.length) {
+      $("giftCodesList").innerHTML = '<div class="mut" style="padding:20px;text-align:center">Chưa có mã nào. Tạo mã đầu tiên!</div>';
+      return;
+    }
+    $("giftCodesList").innerHTML = codes.map(c => {
+      const useCount = Number(c.useCount) || 0;
+      const maxUses = Number(c.maxUses) || 1;
+      const isFull = useCount >= maxUses;
+      const pct = maxUses > 0 ? Math.round(useCount / maxUses * 100) : 0;
+      return `
+        <div class="code-row" style="grid-template-columns:1fr auto">
+          <div>
+            <div class="code-value" style="color:${isFull ? 'var(--mut)' : 'var(--ac)'}">
+              ${esc(c.code)}
+              ${isFull ? '<span class="badge bad" style="margin-left:8px;font-size:0.7rem">HẾT LƯỢT</span>' : ''}
+            </div>
+            <div class="code-meta">
+              💰 <b style="color:var(--gold)">${Number(c.amount).toLocaleString("vi-VN")} LDM</b>
+              · ${useCount}/${maxUses} lượt (${pct}%)
+              · 📅 ${fmtDate(c.createdAt)}
+              ${c.createdBy ? ` · 👤 ${esc(c.createdBy)}` : ''}
+              ${c.note ? ` · 📝 ${esc(c.note)}` : ''}
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${!isFull ? `<button class="sm" style="background:var(--ac)" onclick="window.__copyGiftCode('${esc(c.code)}')">📋</button>` : ''}
+            <button class="sm danger" onclick="window.__deleteGiftCode('${esc(c.code)}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch(e) {
+    $("giftCodesList").innerHTML = '<div class="mut" style="padding:20px;color:var(--bad)">Lỗi: ' + esc(e.message) + '</div>';
+  }
+}
+
+$("btnCreateGiftCode").onclick = async () => {
+  const code = $("giftCodeInput").value.trim().toUpperCase();
+  const amount = Number($("giftAmountInput").value);
+  const maxUses = Number($("giftMaxUsesInput").value) || 1;
+  if (!code) { showToast("Vui lòng nhập tên mã", true); return; }
+  if (!amount || amount <= 0) { showToast("Số LDM phải > 0", true); return; }
+  ovOn("Đang tạo mã…");
+  try {
+    const r = await core.createGiftCode(code, amount, maxUses);
+    ovOff();
+    if (r.ok) {
+      showToast(`✅ Đã tạo "${r.code}" — ${amount} LDM × ${maxUses} lượt`);
+      $("giftCodeInput").value = "";
+      $("giftAmountInput").value = "";
+      $("giftMaxUsesInput").value = "1";
+      await loadGiftCodes();
+    } else {
+      showToast("❌ " + r.reason, true);
+    }
+  } catch(e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+};
+
+async function copyGiftCode(code) {
+  try { await navigator.clipboard.writeText(code); showToast("📋 Đã copy: " + code); }
+  catch (e) { prompt("Copy mã này:", code); }
+}
+
+async function deleteGiftCode(code) {
+  confirmBox("🗑️ Xoá mã quà tặng?",
+    `Xoá mã <b style="font-family:monospace;color:var(--ac)">${esc(code)}</b>?<br><br>
+     <span style="color:var(--bad);font-weight:700">Mã sẽ không dùng được nữa!</span>`,
+    async () => {
+      ovOn("Đang xoá…");
+      try {
+        const ok = await core.deleteGiftCode(code);
+        ovOff();
+        if (ok) { showToast("✅ Đã xoá"); await loadGiftCodes(); }
+        else showToast("Không thể xoá", true);
+      } catch(e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, true);
+}
+
+window.__copyGiftCode = copyGiftCode;
+window.__deleteGiftCode = deleteGiftCode;
+$("btnRefreshGiftCodes").onclick = loadGiftCodes;
+
+/* ═══════════════════════════════════════════════════════════════════
+   💰 GIVE LDM
+   ═══════════════════════════════════════════════════════════════════ */
+function populateGiveUsers() {
+  const sel = $("giveUserSelect");
+  if (!sel) return;
+  const currentVal = sel.value;
+  const opts = ['<option value="">— Chọn người nhận —</option>'];
+
+  if (currentAdmin && currentAdmin.username) {
+    const admName = currentAdmin.name || currentAdmin.username;
+    opts.push(`<option value="${esc(currentAdmin.username)}">👑 ${esc(admName)} (@${esc(currentAdmin.username)}) — ADMIN</option>`);
+  }
+
+  allAccounts
+    .filter(a => !currentAdmin || a.username.toLowerCase() !== currentAdmin.username.toLowerCase())
+    .forEach(a => {
+      const label = `${esc(a.name || a.username)} (@${esc(a.username)})${a.cls ? ' · ' + esc(a.cls) : ''}`;
+      opts.push(`<option value="${esc(a.username)}">${label}</option>`);
+    });
+
+  sel.innerHTML = opts.join("");
+  if (currentVal) sel.value = currentVal;
+}
+
+$("btnGiveLDM").onclick = () => {
+  const target = $("giveUserSelect").value;
+  const amount = Number($("giveAmountInput").value);
+  if (!target) { showToast("Vui lòng chọn người nhận", true); return; }
+  if (!amount || amount <= 0) { showToast("Số LDM phải > 0", true); return; }
+  if (amount > 1000000) { showToast("Tối đa 1.000.000 LDM/lần", true); return; }
+
+  const isSelf = currentAdmin && target.toLowerCase() === currentAdmin.username.toLowerCase();
+
+  confirmBox("💰 Tặng LDM?",
+    `Tặng <b style="color:var(--gold)">${amount.toLocaleString("vi-VN")} LDM</b> cho <b>${esc(target)}</b>${isSelf ? ' (chính bạn)' : ''}?<br><br>
+     <span style="color:var(--warn);font-weight:700">⚠️ Không thể hoàn tác!</span>`,
+    async () => {
+      ovOn("Đang tặng LDM…");
+      try {
+        const newBal = await core.addCoins(target, amount);
+        ovOff();
+        showToast(`✅ Đã tặng ${amount.toLocaleString("vi-VN")} LDM. Số dư mới: ${newBal.toLocaleString("vi-VN")} LDM`);
+        $("giveAmountInput").value = "";
+      } catch(e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+    }, false);
+};
+
+$("btnRefresh").onclick = () => {
+  loadData();
+  loadCodes();
+  loadLockStatus();
+  loadAnnouncements();
+  loadProfanityStatus();
+  loadGiftCodes();
+};
 $("btnUnbanAll").onclick = unbanAll;
 $("btnCreateCode").onclick = createCode;
 $("lockCheckbox").onchange = toggleLock;
@@ -1160,7 +1342,10 @@ document.addEventListener("keydown", (e) => {
     if (boot) boot.style.display = 'none';
     if (!checkAccess()) { $("denied").classList.remove("hide"); return; }
     $("panel").classList.remove("hide");
-    await Promise.all([loadData(), loadLockStatus(), loadCodes(), loadAnnouncements(), loadProfanityStatus()]);
+    await Promise.all([
+      loadData(), loadLockStatus(), loadCodes(),
+      loadAnnouncements(), loadProfanityStatus(), loadGiftCodes()
+    ]);
   } catch (e) {
     console.error('Init failed:', e);
     showFatalError(e.message || 'Lỗi khởi tạo admin panel');
