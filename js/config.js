@@ -13,9 +13,9 @@ export const FIREBASE_CONFIG = {
   measurementId:     "G-DCZKWE7403"
 };
 
-export const ADMIN_USER      = "phamgiabao111111";
+export const ADMIN_USER      = "phamgiabao";
 export const ADMIN_PASS_HASH = "26886ea70f6ee4141de3d8590dbb1c36a262992ddd5045e6bbccdfe5335b9a4f";
-export const ADMIN_PROFILE   = { username: "PhamGiaBao112231", name: "Phạm Gia Bảo111", cls: "Admin" };
+export const ADMIN_PROFILE   = { username: "PhamGiaBao", name: "Phạm Gia Bảo", cls: "Admin" };
 
 export const ADMIN_LIST = [
   { user: ADMIN_USER, passHash: ADMIN_PASS_HASH, profile: ADMIN_PROFILE },
