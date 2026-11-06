@@ -260,7 +260,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 
 /* ═══ GIFT CODE FORM ═══ */
 .gift-form {
-  display: grid; grid-template-columns: 2fr 1fr 80px auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr auto;
   gap: 8px; margin-bottom: 12px;
 }
 .gift-form input, .give-form input {
@@ -271,11 +271,27 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 .gift-form input:focus, .give-form input:focus {
   outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs);
 }
+.gift-form input:disabled {
+  opacity: 0.4; cursor: not-allowed; background: rgba(148,163,184,0.1);
+}
 #giftCodeInput {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 800; letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+.gift-unlimited-row {
+  margin-bottom: 12px; padding: 10px 14px;
+  background: var(--acs); border-radius: 8px;
+  border-left: 3px solid var(--ac);
+}
+.gift-unlimited-row label {
+  display: inline-flex; align-items: center; gap: 10px;
+  cursor: pointer; font-weight: 700; font-size: 0.88rem; color: var(--fg);
+}
+.gift-unlimited-row input[type=checkbox] {
+  width: 18px; height: 18px; accent-color: var(--ac); cursor: pointer;
+}
+
 .give-form {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
@@ -459,7 +475,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
       <div>
         <h2 style="margin-bottom:4px">🎁 Mã quà tặng</h2>
         <div class="mut" style="font-size:0.85rem">
-          Tạo mã để tặng LDM. VD: mã <b>HAPPYDAY</b> = 100 LDM × 10 lượt
+          Mỗi người chỉ nhập được <b>1 lần</b>. Tick ♾️ để không giới hạn số người.
         </div>
       </div>
       <button class="g sm" id="btnRefreshGiftCodes">🔄 Làm mới</button>
@@ -468,8 +484,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="gift-form">
       <input type="text" id="giftCodeInput" placeholder="TÊN MÃ (VD: HAPPYDAY)" maxlength="30" autocomplete="off" spellcheck="false">
       <input type="number" id="giftAmountInput" placeholder="Số LDM" min="1" max="100000">
-      <input type="number" id="giftMaxUsesInput" placeholder="Lượt" value="1" min="1" max="1000">
+      <input type="number" id="giftMaxUsesInput" placeholder="Số người" value="10" min="1" max="1000">
       <button class="success" id="btnCreateGiftCode">+ Tạo</button>
+    </div>
+
+    <div class="gift-unlimited-row">
+      <label>
+        <input type="checkbox" id="giftUnlimitedCheckbox">
+        ♾️ Không giới hạn số người (mỗi người vẫn chỉ nhập 1 lần)
+      </label>
     </div>
 
     <div id="giftCodesList"><div class="skel"></div><div class="skel"></div></div>
@@ -601,7 +624,8 @@ const $ = id => document.getElementById(id);
 const requiredExports = [
   'db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
   'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode',
-  'checkProfanitySetting','setProfanitySetting'
+  'checkProfanitySetting','setProfanitySetting',
+  'createGiftCode','getGiftCodes','deleteGiftCode','redeemGiftCode','addCoins'
 ];
 const missing = requiredExports.filter(k => typeof core[k] === 'undefined');
 if (missing.length) {
@@ -1178,19 +1202,26 @@ async function loadGiftCodes() {
     }
     $("giftCodesList").innerHTML = codes.map(c => {
       const useCount = Number(c.useCount) || 0;
-      const maxUses = Number(c.maxUses) || 1;
-      const isFull = useCount >= maxUses;
-      const pct = maxUses > 0 ? Math.round(useCount / maxUses * 100) : 0;
+      const maxUses = Number(c.maxUses) || 0;
+      const isUnlimited = maxUses === 0;
+      const isFull = !isUnlimited && useCount >= maxUses;
+      const pct = (!isUnlimited && maxUses > 0) ? Math.round(useCount / maxUses * 100) : 0;
+
+      const usesLabel = isUnlimited
+        ? `${useCount.toLocaleString("vi-VN")} người đã dùng <span style="color:var(--ok);font-weight:800">(♾️ không giới hạn)</span>`
+        : `${useCount}/${maxUses} người đã dùng (${pct}%)`;
+
       return `
         <div class="code-row" style="grid-template-columns:1fr auto">
           <div>
             <div class="code-value" style="color:${isFull ? 'var(--mut)' : 'var(--ac)'}">
               ${esc(c.code)}
-              ${isFull ? '<span class="badge bad" style="margin-left:8px;font-size:0.7rem">HẾT LƯỢT</span>' : ''}
+              ${isFull ? '<span class="badge bad" style="margin-left:8px;font-size:0.7rem">HẾT NGƯỜI</span>' : ''}
+              ${isUnlimited && !isFull ? '<span class="badge ok" style="margin-left:8px;font-size:0.7rem">♾️ UNLIMITED</span>' : ''}
             </div>
             <div class="code-meta">
               💰 <b style="color:var(--gold)">${Number(c.amount).toLocaleString("vi-VN")} LDM</b>
-              · ${useCount}/${maxUses} lượt (${pct}%)
+              · ${usesLabel}
               · 📅 ${fmtDate(c.createdAt)}
               ${c.createdBy ? ` · 👤 ${esc(c.createdBy)}` : ''}
               ${c.note ? ` · 📝 ${esc(c.note)}` : ''}
@@ -1211,23 +1242,42 @@ async function loadGiftCodes() {
 $("btnCreateGiftCode").onclick = async () => {
   const code = $("giftCodeInput").value.trim().toUpperCase();
   const amount = Number($("giftAmountInput").value);
-  const maxUses = Number($("giftMaxUsesInput").value) || 1;
+  const isUnlimited = $("giftUnlimitedCheckbox").checked;
+  const maxUses = isUnlimited ? 0 : (Number($("giftMaxUsesInput").value) || 10);
+
   if (!code) { showToast("Vui lòng nhập tên mã", true); return; }
   if (!amount || amount <= 0) { showToast("Số LDM phải > 0", true); return; }
+  if (!isUnlimited && maxUses < 1) {
+    showToast("Số người phải ≥ 1, hoặc tick ♾️ Không giới hạn", true);
+    return;
+  }
+
   ovOn("Đang tạo mã…");
   try {
     const r = await core.createGiftCode(code, amount, maxUses);
     ovOff();
     if (r.ok) {
-      showToast(`✅ Đã tạo "${r.code}" — ${amount} LDM × ${maxUses} lượt`);
+      const desc = isUnlimited
+        ? `${amount.toLocaleString("vi-VN")} LDM cho KHÔNG GIỚI HẠN người`
+        : `${amount.toLocaleString("vi-VN")} LDM cho ${maxUses} người`;
+      showToast(`✅ Đã tạo "${r.code}" — ${desc} (mỗi người 1 lần)`);
       $("giftCodeInput").value = "";
       $("giftAmountInput").value = "";
-      $("giftMaxUsesInput").value = "1";
+      $("giftMaxUsesInput").value = "10";
+      $("giftMaxUsesInput").disabled = false;
+      $("giftMaxUsesInput").style.opacity = "1";
+      $("giftUnlimitedCheckbox").checked = false;
       await loadGiftCodes();
     } else {
       showToast("❌ " + r.reason, true);
     }
   } catch(e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+};
+
+$("giftUnlimitedCheckbox").onchange = function() {
+  const inp = $("giftMaxUsesInput");
+  inp.disabled = this.checked;
+  inp.style.opacity = this.checked ? "0.4" : "1";
 };
 
 async function copyGiftCode(code) {
