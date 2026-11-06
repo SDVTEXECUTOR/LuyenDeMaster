@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.6 — Gift code unlimited (maxUses = 0 = không giới hạn người)
+   V2.7 — Fix gift code unlimited (runTransaction, atomic)
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -590,6 +590,17 @@ export async function deleteGiftCode(code) {
   } catch (e) { return false; }
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+   ✅ FIX #1: redeemGiftCode dùng runTransaction (atomic)
+   ──────────────────────────────────────────────────────────────────────
+   Trước đây: get + update riêng → race condition khi nhiều user cùng nhập
+   Bây giờ:  toàn bộ check + update diễn ra trong 1 transaction duy nhất
+   
+   Logic:
+     - Mã unlimited (maxUses = 0): useCount tăng vô hạn, used = false mãi mãi
+     - Mã giới hạn (maxUses > 0):  useCount >= maxUses thì báo hết lượt
+     - Mỗi user chỉ nhập được 1 lần (check trong redeemedBy)
+   ────────────────────────────────────────────────────────────────────── */
 export async function redeemGiftCode(code, username) {
   if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
 
@@ -600,36 +611,50 @@ export async function redeemGiftCode(code, username) {
 
   try {
     const codeRef = ref(db, `${GIFT_CODES_NODE}/${c}`);
-    const snap = await get(codeRef);
-    if (!snap.exists()) return { ok: false, reason: "Mã không tồn tại" };
+    let result = { ok: false, reason: "Lỗi không xác định" };
+    let amount = 0;
 
-    const v = snap.val() || {};
-    const useCount = Number(v.useCount) || 0;
-    const maxUses = Number(v.maxUses) || 0;
-    const isUnlimited = maxUses === 0;
+    await runTransaction(codeRef, (current) => {
+      if (current === null) {
+        result = { ok: false, reason: "Mã không tồn tại" };
+        return current; // abort — trả nguyên giá trị null
+      }
 
-    // Chỉ check giới hạn nếu maxUses > 0 (mã có giới hạn)
-    if (!isUnlimited && useCount >= maxUses) {
-      return { ok: false, reason: "Mã đã hết lượt sử dụng" };
+      const v = current || {};
+      const useCount = Number(v.useCount) || 0;
+      const maxUses  = Number(v.maxUses)  || 0;
+      const isUnlimited = maxUses === 0;
+
+      // Chỉ chặn khi mã có giới hạn VÀ đã đủ người
+      if (!isUnlimited && useCount >= maxUses) {
+        result = { ok: false, reason: "Mã đã hết lượt sử dụng" };
+        return current; // abort — không đổi gì
+      }
+
+      const k = keyOf(username);
+      const redeemedBy = v.redeemedBy || {};
+      if (redeemedBy[k]) {
+        result = { ok: false, reason: "Bạn đã sử dụng mã này rồi" };
+        return current; // abort
+      }
+
+      const newUseCount = useCount + 1;
+      amount = Number(v.amount) || 0;
+      result = { ok: true, amount };
+
+      return {
+        ...v,
+        useCount: newUseCount,
+        used: !isUnlimited && newUseCount >= maxUses,
+        redeemedBy: { ...redeemedBy, [k]: Date.now() }
+      };
+    });
+
+    // Cộng LDM SAU KHI transaction commit thành công
+    if (result.ok && amount > 0) {
+      await addCoins(username, amount);
     }
-
-    const k = keyOf(username);
-    const redeemedBy = v.redeemedBy || {};
-    if (redeemedBy[k]) return { ok: false, reason: "Bạn đã sử dụng mã này rồi" };
-
-    const newUseCount = useCount + 1;
-    const updates = {};
-    updates["useCount"] = newUseCount;
-    // Chỉ đánh dấu "used" nếu mã có giới hạn và đã hết
-    updates["used"] = !isUnlimited && newUseCount >= maxUses;
-    updates["redeemedBy/" + k] = Date.now();
-
-    await update(codeRef, updates);
-
-    const amount = Number(v.amount) || 0;
-    await addCoins(username, amount);
-
-    return { ok: true, amount };
+    return result;
   } catch (e) {
     return { ok: false, reason: e.message };
   }
