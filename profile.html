@@ -11,7 +11,7 @@
 :root {
   --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
   --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
-  --warn: #f59e0b; --warns: #fef3c7;
+  --warn: #f59e0b; --warns: #fef3c7; --gold: #fbbf24;
   --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
   --glass: blur(12px) saturate(180%);
 }
@@ -32,7 +32,7 @@ body {
   radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 40%);
   background-attachment: fixed; min-height: 100vh;
 }
-main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
+main { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; position: relative; z-index: 1; }
 .card {
   background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
   border: 1px solid var(--ln); border-radius: 16px; padding: 24px; margin-bottom: 16px;
@@ -73,7 +73,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 16px; display: flex; alig
   font-style: italic; color: var(--mut); margin: 12px 0 20px; font-size: 0.95rem;
   background: var(--ln); padding: 12px; border-radius: 10px;
 }
-.btn-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 button {
   font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 10px 20px;
   cursor: pointer; background: var(--ac); color: #fff; transition: all 0.2s;
@@ -86,7 +86,7 @@ button.g:hover { background: var(--acs); border-color: var(--ac); }
 button.sm { padding: 8px 14px; font-size: 0.85rem; }
 button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; text-align: center; }
 .stat-item { background: rgba(255,255,255,0.4); padding: 16px 8px; border-radius: 12px; border: 1px solid var(--ln); }
 .stat-val { font-size: 1.5rem; font-weight: 800; color: var(--ac); display: block; }
 .stat-label { font-size: 0.8rem; color: var(--mut); font-weight: 600; margin-top: 4px; display: block; }
@@ -206,7 +206,6 @@ textarea { resize: vertical; min-height: 80px; }
 @keyframes sh { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .empty-hint { padding: 20px; text-align: center; color: var(--mut); font-style: italic; }
 
-/* 🔧 MỚI: CSS CHO LIGHTBOX XEM FULL ẢNH VUÔNG */
 .avatar-lightbox {
   position: fixed; inset: 0; z-index: 99999;
   background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
@@ -225,6 +224,104 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .avatar-lightbox-content .emoji-large {
   font-size: 15rem; line-height: 1;
+}
+
+/* ═══════ LDM STAT ═══════ */
+.stat-item.coins .stat-val { color: var(--warn); }
+
+/* ═══════ BACKGROUND SELECTOR ═══════ */
+.bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.bg-option {
+  border: 2px solid var(--ln); border-radius: 12px; padding: 10px;
+  text-align: center; cursor: pointer; transition: all 0.2s;
+  background: rgba(255,255,255,0.4);
+}
+.bg-option:hover { border-color: var(--ac); transform: translateY(-2px); }
+.bg-option.active {
+  border-color: var(--ok); background: var(--oks);
+  box-shadow: 0 0 0 2px var(--ok) inset;
+}
+.bg-option .bg-preview {
+  width: 100%; height: 64px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 2rem; margin-bottom: 8px; overflow: hidden;
+}
+.bg-option .bg-preview.default-bg {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+.bg-option .bg-preview.fire-bg {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255,80,0,0.8) 0%, transparent 60%),
+    linear-gradient(180deg, #0a0300 0%, #4a1000 100%);
+  color: #ffb347; text-shadow: 0 0 12px rgba(255,100,0,0.8);
+}
+.bg-option .bg-label { font-size: 0.82rem; font-weight: 700; color: var(--fg); }
+.bg-option .bg-status { font-size: 0.72rem; color: var(--mut); margin-top: 2px; }
+
+/* ═══════ FIRE THEME ═══════ */
+body.fire-theme {
+  background-image:
+    radial-gradient(ellipse at 50% 100%, rgba(255,80,0,0.65) 0%, transparent 65%),
+    radial-gradient(circle at 20% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
+    radial-gradient(circle at 80% 95%, rgba(255,140,30,0.45) 0%, transparent 60%),
+    linear-gradient(180deg, #050208 0%, #0a0300 40%, #1a0500 80%, #2a0800 100%) !important;
+  background-attachment: fixed !important;
+}
+body.fire-theme .card {
+  background: rgba(20, 10, 5, 0.85) !important;
+  border-color: rgba(255, 100, 30, 0.35) !important;
+  box-shadow: 0 8px 32px rgba(255, 80, 0, 0.2),
+              inset 0 1px 0 rgba(255, 150, 60, 0.15) !important;
+}
+body.fire-theme .card h2 {
+  color: #ffb347;
+  text-shadow: 0 0 12px rgba(255, 120, 30, 0.5);
+}
+body.fire-theme .profile-name {
+  color: #fff5e6;
+  text-shadow: 0 0 20px rgba(255, 150, 50, 0.6);
+}
+body.fire-theme .profile-user { color: #ffaa44; }
+body.fire-theme main { position: relative; z-index: 1; }
+body.fire-theme .mut { color: #d4a574; }
+body.fire-theme .stat-item {
+  background: rgba(255, 80, 0, 0.1) !important;
+  border-color: rgba(255, 100, 30, 0.35) !important;
+}
+body.fire-theme .stat-val { color: #ffb347; }
+body.fire-theme .avatar-lg {
+  border-color: rgba(255, 120, 30, 0.7);
+  box-shadow: 0 0 30px rgba(255, 80, 0, 0.6);
+}
+body.fire-theme button.g { border-color: rgba(255,140,50,0.4); color: #ffb347; }
+body.fire-theme button.g:hover { background: rgba(255,80,0,0.15); border-color: #ff8a3c; }
+body.fire-theme .score-bar-bg { background: rgba(255,140,50,0.2); }
+body.fire-theme .badge-item { background: rgba(20,10,5,0.6); border-color: rgba(255,100,30,0.2); }
+
+/* ═══════ GIFT CODE MODAL ═══════ */
+.gift-code-wrap { position: relative; margin: 16px 0; }
+.gift-code-wrap input {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.15rem; font-weight: 800;
+  letter-spacing: 0.12em; text-align: center;
+  text-transform: uppercase;
+  padding: 16px 44px 16px 16px;
+  width: 100%;
+}
+.gift-error {
+  color: var(--bad); font-size: 0.85rem; font-weight: 600;
+  min-height: 1.3em; margin-top: 8px; text-align: center;
+}
+.gift-hint {
+  background: var(--warns); color: var(--fg);
+  padding: 12px 14px; border-radius: 10px;
+  border-left: 3px solid var(--warn);
+  font-size: 0.85rem; line-height: 1.65;
+  margin-bottom: 12px; text-align: left;
+}
+.gift-hint b {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--ac);
 }
 </style>
 </head>
@@ -247,6 +344,31 @@ textarea { resize: vertical; min-height: 80px; }
       <button class="g" id="btnEditProfile">✏️ Sửa profile</button>
       <button class="g" id="btnChangePassword">🔑 Đổi mật khẩu</button>
       <button class="g" id="btnShare">🔗 Chia sẻ</button>
+      <button class="g" id="btnGiftCode" style="border-color:var(--warn);color:var(--warn)">🎁 Nhập mã</button>
+      <button class="g" onclick="location.href='/shop'" style="border-color:var(--warn);color:var(--warn)">🛒 Shop</button>
+    </div>
+  </div>
+
+  <!-- 🎨 BACKGROUND SELECTOR -->
+  <div class="card hide" id="bgSelectorCard">
+    <h2>🎨 Nền hồ sơ</h2>
+    <div class="mut" style="margin:-8px 0 16px;font-size:0.85rem">
+      Chọn nền trang trí cho hồ sơ của bạn
+    </div>
+    <div class="bg-grid" id="bgGrid">
+      <div class="bg-option" data-bg="default">
+        <div class="bg-preview default-bg">✨</div>
+        <div class="bg-label">Mặc định</div>
+        <div class="bg-status">Miễn phí</div>
+      </div>
+      <div class="bg-option" data-bg="pack_fire" id="bgOptionFire" style="display:none">
+        <div class="bg-preview fire-bg">🔥</div>
+        <div class="bg-label">PACK FIRE</div>
+        <div class="bg-status">Đã sở hữu</div>
+      </div>
+    </div>
+    <div class="mut" style="margin-top:12px;font-size:0.78rem;text-align:center">
+      💡 Mở khoá thêm nền tại <a href="/shop" style="color:var(--ac)">🛒 LDM Shop</a>
     </div>
   </div>
 
@@ -285,7 +407,6 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </main>
 
-<!-- 🔧 MỚI: Khung chứa ảnh Full -->
 <div class="avatar-lightbox" id="avatarLightbox"></div>
 
 <div class="mask" id="badgeMask">
@@ -340,10 +461,36 @@ textarea { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- ═══ GIFT CODE MODAL ═══ -->
+<div class="mask" id="giftMask">
+  <div class="card" style="max-width: 440px; width: 100%; text-align: center;">
+    <div style="font-size: 3rem; margin-bottom: 8px;">🎁</div>
+    <h2 style="margin-bottom: 8px; color: var(--warn); justify-content: center;">Nhập mã quà tặng</h2>
+    <p class="mut" style="margin-bottom: 16px;">Nhập mã do admin cấp để nhận LDM miễn phí</p>
+    <div class="gift-hint">
+      💡 Mã có thể là bất kỳ chữ/số nào (VD: <b>HAPPYDAY</b>)<br>
+      ⚠️ Mỗi mã chỉ dùng được <b>1 lần</b> cho mỗi tài khoản
+    </div>
+    <div class="gift-code-wrap">
+      <input type="text" id="giftCodeInput" placeholder="HAPPYDAY"
+             maxlength="30" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="gift-error" id="giftError"></div>
+    <div class="row" style="margin-top: 16px; justify-content: center;">
+      <button class="g" id="giftCancel">Hủy</button>
+      <button id="giftConfirm" style="background: var(--ok);">✓ Nhận LDM</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { db, loadSession, saveSession, keyOf } from '/js/core.js';
+import {
+  db, loadSession, saveSession, keyOf,
+  getUserCoins, getOwnedPacks, getActiveBackground, setActiveBackground,
+  redeemGiftCode
+} from '/js/core.js';
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const $ = id => document.getElementById(id);
@@ -704,13 +851,31 @@ async function loadData() {
   $("pUser").textContent = `@${viewedUsername}` + (myCls ? ` · Lớp ${myCls}` : "");
 
   try {
-    const [accSnap, profSnap, resSnap, khtnSnap, towerSnap] = await Promise.all([
+    const [accSnap, profSnap, resSnap, khtnSnap, towerSnap, coins, ownedPacks, activeBg] = await Promise.all([
       get(ref(db, `accounts/${viewedKey}`)).catch(() => null),
       get(ref(db, `profiles/${viewedKey}`)).catch(() => null),
       get(ref(db, "results")).catch(() => null),
       get(ref(db, "results_khtn")).catch(() => null),
-      get(ref(db, "tower")).catch(() => null)
+      get(ref(db, "tower")).catch(() => null),
+      getUserCoins(viewedUsername).catch(() => 0),
+      getOwnedPacks(viewedUsername).catch(() => []),
+      getActiveBackground(viewedUsername).catch(() => "default")
     ]);
+
+    // Áp dụng background (cả public view cũng thấy nền của người đó)
+    applyBackground(activeBg);
+
+    // Hiện selector nếu đã mua PACK FIRE (chỉ own profile)
+    if (canEdit) {
+      const hasFire = ownedPacks.includes("pack_fire");
+      $("bgSelectorCard").classList.toggle("hide", !hasFire);
+      if (hasFire) {
+        $("bgOptionFire").style.display = "";
+        document.querySelectorAll(".bg-option").forEach(el => {
+          el.classList.toggle("active", el.dataset.bg === activeBg);
+        });
+      }
+    }
 
     if (isPublicView && (!accSnap || !accSnap.exists())) {
       $("pName").textContent = "❓ Không tìm thấy";
@@ -729,7 +894,10 @@ async function loadData() {
     if (canEdit && profSnap && !profSnap.exists() && !isAdmin) {
       try {
         await set(ref(db, `profiles/${viewedKey}`), {
-          avatar: "🐱", avatarImg: "", bio: "", createdAt: Date.now()
+          avatar: "🐱", avatarImg: "", bio: "", coins: 0,
+          totalQuizzes: 0, loginCount: 1, streak: 1, lastLogin: Date.now(),
+          bestScores: {}, achievements: {}, achievementDates: {}, recentActivity: [],
+          createdAt: Date.now()
         });
       } catch (e) { console.warn("[profile] auto-create failed:", e); }
     }
@@ -770,7 +938,8 @@ async function loadData() {
       streak:           streak.days || 1,
       bestScores:       analysis.stats.bestScores,
       achievements:     currentAchievements,
-      achievementDates: currentAchievementDates
+      achievementDates: currentAchievementDates,
+      coins:            coins
     };
 
     renderHeader(acc, merged);
@@ -785,7 +954,7 @@ async function loadData() {
     $("pName").textContent = myName;
     $("pUser").textContent = `@${viewedUsername}` + (myCls ? ` · Lớp ${myCls}` : "");
     $("pBio").textContent  = '"Chưa có tiểu sử"';
-    renderStats({ totalQuizzes: 0, loginCount: 1, streak: 1 });
+    renderStats({ totalQuizzes: 0, loginCount: 1, streak: 1, coins: 0 });
     renderScores({});
     renderCharts({});
     renderBadges({ achievements: {}, achievementDates: {} });
@@ -813,6 +982,7 @@ function renderStats(merged) {
     <div class="stat-item"><span class="stat-val">${merged.totalQuizzes || 0}</span><span class="stat-label">Bài đã làm</span></div>
     <div class="stat-item"><span class="stat-val">${merged.loginCount   || 1}</span><span class="stat-label">Lần đăng nhập</span></div>
     <div class="stat-item"><span class="stat-val" style="color: var(--warn);">🔥 ${merged.streak || 1}</span><span class="stat-label">Ngày streak</span></div>
+    <div class="stat-item coins"><span class="stat-val" style="color: var(--warn);">💰 ${(merged.coins || 0).toLocaleString("vi-VN")}</span><span class="stat-label">LDM</span></div>
   `;
 }
 
@@ -984,11 +1154,11 @@ $("badgeClose").onclick = () => $("badgeMask").classList.remove("on");
 $("badgeMask").onclick = (e) => { if (e.target === $("badgeMask")) $("badgeMask").classList.remove("on"); };
 
 /* ══════════════════════════════════════════════════════════════════════
-   🔧 MỚI: CLICK AVATAR ĐỂ ZOOM FULL ẢNH
+   CLICK AVATAR ĐỂ ZOOM FULL ẢNH
    ══════════════════════════════════════════════════════════════════════ */
 $("pAvatar").onclick = () => {
   const lightbox = $("avatarLightbox");
-  
+
   if (currentProfile.avatarImg) {
     lightbox.innerHTML = `<div class="avatar-lightbox-content"><img src="${currentProfile.avatarImg}" alt="avatar"></div>`;
   } else if (currentProfile.avatar) {
@@ -996,7 +1166,7 @@ $("pAvatar").onclick = () => {
   } else {
     return;
   }
-  
+
   lightbox.classList.add("on");
 };
 
@@ -1007,7 +1177,7 @@ $("avatarLightbox").onclick = (e) => {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   CHỈNH SỬA PROFILE (chỉ khi canEdit)
+   CHỈNH SỬA PROFILE
    ══════════════════════════════════════════════════════════════════════ */
 let selectedAvatar = "🐱";
 let selectedAvatarImg = "";
@@ -1189,6 +1359,122 @@ $("savePassword").onclick = async () => {
   }
 };
 
+/* ══════════════════════════════════════════════════════════════════════
+   🎨 BACKGROUND SELECTOR
+   ══════════════════════════════════════════════════════════════════════ */
+function applyBackground(bgId) {
+  document.body.classList.toggle("fire-theme", bgId === "pack_fire");
+}
+
+const bgGrid = $("bgGrid");
+if (bgGrid) {
+  bgGrid.onclick = async (e) => {
+    const opt = e.target.closest(".bg-option");
+    if (!opt || !canEdit) return;
+    const bg = opt.dataset.bg;
+    if (opt.classList.contains("active")) return;
+
+    try {
+      const ok = await setActiveBackground(viewedUsername, bg);
+      if (ok) {
+        applyBackground(bg);
+        document.querySelectorAll(".bg-option").forEach(el => {
+          el.classList.toggle("active", el.dataset.bg === bg);
+        });
+        showToast("✅ Đã đổi nền hồ sơ!");
+      } else {
+        showToast("Không thể đổi nền", true);
+      }
+    } catch(err) {
+      showToast("Lỗi: " + err.message, true);
+    }
+  };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   🎁 GIFT CODE — Nhập mã trong profile
+   ══════════════════════════════════════════════════════════════════════ */
+let giftModalOpen = false;
+
+function openGiftModal() {
+  if (!canEdit) {
+    showToast("Vui lòng đăng nhập để nhập mã", true);
+    return;
+  }
+  $("giftCodeInput").value = "";
+  $("giftError").textContent = "";
+  $("giftConfirm").disabled = false;
+  $("giftConfirm").textContent = "✓ Nhận LDM";
+  $("giftMask").classList.add("on");
+  giftModalOpen = true;
+  setTimeout(() => $("giftCodeInput").focus(), 150);
+}
+
+function closeGiftModal() {
+  $("giftMask").classList.remove("on");
+  giftModalOpen = false;
+}
+
+if ($("btnGiftCode")) $("btnGiftCode").onclick = openGiftModal;
+if ($("giftCancel")) $("giftCancel").onclick = closeGiftModal;
+if ($("giftMask")) {
+  $("giftMask").onclick = (e) => {
+    if (e.target === $("giftMask")) closeGiftModal();
+  };
+}
+
+if ($("giftConfirm")) {
+  $("giftConfirm").onclick = async () => {
+    if (!canEdit) return;
+
+    const code = $("giftCodeInput").value.trim().toUpperCase();
+    if (!code) {
+      $("giftError").textContent = "Vui lòng nhập mã";
+      return;
+    }
+
+    $("giftConfirm").disabled = true;
+    $("giftConfirm").textContent = "Đang kiểm tra...";
+    $("giftError").textContent = "";
+
+    try {
+      const result = await redeemGiftCode(code, viewedUsername);
+      if (result.ok) {
+        closeGiftModal();
+        showToast(`🎉 Nhận thành công ${result.amount.toLocaleString("vi-VN")} LDM!`);
+        // Reload để cập nhật số dư
+        setTimeout(() => loadData(), 400);
+      } else {
+        $("giftError").textContent = "❌ " + result.reason;
+      }
+    } catch(e) {
+      $("giftError").textContent = "❌ Lỗi: " + e.message;
+    }
+
+    $("giftConfirm").disabled = false;
+    $("giftConfirm").textContent = "✓ Nhận LDM";
+  };
+}
+
+if ($("giftCodeInput")) {
+  $("giftCodeInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if ($("giftConfirm")) $("giftConfirm").click();
+    }
+  });
+}
+
+// ESC to close
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && giftModalOpen) {
+    closeGiftModal();
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════════════ */
 loadData();
 </script>
 </body>
