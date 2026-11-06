@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.5 — Thêm Gift Code + Give LDM system
+   V2.6 — Gift code unlimited (maxUses = 0 = không giới hạn người)
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -525,6 +525,9 @@ export async function checkAndAwardDaily(username, amount = 15) {
 
 /* ══════════════════════════════════════════════════════════════════════
    🎁 GIFT CODES SYSTEM
+   ══════════════════════════════════════════════════════════════════════
+   - maxUses = 0   → KHÔNG GIỚI HẠN số người (mỗi người vẫn 1 lần)
+   - maxUses > 0   → Giới hạn N người (mỗi người vẫn 1 lần)
    ══════════════════════════════════════════════════════════════════════ */
 export async function createGiftCode(code, amount, maxUses = 1, note = "") {
   if (!db || !isAdminSession()) return { ok: false, reason: "Chưa đăng nhập admin" };
@@ -539,8 +542,9 @@ export async function createGiftCode(code, amount, maxUses = 1, note = "") {
   if (!amt || amt <= 0) return { ok: false, reason: "Số LDM phải > 0" };
   if (amt > 100000) return { ok: false, reason: "Tối đa 100.000 LDM/mã" };
 
-  const mx = Math.max(1, Math.floor(Number(maxUses) || 1));
-  if (mx > 1000) return { ok: false, reason: "Tối đa 1000 lượt/mã" };
+  // maxUses = 0 → KHÔNG GIỚI HẠN số người (mỗi người vẫn 1 lần)
+  const mx = Math.max(0, Math.floor(Number(maxUses) || 0));
+  if (mx > 1000) return { ok: false, reason: "Tối đa 1000 người/mã" };
 
   try {
     const codeRef = ref(db, `${GIFT_CODES_NODE}/${c}`);
@@ -601,9 +605,13 @@ export async function redeemGiftCode(code, username) {
 
     const v = snap.val() || {};
     const useCount = Number(v.useCount) || 0;
-    const maxUses = Number(v.maxUses) || 1;
+    const maxUses = Number(v.maxUses) || 0;
+    const isUnlimited = maxUses === 0;
 
-    if (useCount >= maxUses) return { ok: false, reason: "Mã đã hết lượt sử dụng" };
+    // Chỉ check giới hạn nếu maxUses > 0 (mã có giới hạn)
+    if (!isUnlimited && useCount >= maxUses) {
+      return { ok: false, reason: "Mã đã hết lượt sử dụng" };
+    }
 
     const k = keyOf(username);
     const redeemedBy = v.redeemedBy || {};
@@ -612,7 +620,8 @@ export async function redeemGiftCode(code, username) {
     const newUseCount = useCount + 1;
     const updates = {};
     updates["useCount"] = newUseCount;
-    updates["used"] = newUseCount >= maxUses;
+    // Chỉ đánh dấu "used" nếu mã có giới hạn và đã hết
+    updates["used"] = !isUnlimited && newUseCount >= maxUses;
     updates["redeemedBy/" + k] = Date.now();
 
     await update(codeRef, updates);
