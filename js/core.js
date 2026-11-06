@@ -1,11 +1,11 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V2.3 — Fix lỗi xung đột cache config.js (Hardcode PROFANITY_LOCK_NODE)
+   V2.4 — Thêm hệ thống LDM Currency + Shop
    ══════════════════════════════════════════════════════════════════════ */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, get, set, remove, push, serverTimestamp
+  getDatabase, ref, get, set, remove, push, serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import {
   FIREBASE_CONFIG,
@@ -441,6 +441,212 @@ export async function getLatestAnnouncementTime() {
   } catch (e) {
     console.warn("[core] getLatestAnnouncementTime:", e);
     return 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   💰 LDM CURRENCY & SHOP SYSTEM
+   ══════════════════════════════════════════════════════════════════════
+   - ensureProfile()          : tự tạo profile nếu chưa có (tránh rules chặn)
+   - getUserCoins()           : lấy số dư LDM
+   - addCoins()               : cộng LDM (dùng cho quiz, tower, daily)
+   - getOwnedPacks()          : danh sách pack đã mua
+   - buyPack()                : mua pack (atomic, không overspend)
+   - getActiveBackground()    : nền đang dùng
+   - setActiveBackground()    : đổi nền
+   - checkAndAwardDaily()     : điểm danh hàng ngày
+   ══════════════════════════════════════════════════════════════════════ */
+
+export const SHOP_ITEMS = {
+  pack_fire: {
+    id: "pack_fire",
+    name: "PACK FIRE",
+    description: "Trang bị nền lửa rực cháy cho hồ sơ của bạn.",
+    price: 499,
+    icon: "🔥"
+  }
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   ENSURE PROFILE — tạo profile tối thiểu nếu chưa có
+   Bắt buộc phải có avatar (rules yêu cầu) để không bị PERMISSION_DENIED
+   ────────────────────────────────────────────────────────────────────── */
+async function ensureProfile(username) {
+  if (!db || !username) return false;
+  try {
+    const k = keyOf(username);
+    const snap = await get(ref(db, `profiles/${k}`));
+    if (snap.exists()) return true;
+
+    await set(ref(db, `profiles/${k}`), {
+      avatar: "🐱",
+      avatarImg: "",
+      bio: "",
+      coins: 0,
+      totalQuizzes: 0,
+      loginCount: 1,
+      streak: 1,
+      lastLogin: Date.now(),
+      bestScores: {},
+      achievements: {},
+      achievementDates: {},
+      recentActivity: [],
+      createdAt: Date.now()
+    });
+    return true;
+  } catch (e) {
+    console.warn("[core] ensureProfile:", e);
+    return false;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   GET COINS
+   ────────────────────────────────────────────────────────────────────── */
+export async function getUserCoins(username) {
+  if (!db || !username) return 0;
+  try {
+    const k = keyOf(username);
+    const snap = await get(ref(db, `profiles/${k}/coins`));
+    return snap.exists() ? Number(snap.val()) || 0 : 0;
+  } catch (e) {
+    console.warn("[core] getUserCoins:", e);
+    return 0;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   ADD COINS (atomic, dùng runTransaction để tránh race condition)
+   ────────────────────────────────────────────────────────────────────── */
+export async function addCoins(username, amount) {
+  if (!db || !username || !amount) return 0;
+  await ensureProfile(username);
+  try {
+    const k = keyOf(username);
+    let newVal = 0;
+    await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
+      const c = Number(cur) || 0;
+      newVal = c + Number(amount);
+      // Chặn vượt trần rules (1.000.000)
+      if (newVal > 1000000) newVal = 1000000;
+      if (newVal < 0) newVal = 0;
+      return newVal;
+    });
+    return newVal;
+  } catch (e) {
+    console.warn("[core] addCoins:", e);
+    return 0;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   GET OWNED PACKS
+   ────────────────────────────────────────────────────────────────────── */
+export async function getOwnedPacks(username) {
+  if (!db || !username) return [];
+  try {
+    const k = keyOf(username);
+    const snap = await get(ref(db, `profiles/${k}/ownedPacks`));
+    if (!snap.exists()) return [];
+    const v = snap.val();
+    if (Array.isArray(v)) return v.filter(Boolean);
+    if (typeof v === "object") return Object.values(v).filter(Boolean);
+    return [];
+  } catch (e) {
+    console.warn("[core] getOwnedPacks:", e);
+    return [];
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   BUY PACK — Atomic: check owned → trừ tiền → thêm ownedPacks
+   ────────────────────────────────────────────────────────────────────── */
+export async function buyPack(username, packId) {
+  const item = SHOP_ITEMS[packId];
+  if (!item) return { ok: false, reason: "Pack không tồn tại" };
+  if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
+
+  await ensureProfile(username);
+
+  try {
+    const k = keyOf(username);
+
+    // 1. Kiểm tra đã sở hữu
+    const owned = await getOwnedPacks(username);
+    if (owned.includes(packId)) {
+      return { ok: false, reason: "Bạn đã sở hữu pack này rồi" };
+    }
+
+    // 2. Trừ tiền (atomic — không overspend)
+    let paid = false;
+    let reason = "";
+    await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
+      const c = Number(cur) || 0;
+      if (c < item.price) {
+        reason = `Bạn cần thêm ${item.price - c} LDM nữa (hiện có ${c} LDM)`;
+        return c; // không đổi
+      }
+      paid = true;
+      return c - item.price;
+    });
+
+    if (!paid) return { ok: false, reason: reason || "Không đủ LDM" };
+
+    // 3. Thêm vào ownedPacks
+    const newOwned = [...owned, packId];
+    await set(ref(db, `profiles/${k}/ownedPacks`), newOwned);
+
+    return { ok: true };
+  } catch(e) {
+    console.warn("[core] buyPack:", e);
+    return { ok: false, reason: "Lỗi: " + e.message };
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   BACKGROUND
+   ────────────────────────────────────────────────────────────────────── */
+export async function getActiveBackground(username) {
+  if (!db || !username) return "default";
+  try {
+    const k = keyOf(username);
+    const snap = await get(ref(db, `profiles/${k}/activeBg`));
+    return snap.exists() ? String(snap.val()) : "default";
+  } catch(e) { return "default"; }
+}
+
+export async function setActiveBackground(username, bgId) {
+  if (!db || !username) return false;
+  await ensureProfile(username);
+  try {
+    const k = keyOf(username);
+    await set(ref(db, `profiles/${k}/activeBg`), bgId || "default");
+    return true;
+  } catch(e) {
+    console.warn("[core] setActiveBackground:", e);
+    return false;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   DAILY BONUS — trả về true nếu vừa trao thưởng hôm nay
+   ────────────────────────────────────────────────────────────────────── */
+export async function checkAndAwardDaily(username, amount = 15) {
+  if (!db || !username) return false;
+  await ensureProfile(username);
+  try {
+    const k = keyOf(username);
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const ref_ = ref(db, `profiles/${k}/lastDailyBonus`);
+    const snap = await get(ref_);
+    const last = snap.exists() ? String(snap.val()) : "";
+    if (last === today) return false; // đã nhận hôm nay
+    await set(ref_, today);
+    await addCoins(username, amount);
+    return true;
+  } catch(e) {
+    console.warn("[core] checkAndAwardDaily:", e);
+    return false;
   }
 }
 
