@@ -487,6 +487,16 @@ submitting = true;
 S.done = true; S.dur = Date.now() - S.t0;
 clearInterval(tick); $("tm").textContent = fmtMs(S.dur);
 saveState();
+
+// 🪙 NHẬN LDM TRƯỚC — Mọi người (kể cả admin) đều được nhận
+const r = calc();
+try {
+  const reward = await awardQuizCoins(session.username, r.score);
+  if (reward.earned > 0) {
+    await showCollectAnim(reward.earned, r.score === 10 ? "perfect" : "quiz", reward.balance);
+  }
+} catch(e) { console.warn("[reward]", e); }
+
 showResult(!!flagged);
 await pushResult();
 submitting = false;
@@ -552,16 +562,6 @@ ovOff();
 $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: '+esc(e.message)+'</div>';
 return;
 }
-
-// 🪙 Cộng LDM + hiệu ứng nhận thưởng
-awardQuizCoins(session.username, r.score).then(reward => {
-  if (reward.earned > 0) {
-    const reason = r.score === 10 ? "perfect" : "quiz";
-    setTimeout(() => {
-      showCollectAnim(reward.earned, reason, reward.balance);
-    }, 500);
-  }
-}).catch(e => console.warn("[reward]", e));
 
 renderLeaderboard("lbResult");
 }
