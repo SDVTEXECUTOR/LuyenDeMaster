@@ -625,7 +625,7 @@ window.__showFatalError(msg);
 <section id="app" class="hide">
 <div class="card" style="padding:16px 20px">
 <div class="top">
-<div style="display:flex; align-items:center; gap:12px;">
+<div style="display:flex; align-items: center; gap:12px;">
 <div class="brand-logo" style="padding:6px;">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
@@ -1453,15 +1453,13 @@ $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice");
 
-// 🪙 Điểm danh hàng ngày (+15 LDM) + hiệu ứng
-if (!isAdminSession()) {
-  checkAndAwardDaily(session.username, 15).then(async (gotDaily) => {
-    if (gotDaily) {
-      const bal = await getUserCoins(session.username).catch(() => 0);
-      setTimeout(() => showCollectAnim(15, "daily", bal), 1500);
-    }
-  }).catch(e => console.warn("[daily]", e));
-}
+// 🪙 Điểm danh hàng ngày (+15 LDM) + hiệu ứng — Mọi người (kể cả admin) đều được
+checkAndAwardDaily(session.username, 15).then(async (gotDaily) => {
+  if (gotDaily) {
+    const bal = await getUserCoins(session.username).catch(() => 0);
+    setTimeout(() => showCollectAnim(15, "daily", bal), 1500);
+  }
+}).catch(e => console.warn("[daily]", e));
 
 await checkNewsOnLogin();
 }
@@ -1997,7 +1995,8 @@ else if (maskMode === "exit") { clearInterval(tick); show("app"); switchTab("pra
 
 function finish() { clearInterval(tick); showResults(); }
 
-function showResults() {
+async function showResults() {
+clearInterval(tick);
 const ms = Date.now() - t0;
 let pts = 0, full = 0, h = "";
 order.forEach((qi, i) => {
@@ -2069,6 +2068,14 @@ recordViolation(session.name, session.username);
 showBanScreen(session.name);
 return;
 }
+
+// 🪙 NHẬN LDM TRƯỚC — Mọi người (kể cả admin) đều được nhận
+try {
+  const reward = await awardQuizCoins(session.username, sc);
+  if (reward.earned > 0) {
+    await showCollectAnim(reward.earned, sc === 10 ? "perfect" : "quiz", reward.balance);
+  }
+} catch(e) { console.warn("[reward]", e); }
 
 $("sc").textContent = fmtScore(sc);
 $("rc").textContent = full + "/" + Q.length;
@@ -2142,7 +2149,7 @@ if (sc < TRIAN_LOW_SCORE_THRESHOLD && !isAdminSession() && !trianAutoTriggered) 
 async function saveAndRefresh(res) {
 if (!db) { $("lbResult").innerHTML = '<div class="mut">Chưa kết nối được máy chủ, kết quả chưa được lưu.</div>'; return; }
 if (isAdminSession()) {
-  // ✅ Admin không lưu kết quả vào bảng xếp hạng
+  // ✅ Admin không lưu kết quả vào bảng xếp hạng (nhưng vẫn nhận LDM ở showResults)
   renderLeaderboard("lbResult", res.subject);
   return;
 }
@@ -2162,16 +2169,6 @@ ovOff();
 $("lbResult").innerHTML = '<div class="mut">Không lưu được kết quả: ' + esc(e.message) + '</div>';
 return;
 }
-
-// 🪙 Cộng LDM tự động + hiệu ứng nhận thưởng
-awardQuizCoins(res.username, res.score).then(reward => {
-  if (reward.earned > 0) {
-    const reason = res.score === 10 ? "perfect" : "quiz";
-    setTimeout(() => {
-      showCollectAnim(reward.earned, reason, reward.balance);
-    }, 600);
-  }
-}).catch(e => console.warn("[reward]", e));
 
 renderLeaderboard("lbResult", res.subject);
 }
