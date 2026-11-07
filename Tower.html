@@ -92,6 +92,8 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
 .giveup-btn { background: transparent !important; color: var(--bad) !important; border: 1.5px solid var(--bad) !important; box-shadow: none !important; width: auto !important; }
 .giveup-btn:hover { background: var(--bads) !important; transform: translateY(-2px); }
+
+.loading-info { font-size: 0.85rem; color: var(--mut); margin-top: 16px; text-align: center; }
 </style>
 </head>
 <body>
@@ -116,6 +118,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
     <div id="user-greeting" style="font-size:1.2rem; font-weight:700; color:var(--ok); margin-bottom:24px; background:var(--oks); display:inline-block; padding:12px 24px; border-radius:12px;"></div>
     <button id="btn-start-game" style="font-size:1.1rem; padding:16px; background:var(--ok); box-shadow: 0 4px 16px rgba(34,197,94,0.3);">▶ Bắt Đầu Leo Tháp</button>
     <button id="btn-home-start" class="g" style="margin-top: 12px;">🏠 Trang chủ</button>
+    <div id="pool-info" class="loading-info"></div>
     <div style="margin-top:28px; text-align:left;">
       <h3 style="margin:0 0 12px;">🏆 Bảng Xếp Hạng Tháp</h3>
       <div id="leaderboard-container-start"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
@@ -184,7 +187,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 <audio id="bgMusic" style="display:none;"></audio>
 
 <script type="module">
-// Bọc toàn bộ trong try-catch để bắt mọi lỗi (như lỗi import, lỗi mạng...)
 (async function init() {
   try {
     const firebaseApp = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
@@ -209,7 +211,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
     const db = getDatabase(app);
     const TOWER_NODE = "tower";
 
-    // Kiểm tra tên miền (cho phép localhost và vercel)
+    // Kiểm tra tên miền
     const host = location.hostname.toLowerCase();
     if (!host.includes("vercel.app") && host !== "localhost" && host !== "127.0.0.1") {
       throw new Error("Tên miền không hợp lệ. Trang web chỉ chạy trên luyendemaster.vercel.app");
@@ -251,50 +253,93 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       });
     }
 
-    const Q_ENGLISH = [
-    ["Choose the word whose underlined part differs from the others: h<u>ou</u>se, m<u>ou</u>se, c<u>ou</u>ntry, ab<u>ou</u>t",["house","mouse","country","about"],[2]],
-    ["My hometown is _______ for handicrafts, such as paper fans and lanterns.",["famously","famous","fame","infamous"],[1]],
-    ["Tourists to Hoi An usually buy traditional _______ such as lanterns as souvenirs.",["handicrafts","festivals","dishes","costumes"],[0]],
-    ["– Ann: \"Could you show me how to install this software, please?\" – Mr Nam: \"_______\"",["That would be great!","Sure","Here you are.","Yes, I am"],[1]],
-    ["In their community, the eldest child is usually _______ for his or her parents.",["responsibility","responsibly","responsible","irresponsible"],[2]],
-    ["Our _______ help keep law and order in our community.",["artisans","police officers","craftsmen","electricians"],[1]],
-    ["The more carefully students listen, the _______ they understand the lesson.",["good","well","better","best"],[2]],
-    ["Could you tell me _______ the assignment?",["when to hand in","when hand in","when handing in","when handed in"],[0]],
-    ["The friendlier the community is, _______ people feel.",["the happier","the more happy","happier","the happiest"],[0]],
-    ["People try to save water because they sometimes _______ clean water during the dry season.",["run out","run out of","run into","run away"],[1]]
-    ];
+    /* 🪙 Helper: nhận LDM Tower — Mọi người (kể cả admin) đều được nhận */
+    async function awardTowerReward(username, score) {
+      if (typeof awardTowerCoins !== "function" || score < 1) return;
+      try {
+        const reward = await awardTowerCoins(username, score);
+        if (reward.earned > 0) {
+          await showCollectAnim(reward.earned, "tower", reward.balance);
+        }
+      } catch(e) { console.warn("[reward]", e); }
+    }
 
-    const Q_GDCD = [
-    ["Sống có lí tưởng là",["xác định được mục đích cao đẹp và có kế hoạch hành động, quyết tâm phấn đấu để đạt được mục đích đó.","xác định được mục đích cao đẹp và phấn đấu để đạt được mục đích đó.","xác định được mục đích, kế hoạch hành động của bản thân.","xác định được mục đích cao đẹp, kế hoạch hành động của bản thân."],[0]],
-    ["Biểu hiện sống thiếu lí tưởng của thanh niên hiện nay là",["vượt khó trong học tập.","đấu tranh chống các hiện tượng tiêu cực.","năng động, sáng tạo trong công việc.","sống ỷ lại, thực dụng."],[3]],
-    ["Người biết tha thứ cho chính mình và người khác là biểu hiện của:",["Khiêm tốn","Khoan dung","Giản dị","Trung thực"],[1]],
-    ["Biểu hiện nào sau đây thể hiện người có lòng khoan dung?",["Phê phán tất cả những người mắc lỗi lầm.","Ích kỉ, hẹp hòi với người mình không thích.","Chấp nhận cá tính, sở thích của người khác.","Không bỏ qua lỗi lầm của người khác."],[2]],
-    ["Loại hoạt động cộng đồng nào tập trung vào việc cải thiện môi trường?",["Hoạt động xã hội.","Hoạt động bảo vệ môi trường.","Hoạt động văn hóa.","Hoạt động quyên góp tiền."],[1]],
-    ["Ý nào sau đây là đúng khi nói về ý nghĩa của sống có lí tưởng?",["Luôn được mọi người tôn trọng và thành công trong cuộc sống.","Luôn được mọi người hâm mộ.","Luôn có nhiều tiền bạc.","Luôn giàu có về tâm hồn và tiền bạc."],[0]],
-    ["Lòng khoan dung có thể giúp giảm thiểu:",["Sự xung đột và căng thẳng.","Sự đa dạng.","Sự hiểu biết.","Sự giao tiếp."],[0]],
-    ["Tại sao cần tích cực tổ chức hoạt động cộng đồng?",["Để tăng cường sự đoàn kết và cùng nhau xây dựng đất nước giàu mạnh.","Chỉ để giữ gìn truyền thống.","Mang lại lợi ích cho cá nhân.","Để tạo lợi nhuận."],[0]],
-    ["Câu thành ngữ nào sau đây thể hiện người sống có lí tưởng?",["Thắng không kiêu, bại không nản.","Dễ làm, khó bỏ.","Nước đến chân mới nhảy.","Thân ai người đó lo."],[0]],
-    ["Mục tiêu chính của hoạt động cộng đồng là gì?",["Cải thiện chất lượng cuộc sống.","Nâng cao danh tiếng cá nhân.","Kiếm lợi nhuận.","Có tiếng nói trong tổ chức."],[0]]
-    ];
+    /* ═══════════════════════════════════════════════════════════════
+       📥 LOAD CÂU HỎI TỪ DATA FILES
+       ═══════════════════════════════════════════════════════════════ */
+    const BUILD_V = Date.now();
+    async function tryLoadData(name) {
+      try {
+        const mod = await import(`/js/data/${name}.js?v=${BUILD_V}`);
+        return mod.default;
+      } catch(e) {
+        console.warn(`[Tower] Không load được /js/data/${name}.js:`, e.message);
+        return null;
+      }
+    }
 
-    const Q_DIALI = [
-    ["Các dân tộc thiểu số ở Việt Nam sinh sống chủ yếu ở",["đồng bằng châu thổ","vùng đồi núi và cao nguyên","vùng ven biển","các đô thị lớn"],[1]],
-    ["Người Kinh (Việt) ở nước ta sinh sống chủ yếu ở khu vực nào?",["Vùng núi cao phía Bắc","Vùng cao nguyên Tây Nguyên","Đồng bằng, ven biển và trung du","Vùng biên giới"],[2]],
-    ["Cơ cấu dân số theo nhóm tuổi ở nước ta hiện nay đang chuyển dịch theo hướng nào?",["Tỉ lệ nhóm 0–14 tuổi tăng, tỉ lệ nhóm từ 65 tuổi trở lên giảm","Tỉ lệ nhóm 0–14 tuổi giảm, tỉ lệ nhóm từ 65 tuổi trở lên tăng","Tỉ lệ cả hai nhóm tuổi đều tăng","Tỉ lệ cả hai nhóm tuổi đều giảm"],[1]],
-    ["Đặc điểm nào sau đây đúng với quần cư thành thị ở nước ta?",["Dân cư thưa thớt, sống phân tán","Hoạt động kinh tế chủ yếu là nông nghiệp","Dân cư tập trung mật độ cao, hoạt động kinh tế chủ yếu là công nghiệp, dịch vụ","Nhà ở chủ yếu là nhà sàn"],[2]],
-    ["Ở nước ta, tình trạng thiếu việc làm diễn ra gay gắt nhất ở khu vực nào?",["Thành thị","Miền núi","Ven biển","Nông thôn"],[3]],
-    ["Hạn chế lớn nhất của nguồn lao động nước ta hiện nay là",["thiếu kinh nghiệm sản xuất nông nghiệp","số lượng lao động ít","tỉ lệ lao động đã qua đào tạo còn thấp, thiếu lao động tay nghề cao","lao động không cần cù"],[2]],
-    ["Thế mạnh nổi bật của nguồn lao động nước ta là",["có trình độ chuyên môn cao hoàn toàn","số lượng ít nhưng chất lượng cao","chủ yếu làm việc trong ngành công nghệ cao","dồi dào, cần cù, tỉ lệ lao động qua đào tạo ngày càng được nâng cao"],[3]],
-    ["Hai vùng trồng lúa trọng điểm lớn nhất nước ta là",["Trung du và miền núi phía Bắc và Tây Nguyên","Đồng bằng sông Hồng và Đồng bằng sông Cửu Long","Bắc Trung Bộ và Duyên hải Nam Trung Bộ","Đông Nam Bộ và Tây Nguyên"],[1]],
-    ["Các cây công nghiệp lâu năm như cà phê, cao su, hồ tiêu ở nước ta được trồng tập trung nhiều nhất ở",["Tây Nguyên và Đông Nam Bộ","Đồng bằng sông Hồng","Đồng bằng sông Cửu Long","Trung du và miền núi phía Bắc"],[0]],
-    ["Vùng có sản lượng nuôi trồng thủy sản lớn nhất cả nước là",["Đồng bằng sông Hồng","Duyên hải Nam Trung Bộ","Đồng bằng sông Cửu Long","Bắc Trung Bộ"],[2]]
-    ];
+    // Load song song 3 file
+    const [english, gdcd, diali] = await Promise.all([
+      tryLoadData("english"),
+      tryLoadData("gdcd"),
+      tryLoadData("diali")
+    ]);
 
-    const POOL = [
-      ...Q_ENGLISH.map(q => ({ q, subject: "🇬🇧 Tiếng Anh" })),
-      ...Q_GDCD.map(q => ({ q, subject: "⚖️ GDCD" })),
-      ...Q_DIALI.map(q => ({ q, subject: "🌍 Địa lí" }))
-    ];
+    // Build pool
+    const POOL = [];
+    let countEN = 0, countGDCD = 0, countDIALI = 0;
+
+    // ─── English: chỉ lấy sections KHÔNG có passage (tự chứa ngữ cảnh) ───
+    if (english && Array.isArray(english.sections)) {
+      english.sections.forEach(section => {
+        // Bỏ qua section có passage (reading comprehension cần context)
+        if (section.passage) return;
+        (section.questions || []).forEach(q => {
+          // Bỏ câu dạng text/keys/fill (không phải MC)
+          if (typeof q[2] === "string") return;
+          // Bỏ câu multi-answer (Tower chỉ hỗ trợ 1 đáp án)
+          if (!Array.isArray(q[2]) || q[2].length !== 1) return;
+          POOL.push({ q, subject: "🇬🇧 Tiếng Anh" });
+          countEN++;
+        });
+      });
+    }
+
+    // ─── GDCD: tất cả MC ───
+    if (gdcd && Array.isArray(gdcd.questions)) {
+      gdcd.questions.forEach(q => {
+        if (typeof q[2] === "string") return;
+        if (!Array.isArray(q[2]) || q[2].length !== 1) return;
+        POOL.push({ q, subject: "⚖️ GDCD" });
+        countGDCD++;
+      });
+    }
+
+    // ─── Địa lí: tất cả MC ───
+    if (diali && Array.isArray(diali.questions)) {
+      diali.questions.forEach(q => {
+        if (typeof q[2] === "string") return;
+        if (!Array.isArray(q[2]) || q[2].length !== 1) return;
+        POOL.push({ q, subject: "🌍 Địa lí" });
+        countDIALI++;
+      });
+    }
+
+    console.log(`[Tower] Pool: ${POOL.length} câu (EN: ${countEN} · GDCD: ${countGDCD} · Địa: ${countDIALI})`);
+
+    // Update pool-info UI
+    const poolInfoEl = document.getElementById("pool-info");
+    if (poolInfoEl) {
+      if (POOL.length === 0) {
+        poolInfoEl.innerHTML = '<span style="color:var(--bad);font-weight:700">⚠️ Không load được câu hỏi nào. Vui lòng F5 thử lại.</span>';
+      } else {
+        poolInfoEl.textContent = `📚 Tổng ${POOL.length} câu hỏi — ${countEN} Tiếng Anh · ${countGDCD} GDCD · ${countDIALI} Địa lí`;
+      }
+    }
+
+    if (POOL.length === 0) {
+      throw new Error("Không có câu hỏi nào được load từ data files. Kiểm tra /js/data/*.js có tồn tại không.");
+    }
 
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -381,6 +426,9 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
         try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
         localStorage.removeItem("tower_active_v1");
+
+        // 🪙 Nhận LDM TRƯỚC khi hiện result
+        await awardTowerReward(username, score);
 
         showAbandonedResult(score, time);
         await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
@@ -585,6 +633,9 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
       window.history.replaceState({}, '', '/Tower');
 
+      // 🪙 Nhận LDM TRƯỚC khi hiện result — Mọi người (kể cả admin) đều được nhận
+      await awardTowerReward(getUsername(), score);
+
       $("game-screen").classList.add("hide");
       $("result-screen").classList.remove("hide");
 
@@ -622,17 +673,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
         });
       } catch (e) {
         console.error("Lỗi lưu điểm:", e);
-      }
-
-      // 🪙 Cộng LDM Tower + hiệu ứng (Bọc try-catch đề phòng lỗi từ core.js)
-      if (typeof awardTowerCoins === "function") {
-        awardTowerCoins(getUsername(), score).then(reward => {
-          if (reward.earned > 0) {
-            setTimeout(() => {
-              showCollectAnim(reward.earned, "tower", reward.balance);
-            }, 400);
-          }
-        }).catch(e => console.warn("[reward]", e));
       }
 
       loadLeaderboard();
@@ -792,7 +832,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       }
     }
 
-    // KHỞI TẠO TRỰC TIẾP (Không dùng DOMContentLoaded để tránh bị lỡ sự kiện)
+    // KHỞI TẠO
     const existing = loadSession();
 
     if (!existing || !existing.name) {
@@ -821,7 +861,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
     await checkActiveGameOnLoad();
 
   } catch (err) {
-    // Bắt mọi lỗi (kể cả lỗi import, sai domain, v.v.)
     console.error("[Tower] Fatal error:", err);
     document.getElementById("fatal-error").classList.remove("hide");
     document.getElementById("fatal-error").style.display = "grid";
