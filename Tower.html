@@ -189,13 +189,14 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 <script type="module">
 (async function init() {
   try {
-    const firebaseApp = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    // ✅ FIX: Chỉ import database, không import firebase-app để tránh lỗi duplicate
     const firebaseDb = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const core = await import(`/js/core.js?v=${Date.now()}`);
     
-    const { initializeApp } = firebaseApp;
-    const { getDatabase, ref, push, set, get, remove, serverTimestamp } = firebaseDb;
+    const { ref, push, set, get, remove, serverTimestamp } = firebaseDb;
     const awardTowerCoins = core.awardTowerCoins;
+    // ✅ FIX: Dùng db từ core.js (đã được khởi tạo sẵn)
+    const db = core.db; 
 
     const firebaseConfig = {
       apiKey: "AIzaSyCP4hMfT_9FwQabvi2KnlvqCxpCeFMCqeo",
@@ -206,10 +207,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       messagingSenderId: "1239554748",
       appId: "1:1239554748:web:eb24bca244c1fcd7fcceb9"
     };
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const TOWER_NODE = "tower";
 
     // Kiểm tra tên miền
     const host = location.hostname.toLowerCase();
@@ -253,7 +250,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       });
     }
 
-    /* 🪙 Helper: nhận LDM Tower — Mọi người (kể cả admin) đều được nhận */
+    /* 🪙 Helper: nhận LDM Tower */
     async function awardTowerReward(username, score) {
       if (typeof awardTowerCoins !== "function" || score < 1) return;
       try {
@@ -264,9 +261,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       } catch(e) { console.warn("[reward]", e); }
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       📥 LOAD CÂU HỎI TỪ DATA FILES
-       ═══════════════════════════════════════════════════════════════ */
+    /* 📥 LOAD CÂU HỎI TỪ DATA FILES */
     const BUILD_V = Date.now();
     async function tryLoadData(name) {
       try {
@@ -278,26 +273,20 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       }
     }
 
-    // Load song song 3 file
     const [english, gdcd, diali] = await Promise.all([
       tryLoadData("english"),
       tryLoadData("gdcd"),
       tryLoadData("diali")
     ]);
 
-    // Build pool
     const POOL = [];
     let countEN = 0, countGDCD = 0, countDIALI = 0;
 
-    // ─── English: chỉ lấy sections KHÔNG có passage (tự chứa ngữ cảnh) ───
     if (english && Array.isArray(english.sections)) {
       english.sections.forEach(section => {
-        // Bỏ qua section có passage (reading comprehension cần context)
         if (section.passage) return;
         (section.questions || []).forEach(q => {
-          // Bỏ câu dạng text/keys/fill (không phải MC)
           if (typeof q[2] === "string") return;
-          // Bỏ câu multi-answer (Tower chỉ hỗ trợ 1 đáp án)
           if (!Array.isArray(q[2]) || q[2].length !== 1) return;
           POOL.push({ q, subject: "🇬🇧 Tiếng Anh" });
           countEN++;
@@ -305,7 +294,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       });
     }
 
-    // ─── GDCD: tất cả MC ───
     if (gdcd && Array.isArray(gdcd.questions)) {
       gdcd.questions.forEach(q => {
         if (typeof q[2] === "string") return;
@@ -315,7 +303,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
       });
     }
 
-    // ─── Địa lí: tất cả MC ───
     if (diali && Array.isArray(diali.questions)) {
       diali.questions.forEach(q => {
         if (typeof q[2] === "string") return;
@@ -327,7 +314,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
     console.log(`[Tower] Pool: ${POOL.length} câu (EN: ${countEN} · GDCD: ${countGDCD} · Địa: ${countDIALI})`);
 
-    // Update pool-info UI
     const poolInfoEl = document.getElementById("pool-info");
     if (poolInfoEl) {
       if (POOL.length === 0) {
@@ -427,9 +413,7 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
         try { await remove(ref(db, "tower_active/" + k)); } catch(e) {}
         localStorage.removeItem("tower_active_v1");
 
-        // 🪙 Nhận LDM TRƯỚC khi hiện result
         await awardTowerReward(username, score);
-
         showAbandonedResult(score, time);
         await saveScore(score, time, "Bạn đã tải lại/thoát trang giữa ván nên bị tính là bỏ cuộc.", true);
       } else {
@@ -633,7 +617,6 @@ button.sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
 
       window.history.replaceState({}, '', '/Tower');
 
-      // 🪙 Nhận LDM TRƯỚC khi hiện result — Mọi người (kể cả admin) đều được nhận
       await awardTowerReward(getUsername(), score);
 
       $("game-screen").classList.add("hide");
