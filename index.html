@@ -700,6 +700,15 @@ window.__showFatalError(msg);
 <div class="mut" style="margin:8px 0 16px">Ôn tập giữa kì I · 28 câu</div>
 <button class="p" style="width:100%" id="startCongnghe">Luyện tập ngay</button>
 </div>
+<div class="card link" id="cardMath" style="text-align:center;margin:0">
+<div style="font-size:2.5rem;margin-bottom:8px">📐</div>
+<h2>Toán 9 <span class="tag" id="mathLockTag" style="font-size:0.7rem;vertical-align:middle">🔒 Cần mua</span></h2>
+<div class="mut" style="margin:8px 0 16px" id="mathCardDesc">Giữa học kì I · 12 trắc nghiệm + 9 tự luận · <b id="mathCardPrice">75</b> LDM</div>
+<div style="display:flex; gap:8px; flex-wrap:wrap;">
+<button class="p" style="flex:1; min-width:110px" id="startMathMaster" type="button">📐 Làm bài</button>
+<button class="g" style="flex:1; min-width:110px" id="viewMathPaper" type="button">📄 Xem đề gốc</button>
+</div>
+</div>
 </div>
 </div>
 <div id="tab-leaderboard" class="hide">
@@ -993,7 +1002,8 @@ checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
 checkRegistrationLock, validateRegistrationCode, markCodeUsed,
 checkProfanitySetting,
-awardQuizCoins, checkAndAwardDaily, getUserCoins
+awardQuizCoins, checkAndAwardDaily, getUserCoins,
+checkMathOwnership, getMathPrice
 } = core;
 const { esc, fmtMs, fmtMsShort, fmtDate, shuffle, checkTextAnswer, fmtScore } = utils;
 const { createMusicPlayer } = musicMod;
@@ -1422,6 +1432,33 @@ if ($("btnNews")) $("btnNews").onclick = openNewsModal;
 if ($("newsClose")) $("newsClose").onclick = () => $("newsMask").classList.remove("on");
 if ($("newsMask")) $("newsMask").onclick = e => { if (e.target === $("newsMask")) $("newsMask").classList.remove("on"); };
 
+/* ══════════ 📐 TOÁN 9 — thẻ mở khoá ══════════ */
+async function refreshMathCard() {
+  const tag = $("mathLockTag"), price = $("mathCardPrice");
+  const goBtn = $("startMathMaster"), viewBtn = $("viewMathPaper");
+  if (!goBtn) return;
+  let p = 75;
+  try { p = await getMathPrice(); } catch (e) {}
+  price.textContent = Number(p).toLocaleString("vi-VN");
+
+  let owned = false;
+  if (session && session.username) {
+    try { owned = await checkMathOwnership(session.username); } catch (e) {}
+  }
+  if (owned) {
+    tag.textContent = "✅ Đã mở khoá";
+    goBtn.textContent = "📐 Làm bài";
+    goBtn.onclick = () => { location.href = "/mathematicmaster"; };
+    viewBtn.onclick = () => { location.href = "/Maths"; };
+  } else {
+    tag.textContent = "🔒 Cần mua";
+    goBtn.textContent = "🛒 Mua " + Number(p).toLocaleString("vi-VN") + " LDM";
+    goBtn.onclick = () => { location.href = "/shop"; };
+    viewBtn.onclick = () => { location.href = "/shop"; };
+  }
+}
+$("cardMath").onclick = (e) => { if (e.target.closest("button")) return; $("startMathMaster").click(); };
+
 async function enterApp() {
 if (!session) { show("auth"); return; }
 if (!isAdminSession() && PROFANITY_ON && (checkProfanity(session.name) || checkProfanity(session.username))) {
@@ -1441,7 +1478,7 @@ $("hiName").textContent = "👋 Xin chào, " + session.name + "!";
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
 
 $("auUser").value = ""; $("auPass").value = "";
-show("app"); switchTab("practice");
+show("app"); switchTab("practice"); refreshMathCard();
 
 // 🪙 Điểm danh hàng ngày (+15 LDM) + hiệu ứng — Mọi người (kể cả admin) đều được
 checkAndAwardDaily(session.username, 15).then(async (gotDaily) => {
@@ -1491,7 +1528,8 @@ const filters = [
 { id: "diali_choice", label: "🌍 Địa lí 9 (Khoanh)" },
 { id: "diali_manual", label: "✍️ Địa lí 9 (Ghi)" },
 { id: "diali_memory", label: "🧠 Địa lí 9 (Ghi nhớ)" },
-{ id: "congnghe", label: "⚙️ Công nghệ 9" }
+{ id: "congnghe", label: "⚙️ Công nghệ 9" },
+{ id: "math", label: "📐 Toán 9" }
 ];
 el.innerHTML = filters.map(f =>
 '<button class="pill' + (f.id === initial ? ' active' : '') + '" data-f="' + f.id + '">' + f.label + '</button>'
@@ -1511,7 +1549,7 @@ const el = $(elId);
 if (!db) { el.innerHTML = '<div class="mut">Chưa kết nối được máy chủ.</div>'; return; }
 el.innerHTML = skeleton(3);
 try {
-const rPath = filter === "khoahoctunhien" ? "results_khtn" : "results";
+const rPath = filter === "khoahoctunhien" ? "results_khtn" : (filter === "math" ? "results_math" : "results");
 const snap = await get(ref(db, rPath));
 const best = new Map();
 const toDelete = [];
