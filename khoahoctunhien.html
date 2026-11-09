@@ -391,19 +391,15 @@ try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.get
 if (!session || !session.username) { location.replace("index.html"); throw new Error("NO_SESSION"); }
 const isAdmin = session.isAdmin === true;
 const nameHash = n => normText(n).replace(/\s+/g, "_");
-const banKey = "qpb3_ban_" + nameHash(session.name);
 function showBanScreen(){
-document.body.innerHTML = '<div class="ban-screen"><div><h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1><p>Tài khoản <b>"'+esc(session.name)+'"</b> đã bị chặn do vi phạm quy tắc hoặc dùng công cụ gian lận.<br><br>Vui lòng liên hệ quản trị nếu có khiếu nại.</p><button id="banReload" style="margin-top:24px">Tải lại trang</button></div></div>';
+document.body.innerHTML = '<div class="ban-screen"><div><h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1><p>Tài khoản <b>"'+esc(session.name)+'"</b> đã bị quản trị viên (admin) khóa.<br><br>Vui lòng liên hệ quản trị nếu có khiếu nại.</p><button id="banReload" style="margin-top:24px">Tải lại trang</button></div></div>';
 $("banReload").onclick = () => location.reload();
 }
-let banned = false;
-try { banned = localStorage.getItem(banKey) === "1"; } catch(e){}
-if (banned && !isAdmin) { showBanScreen(); throw new Error("BANNED"); }
 (async function(){
 if (!db || isAdmin) return;
 try {
 const snap = await get(ref(db, "bans/" + encodeURIComponent(String(session.username).toLowerCase())));
-if (snap.exists() && snap.val().isBanned) { try{ localStorage.setItem(banKey,"1"); }catch(e){} showBanScreen(); }
+if (snap.exists() && snap.val().isBanned === true) { showBanScreen(); }
 } catch(e){}
 })();
 
@@ -616,12 +612,11 @@ $("rfStart").onclick = () => renderLeaderboard("lbStart");
 $("rfResult").onclick = () => renderLeaderboard("lbResult");
 
 async function flagViolation(){
-try { const k = "qpb3_vio_" + nameHash(session.name); localStorage.setItem(k, String((parseInt(localStorage.getItem(k) || "0", 10)) + 1)); } catch(e){}
 if (!db || isAdmin) return;
 try {
 const r = ref(db, "bans/" + encodeURIComponent(String(session.username).toLowerCase()));
 const snap = await get(r), cur = snap.exists() ? snap.val() : {};
-await set(r, { isBanned: !!cur.isBanned, violations: (cur.violations || 0) + 1, timestamp: serverTimestamp() });
+await set(r, { isBanned: cur.isBanned === true, violations: (cur.violations || 0) + 1, timestamp: serverTimestamp() });
 } catch(e){}
 }
 let lastVio = 0;
@@ -629,7 +624,7 @@ function violation(){
 if (!quizActive() || isAdmin) return;
 const now = Date.now(); if (now - lastVio < 1500) return; lastVio = now;
 S.vio++; saveState();
-if (S.vio > MAX_VIO) { showToast("🚫 Vi phạm quá " + MAX_VIO + " lần — bài được nộp tự động!", true); flagViolation(); submit(true); }
+if (S.vio > MAX_VIO) { showToast("⚠️ Vi phạm quá " + MAX_VIO + " lần — bài được nộp tự động! (Không bị ban, admin sẽ xem xét)", true); flagViolation(); submit(true); }
 else showToast("⚠️ Cảnh báo " + S.vio + "/" + MAX_VIO + ": không chuyển tab / rời khỏi trang khi đang làm bài!", true);
 }
 document.addEventListener("visibilitychange", () => { if (document.hidden) violation(); });
