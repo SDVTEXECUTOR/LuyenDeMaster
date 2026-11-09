@@ -1680,7 +1680,7 @@ function closeGiftModal() {
   giftModalOpen = false;
 }
 
-if ($("btnGiftCode")) $("btnGiftCode").onclick = openGiftModal;
+if ($("btnGiftCode")) $("btnGiftCode").onclick = () => { location.href = "/codes"; };
 if ($("giftCancel")) $("giftCancel").onclick = closeGiftModal;
 if ($("giftMask")) {
   $("giftMask").onclick = (e) => {
