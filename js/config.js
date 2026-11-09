@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════════
    📦 CONFIG.JS — KHO DATA KIỂM DUYỆT TRUNG TÂM
    ══════════════════════════════════════════════════════════════════════
-   V3.1 — Thêm cấu hình đề Toán (MATH_PRICE_DEFAULT, MATH_PRICE_NODE, MATH_PACK_ID)
+   V3.2 — Đầy đủ MATH_* exports
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -168,18 +168,7 @@ export const TOAST_DURATION         = 4000;
 export const CUTSCENE_MIN_DURATION  = 1000;
 
 /* ══════════════════════════════════════════════════════════════════════
-   📐 MATH TEST — CẤU HÌNH ĐỀ TOÁN (MỚI)
-   ══════════════════════════════════════════════════════════════════════
-   Đề Toán 9 mua bằng LDM (1 lần, dùng vĩnh viễn).
-   - MATH_PRICE_DEFAULT: giá mặc định khi admin chưa đặt (75 LDM)
-   - MATH_PRICE_NODE:    node Firebase lưu giá hiện tại (admin đổi được)
-   - MATH_PACK_ID:       id của pack trong ownedPacks (dùng để check ownership)
-
-   Sau khi mua, user có thể truy cập:
-     - /Maths             → xem đề gốc + in
-     - /mathematicmaster  → làm bài full (12 TN + 9 TL) + chấm điểm tự động
-
-   Admin có thể đổi giá tại: Admin Panel → "📐 Giá đề Toán"
+   📐 MATH TEST — CẤU HÌNH ĐỀ TOÁN
    ══════════════════════════════════════════════════════════════════════ */
 export const MATH_PRICE_DEFAULT = 75;
 export const MATH_PRICE_NODE    = "config/mathPrice";
