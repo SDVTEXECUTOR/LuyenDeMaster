@@ -8,7 +8,9 @@
     { "source": "/khoahoctunhien9", "destination": "/khoahoctunhien.html" },
     { "source": "/profile", "destination": "/profile.html" },
     { "source": "/profile/", "destination": "/profile.html" },
-    { "source": "/profile_:username", "destination": "/profile.html" }
+    { "source": "/profile_:username", "destination": "/profile.html" },
+    { "source": "/Maths", "destination": "/Maths.html" },
+    { "source": "/mathematicmaster", "destination": "/mathematicmaster.html" }
   ],
   "headers": [
     { "source": "/js/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }] },
