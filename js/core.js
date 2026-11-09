@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V3.1 — Admin có thể nhận LDM (fix theo yêu cầu)
+   V3.2 — Thêm Math test purchase
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -17,7 +17,8 @@ import {
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
   ANNOUNCEMENTS_NODE,
   BAD_WORDS, ADMIN_USER, ADMIN_LIST,
-  ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
+  ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK,
+  MATH_PRICE_DEFAULT, MATH_PRICE_NODE, MATH_PACK_ID
 } from "./config.js";
 
 const PROFANITY_LOCK_NODE = "config/profanityEnabled";
@@ -533,6 +534,121 @@ export async function setActiveBackground(username, bgId) {
   } catch(e) { return false; }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   📐 SECTION 11B — MATH TEST PURCHASE
+   ══════════════════════════════════════════════════════════════════════
+   Chức năng:
+     - Đọc / ghi giá đề Toán (default 75 LDM, admin có thể đổi)
+     - Kiểm tra user đã sở hữu "math_test" chưa
+     - Mua đề Toán: trừ LDM + thêm "math_test" vào ownedPacks
+     - Sau khi mua: /Maths và /mathematicmaster sẽ mở khoá
+   ══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Đọc giá đề Toán hiện tại từ config/mathPrice.
+ * Nếu chưa có trong DB → trả về MATH_PRICE_DEFAULT (75 LDM).
+ */
+export async function getMathPrice() {
+  if (!db) return MATH_PRICE_DEFAULT;
+  try {
+    const snap = await get(ref(db, MATH_PRICE_NODE));
+    const v = snap.exists() ? Number(snap.val()) : MATH_PRICE_DEFAULT;
+    return Number.isFinite(v) && v >= 0 ? v : MATH_PRICE_DEFAULT;
+  } catch (e) {
+    return MATH_PRICE_DEFAULT;
+  }
+}
+
+/**
+ * Admin đổi giá đề Toán.
+ * @param {number} price - giá mới (0 - 100000)
+ */
+export async function setMathPrice(price) {
+  if (!db || !isAdminSession()) return false;
+  const p = Math.max(0, Math.floor(Number(price) || 0));
+  if (p > 100000) return false;
+  try {
+    await set(ref(db, MATH_PRICE_NODE), p);
+    return true;
+  } catch (e) { return false; }
+}
+
+/**
+ * Kiểm tra user đã mua đề Toán chưa.
+ * @param {string} username
+ * @returns {Promise<boolean>}
+ */
+export async function checkMathOwnership(username) {
+  if (!db || !username) return false;
+  try {
+    const k = keyOf(username);
+    const snap = await get(ref(db, `profiles/${k}/ownedPacks`));
+    if (!snap.exists()) return false;
+    const v = snap.val();
+    const arr = Array.isArray(v) ? v : Object.values(v || {});
+    return arr.includes(MATH_PACK_ID);
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Mua đề Toán.
+ * - Kiểm tra đã sở hữu chưa → báo lỗi nếu có
+ * - Trừ LDM theo giá hiện tại (runTransaction → an toàn race condition)
+ * - Thêm MATH_PACK_ID vào ownedPacks
+ *
+ * @param {string} username
+ * @returns {Promise<{ok: boolean, reason?: string, price?: number}>}
+ */
+export async function buyMathTest(username) {
+  if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
+
+  await ensureProfile(username);
+
+  try {
+    const price = await getMathPrice();
+    if (!Number.isFinite(price) || price < 0) {
+      return { ok: false, reason: "Giá chưa được cấu hình đúng" };
+    }
+
+    const k = keyOf(username);
+    const owned = await getOwnedPacks(username);
+
+    if (owned.includes(MATH_PACK_ID)) {
+      return { ok: false, reason: "Bạn đã mở khoá đề Toán rồi" };
+    }
+
+    // Trừ LDM atomically
+    let paid = false;
+    let reason = "";
+    await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
+      const c = Number(cur) || 0;
+      if (c < price) {
+        const gap = price - c;
+        reason = `Cần thêm ${gap.toLocaleString("vi-VN")} LDM nữa (hiện có ${c.toLocaleString("vi-VN")} LDM)`;
+        return c; // Không thay đổi
+      }
+      paid = true;
+      return c - price;
+    });
+
+    if (!paid) {
+      return { ok: false, reason: reason || "Không đủ LDM" };
+    }
+
+    // Thêm pack vào ownedPacks
+    const newOwned = [...owned, MATH_PACK_ID];
+    await set(ref(db, `profiles/${k}/ownedPacks`), newOwned);
+
+    return { ok: true, price };
+  } catch (e) {
+    return { ok: false, reason: "Lỗi: " + e.message };
+  }
+}
+
+
 /* ✅ FIX: Bỏ check admin → Admin cũng được điểm danh +15 LDM */
 export async function checkAndAwardDaily(username, amount = 15) {
   if (!db || !username) return false;
@@ -562,11 +678,10 @@ const TOWER_PER_FLOOR      = 3;    // LDM mỗi tầng Tower đạt được
 
 /**
  * Cộng LDM khi hoàn thành quiz
- * ✅ FIX: Admin cũng nhận LDM
+ * ✅ Admin cũng nhận LDM
  */
 export async function awardQuizCoins(username, score) {
   if (!db || !username) return { earned: 0, balance: 0 };
-  // ĐÃ BỎ CHECK ADMIN: if (isAdminSession() || isAdminUsername(username)) return ...
 
   const sc = Number(score) || 0;
   if (sc < 0) return { earned: 0, balance: 0 };
@@ -585,11 +700,10 @@ export async function awardQuizCoins(username, score) {
 
 /**
  * Cộng LDM khi chơi Tower
- * ✅ FIX: Admin cũng nhận LDM
+ * ✅ Admin cũng nhận LDM
  */
 export async function awardTowerCoins(username, floors) {
   if (!db || !username) return { earned: 0, balance: 0 };
-  // ĐÃ BỎ CHECK ADMIN: if (isAdminSession() || isAdminUsername(username)) return ...
 
   const f = Math.max(0, Math.floor(Number(floors) || 0));
   if (f <= 0) return { earned: 0, balance: 0 };
