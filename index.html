@@ -997,7 +997,7 @@ throw e;
 const {
 db, getSession, saveSession, loadSession, clearSession, isAdminSession, isAdminUsername,
 normText, nameHash, checkProfanity, keyOf,
-getBanKey, getViolationKey, checkLocalBan, setLocalBan, clearAllLocalBans,
+getBanKey, getViolationKey, clearAllLocalBans,
 checkFirebaseBan, recordFirebaseViolation, recordViolation,
 syncUnbanEpoch, checkDomain, showDomainWarning,
 checkRegistrationLock, validateRegistrationCode, markCodeUsed,
@@ -1153,8 +1153,7 @@ if (isAdminSession()) return;
 document.body.innerHTML =
 '<div class="ban-screen">' +
 '<h1>🚫 TÀI KHOẢN ĐÃ BỊ KHÓA</h1>' +
-'<p>Bạn đã vi phạm quy tắc ứng xử hoặc sử dụng công cụ gian lận.<br>' +
-'Tài khoản <b>"' + esc(name) + '"</b> đã bị chặn.<br><br>' +
+'<p>Tài khoản <b>"' + esc(name) + '"</b> đã bị quản trị viên (admin) khóa.<br><br>' +
 'Vui lòng liên hệ quản trị nếu có khiếu nại.</p>' +
 '<button class="p" style="margin-top:24px" id="banReload">Tải lại trang</button>' +
 '</div>';
@@ -1248,8 +1247,7 @@ async function doRegister(u, p, name, cls) {
 if (!db) throw new Error("Chưa kết nối được máy chủ.");
 if (findAdmin(u)) throw new Error("Tên đăng nhập đã tồn tại.");
 if (PROFANITY_ON && (checkProfanity(u) || checkProfanity(name))) {
-recordViolation(name);
-throw new Error(" TÀI KHOẢN ĐÃ BỊ KHÓA! (Vi phạm quy tắc ứng xử).");
+throw new Error("Tên đăng nhập / tên hiển thị chứa từ không phù hợp. Vui lòng chọn tên khác.");
 }
 const key = keyOf(u);
 const passHash = await sha256Hex(p);
@@ -1281,14 +1279,8 @@ let snap;
 try { snap = await get(ref(db, "accounts/" + key)); } finally { ovOff(); }
 if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
 const acc = snap.val();
-if (PROFANITY_ON && (checkProfanity(acc.name) || checkProfanity(acc.username))) {
-await recordFirebaseViolation(acc.username);
-clearSession();
-showBanScreen(acc.name);
-throw new Error("Tài khoản đã bị khóa do vi phạm quy tắc ứng xử.");
-}
 const isBanned = await checkFirebaseBan(acc.username);
-if (isBanned || checkLocalBan(acc.name)) {
+if (isBanned) {
 clearSession();
 showBanScreen(acc.name);
 throw new Error("Tài khoản đã bị khóa.");
@@ -1461,17 +1453,6 @@ $("cardMath").onclick = (e) => { if (e.target.closest("button")) return; $("star
 
 async function enterApp() {
 if (!session) { show("auth"); return; }
-if (!isAdminSession() && PROFANITY_ON && (checkProfanity(session.name) || checkProfanity(session.username))) {
-recordViolation(session.name, session.username);
-_syncSession(null);
-showBanScreen(session.name);
-return;
-}
-if (!isAdminSession() && checkLocalBan(session.name)) {
-_syncSession(null);
-showBanScreen(session.name);
-return;
-}
 $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 
 $("hiName").textContent = "👋 Xin chào, " + session.name + "!";
@@ -1560,10 +1541,6 @@ if (isAdminUsername(v.username)) return;
 const rawName = v.name || v.username || "";
 if (PROFANITY_ON && checkProfanity(rawName)) {
 toDelete.push(ch.key);
-if (session && normText(session.name) === normText(rawName)) {
-recordViolation(rawName);
-showBanScreen(rawName);
-}
 return;
 }
 if (filter !== "all") {
@@ -1836,9 +1813,8 @@ $("qc").innerHTML = h;
 $("qc").querySelectorAll("input").forEach(el => {
 el.onchange = function(e) {
 if (!e.isTrusted) {
-showToast("️ Phát hiện công cụ tự động chọn!", true);
+showToast("️ Phát hiện công cụ tự động chọn! Thao tác bị bỏ qua.", true);
 recordViolation(session.name, session.username);
-showBanScreen(session.name);
 return;
 }
 const v = +el.dataset.v, a = ans[qi];
@@ -1901,9 +1877,8 @@ return h;
 
 window.fillSelectedText = function(flatIdx, event) {
 if (!event || !event.isTrusted) {
-showToast("⚠️ Hành động không hợp lệ (Auto-fill)!", true);
+showToast("⚠️ Hành động không hợp lệ (Auto-fill)! Thao tác bị bỏ qua.", true);
 recordViolation(session.name, session.username);
-showBanScreen(session.name);
 return;
 }
 const sel = window.getSelection().toString().trim();
@@ -1935,7 +1910,7 @@ const container = $("q-" + flatIdx);
 if (!container) return;
 container.querySelectorAll("input").forEach(el => {
 el.onchange = function(e) {
-if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); showBanScreen(session.name); return; }
+if (!e.isTrusted) { showToast("⚠️ Phát hiện công cụ tự động chọn!", true); recordViolation(session.name, session.username); return; }
 const v = +el.dataset.v;
 const multi = q[2].length > 1;
 if (multi) {
@@ -2091,10 +2066,8 @@ h += '</div>';
 const sc = Math.round(pts / Q.length * 1000) / 100;
 
 if (sc >= 10 && ms < SUSPICIOUS_TIME_MS && !isAdminSession()) {
-showToast("⚠️ 10 điểm trong dưới " + (SUSPICIOUS_TIME_MS / 1000) + "s, nghi auto!", true);
+// Chỉ ghi nhận để admin xem xét — KHÔNG tự ban, bài vẫn được nộp bình thường.
 recordViolation(session.name, session.username);
-showBanScreen(session.name);
-return;
 }
 
 // 🪙 NHẬN LDM TRƯỚC — Mọi người (kể cả admin) đều được nhận
@@ -2181,7 +2154,7 @@ if (isAdminSession()) {
   renderLeaderboard("lbResult", res.subject);
   return;
 }
-if (PROFANITY_ON && checkProfanity(res.name)) { recordViolation(res.name, res.username); ovOff(); showBanScreen(res.name); return; }
+if (PROFANITY_ON && checkProfanity(res.name)) { ovOff(); showToast("Tên chứa từ không phù hợp nên kết quả không được lưu.", true); return; }
 try {
 ovOn("Đang lưu kết quả…");
 const r = push(ref(db, "results"));
@@ -2401,13 +2374,9 @@ if (existing) {
 if (existing.isAdmin === true && isAdminUsername(existing.username)) {
 _syncSession(existing);
 await enterApp();
-} else if (PROFANITY_ON && (checkProfanity(existing.name) || checkProfanity(existing.username))) {
-recordViolation(existing.name, existing.username);
-_syncSession(null);
-showBanScreen(existing.name);
 } else {
 const isBanned = await checkFirebaseBan(existing.username);
-if (isBanned || checkLocalBan(existing.name)) {
+if (isBanned) {
 _syncSession(null);
 showBanScreen(existing.name);
 } else {
