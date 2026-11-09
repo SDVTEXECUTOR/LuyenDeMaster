@@ -27,9 +27,9 @@ import {
    core.js sẽ crash ngay lần import đầu tiên.
    → Inline để chạy được 100% bất kể cache.
    ══════════════════════════════════════════════════════════════════════ */
-const MATH_PRICE_DEFAULT = 75;
+export const MATH_PRICE_DEFAULT = 75;
 const MATH_PRICE_NODE    = "config/mathPrice";
-const MATH_PACK_ID       = "math_test";
+export const MATH_PACK_ID       = "math_test";
 const MATH_RESULTS_NODE  = "results_math";
 
 /* Local constants khác */
