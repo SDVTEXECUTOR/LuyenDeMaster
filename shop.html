@@ -477,13 +477,49 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import {
-  db, loadSession,
-  getUserCoins, buyPack, getOwnedPacks, SHOP_ITEMS,
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* Import core.js động + cache-bust → không bị kẹt bản core.js / config.js cũ */
+let core;
+try {
+  core = await import(`/js/core.js?v=${Date.now()}`);
+} catch (e) {
+  console.error("[shop] import core failed:", e);
+  const bal = document.getElementById("coinBalance");
+  if (bal) bal.textContent = "?";
+  const hint = document.getElementById("earnHint");
+  if (hint) hint.textContent = "⚠️ Không tải được module: " + e.message + " — thử Ctrl+F5";
+  throw e;
+}
+const {
+  db, loadSession, keyOf,
+  buyPack, SHOP_ITEMS,
   redeemGiftCode,
-  getMathPrice, checkMathOwnership, buyMathTest,
-  MATH_PRICE_DEFAULT
-} from '/js/core.js';
+  getMathPrice, buyMathTest
+} = core;
+const MATH_PRICE_DEFAULT = core.MATH_PRICE_DEFAULT ?? 75;
+const MATH_PACK_ID = core.MATH_PACK_ID ?? "math_test";
+
+/* Đọc ví (coins + ownedPacks) bằng 1 request, tự thử lại 3 lần, KHÔNG nuốt lỗi */
+async function loadWallet(username) {
+  if (!db) throw new Error("Chưa kết nối được Firebase");
+  const k = keyOf(username);
+  let lastErr;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const snap = await get(ref(db, `profiles/${k}`));
+      const v = snap.exists() ? (snap.val() || {}) : {};
+      const raw = v.ownedPacks;
+      const owned = Array.isArray(raw) ? raw.filter(Boolean)
+                  : (raw && typeof raw === "object" ? Object.values(raw).filter(Boolean) : []);
+      return { coins: Number(v.coins) || 0, owned };
+    } catch (e) {
+      lastErr = e;
+      await new Promise(r => setTimeout(r, 500 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
 
 const $ = id => document.getElementById(id);
 const session = loadSession();
@@ -533,11 +569,8 @@ async function refreshUI() {
   $("mathPriceDisplay").innerHTML = `${mathPrice.toLocaleString("vi-VN")} <small>LDM</small>`;
 
   try {
-    const [coins, owned, mathOwned] = await Promise.all([
-      getUserCoins(session.username),
-      getOwnedPacks(session.username),
-      checkMathOwnership(session.username)
-    ]);
+    const { coins, owned } = await loadWallet(session.username);
+    const mathOwned = owned.includes(MATH_PACK_ID);
 
     $("coinBalance").textContent = coins.toLocaleString("vi-VN");
     const price = SHOP_ITEMS.pack_fire.price;
@@ -604,8 +637,11 @@ async function refreshUI() {
 
   } catch(e) {
     console.error("[shop] refreshUI error:", e);
-    showToast("Lỗi tải số dư: " + e.message, true);
+    showToast("Lỗi tải số dư: " + (e && e.message ? e.message : e), true);
     $("coinBalance").textContent = "?";
+    $("earnHint").innerHTML = '⚠️ Không tải được số dư LDM. <a href="#" id="retryWallet" style="color:#fff;text-decoration:underline;font-weight:800">Thử lại</a>';
+    const rb = $("retryWallet");
+    if (rb) rb.onclick = (ev) => { ev.preventDefault(); $("coinBalance").textContent = "…"; refreshUI(); };
   }
 }
 
@@ -833,6 +869,8 @@ document.addEventListener("keydown", (e) => {
    INIT
    ══════════════════════════════════════════════════════════════════════ */
 refreshUI();
+/* Tự cập nhật số dư khi quay lại tab (vd. vừa điểm danh / làm bài ở tab khác) */
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshUI(); });
 </script>
 </body>
 </html>
