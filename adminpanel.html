@@ -1298,6 +1298,16 @@ async function unbanAll() {
       try {
         const n = clearAllLocalBans();
         if (!db) { ovOff(); showToast(`Đã gỡ ${n} khóa trên máy này`, true); return; }
+        // Reset isBanned=false cho toàn bộ tài khoản đang bị ban trên Firebase (giữ nguyên số vi phạm)
+        const bansSnap = await get(ref(db, "bans"));
+        const jobs = [];
+        if (bansSnap.exists()) bansSnap.forEach(ch => {
+          const v = ch.val() || {};
+          if (v.isBanned === true) jobs.push(set(ref(db, "bans/" + ch.key), {
+            isBanned: false, violations: Number(v.violations || 0), timestamp: serverTimestamp()
+          }));
+        });
+        await Promise.all(jobs);
         await set(ref(db, UNBAN_NODE), serverTimestamp());
         const snap = await get(ref(db, UNBAN_NODE));
         localStorage.setItem(UNBAN_LOCAL_KEY, String(snap.val()));
