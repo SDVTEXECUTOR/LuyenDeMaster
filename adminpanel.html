@@ -2,27 +2,26 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
+<script>
+(function(){
+  var ALLOWED_HOSTS = ["luyendemaster.vercel.app","localhost","127.0.0.1"];
+  var h = String(location.hostname || "").toLowerCase();
+  if (ALLOWED_HOSTS.indexOf(h) === -1) {
+    document.write('<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Chặn truy cập</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e1b4b);color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box"><div style="max-width:640px"><div style="font-size:5.5rem;line-height:1;margin-bottom:16px">🚨</div><h1 style="font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 16px;font-weight:900;color:#f87171">ĐỪNG CÓ ĂN CẮP MÀ BROOOOO!</h1><p style="color:#cbd5e1;font-size:clamp(.95rem,2.5vw,1.15rem);line-height:1.7;margin:16px 0">Trang web này chỉ được phép hoạt động tại:<br><b style="color:#60a5fa;font-size:1.15em;display:inline-block;margin-top:8px;word-break:break-all">https://luyendemaster.vercel.app</b></p><p style="color:#64748b;margin-top:32px;font-size:.85rem;line-height:1.6">⚠️ Hành vi sao chép &amp; triển khai trái phép mã nguồn là vi phạm bản quyền.</p></div></body></html>');
+    document.close();
+    throw new Error("DOMAIN_NOT_ALLOWED");
+  }
+})();
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>🛡️ Admin Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/theme.css">
 <style>
-:root {
-  --bg: #f0f4f8; --card: rgba(255, 255, 255, 0.85); --fg: #0f172a; --mut: #64748b;
-  --ac: #2563eb; --acs: #dbeafe; --ok: #16a34a; --oks: #dcfce7; --bad: #dc2626; --bads: #fee2e2;
-  --warn: #f59e0b; --warns: #fef3c7; --gold: #fbbf24;
-  --ln: rgba(148, 163, 184, 0.3); --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-  --glass: blur(12px) saturate(180%);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b1120; --card: rgba(30, 41, 59, 0.75); --fg: #f1f5f9; --mut: #94a3b8;
-    --ac: #3b82f6; --acs: rgba(59, 130, 246, 0.15); --ok: #22c55e; --oks: rgba(34, 197, 94, 0.15);
-    --bad: #ef4444; --bads: rgba(239, 68, 68, 0.15); --warn: #f59e0b; --warns: rgba(245, 158, 11, 0.15);
-    --ln: rgba(148, 163, 184, 0.15); --shadow: 0 8px 32px rgba(0, 0, 0, 0.3); color-scheme: dark;
-  }
-}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
@@ -308,6 +307,39 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
 }
 .give-form input[type=number] { width: 140px; }
 
+/* ═══ MATH PRICE ═══ */
+.math-price-row {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.math-price-row input[type=number] {
+  flex: 1; min-width: 160px; padding: 12px 16px; font: inherit;
+  font-size: 1.1rem; font-weight: 700;
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  background: rgba(255,255,255,0.5); color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.math-price-row input[type=number]:focus {
+  outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--acs);
+}
+.math-price-row button {
+  padding: 12px 20px; font-size: 0.95rem;
+}
+.math-info {
+  margin-top: 12px; padding: 12px 16px;
+  background: var(--acs); border-radius: 10px;
+  border-left: 3px solid var(--ac);
+  font-size: 0.85rem; line-height: 1.6;
+}
+.math-info b { color: var(--ac); }
+.math-info .current {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  font-size: 1.2rem; font-weight: 900; color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.math-info .current small {
+  font-size: 0.8rem; color: var(--mut); font-weight: 600;
+}
+
 @media (max-width: 720px) {
   .acc-table thead th:nth-child(2), .acc-table tbody td:nth-child(2) { display: none; }
   .acc-table { font-size: 0.82rem; }
@@ -523,6 +555,33 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     </div>
   </div>
 
+  <!-- 📐 MATH PRICE (MỚI) -->
+  <div class="card">
+    <div class="top" style="margin-bottom:12px">
+      <div>
+        <h2 style="margin-bottom:4px">📐 Giá đề Toán</h2>
+        <div class="mut" style="font-size:0.85rem">
+          Điều chỉnh giá bán đề Toán 9 (dùng cho cả /Maths và /mathematicmaster)
+        </div>
+      </div>
+    </div>
+
+    <div class="math-price-row">
+      <input type="number" id="mathPriceInput" placeholder="VD: 75" min="0" max="100000" step="1">
+      <button class="success" id="btnSaveMathPrice">💾 Lưu giá</button>
+    </div>
+
+    <div class="math-info">
+      💡 Giá hiện tại: <span class="current"><span id="currentMathPrice">—</span><small>LDM</small></span>
+      <br>
+      <span style="font-size:0.82rem;color:var(--mut)">
+        Học sinh mua <b>1 lần</b>, dùng vĩnh viễn cho cả 2 chế độ: xem đề gốc và làm bài full.
+        <br>
+        Đặt <b>0</b> để miễn phí cho tất cả mọi người.
+      </span>
+    </div>
+  </div>
+
   <div class="card">
     <div class="top" style="margin-bottom:12px">
       <div style="flex:1">
@@ -626,7 +685,8 @@ const requiredExports = [
   'db','loadSession','saveSession','isAdminSession','isAdminUsername','clearAllLocalBans','keyOf',
   'checkRegistrationLock','setRegistrationLock','createRegistrationCode','getRegistrationCodes','deleteRegistrationCode',
   'checkProfanitySetting','setProfanitySetting',
-  'createGiftCode','getGiftCodes','deleteGiftCode','redeemGiftCode','addCoins'
+  'createGiftCode','getGiftCodes','deleteGiftCode','redeemGiftCode','addCoins',
+  'getMathPrice','setMathPrice'
 ];
 const missing = requiredExports.filter(k => typeof core[k] === 'undefined');
 if (missing.length) {
@@ -636,7 +696,8 @@ if (missing.length) {
 
 const {
   db, loadSession, saveSession, isAdminSession, isAdminUsername,
-  clearAllLocalBans, keyOf
+  clearAllLocalBans, keyOf,
+  getMathPrice, setMathPrice
 } = core;
 const { esc, fmtMsShort, fmtDate } = utils;
 const { ADMIN_USER, ADMIN_PROFILE, UNBAN_NODE, UNBAN_LOCAL_KEY } = config;
@@ -950,7 +1011,7 @@ $("btnResetLeaderboard").onclick = () => {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   ✅ FIX #2: loadData — đảm bảo admin luôn có trong accounts
+   ✅ loadData — đảm bảo admin luôn có trong accounts
    ══════════════════════════════════════════════════════════════════════ */
 async function loadData() {
   if (!db) { showToast("Chưa kết nối được máy chủ.", true); return; }
@@ -978,7 +1039,6 @@ async function loadData() {
       });
     });
 
-    // ✅ Admin luôn xuất hiện trong accounts
     if (currentAdmin && currentAdmin.username) {
       const admKey = keyOf(currentAdmin.username);
       const admNorm = String(currentAdmin.username).toLowerCase();
@@ -988,7 +1048,6 @@ async function loadData() {
       if (found) {
         found.isAdmin = true;
       } else {
-        // Tạo record trong accounts nếu chưa có (để lần sau admin có thể đăng nhập qua accounts)
         try {
           const accRef = ref(db, "accounts/" + admKey);
           const accSnap2 = await get(accRef);
@@ -1057,7 +1116,6 @@ function renderAccounts() {
   }
 
   list.sort((a, b) => {
-    // Admin luôn lên đầu
     if (a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
     if (a.isBanned !== b.isBanned) return a.isBanned ? -1 : 1;
     if (b.violations !== a.violations) return b.violations - a.violations;
@@ -1069,7 +1127,6 @@ function renderAccounts() {
     return;
   }
 
-  // ✅ Admin badge + không có nút xoá
   const rows = list.map(a => {
     const statusBadge = a.isBanned
       ? '<span class="badge bad">🔴 Bị ban</span>'
@@ -1140,7 +1197,6 @@ async function toggleBan(username, name, currentlyBanned) {
 }
 
 async function deleteAccount(key, username, name) {
-  // ✅ Chặn xoá admin ở tầng logic
   const target = allAccounts.find(a => a.key === key);
   if (target && target.isAdmin) {
     showToast("🚫 Không thể xoá tài khoản admin!", true);
@@ -1167,11 +1223,12 @@ async function deleteAccount(key, username, name) {
         };
         const nQuiz = await delResults("results");
         const nKhtn = await delResults("results_khtn");
+        const nMath = await delResults("results_math");
         const nTower = await delResults("tower");
         await remove(ref(db, "tower_active/" + keyOf(uNorm))).catch(() => {});
         await remove(ref(db, "bans/" + encodeURIComponent(uNorm))).catch(() => {});
         ovOff();
-        showToast(`✅ Đã xoá "${name}" (${nQuiz + nKhtn} kết quả + ${nTower} tháp)`);
+        showToast(`✅ Đã xoá "${name}" (${nQuiz + nKhtn + nMath} kết quả + ${nTower} tháp)`);
         await loadData();
       } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
     }, true);
@@ -1183,8 +1240,9 @@ async function viewResults(username, name) {
   $("resultsMask").classList.add("on");
   try {
     const uNorm = String(username).trim().toLowerCase();
-    const [resSnap, khtnSnap, towerSnap] = await Promise.all([
-      get(ref(db, "results")), get(ref(db, "results_khtn")), get(ref(db, "tower"))
+    const [resSnap, khtnSnap, mathSnap, towerSnap] = await Promise.all([
+      get(ref(db, "results")), get(ref(db, "results_khtn")),
+      get(ref(db, "results_math")), get(ref(db, "tower"))
     ]);
     const filterNode = (snap) => {
       const out = [];
@@ -1197,17 +1255,18 @@ async function viewResults(username, name) {
     };
     const quiz = filterNode(resSnap).sort((a, b) => ((b.time?.seconds || 0) - (a.time?.seconds || 0)));
     const khtn = filterNode(khtnSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+    const math = filterNode(mathSnap).sort((a, b) => ((b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
     const tower = filterNode(towerSnap).sort((a, b) => (b.score || 0) - (a.score || 0));
     const subjectLabel = {
       tinhoc: "💻 Tin học", gdcd: "⚖️ GDCD", english: "🇬🇧 Anh",
       diali_choice: "🌍 Địa (Khoanh)", diali_manual: "✍️ Địa (Ghi)",
       diali_memory: "🧠 Địa (Ghi nhớ)", khoahoctunhien: "🧪 KHTN",
-      congnghe: "⚙️ Công nghệ"
+      congnghe: "⚙️ Công nghệ", math: "📐 Toán"
     };
-    const renderItem = (v) => `
+    const renderItem = (v, extraLabel) => `
       <div class="result-item">
         <div>
-          <div class="subj">${subjectLabel[v.subject] || v.subject || "?"}</div>
+          <div class="subj">${subjectLabel[v.subject] || v.subject || "?"}${extraLabel ? ' <span class="mut" style="font-size:0.75rem">(' + extraLabel + ')</span>' : ''}</div>
           <div class="time">📅 ${fmtDate(v.time || v.createdAt)}${v.duration ? " · ⏱ " + fmtMsShort(v.duration) : ""}</div>
         </div>
         <div class="score">${v.score != null ? String(v.score).replace(".", ",") + "đ" : "—"}
@@ -1215,8 +1274,9 @@ async function viewResults(username, name) {
         </div>
       </div>`;
     let html = "";
-    if (quiz.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quiz.length})</h3>` + quiz.map(renderItem).join("");
-    if (khtn.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtn.length})</h3>` + khtn.map(renderItem).join("");
+    if (quiz.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📝 Luyện tập (${quiz.length})</h3>` + quiz.map(v => renderItem(v)).join("");
+    if (khtn.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🧪 KHTN (${khtn.length})</h3>` + khtn.map(v => renderItem(v)).join("");
+    if (math.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">📐 Toán (${math.length})</h3>` + math.map(v => renderItem(v, v.mode === 'master' ? 'Master' : 'Cơ bản')).join("");
     if (tower.length) html += `<h3 style="margin:16px 0 8px;color:var(--ac)">🏰 Leo tháp (${tower.length})</h3>` +
       tower.slice(0, 20).map(v => `
         <div class="result-item">
@@ -1410,6 +1470,72 @@ $("btnGiveLDM").onclick = () => {
     }, false);
 };
 
+/* ══════════════════════════════════════════════════════════════════════
+   📐 MATH PRICE MANAGEMENT
+   ══════════════════════════════════════════════════════════════════════ */
+async function loadMathPrice() {
+  try {
+    const price = await getMathPrice();
+    $("currentMathPrice").textContent = price.toLocaleString("vi-VN");
+
+    // Chỉ auto-fill input nếu input đang rỗng
+    if (!$("mathPriceInput").value) {
+      $("mathPriceInput").value = price;
+    }
+  } catch(e) {
+    console.error("[adminpanel] loadMathPrice:", e);
+    $("currentMathPrice").textContent = "Lỗi";
+  }
+}
+
+$("btnSaveMathPrice").onclick = async () => {
+  const raw = $("mathPriceInput").value.trim();
+  if (!raw) { showToast("Vui lòng nhập giá", true); return; }
+
+  const val = Number(raw);
+  if (!Number.isFinite(val) || val < 0) {
+    showToast("Giá phải là số ≥ 0", true);
+    return;
+  }
+  if (val > 100000) {
+    showToast("Giá tối đa 100.000 LDM", true);
+    return;
+  }
+
+  const price = Math.floor(val);
+  const oldPrice = await getMathPrice().catch(() => null);
+
+  if (oldPrice !== null && oldPrice === price) {
+    showToast("Giá không đổi", true);
+    return;
+  }
+
+  if (!confirm(`Đổi giá đề Toán từ ${oldPrice?.toLocaleString("vi-VN") ?? "?"} → ${price.toLocaleString("vi-VN")} LDM?`)) return;
+
+  ovOn("Đang lưu giá…");
+  try {
+    const ok = await setMathPrice(price);
+    ovOff();
+    if (ok) {
+      showToast(`✅ Đã cập nhật giá: ${price.toLocaleString("vi-VN")} LDM`);
+      await loadMathPrice();
+    } else {
+      showToast("Không thể lưu (cần quyền admin)", true);
+    }
+  } catch(e) {
+    ovOff();
+    showToast("Lỗi: " + e.message, true);
+  }
+};
+
+$("mathPriceInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    $("btnSaveMathPrice").click();
+  }
+});
+
+/* ═══ REFRESH ALL ═══ */
 $("btnRefresh").onclick = () => {
   loadData();
   loadCodes();
@@ -1417,6 +1543,7 @@ $("btnRefresh").onclick = () => {
   loadAnnouncements();
   loadProfanityStatus();
   loadGiftCodes();
+  loadMathPrice();
 };
 $("btnUnbanAll").onclick = unbanAll;
 $("btnCreateCode").onclick = createCode;
@@ -1452,7 +1579,8 @@ document.addEventListener("keydown", (e) => {
     $("panel").classList.remove("hide");
     await Promise.all([
       loadData(), loadLockStatus(), loadCodes(),
-      loadAnnouncements(), loadProfanityStatus(), loadGiftCodes()
+      loadAnnouncements(), loadProfanityStatus(), loadGiftCodes(),
+      loadMathPrice()
     ]);
   } catch (e) {
     console.error('Init failed:', e);
