@@ -393,11 +393,7 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
     <div class="mut" style="margin-bottom:16px;font-size:.85rem">
       Nhập mã do admin cấp để nhận LDM miễn phí
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input type="text" id="redeemInput" placeholder="VD: HAPPYDAY"
-             maxlength="30" autocomplete="off" spellcheck="false">
-      <button id="btnRedeem">🎁 Nhận</button>
-    </div>
+    <button id="btnRedeem" type="button" style="width:100%">🎁 Nhập mã</button>
   </div>
 
   <div class="card">
@@ -788,6 +784,50 @@ $("successMask").onclick = (e) => {
   if (e.target === $("successMask")) $("successMask").classList.remove("on");
 };
 
+/* 🎬 HIỆU ỨNG NHẬN QUÀ TẶNG (IFRAME OVERLAY) — giống profile */
+function showCollectAnim(amount, reason, balance) {
+  return new Promise((resolve) => {
+    const existing = document.getElementById("collectOverlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.id = "collectOverlay";
+    overlay.style.cssText =
+      "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity 0.25s ease;";
+
+    const iframe = document.createElement("iframe");
+    const qs = new URLSearchParams({
+      amount: String(amount),
+      reason: String(reason || "gift"),
+      balance: String(balance || 0)
+    });
+    iframe.src = "/cutscene/hieuungcollect.html?" + qs.toString();
+    iframe.style.cssText =
+      "width:100%;height:100%;border:0;background:transparent;display:block;";
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
+
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+      overlay.style.opacity = "0";
+      setTimeout(() => { overlay.remove(); resolve(); }, 250);
+    };
+    const handler = (e) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data && e.data.type === "collect:done") cleanup();
+    };
+    window.addEventListener("message", handler);
+
+    setTimeout(() => {
+      if (document.getElementById("collectOverlay")) cleanup();
+    }, 6000);
+  });
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    REDEEM GIFT CODE
    ══════════════════════════════════════════════════════════════════════ */
@@ -809,8 +849,11 @@ async function doRedeem() {
     const result = await redeemGiftCode(code, session.username);
     ovOff();
     if (result.ok) {
-      showToast(`🎉 Nhận thành công ${result.amount.toLocaleString("vi-VN")} LDM!`);
       $("redeemInput").value = "";
+      let newBal = 0;
+      try { newBal = (await loadWallet(session.username)).coins; } catch (e) {}
+      await showCollectAnim(result.amount, "gift", newBal);
+      showToast(`🎉 Nhận thành công ${result.amount.toLocaleString("vi-VN")} LDM!`);
       await refreshUI();
     } else {
       showToast("❌ " + result.reason, true);
@@ -821,10 +864,8 @@ async function doRedeem() {
   }
   btn.disabled = false;
 }
-$("btnRedeem").onclick = doRedeem;
-$("redeemInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") { e.preventDefault(); doRedeem(); }
-});
+$("btnRedeem").onclick = () => { location.href = "/codes"; };
+
 
 /* ══════════════════════════════════════════════════════════════════════
    PREVIEW IFRAME — PACK FIRE
