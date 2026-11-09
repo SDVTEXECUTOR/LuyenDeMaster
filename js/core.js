@@ -134,20 +134,8 @@ export function getViolationKey(name) { return BAN_PREFIX + "vio_" + nameHash(na
 /* ══════════════════════════════════════════════════════════════════════
    🚫 SECTION 4 — BAN LOCAL
    ══════════════════════════════════════════════════════════════════════ */
-export function checkLocalBan(name) {
-  try { return localStorage.getItem(getBanKey(name)) === "1"; }
-  catch (e) { return false; }
-}
-
-export function setLocalBan(name) {
-  try {
-    localStorage.setItem(getBanKey(name), "1");
-    const vk = getViolationKey(name);
-    const cur = parseInt(localStorage.getItem(vk) || "0", 10);
-    localStorage.setItem(vk, String(cur + 1));
-  } catch (e) {}
-}
-
+/* ⚠️ Web KHÔNG còn tự ban. Ban chỉ do ADMIN thực hiện (adminpanel → bans/<username>.isBanned).
+   Các key ban local cũ (do auto-ban trước đây) bị xoá bởi clearAllLocalBans / cleanup bên dưới. */
 export function clearAllLocalBans() {
   const ks = [];
   try {
@@ -176,15 +164,17 @@ export async function checkFirebaseBan(username) {
   } catch (e) { return false; }
 }
 
+/* Chỉ GHI NHẬN số lần vi phạm để admin tham khảo — KHÔNG đổi trạng thái ban.
+   isBanned luôn giữ nguyên giá trị hiện tại (mặc định false). */
 export async function recordFirebaseViolation(username) {
   if (!db || !username || isAdminSession()) return false;
   try {
     const banRef = ref(db, "bans/" + encodeURIComponent(String(username).toLowerCase()));
     const snap = await get(banRef);
-    const cur = snap.exists() ? (snap.val().violations || 0) : 0;
+    const cur = snap.exists() ? snap.val() : {};
     await set(banRef, {
-      isBanned: true,
-      violations: cur + 1,
+      isBanned: cur.isBanned === true,
+      violations: (cur.violations || 0) + 1,
       timestamp: Date.now()
     });
     return true;
@@ -194,8 +184,8 @@ export async function recordFirebaseViolation(username) {
   }
 }
 
+/* Chỉ đếm vi phạm (không ban, không khoá local). */
 export function recordViolation(nameOrUsername, username) {
-  setLocalBan(nameOrUsername);
   const u = username || (_session && _session.username);
   if (u) recordFirebaseViolation(u);
 }
@@ -852,6 +842,12 @@ export async function redeemGiftCode(code, username) {
       }
     }
     oldKeys.forEach(x => { try { localStorage.removeItem(x); } catch (e) {} });
+
+    // Xoá mọi ban local còn sót lại từ thời auto-ban (chạy 1 lần)
+    if (localStorage.getItem("qp_noautoban_v1") !== "done") {
+      clearAllLocalBans();
+      localStorage.setItem("qp_noautoban_v1", "done");
+    }
 
     if (localStorage.getItem("qp_unban_v1") !== "done") {
       const banKeys = [];
