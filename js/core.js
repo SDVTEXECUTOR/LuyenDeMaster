@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    🧠 CORE.JS — LOGIC DÙNG CHUNG
-   V3.2 — Thêm Math test purchase
+   V3.3 — Inline MATH_* constants (không phụ thuộc cache config.js)
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -17,10 +17,22 @@ import {
   REGISTRATION_LOCK_NODE, REGISTRATION_CODES_NODE,
   ANNOUNCEMENTS_NODE,
   BAD_WORDS, ADMIN_USER, ADMIN_LIST,
-  ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK,
-  MATH_PRICE_DEFAULT, MATH_PRICE_NODE, MATH_PACK_ID
+  ALLOWED_HOSTS, ENFORCE_DOMAIN_CHECK
 } from "./config.js";
 
+/* ══════════════════════════════════════════════════════════════════════
+   📐 MATH CONSTANTS — INLINE (tránh lỗi cache config.js cũ)
+   ══════════════════════════════════════════════════════════════════════
+   Lý do inline: nếu config.js bị browser cache bản cũ (chưa có MATH_PACK_ID),
+   core.js sẽ crash ngay lần import đầu tiên.
+   → Inline để chạy được 100% bất kể cache.
+   ══════════════════════════════════════════════════════════════════════ */
+const MATH_PRICE_DEFAULT = 75;
+const MATH_PRICE_NODE    = "config/mathPrice";
+const MATH_PACK_ID       = "math_test";
+const MATH_RESULTS_NODE  = "results_math";
+
+/* Local constants khác */
 const PROFANITY_LOCK_NODE = "config/profanityEnabled";
 const GIFT_CODES_NODE = "config/giftCodes";
 
@@ -29,7 +41,6 @@ const GIFT_CODES_NODE = "config/giftCodes";
    ────────────────────────────────────────────────────────────────────── */
 let _db = null;
 try {
-  // Dedupe: Nếu app đã được init ở file khác (như KHTN), dùng lại
   const app = getApps().length > 0 ? getApp() : initializeApp(FIREBASE_CONFIG);
   _db = getDatabase(app);
 } catch (e) {
@@ -464,7 +475,7 @@ export async function addCoins(username, amount) {
     await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
       const c = Number(cur) || 0;
       newVal = c + Number(amount);
-      if (newVal > 1000000) newVal = 1000000; // Cap 1 triệu LDM
+      if (newVal > 1000000) newVal = 1000000;
       if (newVal < 0) newVal = 0;
       return newVal;
     });
@@ -537,17 +548,11 @@ export async function setActiveBackground(username, bgId) {
 
 /* ══════════════════════════════════════════════════════════════════════
    📐 SECTION 11B — MATH TEST PURCHASE
-   ══════════════════════════════════════════════════════════════════════
-   Chức năng:
-     - Đọc / ghi giá đề Toán (default 75 LDM, admin có thể đổi)
-     - Kiểm tra user đã sở hữu "math_test" chưa
-     - Mua đề Toán: trừ LDM + thêm "math_test" vào ownedPacks
-     - Sau khi mua: /Maths và /mathematicmaster sẽ mở khoá
    ══════════════════════════════════════════════════════════════════════ */
 
 /**
  * Đọc giá đề Toán hiện tại từ config/mathPrice.
- * Nếu chưa có trong DB → trả về MATH_PRICE_DEFAULT (75 LDM).
+ * Fallback MATH_PRICE_DEFAULT (75) nếu chưa có trong DB.
  */
 export async function getMathPrice() {
   if (!db) return MATH_PRICE_DEFAULT;
@@ -576,8 +581,6 @@ export async function setMathPrice(price) {
 
 /**
  * Kiểm tra user đã mua đề Toán chưa.
- * @param {string} username
- * @returns {Promise<boolean>}
  */
 export async function checkMathOwnership(username) {
   if (!db || !username) return false;
@@ -595,12 +598,9 @@ export async function checkMathOwnership(username) {
 
 /**
  * Mua đề Toán.
- * - Kiểm tra đã sở hữu chưa → báo lỗi nếu có
+ * - Kiểm tra đã sở hữu chưa
  * - Trừ LDM theo giá hiện tại (runTransaction → an toàn race condition)
  * - Thêm MATH_PACK_ID vào ownedPacks
- *
- * @param {string} username
- * @returns {Promise<{ok: boolean, reason?: string, price?: number}>}
  */
 export async function buyMathTest(username) {
   if (!db || !username) return { ok: false, reason: "Chưa đăng nhập" };
@@ -620,7 +620,6 @@ export async function buyMathTest(username) {
       return { ok: false, reason: "Bạn đã mở khoá đề Toán rồi" };
     }
 
-    // Trừ LDM atomically
     let paid = false;
     let reason = "";
     await runTransaction(ref(db, `profiles/${k}/coins`), (cur) => {
@@ -628,7 +627,7 @@ export async function buyMathTest(username) {
       if (c < price) {
         const gap = price - c;
         reason = `Cần thêm ${gap.toLocaleString("vi-VN")} LDM nữa (hiện có ${c.toLocaleString("vi-VN")} LDM)`;
-        return c; // Không thay đổi
+        return c;
       }
       paid = true;
       return c - price;
@@ -638,7 +637,6 @@ export async function buyMathTest(username) {
       return { ok: false, reason: reason || "Không đủ LDM" };
     }
 
-    // Thêm pack vào ownedPacks
     const newOwned = [...owned, MATH_PACK_ID];
     await set(ref(db, `profiles/${k}/ownedPacks`), newOwned);
 
@@ -649,7 +647,7 @@ export async function buyMathTest(username) {
 }
 
 
-/* ✅ FIX: Bỏ check admin → Admin cũng được điểm danh +15 LDM */
+/* ✅ Admin cũng được điểm danh +15 LDM */
 export async function checkAndAwardDaily(username, amount = 15) {
   if (!db || !username) return false;
   await ensureProfile(username);
@@ -669,16 +667,13 @@ export async function checkAndAwardDaily(username, amount = 15) {
 
 /* ══════════════════════════════════════════════════════════════════════
    🪙 SECTION 12 — REWARD SYSTEM
-   ══════════════════════════════════════════════════════════════════════
-   Cấu hình phần thưởng
    ══════════════════════════════════════════════════════════════════════ */
-const QUIZ_BASE_REWARD     = 10;   // LDM mỗi bài quiz hoàn thành
-const QUIZ_PERFECT_BONUS   = 40;   // LDM cộng thêm nếu đạt 10 điểm
-const TOWER_PER_FLOOR      = 3;    // LDM mỗi tầng Tower đạt được
+const QUIZ_BASE_REWARD     = 10;
+const QUIZ_PERFECT_BONUS   = 40;
+const TOWER_PER_FLOOR      = 3;
 
 /**
- * Cộng LDM khi hoàn thành quiz
- * ✅ Admin cũng nhận LDM
+ * Cộng LDM khi hoàn thành quiz (Admin cũng nhận)
  */
 export async function awardQuizCoins(username, score) {
   if (!db || !username) return { earned: 0, balance: 0 };
@@ -699,8 +694,7 @@ export async function awardQuizCoins(username, score) {
 }
 
 /**
- * Cộng LDM khi chơi Tower
- * ✅ Admin cũng nhận LDM
+ * Cộng LDM khi chơi Tower (Admin cũng nhận)
  */
 export async function awardTowerCoins(username, floors) {
   if (!db || !username) return { earned: 0, balance: 0 };
