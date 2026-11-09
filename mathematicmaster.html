@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script>
+(function(){
+  var ALLOWED_HOSTS = ["luyendemaster.vercel.app","localhost","127.0.0.1"];
+  var h = String(location.hostname || "").toLowerCase();
+  if (ALLOWED_HOSTS.indexOf(h) === -1) {
+    document.write('<!doctype html><html><head><meta charset="utf-8"><title>Chặn</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-family:sans-serif;text-align:center;padding:24px"><div><div style="font-size:5rem">🚨</div><h1 style="color:#f87171">ĐỪNG ĂN CẮP BRO!</h1><p style="color:#94a3b8;max-width:500px;line-height:1.6">Trang web chỉ được phép hoạt động tại https://luyendemaster.vercel.app</p></div></body></html>');
+    document.close(); throw new Error("DOMAIN_NOT_ALLOWED");
+  }
+})();
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📐 Toán Master · Luyện Đề Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/theme.css">
+<style>
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.55;
+  background-image: radial-gradient(circle at 10% 20%, rgba(37,99,235,.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(124,58,237,.05) 0%, transparent 40%);
+  background-attachment: fixed; min-height: 100vh;
+}
+main { max-width: 860px; margin: 0 auto; padding: 20px 16px 120px; }
+.hide { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOADING
+   ══════════════════════════════════════════════════════════════════════ */
+.loading-wrap { text-align: center; padding: 60px 24px; }
+.spinner {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 3px solid var(--ln); border-top-color: var(--ac);
+  animation: spin .8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOCK SCREEN
+   ══════════════════════════════════════════════════════════════════════ */
+.lock-screen {
+  text-align: center; padding: 48px 24px;
+  background: var(--card); border: 1px solid var(--ln); border-radius: 20px;
+  box-shadow: var(--shadow); max-width: 460px; margin: 40px auto;
+}
+.lock-screen .icon {
+  font-size: 5rem; margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px rgba(245,158,11,.3));
+  animation: lockPulse 2s ease-in-out infinite;
+}
+@keyframes lockPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.lock-screen h1 { font-size: 1.65rem; font-weight: 800; color: var(--warn); margin: 0 0 12px; }
+.lock-screen p.desc {
+  color: var(--mut); font-size: 0.92rem; line-height: 1.7;
+  max-width: 340px; margin: 0 auto 20px;
+}
+.lock-screen .price-box {
+  display: inline-block; padding: 16px 32px;
+  background: var(--warns); border-radius: 14px;
+  margin-bottom: 20px; border: 2px solid var(--warn);
+}
+.lock-screen .price { font-size: 2.2rem; font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -.02em; }
+.lock-screen .price small { font-size: 0.85rem; color: var(--mut); font-weight: 600; margin-left: 6px; }
+.lock-screen .balance-info { color: var(--mut); font-size: 0.88rem; margin-bottom: 20px; }
+.lock-screen .balance-info b { color: var(--gold); }
+.lock-screen .lock-btn {
+  padding: 14px 32px; font-size: 1rem;
+  background: linear-gradient(135deg, #f59e0b, #dc2626);
+  box-shadow: 0 6px 20px rgba(220,38,38,.35);
+  border: 0; color: #fff; border-radius: 12px;
+  font-weight: 800; cursor: pointer; transition: all .2s;
+}
+.lock-screen .lock-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+.lock-screen .lock-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.lock-screen .extra-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   START SCREEN
+   ══════════════════════════════════════════════════════════════════════ */
+.start-card {
+  background: var(--card); border: 1px solid var(--ln); border-radius: 20px;
+  padding: 40px 24px; text-align: center;
+  box-shadow: var(--shadow); max-width: 500px; margin: 40px auto;
+}
+.start-card .icon { font-size: 4rem; margin-bottom: 12px; }
+.start-card h1 { font-size: 1.6rem; font-weight: 900; margin: 0 0 8px; color: var(--ac); }
+.start-card .sub { color: var(--mut); font-size: 0.9rem; margin-bottom: 20px; }
+.start-card .stats {
+  display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+  margin: 20px 0 24px; padding: 16px;
+  background: var(--acs); border-radius: 12px;
+}
+.start-card .stats > div { text-align: center; }
+.start-card .stats .v { font-size: 1.4rem; font-weight: 800; color: var(--ac); }
+.start-card .stats .l { font-size: 0.75rem; color: var(--mut); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.start-card .start-btn {
+  width: 100%; max-width: 320px; padding: 16px; font-size: 1.05rem;
+  background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff;
+  border: 0; border-radius: 12px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37,99,235,.4);
+  transition: all .2s;
+}
+.start-card .start-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.start-card .link-back {
+  display: inline-block; margin-top: 16px; padding: 10px 20px;
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  color: var(--fg); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+  transition: all .2s;
+}
+.start-card .link-back:hover { background: var(--acs); border-color: var(--ac); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   STICKY HEADER
+   ══════════════════════════════════════════════════════════════════════ */
+.sticky-head {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  border: 1px solid var(--ln); border-radius: 16px;
+  padding: 12px 16px; margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.sticky-head .top {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap;
+}
+.sticky-head .info { flex: 1; min-width: 0; }
+.sticky-head .title { font-weight: 800; color: var(--ac); font-size: 1rem; }
+.sticky-head .user { font-size: 0.78rem; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sticky-head .timer {
+  font-weight: 800; font-size: 1.05rem; color: var(--ac);
+  font-variant-numeric: tabular-nums;
+  background: var(--acs); padding: 6px 14px; border-radius: 99px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sticky-head .progress-bar {
+  height: 6px; background: var(--ln); border-radius: 3px;
+  overflow: hidden; margin-top: 10px;
+}
+.sticky-head .progress-bar > i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--ac), #60a5fa);
+  transition: width .3s ease;
+}
+.sticky-head .progress-txt {
+  font-size: 0.78rem; color: var(--mut); font-weight: 600;
+  margin-top: 6px; text-align: right;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PART HEADERS
+   ══════════════════════════════════════════════════════════════════════ */
+.part-title {
+  background: linear-gradient(135deg, var(--acs), transparent);
+  color: var(--ac); font-weight: 800; font-size: 1rem;
+  padding: 14px 20px; border-radius: 12px;
+  margin: 24px 0 16px;
+  border-left: 4px solid var(--ac);
+  letter-spacing: .02em;
+}
+.part-title:first-of-type { margin-top: 0; }
+.part-title .cnt {
+  float: right; font-size: 0.82rem;
+  background: var(--ac); color: #fff;
+  padding: 2px 10px; border-radius: 99px; font-weight: 700;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   QUESTION CARD
+   ══════════════════════════════════════════════════════════════════════ */
+.q-card {
+  background: var(--card); border: 1px solid var(--ln); border-radius: 16px;
+  padding: 20px; margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  transition: border-color .2s;
+}
+.q-card:focus-within { border-color: var(--ac); }
+.q-card.done { border-color: var(--ok); background: rgba(34,197,94,.02); }
+
+.q-head {
+  font-size: 1rem; font-weight: 600; line-height: 1.55;
+  margin-bottom: 12px;
+}
+.q-head .num { color: var(--ac); font-weight: 800; margin-right: 4px; }
+.q-head b { color: var(--fg); }
+.q-note {
+  font-size: 0.82rem; color: var(--mut); font-style: italic;
+  padding: 8px 12px; background: var(--acs); border-radius: 8px;
+  margin-bottom: 12px; border-left: 3px solid var(--ac);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   OPTION (MCQ)
+   ══════════════════════════════════════════════════════════════════════ */
+.opt {
+  display: flex; gap: 12px; align-items: flex-start;
+  border: 1.5px solid var(--ln); border-radius: 12px;
+  padding: 12px 16px; margin: 8px 0;
+  cursor: pointer; background: rgba(255,255,255,.4);
+  transition: all .15s;
+}
+.opt:hover { border-color: var(--ac); background: var(--acs); }
+.opt input[type=radio] {
+  flex: none; margin-top: 4px;
+  width: 18px; height: 18px;
+  accent-color: var(--ac); cursor: pointer;
+}
+.opt span { flex: 1; line-height: 1.5; font-size: 0.94rem; }
+.opt span b { color: var(--ac); margin-right: 4px; }
+.opt.sel { border-color: var(--ac); background: var(--acs); }
+.opt.correct { border-color: var(--ok); background: var(--oks); }
+.opt.correct span b { color: var(--ok); }
+.opt.wrong { border-color: var(--bad); background: var(--bads); }
+.opt.wrong span b { color: var(--bad); }
+.opt.review { cursor: default; opacity: 0.95; }
+.opt.review:hover { transform: none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUB QUESTION
+   ══════════════════════════════════════════════════════════════════════ */
+.sub {
+  border-top: 1px dashed var(--ln);
+  padding-top: 14px; margin-top: 14px;
+}
+.sub:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+.sub-label {
+  font-weight: 600; font-size: 0.94rem;
+  margin-bottom: 10px; color: var(--fg);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   INPUTS
+   ══════════════════════════════════════════════════════════════════════ */
+input[type=text] {
+  font: inherit; font-size: 0.95rem;
+  padding: 10px 14px;
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  background: rgba(255,255,255,.6); color: var(--fg);
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type=text]:focus {
+  outline: none; border-color: var(--ac);
+  box-shadow: 0 0 0 3px var(--acs);
+}
+input[type=text].correct { border-color: var(--ok); background: var(--oks); }
+input[type=text].wrong { border-color: var(--bad); background: var(--bads); }
+
+.num-input { max-width: 200px; }
+.pair-wrap { display: flex; gap: 10px; flex-wrap: wrap; }
+.pair-wrap > div { flex: 1; min-width: 130px; max-width: 220px; }
+.pair-wrap label {
+  display: block; font-size: 0.78rem; color: var(--mut);
+  font-weight: 600; margin-bottom: 4px; text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPARE BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+.cmp-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+.cmp-btn {
+  min-width: 64px; padding: 10px 20px;
+  background: var(--card); color: var(--fg);
+  border: 1.5px solid var(--ln); border-radius: 10px;
+  font-weight: 800; font-size: 1.1rem;
+  cursor: pointer; transition: all .15s;
+}
+.cmp-btn:hover { background: var(--acs); border-color: var(--ac); }
+.cmp-btn.sel { background: var(--ac); color: #fff; border-color: var(--ac); }
+.cmp-btn.correct { background: var(--ok); color: #fff; border-color: var(--ok); }
+.cmp-btn.wrong { background: var(--bad); color: #fff; border-color: var(--bad); }
+.cmp-btn.review { cursor: default; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUBMIT BAR (fixed bottom)
+   ══════════════════════════════════════════════════════════════════════ */
+.submit-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+  background: var(--card); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  border-top: 1px solid var(--ln);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; justify-content: center; gap: 12px; align-items: center;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+}
+.submit-bar .progress-info { font-weight: 700; color: var(--ac); font-size: 0.9rem; }
+.submit-bar button {
+  padding: 12px 28px; font-size: 1rem;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff; border: 0; border-radius: 10px;
+  font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(34,197,94,.4);
+  transition: all .2s;
+}
+.submit-bar button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.submit-bar button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESULT SCREEN
+   ══════════════════════════════════════════════════════════════════════ */
+.result-card {
+  background: var(--card); border: 1px solid var(--ln); border-radius: 20px;
+  padding: 36px 24px; text-align: center;
+  box-shadow: var(--shadow); max-width: 560px; margin: 20px auto;
+}
+.result-card .icon { font-size: 3.5rem; margin-bottom: 8px; }
+.result-card .score {
+  font-size: 4.5rem; font-weight: 900; line-height: 1;
+  letter-spacing: -.03em;
+  background: linear-gradient(135deg, var(--ac), #7c3aed);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.result-card .score small {
+  font-size: 1.2rem; font-weight: 600;
+  color: var(--mut);
+  -webkit-text-fill-color: var(--mut);
+}
+.result-card .r-who { color: var(--mut); font-size: 0.88rem; margin-bottom: 20px; }
+.result-card .stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.result-card .stats > div {
+  background: var(--acs); border-radius: 12px;
+  padding: 14px 12px;
+}
+.result-card .stats .v { font-size: 1.4rem; font-weight: 800; color: var(--ac); }
+.result-card .stats .l {
+  font-size: 0.72rem; color: var(--mut); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .05em;
+  margin-top: 2px;
+}
+.result-card .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.result-card .actions button, .result-card .actions a {
+  padding: 12px 24px; border-radius: 10px;
+  font-weight: 700; font-size: 0.92rem;
+  border: 0; cursor: pointer; text-decoration: none;
+  transition: all .2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.result-card .actions .pri { background: var(--ac); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.3); }
+.result-card .actions .pri:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.result-card .actions .g { background: transparent; color: var(--fg); border: 1.5px solid var(--ln); }
+.result-card .actions .g:hover { background: var(--acs); border-color: var(--ac); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   REVIEW SECTION
+   ══════════════════════════════════════════════════════════════════════ */
+.review-section {
+  margin-top: 24px;
+}
+.review-item {
+  background: var(--card); border: 1px solid var(--ln);
+  border-radius: 14px; padding: 18px;
+  margin-bottom: 12px;
+}
+.review-item.ok { border-left: 4px solid var(--ok); }
+.review-item.bad { border-left: 4px solid var(--bad); }
+.review-item.partial { border-left: 4px solid var(--warn); }
+.review-head {
+  font-weight: 700; font-size: 0.95rem;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.review-badge {
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.review-badge.ok { background: var(--oks); color: var(--ok); }
+.review-badge.bad { background: var(--bads); color: var(--bad); }
+.review-badge.partial { background: var(--warns); color: var(--warn); }
+.review-qtext {
+  font-size: 0.92rem; margin-bottom: 10px;
+  color: var(--fg); font-weight: 600; line-height: 1.5;
+}
+.review-answer {
+  padding: 10px 14px; border-radius: 10px;
+  font-size: 0.88rem; margin-top: 8px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline;
+}
+.review-answer.user { background: var(--acs); border-left: 3px solid var(--ac); }
+.review-answer.correct { background: var(--oks); border-left: 3px solid var(--ok); }
+.review-answer .lbl { font-weight: 700; color: var(--mut); }
+.review-answer .val { font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════════════════════════════ */
+.toast {
+  position: fixed; top: 24px; left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--ok); color: #fff;
+  padding: 12px 24px; border-radius: 99px;
+  font-weight: 600; box-shadow: 0 8px 24px rgba(22,163,74,.3);
+  z-index: 150; transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+  max-width: 90vw; text-align: center; font-size: 0.9rem;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--bad); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   OVERLAY
+   ══════════════════════════════════════════════════════════════════════ */
+#ov {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center;
+  background: rgba(15,23,42,.7); backdrop-filter: blur(6px);
+}
+#ov.hide { display: none; }
+#ov .lbox {
+  background: var(--card); border: 1px solid var(--ln);
+  border-radius: 16px; padding: 32px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; min-width: 220px;
+}
+#ov .lbox .spinner { margin: 0; width: 40px; height: 40px; }
+#ov .lbox .txt { font-weight: 600; font-size: 0.92rem; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  main { padding: 16px 12px 120px; }
+  .q-card { padding: 16px; }
+  .q-head { font-size: 0.94rem; }
+  .opt span { font-size: 0.9rem; }
+  .sticky-head { padding: 10px 12px; margin-bottom: 14px; }
+  .sticky-head .title { font-size: 0.9rem; }
+  .sticky-head .timer { font-size: 0.95rem; padding: 5px 12px; }
+  .result-card { padding: 28px 18px; }
+  .result-card .score { font-size: 3.2rem; }
+  .part-title { font-size: 0.92rem; padding: 12px 16px; }
+  .pair-wrap > div { min-width: 100px; max-width: 100%; }
+  .submit-bar { padding: 10px 12px; }
+  .submit-bar button { padding: 11px 20px; font-size: 0.92rem; }
+  .submit-bar .progress-info { font-size: 0.82rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="toast" id="toast"></div>
+
+<main>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       LOADING
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="loading" class="loading-wrap">
+    <div class="spinner"></div>
+    <div style="color:var(--mut);font-weight:600">Đang tải đề Master…</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       LOCKED
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="locked" class="hide">
+    <div class="lock-screen">
+      <div class="icon">🔒</div>
+      <h1>Chưa mở khoá đề Toán</h1>
+      <p class="desc">Mua đề Toán 9 để làm bài Master — 21 câu (12 trắc nghiệm + 9 tự luận) và nhận điểm tự động.</p>
+      <div class="price-box">
+        <div class="price" id="lockPrice">— <small>LDM</small></div>
+      </div>
+      <div class="balance-info">Số dư của bạn: <b id="lockBalance">— LDM</b></div>
+      <button class="lock-btn" id="btnBuyMath">🔥 Mua ngay</button>
+      <div class="extra-actions">
+        <a class="btn g" href="/shop" style="padding:10px 20px;border:1.5px solid var(--ln);border-radius:10px;color:var(--fg);text-decoration:none;font-size:.85rem;font-weight:600">💰 Nạp LDM</a>
+        <a class="btn g" href="/" style="padding:10px 20px;border:1.5px solid var(--ln);border-radius:10px;color:var(--fg);text-decoration:none;font-size:.85rem;font-weight:600">← Trang chủ</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       START
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="start" class="hide">
+    <div class="start-card">
+      <div class="icon">📐</div>
+      <h1>Toán 9 — Master Mode</h1>
+      <div class="sub" id="startSub">21 câu · 12 trắc nghiệm + 9 tự luận</div>
+      <div class="stats">
+        <div>
+          <div class="v" id="startTotalQ">—</div>
+          <div class="l">Câu hỏi</div>
+        </div>
+        <div>
+          <div class="v">10</div>
+          <div class="l">Điểm tối đa</div>
+        </div>
+        <div>
+          <div class="v" id="startBestScore">—</div>
+          <div class="l">Điểm cao nhất</div>
+        </div>
+      </div>
+      <button class="start-btn" id="btnStart">Bắt đầu làm bài</button>
+      <a class="link-back" href="/Maths">← Xem đề gốc</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       STICKY HEADER
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="sticky-head hide" id="stickyHead">
+    <div class="top">
+      <div class="info">
+        <div class="title">📐 Toán 9 · Master</div>
+        <div class="user" id="userInfo"></div>
+      </div>
+      <div class="timer" id="timer">⏱ 00:00</div>
+    </div>
+    <div class="progress-bar"><i id="progressFill"></i></div>
+    <div class="progress-txt" id="progressTxt">0/21 câu đã làm</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       EXAM
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="exam" class="hide">
+    <!-- Part I -->
+    <div class="part-title">
+      Phần I — Trắc nghiệm
+      <span class="cnt" id="partICount"></span>
+    </div>
+    <div id="part1Wrap"></div>
+
+    <!-- Part II -->
+    <div class="part-title">
+      Phần II — Tự luận
+      <span class="cnt" id="partIICount"></span>
+    </div>
+    <div id="part2Wrap"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       RESULT
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="result" class="hide">
+    <div class="result-card">
+      <div class="icon" id="resultIcon">🎉</div>
+      <div class="score"><span id="resultScore">0</span><small> / 10</small></div>
+      <div class="r-who" id="resultWho"></div>
+      <div class="stats">
+        <div>
+          <div class="v" id="resultCorrect">—</div>
+          <div class="l">Câu đúng</div>
+        </div>
+        <div>
+          <div class="v" id="resultTime">—</div>
+          <div class="l">Thời gian</div>
+        </div>
+        <div>
+          <div class="v" id="resultTotal">—</div>
+          <div class="l">Tổng câu</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="pri" id="btnToggleReview">📖 Xem chi tiết</button>
+        <a class="g" href="/">🏠 Về trang chủ</a>
+      </div>
+    </div>
+
+    <div id="reviewSection" class="review-section hide"></div>
+  </div>
+
+</main>
+
+<!-- Submit bar -->
+<div class="submit-bar hide" id="submitBar">
+  <span class="progress-info" id="submitProgress">0/21 câu</span>
+  <button id="btnSubmit">📤 Nộp bài</button>
+</div>
+
+<!-- Overlay -->
+<div id="ov" class="hide">
+  <div class="lbox">
+    <div class="spinner"></div>
+    <div class="txt" id="ovtxt">Đang xử lý…</div>
+  </div>
+</div>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════════════════
+   IMPORTS
+   ══════════════════════════════════════════════════════════════════════ */
+const BUILD_V = Date.now();
+let core, mathData, firebaseDb;
+
+try {
+  core = await import(`/js/core.js?v=${BUILD_V}`);
+  mathData = await import(`/js/data/math.js?v=${BUILD_V}`);
+  firebaseDb = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+} catch (e) {
+  console.error('[MathMaster] import failed:', e);
+  document.getElementById('loading').innerHTML = `
+    <div style="color:var(--bad);padding:40px;text-align:center">
+      <div style="font-size:3rem">⚠️</div>
+      <div style="font-weight:700;margin-top:12px">Không tải được module</div>
+      <div style="color:var(--mut);font-size:.85rem;margin-top:8px">${e.message}</div>
+    </div>`;
+  throw e;
+}
+
+const {
+  db,
+  loadSession,
+  checkMathOwnership,
+  getMathPrice,
+  buyMathTest,
+  getUserCoins,
+  awardQuizCoins,
+  checkProfanity
+} = core;
+
+const { MATH_PART_I, MATH_PART_II } = mathData;
+const { ref, push, set, get, serverTimestamp } = firebaseDb;
+
+/* ══════════════════════════════════════════════════════════════════════
+   CONSTANTS & SESSION
+   ══════════════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const L = "ABCD";
+const STATE_KEY = "qp_math_master_state_v1";
+const TOTAL_Q = MATH_PART_I.length + MATH_PART_II.length;
+const MAX_SCORE = 10;
+
+let session = null;
+try { session = loadSession() || JSON.parse(localStorage.getItem("qp_session_v2") || "null"); } catch(e){}
+
+if (!session || !session.username) {
+  location.replace("/");
+  throw new Error("NO_SESSION");
+}
+
+if (typeof checkProfanity === "function" && checkProfanity(session.name)) {
+  document.body.innerHTML = `
+    <div style="padding:80px 24px;text-align:center;font-family:system-ui">
+      <div style="font-size:4rem">🚫</div>
+      <h1 style="color:#ef4444;margin:12px 0">Tài khoản đã bị khóa</h1>
+      <p style="color:#64748b">Vui lòng liên hệ admin.</p>
+      <a href="/" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">← Về trang chủ</a>
+    </div>`;
+  throw new Error("BANNED");
+}
+
+const isAdmin = session.isAdmin === true;
+
+/* ══════════════════════════════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s || "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])
+  );
+}
+function fmtTime(ms) {
+  const m = Math.floor(ms / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+function fmtScore(x) {
+  return String(x).replace(".", ",");
+}
+function showToast(msg, isErr) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isErr ? " error" : "");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove("show"), 3500);
+}
+function ovOn(t) { $("ovtxt").textContent = t || "Đang xử lý…"; $("ov").classList.remove("hide"); }
+function ovOff() { $("ov").classList.add("hide"); }
+
+/* Parse số / phân số */
+function parseFrac(s) {
+  s = String(s || "").trim().replace(/,/g, ".").replace(/\s+/g, "");
+  if (!s) return NaN;
+  // Xoá tiền tố "x=" hoặc "y="
+  s = s.replace(/^[a-zA-Z]\s*=\s*/, "");
+  if (s.includes("/")) {
+    const parts = s.split("/");
+    if (parts.length === 2) {
+      const a = Number(parts[0]), b = Number(parts[1]);
+      if (!isNaN(a) && !isNaN(b) && b !== 0) return a / b;
+    }
+  }
+  return Number(s);
+}
+
+/* Parse nhiều nghiệm: "4; -6" hoặc "4 -6" */
+function parseSolutions(s) {
+  s = String(s || "").trim();
+  if (!s) return [];
+  let parts;
+  if (s.includes(";")) parts = s.split(";");
+  else if (s.includes(",")) parts = s.split(",");
+  else parts = s.split(/\s+/);
+  return parts
+    .map(p => p.trim())
+    .filter(Boolean)
+    .map(p => parseFrac(p.replace(/^[a-zA-Z]\s*=\s*/, "")))
+    .filter(n => !isNaN(n))
+    .sort((a, b) => a - b);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════════════════ */
+let state = {
+  t0: 0,
+  submitted: false
+};
+let timerInterval = null;
+let saveTimeout = null;
+
+function debounceSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveState, 600);
+}
+
+function saveState() {
+  if (!state.t0 || state.submitted) return;
+  try {
+    const snapshot = {
+      u: session.username,
+      t0: state.t0,
+      p1: collectPart1(),
+      p2: collectPart2()
+    };
+    sessionStorage.setItem(STATE_KEY, JSON.stringify(snapshot));
+  } catch(e) { console.warn("[save]", e); }
+}
+
+function loadSavedState() {
+  try {
+    const raw = JSON.parse(sessionStorage.getItem(STATE_KEY) || "null");
+    if (!raw) return null;
+    if (raw.u !== session.username) return null;
+    if (!raw.t0 || !Array.isArray(raw.p1)) return null;
+    return raw;
+  } catch(e) { return null; }
+}
+
+function clearSavedState() {
+  try { sessionStorage.removeItem(STATE_KEY); } catch(e){}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COLLECT ANSWERS
+   ══════════════════════════════════════════════════════════════════════ */
+function collectPart1() {
+  return MATH_PART_I.map((_, i) => {
+    const el = document.querySelector(`input[name="p1-${i}"]:checked`);
+    return el ? +el.value : -1;
+  });
+}
+
+function collectPart2() {
+  return MATH_PART_II.map((q, qi) =>
+    q.subs.map((sub, si) => {
+      const id = `p2-${qi}-${si}`;
+      if (sub.type === "mcq") {
+        const el = document.querySelector(`input[name="${id}"]:checked`);
+        return el ? +el.value : -1;
+      }
+      if (sub.type === "cmp") {
+        const btn = document.querySelector(`.cmp-btn.sel[data-id="${id}"]`);
+        return btn ? btn.dataset.v : null;
+      }
+      if (sub.type === "pair") {
+        const inputs = document.querySelectorAll(`input[data-id="${id}"]`);
+        return Array.from(inputs).map(inp => inp.value.trim());
+      }
+      const inp = document.querySelector(`input[data-id="${id}"]`);
+      return inp ? inp.value.trim() : "";
+    })
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════════════════════════════════ */
+function renderExam() {
+  renderPart1();
+  renderPart2();
+  $("partICount").textContent = `${MATH_PART_I.length} câu`;
+  $("partIICount").textContent = `${MATH_PART_II.length} câu`;
+}
+
+function renderPart1() {
+  const wrap = $("part1Wrap");
+  wrap.innerHTML = MATH_PART_I.map((q, i) => `
+    <div class="q-card" data-qi="p1-${i}">
+      <div class="q-head"><span class="num">Câu ${i+1}.</span> ${q.q}</div>
+      <div class="opts">
+        ${q.options.map((opt, k) => `
+          <label class="opt" data-v="${k}">
+            <input type="radio" name="p1-${i}" value="${k}" data-id="p1-${i}">
+            <span><b>${L[k]}.</b> ${opt}</span>
+          </label>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  // Attach handlers
+  MATH_PART_I.forEach((_, i) => {
+    document.querySelectorAll(`input[name="p1-${i}"]`).forEach(inp => {
+      inp.onchange = () => {
+        document.querySelectorAll(`input[name="p1-${i}"]`).forEach(x => {
+          x.closest(".opt").classList.toggle("sel", x.checked);
+        });
+        updateProgress();
+        debounceSave();
+      };
+    });
+  });
+}
+
+function renderPart2() {
+  const wrap = $("part2Wrap");
+  wrap.innerHTML = MATH_PART_II.map((q, qi) => `
+    <div class="q-card" data-qi="p2-${qi}">
+      <div class="q-head"><span class="num">Câu ${q.id}.</span> ${q.intro}</div>
+      ${q.note ? `<div class="q-note">💡 ${q.note}</div>` : ""}
+      ${q.subs.map((sub, si) => renderSub(qi, si, sub)).join("")}
+    </div>
+  `).join("");
+
+  // Attach handlers
+  MATH_PART_II.forEach((q, qi) => {
+    q.subs.forEach((sub, si) => {
+      const id = `p2-${qi}-${si}`;
+      if (sub.type === "mcq") {
+        document.querySelectorAll(`input[name="${id}"]`).forEach(inp => {
+          inp.onchange = () => {
+            document.querySelectorAll(`input[name="${id}"]`).forEach(x => {
+              x.closest(".opt").classList.toggle("sel", x.checked);
+            });
+            updateProgress();
+            debounceSave();
+          };
+        });
+      } else if (sub.type === "cmp") {
+        const btns = document.querySelectorAll(`.cmp-btn[data-id="${id}"]`);
+        btns.forEach(btn => {
+          btn.onclick = () => {
+            btns.forEach(b => b.classList.toggle("sel", b === btn));
+            updateProgress();
+            debounceSave();
+          };
+        });
+      } else {
+        // num / solutions / pair
+        document.querySelectorAll(`input[data-id="${id}"]`).forEach(inp => {
+          inp.oninput = () => {
+            updateProgress();
+            debounceSave();
+          };
+        });
+      }
+    });
+  });
+}
+
+function renderSub(qi, si, sub) {
+  const id = `p2-${qi}-${si}`;
+
+  if (sub.type === "mcq") {
+    return `<div class="sub">
+      <div class="sub-label">▸ ${sub.q}</div>
+      ${sub.options.map((opt, k) => `
+        <label class="opt" data-v="${k}">
+          <input type="radio" name="${id}" value="${k}" data-id="${id}">
+          <span><b>${L[k]}.</b> ${opt}</span>
+        </label>
+      `).join("")}
+    </div>`;
+  }
+
+  if (sub.type === "cmp") {
+    return `<div class="sub">
+      <div class="sub-label">▸ ${sub.q}</div>
+      <div class="cmp-wrap">
+        <button type="button" class="cmp-btn" data-id="${id}" data-v="&lt;">&lt;</button>
+        <button type="button" class="cmp-btn" data-id="${id}" data-v="&gt;">&gt;</button>
+        <button type="button" class="cmp-btn" data-id="${id}" data-v="=">=</button>
+      </div>
+    </div>`;
+  }
+
+  if (sub.type === "num") {
+    return `<div class="sub">
+      <div class="sub-label">▸ ${sub.q}</div>
+      <input type="text" class="num-input" data-id="${id}" placeholder="Nhập số..." inputmode="decimal" autocomplete="off" spellcheck="false">
+    </div>`;
+  }
+
+  if (sub.type === "pair") {
+    return `<div class="sub">
+      <div class="sub-label">▸ ${sub.q}</div>
+      <div class="pair-wrap">
+        ${sub.labels.map((lb, k) => `
+          <div>
+            <label>${lb}</label>
+            <input type="text" data-id="${id}" data-k="${k}" placeholder="..." inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        `).join("")}
+      </div>
+    </div>`;
+  }
+
+  if (sub.type === "solutions") {
+    return `<div class="sub">
+      <div class="sub-label">▸ ${sub.q}</div>
+      <input type="text" data-id="${id}" placeholder="Nghiệm (VD: 4; -6). Nhiều nghiệm cách nhau bởi dấu ;" autocomplete="off" spellcheck="false">
+    </div>`;
+  }
+
+  return "";
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESTORE ANSWERS
+   ══════════════════════════════════════════════════════════════════════ */
+function restoreState(saved) {
+  if (!saved) return;
+
+  // Part I
+  (saved.p1 || []).forEach((v, i) => {
+    if (v >= 0) {
+      const el = document.querySelector(`input[name="p1-${i}"][value="${v}"]`);
+      if (el) {
+        el.checked = true;
+        el.closest(".opt").classList.add("sel");
+      }
+    }
+  });
+
+  // Part II
+  (saved.p2 || []).forEach((subs, qi) => {
+    if (!Array.isArray(subs)) return;
+    subs.forEach((v, si) => {
+      const sub = MATH_PART_II[qi]?.subs?.[si];
+      if (!sub) return;
+      const id = `p2-${qi}-${si}`;
+
+      if (sub.type === "mcq" && v >= 0) {
+        const el = document.querySelector(`input[name="${id}"][value="${v}"]`);
+        if (el) {
+          el.checked = true;
+          el.closest(".opt").classList.add("sel");
+        }
+      } else if (sub.type === "cmp" && v) {
+        const btn = document.querySelector(`.cmp-btn[data-id="${id}"][data-v="${v}"]`);
+        if (btn) btn.classList.add("sel");
+      } else if (sub.type === "pair" && Array.isArray(v)) {
+        const inputs = document.querySelectorAll(`input[data-id="${id}"]`);
+        v.forEach((val, k) => {
+          if (inputs[k] && val) inputs[k].value = val;
+        });
+      } else if (v) {
+        const inp = document.querySelector(`input[data-id="${id}"]`);
+        if (inp) inp.value = v;
+      }
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PROGRESS
+   ══════════════════════════════════════════════════════════════════════ */
+function isPart1Answered(i) {
+  return !!document.querySelector(`input[name="p1-${i}"]:checked`);
+}
+
+function isPart2QuestionAnswered(qi) {
+  const q = MATH_PART_II[qi];
+  return q.subs.every((sub, si) => {
+    const id = `p2-${qi}-${si}`;
+    if (sub.type === "mcq") return !!document.querySelector(`input[name="${id}"]:checked`);
+    if (sub.type === "cmp") return !!document.querySelector(`.cmp-btn.sel[data-id="${id}"]`);
+    if (sub.type === "pair") {
+      const inputs = document.querySelectorAll(`input[data-id="${id}"]`);
+      return Array.from(inputs).every(inp => inp.value.trim() !== "");
+    }
+    const inp = document.querySelector(`input[data-id="${id}"]`);
+    return inp && inp.value.trim() !== "";
+  });
+}
+
+function countAnswered() {
+  let n = 0;
+  MATH_PART_I.forEach((_, i) => { if (isPart1Answered(i)) n++; });
+  MATH_PART_II.forEach((_, qi) => { if (isPart2QuestionAnswered(qi)) n++; });
+  return n;
+}
+
+function updateProgress() {
+  if (state.submitted) return;
+  const done = countAnswered();
+  const pct = (done / TOTAL_Q) * 100;
+  $("progressFill").style.width = pct + "%";
+  $("progressTxt").textContent = `${done}/${TOTAL_Q} câu đã làm`;
+  $("submitProgress").textContent = `${done}/${TOTAL_Q} câu`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   GRADING
+   ══════════════════════════════════════════════════════════════════════ */
+function checkSub(sub, val) {
+  if (val === null || val === undefined) return false;
+
+  if (sub.type === "mcq") return val === sub.answer;
+  if (sub.type === "cmp") return val === sub.answer;
+
+  if (sub.type === "num") {
+    const n = parseFrac(val);
+    if (isNaN(n)) return false;
+    const tol = sub.tolerance ?? 0.01;
+    return Math.abs(n - sub.answer) <= tol;
+  }
+
+  if (sub.type === "pair") {
+    if (!Array.isArray(val) || val.length !== sub.answer.length) return false;
+    const tol = sub.tolerance ?? 0.01;
+    return val.every((v, k) => {
+      const n = parseFrac(v);
+      if (isNaN(n)) return false;
+      return Math.abs(n - sub.answer[k]) <= tol;
+    });
+  }
+
+  if (sub.type === "solutions") {
+    const userSols = parseSolutions(val);
+    const correct = [...sub.answers].sort((a, b) => a - b);
+    if (userSols.length !== correct.length) return false;
+    const tol = sub.tolerance ?? 0.01;
+    return userSols.every((v, k) => Math.abs(v - correct[k]) <= tol);
+  }
+
+  return false;
+}
+
+function gradeAll() {
+  const p1 = collectPart1();
+  const p2 = collectPart2();
+
+  let poolPoints = 0;      // tổng điểm thô (0 → TOTAL_Q)
+  let correctCount = 0;    // số câu đúng hoàn toàn
+
+  // Part I: mỗi câu 1 điểm
+  MATH_PART_I.forEach((q, i) => {
+    if (p1[i] === q.answer) {
+      poolPoints += 1;
+      correctCount++;
+    }
+  });
+
+  // Part II: mỗi câu chia đều cho subs
+  MATH_PART_II.forEach((q, qi) => {
+    const subPts = 1 / q.subs.length;
+    let allOk = true;
+    q.subs.forEach((sub, si) => {
+      if (checkSub(sub, p2[qi]?.[si])) {
+        poolPoints += subPts;
+      } else {
+        allOk = false;
+      }
+    });
+    if (allOk) correctCount++;
+  });
+
+  const score = Math.round((poolPoints / TOTAL_Q) * MAX_SCORE * 100) / 100;
+  return { poolPoints, correctCount, score, p1, p2 };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUBMIT
+   ══════════════════════════════════════════════════════════════════════ */
+async function doSubmit() {
+  if (state.submitted) return;
+
+  const done = countAnswered();
+  const left = TOTAL_Q - done;
+  const msg = left
+    ? `Còn ${left} câu chưa làm (tính là sai). Nộp bài?`
+    : `Đã làm đủ ${TOTAL_Q} câu. Nộp bài?`;
+  if (!confirm(msg)) return;
+
+  state.submitted = true;
+  clearInterval(timerInterval);
+  const elapsed = Date.now() - state.t0;
+
+  $("btnSubmit").disabled = true;
+  $("btnSubmit").textContent = "Đang chấm…";
+
+  const result = gradeAll();
+  const { score, correctCount, p1, p2 } = result;
+
+  // Reward
+  try {
+    if (typeof awardQuizCoins === "function") {
+      const reward = await awardQuizCoins(session.username, score);
+      if (reward.earned > 0) {
+        await showCollectAnim(reward.earned, score === 10 ? "perfect" : "quiz", reward.balance);
+      }
+    }
+  } catch(e) { console.warn("[reward]", e); }
+
+  // Save to Firebase
+  if (!isAdmin && db) {
+    try {
+      await set(push(ref(db, "results_math")), {
+        type: "quiz_result",
+        subject: "math",
+        mode: "master",
+        username: session.username,
+        name: session.name,
+        cls: session.cls || "",
+        score: score,
+        correct: Math.round(result.poolPoints * 100) / 100,
+        total: TOTAL_Q,
+        duration: elapsed,
+        isShuffled: false,
+        createdAt: serverTimestamp()
+      });
+    } catch(e) { console.warn("[save result]", e); }
+  }
+
+  // Clear saved progress
+  clearSavedState();
+
+  // Show result
+  showResult({ score, correctCount, elapsed, p1, p2 });
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SHOW RESULT
+   ══════════════════════════════════════════════════════════════════════ */
+function showResult({ score, correctCount, elapsed, p1, p2 }) {
+  $("loading").classList.add("hide");
+  $("locked").classList.add("hide");
+  $("start").classList.add("hide");
+  $("exam").classList.add("hide");
+  $("stickyHead").classList.add("hide");
+  $("submitBar").classList.add("hide");
+  $("result").classList.remove("hide");
+
+  // Icon
+  let icon = "🎉";
+  if (score >= 9) icon = "🏆";
+  else if (score >= 7) icon = "🎯";
+  else if (score >= 5) icon = "👍";
+  else icon = "📚";
+  $("resultIcon").textContent = icon;
+
+  $("resultScore").textContent = fmtScore(score);
+  $("resultWho").textContent = session.name + (session.cls ? " · Lớp " + session.cls : "");
+  $("resultCorrect").textContent = correctCount;
+  $("resultTime").textContent = fmtTime(elapsed);
+  $("resultTotal").textContent = TOTAL_Q;
+
+  // Store for review
+  state.p1 = p1;
+  state.p2 = p2;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   REVIEW (expandable)
+   ══════════════════════════════════════════════════════════════════════ */
+function buildReview() {
+  const p1 = state.p1 || [];
+  const p2 = state.p2 || [];
+  const wrap = $("reviewSection");
+
+  let html = '<div class="part-title">Chi tiết đáp án</div>';
+
+  // Part I review
+  html += '<div class="review-item"><div class="review-head">📝 Phần I — Trắc nghiệm</div></div>';
+  MATH_PART_I.forEach((q, i) => {
+    const user = p1[i];
+    const ok = user === q.answer;
+    html += `<div class="review-item ${ok ? 'ok' : 'bad'}">
+      <div class="review-head">
+        Câu ${i+1}
+        <span class="review-badge ${ok ? 'ok' : 'bad'}">${ok ? '✓ Đúng' : '✗ Sai'}</span>
+      </div>
+      <div class="review-qtext">${q.q}</div>
+      ${q.options.map((opt, k) => {
+        const isC = k === q.answer;
+        const isU = k === user;
+        const cls = isC ? "correct" : (isU && !ok ? "wrong" : "");
+        return `<div class="opt review ${cls}">
+          <span><b>${L[k]}.</b> ${opt}${isC ? ' <em style="color:var(--ok);font-style:normal">← đáp án</em>' : (isU ? ' <em style="color:var(--bad);font-style:normal">← bạn chọn</em>' : '')}</span>
+        </div>`;
+      }).join("")}
+    </div>`;
+  });
+
+  // Part II review
+  html += '<div class="review-item"><div class="review-head">✍️ Phần II — Tự luận</div></div>';
+  MATH_PART_II.forEach((q, qi) => {
+    const subs = p2[qi] || [];
+    const allOk = q.subs.every((sub, si) => checkSub(sub, subs[si]));
+    const anyOk = q.subs.some((sub, si) => checkSub(sub, subs[si]));
+    const status = allOk ? 'ok' : (anyOk ? 'partial' : 'bad');
+    const label = allOk ? '✓ Đúng hết' : (anyOk ? '◐ Đúng một phần' : '✗ Sai');
+
+    html += `<div class="review-item ${status}">
+      <div class="review-head">
+        Câu ${q.id}
+        <span class="review-badge ${status}">${label}</span>
+      </div>
+      <div class="review-qtext">${q.intro}</div>
+      ${q.subs.map((sub, si) => {
+        const user = subs[si];
+        const ok = checkSub(sub, user);
+        let userText = "", correctText = "";
+
+        if (sub.type === "mcq") {
+          userText = user >= 0 ? sub.options[user] : "(chưa làm)";
+          correctText = sub.options[sub.answer];
+        } else if (sub.type === "cmp") {
+          userText = user || "(chưa làm)";
+          correctText = sub.answer;
+        } else if (sub.type === "num") {
+          userText = String(user || "").trim() || "(chưa làm)";
+          correctText = String(sub.answer);
+        } else if (sub.type === "pair") {
+          userText = Array.isArray(user) && user.some(x => x) ? user.join("; ") : "(chưa làm)";
+          correctText = sub.answer.join("; ");
+        } else if (sub.type === "solutions") {
+          userText = String(user || "").trim() || "(chưa làm)";
+          correctText = sub.answers.join("; ");
+        }
+
+        return `<div class="sub">
+          <div class="sub-label">▸ ${sub.q}</div>
+          <div class="review-answer user">
+            <span class="lbl">Bạn:</span>
+            <span class="val" style="color:${ok ? 'var(--ok)' : 'var(--bad)'}">${esc(userText)}</span>
+          </div>
+          ${ok ? '' : `<div class="review-answer correct">
+            <span class="lbl">Đáp án:</span>
+            <span class="val" style="color:var(--ok)">${esc(correctText)}</span>
+          </div>`}
+        </div>`;
+      }).join("")}
+    </div>`;
+  });
+
+  wrap.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COLLECT ANIM (LDM reward)
+   ══════════════════════════════════════════════════════════════════════ */
+function showCollectAnim(amount, reason, balance) {
+  return new Promise((resolve) => {
+    const old = document.getElementById("collectOverlay");
+    if (old) old.remove();
+    const overlay = document.createElement("div");
+    overlay.id = "collectOverlay";
+    overlay.style.cssText = "position:fixed;inset:0;z-index:5000;background:#000;opacity:0;transition:opacity .25s";
+    const iframe = document.createElement("iframe");
+    iframe.src = "/cutscene/hieuungcollect.html?" + new URLSearchParams({
+      amount: String(amount),
+      reason: String(reason || "quiz"),
+      balance: String(balance || 0)
+    }).toString();
+    iframe.style.cssText = "width:100%;height:100%;border:0";
+    iframe.setAttribute("allow", "autoplay");
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+      overlay.style.opacity = "0";
+      setTimeout(() => { overlay.remove(); resolve(); }, 250);
+    };
+    const handler = (e) => {
+      if (e.origin !== location.origin) return;
+      if (e.data && e.data.type === "collect:done") cleanup();
+    };
+    window.addEventListener("message", handler);
+    setTimeout(() => { if (document.getElementById("collectOverlay")) cleanup(); }, 6000);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   START EXAM
+   ══════════════════════════════════════════════════════════════════════ */
+function startExam(savedState) {
+  state.t0 = savedState?.t0 || Date.now();
+  state.submitted = false;
+
+  renderExam();
+
+  $("loading").classList.add("hide");
+  $("locked").classList.add("hide");
+  $("start").classList.add("hide");
+  $("result").classList.add("hide");
+  $("exam").classList.remove("hide");
+  $("stickyHead").classList.remove("hide");
+  $("submitBar").classList.remove("hide");
+
+  $("userInfo").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+
+  // Restore saved answers
+  if (savedState) restoreState(savedState);
+
+  // Timer
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!state.submitted) $("timer").textContent = "⏱ " + fmtTime(Date.now() - state.t0);
+  }, 500);
+  $("timer").textContent = "⏱ " + fmtTime(Date.now() - state.t0);
+
+  updateProgress();
+  saveState();
+  window.scrollTo({ top: 0 });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LOCK SCREEN
+   ══════════════════════════════════════════════════════════════════════ */
+async function showLocked() {
+  try {
+    const [price, balance] = await Promise.all([
+      getMathPrice(),
+      getUserCoins(session.username)
+    ]);
+
+    $("lockPrice").innerHTML = `${price.toLocaleString("vi-VN")} <small>LDM</small>`;
+    $("lockBalance").textContent = `${balance.toLocaleString("vi-VN")} LDM`;
+
+    const btn = $("btnBuyMath");
+    const enough = balance >= price;
+
+    if (!enough) {
+      btn.textContent = `Thiếu ${(price - balance).toLocaleString("vi-VN")} LDM`;
+      btn.disabled = true;
+      btn.style.opacity = ".5";
+      btn.style.cursor = "not-allowed";
+    } else {
+      btn.onclick = async () => {
+        if (!confirm(`Mua đề Toán với giá ${price.toLocaleString("vi-VN")} LDM?\n\nSau khi mua bạn có thể xem đề gốc (/Maths) và làm bài Master.`)) return;
+        btn.disabled = true;
+        btn.textContent = "Đang xử lý…";
+        ovOn("Đang mua đề Toán…");
+        try {
+          const r = await buyMathTest(session.username);
+          ovOff();
+          if (r.ok) {
+            showToast("🎉 Đã mở khoá đề Toán!");
+            setTimeout(() => location.reload(), 800);
+          } else {
+            showToast("❌ " + r.reason, true);
+            btn.disabled = false;
+            btn.textContent = "🔥 Mua ngay";
+          }
+        } catch(e) {
+          ovOff();
+          showToast("Lỗi: " + e.message, true);
+          btn.disabled = false;
+          btn.textContent = "🔥 Mua ngay";
+        }
+      };
+    }
+
+    $("locked").classList.remove("hide");
+  } catch(e) {
+    console.error("[MathMaster] showLocked:", e);
+    $("locked").classList.remove("hide");
+    $("lockPrice").innerHTML = "— <small>LDM</small>";
+    $("lockBalance").textContent = "Lỗi kết nối";
+    $("btnBuyMath").disabled = true;
+    $("btnBuyMath").textContent = "Lỗi";
+  } finally {
+    $("loading").classList.add("hide");
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════════════ */
+async function init() {
+  try {
+    $("startTotalQ").textContent = TOTAL_Q;
+    $("startSub").textContent = `${TOTAL_Q} câu · ${MATH_PART_I.length} trắc nghiệm + ${MATH_PART_II.length} tự luận`;
+
+    const owned = await checkMathOwnership(session.username);
+    if (!owned) {
+      await showLocked();
+      return;
+    }
+
+    // Load best score
+    try {
+      const snap = await get(ref(db, "results_math"));
+      let best = 0;
+      snap.forEach(ch => {
+        const v = ch.val();
+        if (!v || v.mode !== "master") return;
+        if (String(v.username || "").toLowerCase() !== session.username.toLowerCase()) return;
+        if (Number(v.score) > best) best = Number(v.score);
+      });
+      $("startBestScore").textContent = best > 0 ? fmtScore(best) : "—";
+    } catch(e) {
+      $("startBestScore").textContent = "—";
+    }
+
+    // Check for saved state
+    const saved = loadSavedState();
+
+    if (saved && saved.p1 && saved.p1.length === MATH_PART_I.length) {
+      $("btnStart").textContent = "▶ Tiếp tục làm bài (có tiến độ đã lưu)";
+      $("btnStart").onclick = () => startExam(saved);
+    } else {
+      $("btnStart").onclick = () => {
+        clearSavedState();
+        startExam(null);
+      };
+    }
+
+    $("loading").classList.add("hide");
+    $("start").classList.remove("hide");
+  } catch(e) {
+    console.error("[MathMaster] init:", e);
+    $("loading").innerHTML = `
+      <div style="color:var(--bad);padding:40px;text-align:center">
+        <div style="font-size:3rem">⚠️</div>
+        <div style="font-weight:700;margin-top:12px">Lỗi khởi tạo</div>
+        <div style="color:var(--mut);font-size:.85rem;margin-top:8px">${esc(e.message)}</div>
+        <a href="/" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">← Trang chủ</a>
+      </div>`;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   EVENT BINDINGS
+   ══════════════════════════════════════════════════════════════════════ */
+$("btnSubmit").onclick = doSubmit;
+
+$("btnToggleReview").onclick = () => {
+  const wrap = $("reviewSection");
+  if (wrap.classList.contains("hide")) {
+    if (!wrap.innerHTML.trim()) buildReview();
+    wrap.classList.remove("hide");
+    $("btnToggleReview").textContent = "📖 Ẩn chi tiết";
+    setTimeout(() => wrap.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  } else {
+    wrap.classList.add("hide");
+    $("btnToggleReview").textContent = "📖 Xem chi tiết";
+  }
+};
+
+// Prevent close/refresh during exam
+window.addEventListener("beforeunload", (e) => {
+  if (!state.submitted && state.t0 > 0 && !$("exam").classList.contains("hide")) {
+    saveState();
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+// Anti-tab-switch warning
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && !state.submitted && state.t0 > 0 && !$("exam").classList.contains("hide")) {
+    showToast("⚠️ Không chuyển tab khi đang làm bài!", true);
+  }
+});
+
+// Block F12 / DevTools
+document.addEventListener("keydown", (e) => {
+  if (state.submitted) return;
+  if (state.t0 === 0) return;
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && /^[ijc]$/i.test(e.key))) {
+    e.preventDefault();
+    showToast("⚠️ Không được mở DevTools khi làm bài!", true);
+  }
+});
+
+// Auto-save on tab hide
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) saveState();
+});
+
+/* Boot */
+init();
+</script>
+</body>
+</html>
