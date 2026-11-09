@@ -653,16 +653,6 @@ if (!session || !session.username) {
   throw new Error("NO_SESSION");
 }
 
-if (typeof checkProfanity === "function" && checkProfanity(session.name)) {
-  document.body.innerHTML = `
-    <div style="padding:80px 24px;text-align:center;font-family:system-ui">
-      <div style="font-size:4rem">🚫</div>
-      <h1 style="color:#ef4444;margin:12px 0">Tài khoản đã bị khóa</h1>
-      <p style="color:#64748b">Vui lòng liên hệ admin.</p>
-      <a href="/" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600">← Về trang chủ</a>
-    </div>`;
-  throw new Error("BANNED");
-}
 
 const isAdmin = session.isAdmin === true;
 
