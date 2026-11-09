@@ -119,7 +119,8 @@ export const LEADERBOARD_SUBJECTS_META = {
   diali_choice:   { label: "Địa lí 9 (Khoanh)",  icon: "🌍", allAtOnce: false },
   diali_manual:   { label: "Địa lí 9 (Ghi)",     icon: "✍️", allAtOnce: false },
   diali_memory:   { label: "Địa lí 9 (Ghi nhớ)", icon: "🧠", allAtOnce: false },
-  khoahoctunhien: { label: "KHTN 9",             icon: "🧪", allAtOnce: false }
+  khoahoctunhien: { label: "KHTN 9",             icon: "🧪", allAtOnce: false },
+  math:           { label: "Toán 9",             icon: "📐", allAtOnce: false }
 };
 
 /* ══════════════════════════════════════════════════════════════════════
