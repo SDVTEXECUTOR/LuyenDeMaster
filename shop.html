@@ -519,15 +519,24 @@ async function refreshUI() {
     mathBtn.disabled = true;
     mathBtn.textContent = "🔒 Cần đăng nhập";
     mathBtn.classList.add("insufficient");
+
+    /* vẫn hiển thị giá đề Toán dù chưa đăng nhập */
+    let lp = MATH_PRICE_DEFAULT;
+    try { lp = await getMathPrice(); } catch (e) {}
+    $("mathPriceDisplay").innerHTML = `${lp.toLocaleString("vi-VN")} <small>LDM</small>`;
     return;
   }
 
+  /* Tải giá TRƯỚC & độc lập: lỗi coins/owned không làm mất giá */
+  let mathPrice = MATH_PRICE_DEFAULT;
+  try { mathPrice = await getMathPrice(); } catch (e) { console.warn("[shop] getMathPrice:", e); }
+  $("mathPriceDisplay").innerHTML = `${mathPrice.toLocaleString("vi-VN")} <small>LDM</small>`;
+
   try {
-    const [coins, owned, mathOwned, mathPrice] = await Promise.all([
+    const [coins, owned, mathOwned] = await Promise.all([
       getUserCoins(session.username),
       getOwnedPacks(session.username),
-      checkMathOwnership(session.username),
-      getMathPrice()
+      checkMathOwnership(session.username)
     ]);
 
     $("coinBalance").textContent = coins.toLocaleString("vi-VN");
