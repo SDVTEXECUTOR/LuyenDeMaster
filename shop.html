@@ -58,8 +58,11 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .balance-card .num small{font-size:1.1rem;font-weight:700;opacity:.9}
 .balance-card .hint{margin-top:8px;font-size:.82rem;opacity:.9;position:relative;z-index:1}
 
+/* ══════════════════════════════════════════════════════════════════
+   PACK CARD
+   ══════════════════════════════════════════════════════════════════ */
 .pack-card{position:relative;border-radius:18px;padding:28px 24px;text-align:center;
-  overflow:hidden;transition:all .3s}
+  overflow:hidden;transition:all .3s;margin-bottom:16px}
 .pack-card::before{content:"";position:absolute;inset:-2px;
   background:linear-gradient(135deg,#f97316,#dc2626,#fbbf24,#dc2626,#f97316);
   background-size:300% 300%;border-radius:20px;z-index:-1;
@@ -106,6 +109,129 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .pack-actions .preview-trigger:hover{background:rgba(255,255,255,.2);
   border-color:rgba(255,180,80,.6);transform:translateY(-1px)}
 
+/* ══════════════════════════════════════════════════════════════════
+   📐 MATH PACK — card riêng (xanh dương, không dùng ::before fire)
+   ══════════════════════════════════════════════════════════════════ */
+.math-card{
+  position:relative;border-radius:18px;padding:28px 24px;text-align:center;
+  overflow:hidden;transition:all .3s;
+  background:var(--card);border:2px solid var(--ac);
+  box-shadow:0 8px 32px rgba(37,99,235,.15);
+  margin-bottom:16px;
+}
+.math-card::before{
+  content:"";position:absolute;inset:-2px;border-radius:20px;z-index:-1;
+  background:linear-gradient(135deg,#2563eb,#7c3aed,#3b82f6,#7c3aed,#2563eb);
+  background-size:300% 300%;
+  animation:mathBorder 5s ease infinite;opacity:.85;
+}
+.math-card.owned{border-color:var(--ok);box-shadow:0 8px 32px rgba(22,163,74,.15)}
+.math-card.owned::before{
+  background:linear-gradient(135deg,#16a34a,#22c55e,#4ade80,#22c55e,#16a34a);
+  background-size:300% 300%;
+}
+@keyframes mathBorder{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.math-card .math-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  color:#fff;padding:4px 12px;border-radius:99px;
+  font-size:.72rem;font-weight:800;letter-spacing:.08em;
+  margin-bottom:16px;
+}
+.math-card.owned .math-badge{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.math-card .math-icon{
+  font-size:5.5rem;line-height:1;margin-bottom:12px;
+  display:inline-block;
+  filter:drop-shadow(0 0 20px rgba(37,99,235,.5));
+  animation:mathFloat 2.5s ease-in-out infinite;
+}
+@keyframes mathFloat{
+  0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}
+  50%{transform:translateY(-6px) rotate(3deg) scale(1.05)}
+}
+
+.math-card h3{
+  margin:0 0 8px;font-size:1.5rem;font-weight:900;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.math-card.owned h3{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.math-card .pack-desc{
+  color:var(--mut);font-size:.92rem;margin-bottom:20px;
+  line-height:1.65;max-width:360px;margin-left:auto;margin-right:auto;
+}
+.math-card .pack-desc b{color:var(--fg)}
+.math-card .pack-desc .feature-list{
+  display:flex;flex-direction:column;gap:6px;
+  margin:12px 0 0;text-align:left;
+  background:rgba(37,99,235,.06);border-radius:10px;padding:10px 14px;
+}
+.math-card.owned .pack-desc .feature-list{
+  background:rgba(22,163,74,.06);
+}
+.math-card .pack-desc .feature-list > div{
+  display:flex;align-items:center;gap:8px;
+  font-size:.85rem;color:var(--fg);font-weight:500;
+}
+.math-card .pack-desc .feature-list .icon-sm{
+  font-size:1.05rem;flex-shrink:0;
+}
+
+.math-card .pack-actions .math-btn{
+  flex:1;min-width:150px;padding:14px;font-size:1rem;border-radius:12px;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  box-shadow:0 6px 20px rgba(37,99,235,.4);
+  border:0;color:#fff;font-weight:800;cursor:pointer;
+  transition:all .2s;
+}
+.math-card .pack-actions .math-btn:not(:disabled):hover{
+  filter:brightness(1.1);
+  box-shadow:0 8px 28px rgba(37,99,235,.6);
+  transform:translateY(-2px);
+}
+.math-card .pack-actions .math-btn:disabled{
+  cursor:not-allowed;transform:none;
+}
+.math-card .pack-actions .math-btn.owned{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  box-shadow:0 6px 20px rgba(22,163,74,.4);
+}
+.math-card .pack-actions .math-btn.insufficient{
+  background:linear-gradient(135deg,#64748b,#475569);
+  box-shadow:none;
+  opacity:.85;
+}
+.math-card .pack-actions .math-btn.insufficient:hover{
+  transform:none;filter:none;
+}
+
+.math-card .pack-actions .math-preview-btn{
+  flex:1;min-width:120px;padding:14px;font-size:1rem;
+  border-radius:12px;background:transparent;color:var(--fg);
+  border:1.5px solid var(--ln);box-shadow:none;
+  font-weight:700;cursor:pointer;transition:all .2s;
+}
+.math-card .pack-actions .math-preview-btn:hover{
+  background:var(--acs);border-color:var(--ac);transform:translateY(-1px);
+}
+.math-card.owned .pack-actions .math-preview-btn{
+  border-color:var(--ok);color:var(--ok);
+}
+.math-card.owned .pack-actions .math-preview-btn:hover{
+  background:var(--oks);border-color:var(--ok);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   EARN ROWS
+   ══════════════════════════════════════════════════════════════════ */
 .earn-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
   padding:14px 16px;border-radius:12px;border:1px solid var(--ln);
   background:rgba(255,255,255,.4);margin-bottom:10px;transition:all .15s}
@@ -181,6 +307,8 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .confirm-actions button{flex:1;padding:12px}
 .confirm-actions .buy{background:linear-gradient(135deg,#f97316,#dc2626);
   box-shadow:0 4px 16px rgba(220,38,38,.4)}
+.confirm-actions .buy.math{background:linear-gradient(135deg,#2563eb,#7c3aed);
+  box-shadow:0 4px 16px rgba(37,99,235,.4)}
 
 .success-icon{font-size:5rem;margin-bottom:16px;
   animation:successBounce .8s cubic-bezier(.34,1.56,.64,1)}
@@ -203,6 +331,10 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   .pack-card{padding:24px 18px}
   .pack-card .pack-icon{font-size:4.5rem}
   .pack-card h3{font-size:1.3rem}
+  .math-card{padding:24px 18px}
+  .math-card .math-icon{font-size:4.5rem}
+  .math-card h3{font-size:1.3rem}
+  .math-card .pack-desc .feature-list > div{font-size:.8rem}
   .earn-row{padding:12px 14px;gap:10px}
   .earn-row .emoji{font-size:1.5rem}
   .earn-row .label{font-size:.85rem}
@@ -232,6 +364,7 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   </div>
 
   <div id="packsContainer">
+    <!-- 🔥 PACK FIRE -->
     <div class="pack-card" id="firePackCard">
       <div class="pack-badge">🔥 HOT PACK</div>
       <div class="pack-icon">🔥</div>
@@ -244,6 +377,27 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
       <div class="pack-actions">
         <button class="pack-btn" id="btnBuyFire" disabled>Đang tải...</button>
         <button class="preview-trigger" id="btnPreviewFire">👁️ Xem trước</button>
+      </div>
+    </div>
+
+    <!-- 📐 MATH PACK -->
+    <div class="math-card" id="mathPackCard">
+      <div class="math-badge">📐 ĐỀ TOÁN</div>
+      <div class="math-icon">📐</div>
+      <h3>ĐỀ TOÁN 9</h3>
+      <div class="pack-desc">
+        Mở khoá trọn bộ <b>đề Toán 9 — Giữa HK I</b>
+        <div class="feature-list">
+          <div><span class="icon-sm">📄</span><span>Xem đề gốc full (như đề giấy)</span></div>
+          <div><span class="icon-sm">✍️</span><span>12 câu trắc nghiệm + 9 câu tự luận</span></div>
+          <div><span class="icon-sm">🎯</span><span>Chấm điểm tự động — 2 chế độ</span></div>
+          <div><span class="icon-sm">🖨️</span><span>In đề ra giấy A4</span></div>
+        </div>
+      </div>
+      <div class="pack-price" id="mathPriceDisplay">— <small>LDM</small></div>
+      <div class="pack-actions">
+        <button class="math-btn" id="btnBuyMath" disabled>Đang tải...</button>
+        <button class="math-preview-btn" id="btnPreviewMath">👁️ Xem đề mẫu</button>
       </div>
     </div>
   </div>
@@ -294,9 +448,10 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   </div>
 </main>
 
+<!-- ═══ CONFIRM MODAL ═══ -->
 <div class="mask" id="confirmMask">
   <div class="modal">
-    <div class="confirm-icon">🔥</div>
+    <div class="confirm-icon" id="cfIcon">🔥</div>
     <div class="confirm-title" id="cfTitle">Xác nhận mua</div>
     <div class="confirm-body" id="cfBody"></div>
     <div class="confirm-actions">
@@ -306,22 +461,25 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
   </div>
 </div>
 
+<!-- ═══ SUCCESS MODAL ═══ -->
 <div class="mask" id="successMask">
   <div class="modal">
-    <div class="success-icon">🎉</div>
-    <div class="success-title">Mua thành công!</div>
-    <div class="success-desc">
+    <div class="success-icon" id="successIcon">🎉</div>
+    <div class="success-title" id="successTitle">Mua thành công!</div>
+    <div class="success-desc" id="successDesc">
       Bạn đã sở hữu <b>PACK FIRE</b>.<br>
       Vào trang Profile để bật nền lửa ngay!
     </div>
-    <button style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e)"
-            onclick="location.href='/profile'">👤 Vào Profile ngay</button>
+    <button style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e)" id="btnGotoAfterSuccess">
+      👤 Vào Profile ngay
+    </button>
     <button class="g" style="width:100%;margin-top:8px" id="btnCloseSuccess">Ở lại Shop</button>
   </div>
 </div>
 
+<!-- ═══ PREVIEW OVERLAY ═══ -->
 <div class="preview-overlay" id="previewOverlay">
-  <iframe id="previewFrame" src="about:blank" title="Preview PACK FIRE"></iframe>
+  <iframe id="previewFrame" src="about:blank" title="Preview"></iframe>
 </div>
 
 <div id="ov" class="hide">
@@ -337,7 +495,9 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 import {
   db, loadSession,
   getUserCoins, buyPack, getOwnedPacks, SHOP_ITEMS,
-  redeemGiftCode
+  redeemGiftCode,
+  getMathPrice, checkMathOwnership, buyMathTest,
+  MATH_PRICE_DEFAULT
 } from '/js/core.js';
 
 const $ = id => document.getElementById(id);
@@ -356,34 +516,48 @@ function ovOn(t) {
 }
 function ovOff() { $("ov").classList.add("hide"); }
 
+/* ══════════════════════════════════════════════════════════════════════
+   SHOP REFRESH
+   ══════════════════════════════════════════════════════════════════════ */
 async function refreshUI() {
   if (!session || !session.username) {
     $("coinBalance").textContent = "0";
     $("earnHint").innerHTML =
       '⚠️ Bạn cần <a href="/" style="color:#fff;text-decoration:underline;font-weight:800">đăng nhập</a> để mua hàng';
+
     const btn = $("btnBuyFire");
     btn.disabled = true;
     btn.textContent = "🔒 Cần đăng nhập";
     btn.classList.add("insufficient");
+
+    const mathBtn = $("btnBuyMath");
+    mathBtn.disabled = true;
+    mathBtn.textContent = "🔒 Cần đăng nhập";
+    mathBtn.classList.add("insufficient");
     return;
   }
 
   try {
-    const [coins, owned] = await Promise.all([
+    const [coins, owned, mathOwned, mathPrice] = await Promise.all([
       getUserCoins(session.username),
-      getOwnedPacks(session.username)
+      getOwnedPacks(session.username),
+      checkMathOwnership(session.username),
+      getMathPrice()
     ]);
 
     $("coinBalance").textContent = coins.toLocaleString("vi-VN");
     const price = SHOP_ITEMS.pack_fire.price;
-    const gap = Math.max(0, price - coins);
+    const mathGap = Math.max(0, mathPrice - coins);
+    const fireGap = Math.max(0, price - coins);
 
-    if (gap > 0) {
-      $("earnHint").textContent = `Chào ${session.name || session.username}! Cần thêm ${gap.toLocaleString("vi-VN")} LDM để mua PACK FIRE`;
+    // Hint: ưu tiên hiển thị thiếu bao nhiêu để mua PACK FIRE
+    if (fireGap > 0) {
+      $("earnHint").textContent = `Chào ${session.name || session.username}! Cần thêm ${fireGap.toLocaleString("vi-VN")} LDM để mua PACK FIRE`;
     } else {
       $("earnHint").textContent = `Chào ${session.name || session.username}! Bạn đủ LDM để mua PACK FIRE 🎉`;
     }
 
+    /* ── FIRE PACK ── */
     const btn = $("btnBuyFire");
     const card = $("firePackCard");
 
@@ -399,12 +573,43 @@ async function refreshUI() {
       btn.classList.remove("owned", "insufficient");
       card.classList.remove("owned");
     } else {
-      btn.textContent = `Thiếu ${gap.toLocaleString("vi-VN")} LDM`;
+      btn.textContent = `Thiếu ${fireGap.toLocaleString("vi-VN")} LDM`;
       btn.disabled = true;
       btn.classList.remove("owned");
       btn.classList.add("insufficient");
       card.classList.remove("owned");
     }
+
+    /* ── MATH PACK ── */
+    const mathBtn = $("btnBuyMath");
+    const mathCard = $("mathPackCard");
+
+    $("mathPriceDisplay").innerHTML = `${mathPrice.toLocaleString("vi-VN")} <small>LDM</small>`;
+
+    if (mathOwned) {
+      mathBtn.textContent = "✓ Đã mở khoá — Vào làm";
+      mathBtn.disabled = false;
+      mathBtn.classList.remove("insufficient");
+      mathBtn.classList.add("owned");
+      mathCard.classList.add("owned");
+
+      // Gắn handler mới: chuyển sang /Maths thay vì mua
+      mathBtn.onclick = () => { location.href = "/Maths"; };
+    } else if (coins >= mathPrice) {
+      mathBtn.textContent = "📐 Mua ngay";
+      mathBtn.disabled = false;
+      mathBtn.classList.remove("owned", "insufficient");
+      mathCard.classList.remove("owned");
+      mathBtn.onclick = doBuyMath;
+    } else {
+      mathBtn.textContent = `Thiếu ${mathGap.toLocaleString("vi-VN")} LDM`;
+      mathBtn.disabled = true;
+      mathBtn.classList.remove("owned");
+      mathBtn.classList.add("insufficient");
+      mathCard.classList.remove("owned");
+      mathBtn.onclick = null;
+    }
+
   } catch(e) {
     console.error("[shop] refreshUI error:", e);
     showToast("Lỗi tải số dư: " + e.message, true);
@@ -412,10 +617,17 @@ async function refreshUI() {
   }
 }
 
-function confirmBox(title, body, onYes) {
-  $("cfTitle").textContent = title;
-  $("cfBody").innerHTML = body;
+/* ══════════════════════════════════════════════════════════════════════
+   CONFIRM MODAL
+   ══════════════════════════════════════════════════════════════════════ */
+function confirmBox({ icon, title, body, yesText, yesClass, onYes }) {
+  $("cfIcon").textContent = icon || "❓";
+  $("cfTitle").textContent = title || "Xác nhận";
+  $("cfBody").innerHTML = body || "";
+  $("cfYes").textContent = yesText || "Mua";
+  $("cfYes").className = "buy " + (yesClass || "");
   $("confirmMask").classList.add("on");
+
   const cleanup = () => {
     $("cfNo").onclick = null;
     $("cfYes").onclick = null;
@@ -425,23 +637,35 @@ function confirmBox(title, body, onYes) {
   $("cfYes").onclick = async () => { cleanup(); await onYes(); };
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   BUY FIRE PACK
+   ══════════════════════════════════════════════════════════════════════ */
 $("btnBuyFire").onclick = () => {
   if (!session || !session.username) {
     showToast("Vui lòng đăng nhập trước!", true);
     return;
   }
-  confirmBox(
-    "🔥 Mua PACK FIRE?",
-    `Bạn sẽ mua <b>PACK FIRE</b> với giá <span class="price">499 LDM</span>.<br><br>
-    Sau khi mua, bạn có thể chọn nền lửa trong trang <b>Profile → Nền hồ sơ</b>.
-    <span class="warn">⚠️ Không thể hoàn tiền!</span>`,
-    async () => {
+  confirmBox({
+    icon: "🔥",
+    title: "Mua PACK FIRE?",
+    body: `Bạn sẽ mua <b>PACK FIRE</b> với giá <span class="price">499 LDM</span>.<br><br>
+      Sau khi mua, bạn có thể chọn nền lửa trong trang <b>Profile → Nền hồ sơ</b>.
+      <span class="warn">⚠️ Không thể hoàn tiền!</span>`,
+    yesText: "🔥 Mua",
+    yesClass: "",
+    onYes: async () => {
       ovOn("Đang xử lý giao dịch…");
       try {
         const result = await buyPack(session.username, "pack_fire");
         ovOff();
         if (result.ok) {
-          $("successMask").classList.add("on");
+          showSuccess({
+            icon: "🎉",
+            title: "Mua thành công!",
+            desc: `Bạn đã sở hữu <b>PACK FIRE</b>.<br>Vào trang Profile để bật nền lửa ngay!`,
+            gotoText: "👤 Vào Profile",
+            gotoHref: "/profile"
+          });
           await refreshUI();
         } else {
           showToast("❌ " + result.reason, true);
@@ -451,15 +675,95 @@ $("btnBuyFire").onclick = () => {
         showToast("Lỗi: " + e.message, true);
       }
     }
-  );
+  });
 };
+
+/* ══════════════════════════════════════════════════════════════════════
+   BUY MATH TEST
+   ══════════════════════════════════════════════════════════════════════ */
+async function doBuyMath() {
+  if (!session || !session.username) {
+    showToast("Vui lòng đăng nhập trước!", true);
+    return;
+  }
+
+  const price = await getMathPrice();
+
+  confirmBox({
+    icon: "📐",
+    title: "Mua đề Toán 9?",
+    body: `Bạn sẽ mở khoá <b>ĐỀ TOÁN 9 — Giữa HK I</b> với giá <span class="price">${price.toLocaleString("vi-VN")} LDM</span>.<br><br>
+      ✅ Xem đề gốc đầy đủ (như đề giấy)<br>
+      ✅ Làm bài: 12 trắc nghiệm + 9 tự luận<br>
+      ✅ Chấm điểm tự động + nhận LDM<br>
+      ✅ In đề ra giấy A4<br><br>
+      <span class="warn">⚠️ Mua 1 lần, dùng vĩnh viễn. Không hoàn tiền!</span>`,
+    yesText: "📐 Mua ngay",
+    yesClass: "math",
+    onYes: async () => {
+      ovOn("Đang mở khoá đề Toán…");
+      try {
+        const result = await buyMathTest(session.username);
+        ovOff();
+        if (result.ok) {
+          showSuccess({
+            icon: "📐",
+            title: "Mở khoá thành công!",
+            desc: `Bạn đã sở hữu <b>ĐỀ TOÁN 9</b>.<br>Vào xem đề gốc hoặc bắt đầu làm bài ngay!`,
+            gotoText: "📐 Vào làm bài",
+            gotoHref: "/mathematicmaster",
+            extraBtnText: "📄 Xem đề gốc",
+            extraBtnHref: "/Maths"
+          });
+          await refreshUI();
+        } else {
+          showToast("❌ " + result.reason, true);
+        }
+      } catch(e) {
+        ovOff();
+        showToast("Lỗi: " + e.message, true);
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUCCESS MODAL
+   ══════════════════════════════════════════════════════════════════════ */
+function showSuccess({ icon, title, desc, gotoText, gotoHref, extraBtnText, extraBtnHref }) {
+  $("successIcon").textContent = icon || "🎉";
+  $("successTitle").textContent = title || "Mua thành công!";
+  $("successDesc").innerHTML = desc || "";
+
+  const mainBtn = $("btnGotoAfterSuccess");
+  mainBtn.textContent = gotoText || "👤 Vào Profile";
+  mainBtn.onclick = () => { location.href = gotoHref || "/profile"; };
+
+  // Extra button (chỉ hiện nếu có)
+  const existing = $("btnExtraAfterSuccess");
+  if (existing) existing.remove();
+
+  if (extraBtnText && extraBtnHref) {
+    const extra = document.createElement("button");
+    extra.id = "btnExtraAfterSuccess";
+    extra.className = "g";
+    extra.style.cssText = "width:100%;margin-top:8px";
+    extra.textContent = extraBtnText;
+    extra.onclick = () => { location.href = extraBtnHref; };
+    mainBtn.parentNode.insertBefore(extra, $("btnCloseSuccess"));
+  }
+
+  $("successMask").classList.add("on");
+}
 
 $("btnCloseSuccess").onclick = () => $("successMask").classList.remove("on");
 $("successMask").onclick = (e) => {
   if (e.target === $("successMask")) $("successMask").classList.remove("on");
 };
 
-/* 🎁 REDEEM GIFT CODE */
+/* ══════════════════════════════════════════════════════════════════════
+   REDEEM GIFT CODE
+   ══════════════════════════════════════════════════════════════════════ */
 async function doRedeem() {
   if (!session || !session.username) {
     showToast("Vui lòng đăng nhập trước!", true);
@@ -495,11 +799,13 @@ $("redeemInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") { e.preventDefault(); doRedeem(); }
 });
 
-/* 🔥 PREVIEW IFRAME */
-function openPreview() {
+/* ══════════════════════════════════════════════════════════════════════
+   PREVIEW IFRAME — PACK FIRE
+   ══════════════════════════════════════════════════════════════════════ */
+function openPreview(src) {
   const overlay = $("previewOverlay");
   const frame = $("previewFrame");
-  frame.src = "/pack/firepack?t=" + Date.now();
+  frame.src = src + (src.includes("?") ? "&" : "?") + "t=" + Date.now();
   overlay.classList.add("on");
   document.body.style.overflow = "hidden";
 }
@@ -508,7 +814,19 @@ function closePreview() {
   document.body.style.overflow = "";
   setTimeout(() => { $("previewFrame").src = "about:blank"; }, 300);
 }
-$("btnPreviewFire").onclick = openPreview;
+
+$("btnPreviewFire").onclick = () => openPreview("/pack/firepack");
+
+$("btnPreviewMath").onclick = () => {
+  // Preview đề Toán = mở /Maths (đã có lock screen nếu chưa mua)
+  // Để tránh sang trang khác, ta có thể mở popup nhỏ. Nhưng đơn giản nhất là:
+  if (!session || !session.username) {
+    showToast("Vui lòng đăng nhập để xem đề mẫu", true);
+    return;
+  }
+  // Mở đề mẫu ở tab mới (tránh mất context shop)
+  window.open("/Maths", "_blank", "noopener,noreferrer");
+};
 
 window.addEventListener("message", (e) => {
   if (e.origin !== window.location.origin) return;
@@ -520,6 +838,9 @@ window.addEventListener("message", (e) => {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════════════
+   KEYBOARD & CLEANUP
+   ══════════════════════════════════════════════════════════════════════ */
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     $("confirmMask").classList.remove("on");
@@ -528,6 +849,9 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════════════ */
 refreshUI();
 </script>
 </body>
