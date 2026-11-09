@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/adminpanel", "destination": "/adminpanel.html" },
     { "source": "/shop", "destination": "/shop.html" },
+    { "source": "/codes", "destination": "/codes.html" },
     { "source": "/pack/firepack", "destination": "/pack/firepack.html" },
     { "source": "/Tower", "destination": "/Tower.html" },
     { "source": "/Tower_:path(.*)", "destination": "/Tower.html" },
