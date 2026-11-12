@@ -2,12 +2,12 @@
    🎨 THEME.CSS — BIẾN MÀU DÙNG CHUNG TOÀN SITE
    ══════════════════════════════════════════════════════════════════════
    Dùng bởi: index.html, profile.html, adminpanel.html, shop.html,
-             khoahoctunhien.html, codes.html, Maths.html, mathematicmaster.html,
-             listhelp.html
+             khoahoctunhien.html, codes.html, Maths.html,
+             mathematicmaster.html, listhelp.html
    (Tower.html KHÔNG dùng file này — Tower có theme tối riêng)
 
-   ✅ MẶC ĐỊNH: NỀN TRẮNG (light theme)
-   🌙 BẬT TỐI: Thêm data-theme="dark" vào <html> hoặc <body>
+   ☀️ MẶC ĐỊNH: NỀN TRẮNG (light theme)
+   🌙 BẬT TỐI: Thêm data-theme="dark" vào <html>
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════════════
