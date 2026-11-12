@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script>
+(function(){
+  var ALLOWED_HOSTS = ["luyendemaster.vercel.app","localhost","127.0.0.1"];
+  var h = String(location.hostname || "").toLowerCase();
+  if (ALLOWED_HOSTS.indexOf(h) === -1) {
+    document.write('<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Chặn truy cập</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e1b4b);color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box"><div style="max-width:640px"><div style="font-size:5.5rem;line-height:1;margin-bottom:16px">🚨</div><h1 style="font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 16px;font-weight:900;color:#f87171">ĐỪNG CÓ ĂN CẮP MÀ BROOOOO!</h1><p style="color:#cbd5e1;font-size:clamp(.95rem,2.5vw,1.15rem);line-height:1.7;margin:16px 0">Trang web này chỉ được phép hoạt động tại:<br><b style="color:#60a5fa;font-size:1.15em;display:inline-block;margin-top:8px;word-break:break-all">https://luyendemaster.vercel.app</b></p><p style="color:#64748b;margin-top:32px;font-size:.85rem;line-height:1.6">⚠️ Hành vi sao chép &amp; triển khai trái phép mã nguồn là vi phạm bản quyền.</p></div></body></html>');
+    document.close();
+    throw new Error("DOMAIN_NOT_ALLOWED");
+  }
+})();
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>📖 Hướng dẫn · Luyện Đề Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/theme.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.6;background-attachment:fixed;min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 20%,rgba(59,130,246,.08) 0%,transparent 40%),
+    radial-gradient(circle at 90% 80%,rgba(139,92,246,.08) 0%,transparent 40%);}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.8rem;font-weight:900;margin:0 0 8px;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:1.15rem;font-weight:700;margin:0}
+.card{background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--ln);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.mut{color:var(--mut);font-size:.9rem}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.hero{text-align:center;padding:32px 24px;margin-bottom:24px;
+  background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.15));
+  border-radius:20px;border:1px solid rgba(139,92,246,.3)}
+.hero .icon{font-size:4rem;line-height:1;margin-bottom:12px}
+.hero h1{font-size:2rem;margin-bottom:8px}
+.hero p{color:var(--mut);max-width:500px;margin:0 auto}
+
+.guide-card{display:flex;gap:16px;align-items:flex-start;
+  padding:18px;border-radius:14px;border:1px solid var(--ln);
+  background:rgba(255,255,255,.4);margin-bottom:14px;transition:all .2s}
+.guide-card:hover{border-color:var(--ac);transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(37,99,235,.12)}
+.guide-card .emoji{flex:none;font-size:2.2rem;line-height:1;width:56px;height:56px;
+  display:grid;place-items:center;background:var(--acs);border-radius:14px}
+.guide-card .content{flex:1;min-width:0}
+.guide-card h3{margin:0 0 4px;font-size:1.05rem;font-weight:800;color:var(--fg)}
+.guide-card p{margin:0 0 10px;color:var(--mut);font-size:.88rem;line-height:1.6}
+.guide-card .path{display:inline-block;background:var(--acs);color:var(--ac);
+  padding:3px 10px;border-radius:6px;font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:.8rem;font-weight:700;margin-bottom:10px}
+.guide-card .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 18px;
+  cursor:pointer;background:var(--ac);color:#fff;transition:all .2s;
+  box-shadow:0 4px 12px rgba(37,99,235,.25);display:inline-flex;align-items:center;gap:6px}
+button:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,99,235,.35)}
+button:active{transform:translateY(1px)}
+button.g{background:transparent;color:var(--fg);border:1.5px solid var(--ln);box-shadow:none}
+button.g:hover{background:var(--acs);border-color:var(--ac)}
+button.success{background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 4px 12px rgba(22,163,74,.3)}
+button.warn{background:linear-gradient(135deg,#f59e0b,#dc2626);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+button.purple{background:linear-gradient(135deg,#8b5cf6,#a855f7);box-shadow:0 4px 12px rgba(139,92,246,.3)}
+button.sm{padding:8px 14px;font-size:.85rem}
+
+.note{padding:12px 16px;border-radius:10px;font-size:.85rem;line-height:1.65;margin-bottom:14px}
+.note.info{background:var(--acs);border-left:3px solid var(--ac);color:var(--fg)}
+.note.warn{background:var(--warns);border-left:3px solid var(--warn);color:var(--fg)}
+.note.ok{background:var(--oks);border-left:3px solid var(--ok);color:var(--fg)}
+.note b{color:var(--ac)}
+.note code, .guide-card code{font-family:'JetBrains Mono',ui-monospace,monospace;
+  background:rgba(0,0,0,.15);padding:2px 6px;border-radius:4px;font-size:.82em;font-weight:700}
+
+.faq-item{border:1px solid var(--ln);border-radius:12px;padding:14px 16px;margin-bottom:10px;
+  background:rgba(255,255,255,.3)}
+.faq-item summary{cursor:pointer;font-weight:700;font-size:.95rem;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"▾";font-size:.9rem;color:var(--ac);transition:transform .2s}
+.faq-item[open] summary::after{transform:rotate(180deg)}
+.faq-item .answer{padding-top:10px;color:var(--mut);font-size:.88rem;line-height:1.65}
+.faq-item .answer a{color:var(--ac);font-weight:700}
+
+.hint-box{padding:14px 18px;border-radius:12px;background:var(--acs);
+  border:1px dashed var(--ac);font-size:.85rem;line-height:1.65;margin-bottom:16px}
+.hint-box b{color:var(--ac)}
+
+@media (max-width:480px){
+  main{padding:16px 12px 40px}
+  .hero{padding:24px 16px}
+  .hero h1{font-size:1.5rem}
+  .hero .icon{font-size:3rem}
+  .guide-card{padding:14px;gap:12px}
+  .guide-card .emoji{width:48px;height:48px;font-size:1.8rem}
+  .guide-card h3{font-size:.95rem}
+  .guide-card p{font-size:.82rem}
+  button{padding:9px 14px;font-size:.85rem}
+}
+</style>
+</head>
+<body>
+<main>
+
+<div class="top">
+  <div>
+    <h1>📖 Hướng dẫn sử dụng</h1>
+    <div class="mut" style="font-size:.85rem">Tất cả những gì bạn cần biết để dùng Luyện Đề Master</div>
+  </div>
+  <button class="g" onclick="location.href='/'">🏠 Trang chủ</button>
+</div>
+
+<div class="hero">
+  <div class="icon">🧭</div>
+  <h1>Bắt đầu từ đâu?</h1>
+  <p>Nhập mã, kiếm LDM, mua đề Toán, chơi Tower... tất cả hướng dẫn ở đây!</p>
+</div>
+
+<!-- ========== PHẦN 1: NHẬP MÃ ========== -->
+<div class="card">
+  <h2 style="margin-bottom:16px">🎁 Nhập mã</h2>
+
+  <div class="note info">
+    Có <b>2 loại mã</b> khác nhau. Đọc kỹ để không nhầm lẫn nhé!
+  </div>
+
+  <!-- Gift code -->
+  <div class="guide-card">
+    <div class="emoji">🎁</div>
+    <div class="content">
+      <h3>Mã quà tặng (Gift Code)</h3>
+      <p>Mã do <b>admin</b> cấp để nhận <b>LDM miễn phí</b>. Mỗi mã dùng được 1 lần / tài khoản. Ví dụ: <code>HAPPYDAY</code>, <code>TET2026</code>.</p>
+      <div class="path">📍 /codes</div>
+      <div class="actions">
+        <button class="success" onclick="location.href='/codes'">🎁 Nhập mã quà tặng</button>
+        <button class="g sm" onclick="location.href='/shop'">🛒 Hoặc vào Shop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration code -->
+  <div class="guide-card">
+    <div class="emoji">🔑</div>
+    <div class="content">
+      <h3>Mã đăng ký (Registration Code)</h3>
+      <p>Khi <b>admin khóa đăng ký</b>, bạn cần mã <code>LDM-XXXXX-XXXXX</code> để tạo tài khoản mới. Mã này admin cấp riêng cho từng người.</p>
+      <div class="path">📍 Trang chủ → Đăng kí</div>
+      <div class="actions">
+        <button onclick="location.href='/'">🔑 Đến trang đăng ký</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PHẦN 2: KIẾM LDM ========== -->
+<div class="card">
+  <h2 style="margin-bottom:16px">💰 Kiếm LDM (tiền tệ)</h2>
+
+  <div class="note ok">
+    LDM là <b>tiền tệ</b> trong hệ thống. Dùng để mua đề Toán, nền Profile, vật phẩm...
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">📚</div>
+    <div class="content">
+      <h3>Cách kiếm LDM</h3>
+      <p>
+        • Hoàn thành 1 bài thi: <b>+10 LDM</b><br>
+        • Đạt điểm 10 tuyệt đối: <b>+40 LDM</b> bonus<br>
+        • Leo tháp (mỗi tầng): <b>+3 LDM</b><br>
+        • Đăng nhập hàng ngày: <b>+15 LDM</b>
+      </p>
+      <div class="actions">
+        <button class="warn" onclick="location.href='/shop'">💰 Xem chi tiết</button>
+        <button class="g sm" onclick="location.href='/'">📚 Vào làm bài</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PHẦN 3: CÁC TRANG QUAN TRỌNG ========== -->
+<div class="card">
+  <h2 style="margin-bottom:16px">🗺️ Các trang quan trọng</h2>
+
+  <div class="hint-box">
+    💡 Bấm vào từng nút để đi thẳng đến trang tương ứng
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">🏠</div>
+    <div class="content">
+      <h3>Trang chủ</h3>
+      <p>Nơi làm bài thi, xem bảng xếp hạng, tin tức, vào Tower và Profile.</p>
+      <div class="actions">
+        <button onclick="location.href='/'">🏠 Về trang chủ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">📐</div>
+    <div class="content">
+      <h3>Toán 9 (đề giữa HK I)</h3>
+      <p>Xem đề gốc (giống đề giấy) hoặc làm bài trắc nghiệm + tự luận. Cần mua trước ở Shop.</p>
+      <div class="actions">
+        <button class="purple" onclick="location.href='/mathematicmaster'">✍️ Làm bài</button>
+        <button class="g" onclick="location.href='/Maths'">📄 Xem đề gốc</button>
+        <button class="warn sm" onclick="location.href='/shop'">🛒 Mua</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">🏰</div>
+    <div class="content">
+      <h3>Chế độ Tower (leo tháp)</h3>
+      <p>Trả lời câu hỏi để leo tháp. Mỗi tầng nhận +3 LDM. Sai 1 câu là gãy tháp!</p>
+      <div class="actions">
+        <button onclick="location.href='/Tower'">🏰 Chơi Tower</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">👤</div>
+    <div class="content">
+      <h3>Hồ sơ cá nhân</h3>
+      <p>Xem điểm cao, thành tích, đổi avatar, bio, nền hồ sơ (nếu có pack).</p>
+      <div class="actions">
+        <button onclick="location.href='/profile'">👤 Xem Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">🛒</div>
+    <div class="content">
+      <h3>LDM Shop</h3>
+      <p>Mua đề Toán, PACK FIRE (nền lửa), và các vật phẩm khác.</p>
+      <div class="actions">
+        <button class="warn" onclick="location.href='/shop'">🛒 Vào Shop</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="emoji">🧪</div>
+    <div class="content">
+      <h3>Khoa Học Tự Nhiên 9</h3>
+      <p>58 câu trắc nghiệm giữa HK I môn KHTN (Lý - Hoá - Sinh).</p>
+      <div class="actions">
+        <button onclick="location.href='/khoahoctunhien9'">🧪 Vào làm bài</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PHẦN 4: FAQ ========== -->
+<div class="card">
+  <h2 style="margin-bottom:16px">❓ Câu hỏi thường gặp</h2>
+
+  <details class="faq-item">
+    <summary>Mã quà tặng nhập ở đâu?</summary>
+    <div class="answer">
+      Có <b>3 chỗ</b> đều nhập được:<br>
+      1. Vào <a href="/codes">/codes</a> — trang riêng để nhập mã<br>
+      2. Vào <a href="/shop">/shop</a> → bấm nút "🎁 Nhập mã"<br>
+      3. Vào <a href="/profile">/profile</a> → bấm nút "🎁 Nhập mã"
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Tại sao đăng ký bị khóa?</summary>
+    <div class="answer">
+      Admin có thể bật chế độ "Khóa đăng ký" để kiểm soát ai được tạo tài khoản. Khi bị khóa, bạn cần <b>mã đăng ký</b> dạng <code>LDM-XXXXX-XXXXX</code> do admin cấp. Liên hệ admin để xin mã.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>LDM là gì? Kiếm ở đâu?</summary>
+    <div class="answer">
+      LDM là <b>tiền tệ</b> trong hệ thống. Kiếm bằng cách:<br>
+      • Làm bài thi → +10 LDM (perfect +40)<br>
+      • Leo tháp → +3 LDM/tầng<br>
+      • Đăng nhập hàng ngày → +15 LDM<br>
+      • Nhập gift code từ admin → tùy mã<br>
+      Xem chi tiết tại <a href="/shop">Shop</a>.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Mua đề Toán bao nhiêu LDM?</summary>
+    <div class="answer">
+      Giá do admin quy định, mặc định là <b>75 LDM</b>. Vào <a href="/shop">/shop</a> để xem giá hiện tại. Mua 1 lần, dùng vĩnh viễn cho cả xem đề gốc + làm bài.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Quên mật khẩu thì làm sao?</summary>
+    <div class="answer">
+      Vào <a href="/profile">trang Profile</a> → bấm "🔑 Đổi mật khẩu". Nếu không nhớ mật khẩu cũ, liên hệ admin để được hỗ trợ.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Tại sao điểm không được lưu lên bảng xếp hạng?</summary>
+    <div class="answer">
+      Có thể do:<br>
+      • Bạn chưa bật cả 2 tùy chọn "Xáo trộn câu hỏi" + "Xáo trộn đáp án"<br>
+      • Tên của bạn chứa từ ngữ không phù hợp (nếu admin bật kiểm duyệt)<br>
+      • Bạn đang đăng nhập bằng tài khoản admin (admin không lưu kết quả vào bảng)
+    </div>
+  </details>
+</div>
+
+<!-- Footer -->
+<div class="card" style="text-align:center;padding:24px">
+  <div style="font-size:2rem;margin-bottom:8px">🎓</div>
+  <div style="font-weight:700;margin-bottom:4px">Luyện Đề Master</div>
+  <div class="mut" style="font-size:.85rem">Trường TH&amp;THCS Tân Trụ · Năm học 2026–2027</div>
+  <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button class="g sm" onclick="location.href='/'">🏠 Trang chủ</button>
+    <button class="g sm" onclick="location.href='/profile'">👤 Profile</button>
+    <button class="g sm" onclick="location.href='/shop'">🛒 Shop</button>
+    <button class="g sm" onclick="location.href='/codes'">🎁 Nhập mã</button>
+  </div>
+</div>
+
+</main>
+</body>
+</html>
