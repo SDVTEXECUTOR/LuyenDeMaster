@@ -34,7 +34,7 @@ export default {
       "Sự phát triển của khoa học, công nghệ và sự chuyển dịch cơ cấu kinh tế, nhu cầu lao động.",
       "Sự phát triển của khoa học, công nghệ và sự chuyển dịch cơ cấu kinh tế, nhu cầu lao động, nguồn cung lao động.",
       "Sở thích thời trang của giới trẻ."
-    ], [0]],
+    ], [3]],
 
     ["Thứ tự đúng của quy trình 4 bước tìm kiếm thông tin thị trường lao động là gì?", [
       "Tiến hành tìm kiếm → Xác định nguồn thông tin → Xác định mục tiêu → Xác định công cụ.",
