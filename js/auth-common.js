@@ -18,3 +18,20 @@ export async function redirectIfLoggedIn() {
     return true;
   } catch (e) { go(); return false; }
 }
+
+/* Nút 👁 hiện/ẩn mật khẩu */
+export function bindEyes() {
+  document.querySelectorAll(".eye").forEach((b) => {
+    b.onclick = () => {
+      const i = b.parentElement.querySelector("input");
+      const show = i.type === "password";
+      i.type = show ? "text" : "password";
+      b.textContent = show ? "🙈" : "👁";
+    };
+  });
+}
+/* Nút chính: hiện spinner khi đang xử lý */
+export function busy(btn, on, label) {
+  btn.disabled = on;
+  btn.innerHTML = on ? '<span class="sp"></span> Đang xử lý…' : label;
+}
