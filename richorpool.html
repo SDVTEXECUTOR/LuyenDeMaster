@@ -74,11 +74,38 @@ h1{margin:0;font-size:clamp(1.8rem,6vw,2.7rem);font-weight:900;letter-spacing:-.
 .act{display:flex;gap:8px;margin-top:14px}.act button{flex:1;padding:12px;border:0;border-radius:12px;font-weight:800;font-size:.92rem;cursor:pointer}
 .b1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1c1100}.b2{background:rgba(255,255,255,.14);color:#fff}
 .cft{font-size:1.1rem;font-weight:800;margin:4px 0 6px}.cfp{font-size:.86rem;color:rgba(255,255,255,.72);margin:0}
+
+/* Màn hình loading sang chảnh */
+#ld{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(700px 520px at 50% 38%,#3b2a06 0,#0a0806 62%,#05050b 100%);transition:opacity .6s,transform .6s}
+#ld.out{opacity:0;transform:scale(1.06);pointer-events:none}
+#ld>*:not(#ldRain){position:relative;z-index:1}
+#ldRain{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#ldRain span{position:absolute;top:-40px;opacity:.85;animation:fall linear infinite;filter:drop-shadow(0 0 8px rgba(251,191,36,.6))}
+@keyframes fall{to{transform:translateY(112vh) rotate(360deg)}}
+.cw{position:relative;width:120px;height:120px;margin-bottom:6px}
+.cw::after{content:"";position:absolute;inset:-34px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.38),transparent 65%);animation:halo 2s ease-in-out infinite}
+@keyframes halo{50%{transform:scale(1.25);opacity:.6}}
+.coin{position:relative;z-index:1;width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:1.5rem;letter-spacing:.04em;color:#7a4a00;background:radial-gradient(circle at 30% 28%,#fff3b0,#fbbf24 45%,#b45309 100%);box-shadow:0 0 0 6px #b45309,0 0 0 9px #fde68a,0 0 50px rgba(251,191,36,.7);animation:spinc 1.7s linear infinite}
+.coin::before{content:"";position:absolute;inset:12px;border-radius:50%;border:3px dashed rgba(122,74,0,.55)}
+@keyframes spinc{to{transform:rotateY(360deg)}}
+.ldt{margin:34px 0 4px;font-size:clamp(1.4rem,5vw,2rem);font-weight:900;text-align:center;background:linear-gradient(90deg,#fde68a,#fbbf24,#f97316,#fbbf24,#fde68a);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 3s linear infinite}
+.ldm{color:#94a3b8;font-size:.9rem;min-height:1.3em;text-align:center}
+.ldb{width:min(280px,72vw);height:10px;margin-top:18px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid rgba(251,191,36,.3)}
+.ldb i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#b45309,#fbbf24,#fff3b0);box-shadow:0 0 14px rgba(251,191,36,.8);transition:width .5s ease}
+.ldp{margin-top:8px;color:#fde68a;font-weight:800;font-size:.85rem}
 @media(max-width:520px){#podium{gap:6px}.pc{padding:30px 4px 12px}.av{width:50px;height:50px;font-size:1.5rem}.pc.r1 .av{width:62px;height:62px}.pn{font-size:.8rem}.pm{font-size:.85rem}.pc.r1 .pm{font-size:1rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
 </style>
 </head>
 <body>
+<div id="ld">
+  <div id="ldRain"></div>
+  <div class="cw"><div class="coin">LDM</div></div>
+  <div class="ldt">👑 ĐẠI GIA LUYỆN ĐỀ</div>
+  <div class="ldm" id="ldMsg">Đang mở két sắt…</div>
+  <div class="ldb"><i id="ldBar"></i></div>
+  <div class="ldp" id="ldPct">0%</div>
+</div>
 <div class="wrap">
   <a class="back" href="/">← Trang chủ</a>
   <header>
@@ -151,20 +178,48 @@ function render() {
   document.querySelectorAll("[data-n]").forEach((el) => countUp(el, +el.dataset.n));
 }
 
+const LD_T0 = performance.now();
+function setP(n, msg) {
+  const b = $("ldBar"); if (!b) return;
+  b.style.width = n + "%"; $("ldPct").textContent = n + "%";
+  if (msg) $("ldMsg").textContent = msg;
+}
+function hideLoader() {
+  const el = $("ld"); if (!el || el.dataset.done) return;
+  el.dataset.done = 1; setP(100, "Chào mừng đại gia! 👑");
+  const wait = Math.max(0, 1700 - (performance.now() - LD_T0));
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 700); }, wait);
+}
+(function rain() {
+  const r = $("ldRain"), em = ["🪙", "💰", "💎", "🪙", "💵"];
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement("span");
+    s.textContent = em[i % em.length]; s.style.left = Math.random() * 100 + "%";
+    s.style.fontSize = 16 + Math.random() * 18 + "px";
+    s.style.animationDuration = 3 + Math.random() * 3 + "s"; s.style.animationDelay = -Math.random() * 5 + "s";
+    r.appendChild(s);
+  }
+})();
+setTimeout(hideLoader, 12000); /* phòng khi mạng chậm: không để kẹt màn hình loading */
+
 async function load() {
   $("rf").disabled = true;
+  setP(12, "Đang mở két sắt…");
   try {
     const snap = await get(query(ref(db, "profiles"), orderByChild("coins"), limitToLast(110)));
+    setP(55, "Đang đếm từng đồng xu…");
     const list = [];
     snap.forEach((c) => { const v = c.val() || {}; list.push({ key: c.key, coins: Number(v.coins) || 0, avatar: v.avatar, avatarImg: v.avatarImg, activeBg: v.activeBg, bio: v.bio, totalQuizzes: v.totalQuizzes, streak: v.streak, createdAt: v.createdAt, ach: v.achievements && typeof v.achievements === "object" ? Object.keys(v.achievements).length : 0 }); });
     list.sort((a, b) => b.coins - a.coins);
     const accs = await Promise.all(list.map((p) => get(ref(db, "accounts/" + p.key)).then((s) => s.val()).catch(() => null)));
+    setP(85, "Đang xếp hạng các đại gia…");
     ALL = list.map((p, i) => accs[i] ? { ...p, username: accs[i].username, name: accs[i].name || accs[i].username, cls: accs[i].cls || "" } : null).filter(Boolean)
       .filter((p) => !BLOCKED.has(String(p.key).toLowerCase()) && !BLOCKED.has(String(p.username).toLowerCase()))
       .slice(0, 100);
     $("sPlayers").textContent = "👥 " + fmt(ALL.length) + " người chơi";
     $("sTotal").textContent = "💰 " + fmt(ALL.reduce((s, p) => s + p.coins, 0)) + " LDM";
     render();
+    setP(100, "Hoàn tất!");
     const i = ALL.findIndex((p) => p.key === myKey);
     if (i >= 0) $("me").textContent = `Bạn đang hạng #${i + 1} · ${fmt(ALL[i].coins)} LDM`;
     else {
@@ -175,6 +230,7 @@ async function load() {
     $("list").innerHTML = '<div class="empty">❌ Không tải được bảng xếp hạng: ' + esc(e.message) + "</div>";
   }
   $("rf").disabled = false;
+  hideLoader();
 }
 
 /* ── Bảng thông tin người chơi + xác nhận xem hồ sơ ── */
