@@ -122,23 +122,31 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 .md{backdrop-filter:blur(10px)}
 @media(max-width:520px){.ped{width:calc(100% + 8px);margin:10px -4px 0}.ped b{font-size:1.25rem}.pc.r1 .ped{height:46px}.pc.r2 .ped{height:34px}.pc.r3 .ped{height:26px}}
 
-/* ===== HIỆU ỨNG MỞ MÀN: chiếu từ dưới lên, từng người một ===== */
-.rv{opacity:0;transform:translateY(70px) scale(.95)}
-.pc.rv{transform:translateY(150px) scale(.88)}
-.pc.r1.rv{transform:translateY(210px) scale(.78)}
-#me.rv{transform:translateY(110%)}
-.rv.in{opacity:1!important;transform:none!important;transition:opacity .55s ease,transform .9s cubic-bezier(.2,.9,.25,1.12)}
-#me.rv.in{transition:transform .8s cubic-bezier(.2,.9,.25,1)}
+/* ===== MỞ MÀN ĐIỆN ẢNH ===== */
+.rv{opacity:0;transform:perspective(900px) translateY(90px) rotateX(38deg) scale(.94);filter:blur(10px)}
+.pc.rv{transform:perspective(900px) translateY(170px) rotateX(30deg) scale(.82)}
+.pc.r1.rv{transform:perspective(900px) translateY(250px) rotateX(24deg) scale(.7)}
+#me.rv{transform:translateY(110%);filter:none}
+.rv.in{opacity:1!important;transform:none!important;filter:blur(0)!important;transition:opacity .5s ease,transform .95s cubic-bezier(.16,1,.3,1),filter .7s ease}
+#me.rv.in{transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.row.lnd{animation:lndGlow .95s ease!important}.row.lnd::before{animation:sweep .95s ease}
+@keyframes lndGlow{0%{box-shadow:0 0 0 rgba(251,191,36,0)}35%{box-shadow:0 0 30px rgba(251,191,36,.7)}100%{box-shadow:0 6px 18px rgba(0,0,0,.3)}}
 .pc.r1.in .crown{animation:crownDrop 1s cubic-bezier(.2,1.5,.4,1) both,bob 2.4s ease-in-out 1s infinite}
-@keyframes crownDrop{from{transform:translate(-50%,-70px) scale(.2) rotate(-45deg);opacity:0}}
-.flash{position:fixed;inset:0;z-index:50;pointer-events:none;background:radial-gradient(circle at 50% 32%,rgba(253,230,138,.6),transparent 62%);animation:fl .9s ease-out forwards}
-@keyframes fl{from{opacity:1}to{opacity:0}}
-.bp{position:fixed;z-index:51;pointer-events:none;animation:bp 1.25s cubic-bezier(.1,.7,.3,1) forwards}
-@keyframes bp{from{transform:translate(-50%,-50%) scale(.3);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(200deg);opacity:0}}
+@keyframes crownDrop{from{transform:translate(-50%,-80px) scale(.2) rotate(-45deg);opacity:0}}
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none}
+#dim{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity .9s;background:radial-gradient(ellipse at 50% 26%,transparent 0,rgba(0,0,0,.35) 40%,rgba(0,0,0,.78) 100%)}#dim.on{opacity:1}
+#beam{position:fixed;top:0;left:50%;width:min(560px,96vw);height:75vh;transform:translateX(-50%);z-index:39;pointer-events:none;opacity:0;transition:opacity 1s;filter:blur(6px);background:linear-gradient(180deg,rgba(253,230,138,.42),rgba(253,230,138,.06) 80%,transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%)}#beam.on{opacity:1}
+#ann{position:fixed;left:50%;top:58%;transform:translateX(-50%);z-index:45;pointer-events:none;text-align:center;white-space:nowrap;max-width:94vw;opacity:0}
+#ann small{display:block;font-weight:800;letter-spacing:.5em;font-size:.8rem;color:#fde68a;text-shadow:0 0 14px rgba(251,191,36,.8)}
+#ann b{display:block;margin-top:2px;font-size:clamp(1.6rem,7vw,2.6rem);font-weight:900;color:#fff;text-shadow:0 0 30px rgba(251,191,36,.85);overflow:hidden;text-overflow:ellipsis}
+#ann.r1 b{font-size:clamp(2rem,9vw,3.5rem);background:linear-gradient(90deg,#fde68a,#fff,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(251,191,36,.7))}
+#ann.go{animation:annIn 1.7s ease forwards}#ann.go.r1{animation-duration:2.6s}
+@keyframes annIn{0%{opacity:0;letter-spacing:.7em;transform:translate(-50%,18px)}22%{opacity:1;letter-spacing:.12em;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-12px)}}
 </style>
 </head>
 <body>
 <div id="dust"></div>
+<canvas id="fx"></canvas><div id="beam"></div><div id="dim"></div><div id="ann"></div>
 <div id="ld">
   <div id="ldRain"></div>
   <div class="cw"><div class="coin">LDM</div></div>
@@ -346,41 +354,80 @@ $("cf").onclick = (e) => { if (e.target === $("cf")) closeConfirm(); };
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("cf").classList.contains("on")) closeConfirm(); else closeInfo(); } });
 
 
-/* ── Mở màn: hiện từ dưới lên, từng người một, kết thúc bằng top 3 → 2 → 1 ── */
+/* ── Mở màn điện ảnh: hàng dưới lên → tối đèn → hạng 3 → 2 → 1 + mưa vàng ── */
 let introPending = true;
-function burst(el) {
-  const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-  const f = document.createElement("div"); f.className = "flash"; document.body.appendChild(f); setTimeout(() => f.remove(), 950);
-  const em = ["✨", "🪙", "💎", "⭐"];
-  for (let i = 0; i < 28; i++) {
-    const s = document.createElement("span"), a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 160;
-    s.className = "bp"; s.textContent = em[i % 4];
-    s.style.cssText = `left:${cx}px;top:${cy}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d - 40}px;font-size:${14 + Math.random() * 14}px`;
-    document.body.appendChild(s); setTimeout(() => s.remove(), 1400);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const cv = $("fx"), g = cv.getContext("2d");
+let P = [], RG = [], raf = 0, rainUntil = 0;
+function fit() { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); }
+addEventListener("resize", fit); fit();
+function loop() { if (!raf) raf = requestAnimationFrame(tick); }
+function spark(x, y, n, spd) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.283, s = (0.3 + Math.random()) * spd;
+    P.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - spd * 0.35, g: 0.18, l: 1, d: 0.008 + Math.random() * 0.014, r: 1 + Math.random() * 2.6, h: 38 + Math.random() * 16 });
   }
+  loop();
 }
-function startIntro() {
+function ring(x, y) { RG.push({ x, y, r: 10, a: 1 }); loop(); }
+function tick() {
+  raf = 0; g.clearRect(0, 0, innerWidth, innerHeight); g.globalCompositeOperation = "lighter";
+  if (performance.now() < rainUntil) for (let i = 0; i < 3; i++) P.push({ x: Math.random() * innerWidth, y: -10, vx: (Math.random() - 0.5) * 0.8, vy: 2 + Math.random() * 3, g: 0.03, l: 1, d: 0.006, r: 1 + Math.random() * 2.2, h: 42 + Math.random() * 10 });
+  P = P.filter((p) => p.l > 0 && p.y < innerHeight + 20);
+  g.shadowColor = "rgba(251,191,36,.9)"; g.shadowBlur = 8;
+  for (const p of P) {
+    p.x += p.vx; p.y += p.vy; p.vy += p.g; p.vx *= 0.992; p.l -= p.d;
+    g.fillStyle = `hsla(${p.h},100%,${60 + Math.random() * 25}%,${Math.max(0, p.l)})`;
+    g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+  }
+  RG = RG.filter((r) => r.a > 0); g.shadowBlur = 0;
+  for (const r of RG) { r.r += 14; r.a -= 0.028; g.strokeStyle = `rgba(253,224,130,${Math.max(0, r.a)})`; g.lineWidth = 3 + r.a * 5; g.beginPath(); g.arc(r.x, r.y, r.r, 0, 6.283); g.stroke(); }
+  if (P.length || RG.length || performance.now() < rainUntil) raf = requestAnimationFrame(tick);
+  else g.clearRect(0, 0, innerWidth, innerHeight);
+}
+function announce(n, name) {
+  const a = $("ann"); a.className = "";
+  a.innerHTML = `<small>${n === 1 ? "👑 ĐẠI GIA SỐ 1" : "HẠNG " + n}</small><b>${esc(name)}</b>`;
+  void a.offsetWidth; a.className = "go r" + n;
+}
+function land(el) { el.classList.add("in", "lnd"); setTimeout(() => el.classList.remove("lnd"), 1000); }
+function countNums(el) { el.querySelectorAll("[data-n]").forEach((x) => countUp(x, +x.dataset.n)); }
+function shake() {
+  const w = document.querySelector(".wrap");
+  if (w.animate) w.animate([{ transform: "translate(0,0)" }, { transform: "translate(-6px,4px)" }, { transform: "translate(5px,-4px)" }, { transform: "translate(-3px,2px)" }, { transform: "translate(0,0)" }], { duration: 420, easing: "ease-out" });
+}
+async function startIntro() {
   if (!introPending) return;
   introPending = false;
-  const rows = [...document.querySelectorAll("#list .row")];
-  const pods = [...document.querySelectorAll("#podium .pc")];
-  const show = rows.slice(0, 9);                       /* chỉ diễn các hàng đang nhìn thấy */
+  const rows = [...document.querySelectorAll("#list .row")], pods = [...document.querySelectorAll("#podium .pc")];
+  const get = (n) => pods.find((x) => x.classList.contains("r" + n));
+  const show = rows.slice(0, 9).reverse();
   rows.slice(9).forEach((r) => r.classList.remove("rv"));
-  let t = 200;
-  const step = Math.max(80, Math.min(130, 1100 / Math.max(1, show.length)));
-  show.reverse().forEach((r) => { setTimeout(() => r.classList.add("in"), t); t += step; });   /* dưới → trên */
-  [3, 2, 1].forEach((n, k) => {
-    const el = pods.find((x) => x.classList.contains("r" + n)); if (!el) return;
-    const at = t + 250 + k * 560 + (n === 1 ? 250 : 0);
-    setTimeout(() => {
-      el.classList.add("in");
-      el.querySelectorAll("[data-n]").forEach((x) => countUp(x, +x.dataset.n));
-      if (n === 1) setTimeout(() => burst(el), 420);
-    }, at);
-    t = Math.max(t, at);
-  });
-  setTimeout(() => $("me").classList.add("in"), t + 900);
-  setTimeout(() => document.querySelectorAll(".rv").forEach((el) => el.classList.remove("rv")), t + 2300);
+  document.body.style.overflow = "hidden";
+  try {
+    await sleep(150);
+    for (let k = 0; k < show.length; k++) { land(show[k]); await sleep(150 - k * (55 / Math.max(1, show.length - 1))); }
+    if (pods.length) {
+      await sleep(500); $("dim").classList.add("on"); $("beam").classList.add("on"); await sleep(500);
+      for (const n of [3, 2]) {
+        const el = get(n); if (!el) continue;
+        announce(n, ALL[n - 1].name); await sleep(550); land(el); countNums(el); await sleep(1250);
+      }
+      const one = get(1);
+      if (one) {
+        announce(1, ALL[0].name); await sleep(900); land(one); countNums(one); await sleep(520);
+        const r = one.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height * 0.4;
+        ring(x, y); spark(x, y, 90, 9); rainUntil = performance.now() + 2600; loop(); shake();
+        await sleep(1900);
+      }
+      $("dim").classList.remove("on"); $("beam").classList.remove("on");
+    }
+    $("me").classList.add("in");
+    await sleep(1800);
+  } catch (e) { /* bỏ qua, luôn dọn dẹp bên dưới */ }
+  document.querySelectorAll(".rv").forEach((el) => el.classList.remove("rv"));
+  $("dim").classList.remove("on"); $("beam").classList.remove("on"); $("me").classList.add("in");
+  document.body.style.overflow = "";
 }
 
 $("q").oninput = render;
