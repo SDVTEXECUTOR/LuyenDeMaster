@@ -10,10 +10,10 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;min-height:100vh;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 background:radial-gradient(900px 500px at 50% -10%,#3b2a06 0,transparent 65%),radial-gradient(700px 500px at 100% 100%,#312e81 0,transparent 60%),#07070f;padding:0 14px 90px}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
+body::before{content:"";position:fixed;inset:-420px;will-change:transform;pointer-events:none;opacity:.55;
 background-image:radial-gradient(2px 2px at 20% 30%,#fde68a,transparent),radial-gradient(1.5px 1.5px at 70% 20%,#fff,transparent),radial-gradient(2px 2px at 85% 65%,#fde68a,transparent),radial-gradient(1.5px 1.5px at 35% 80%,#fff,transparent),radial-gradient(2px 2px at 55% 55%,#fde68a,transparent);
 background-size:420px 420px;animation:drift 40s linear infinite}
-@keyframes drift{to{background-position:420px 420px}}
+@keyframes drift{to{transform:translate(420px,420px)}}
 .wrap{position:relative;max-width:760px;margin:0 auto}
 .back{position:absolute;left:0;top:18px;color:var(--mut);text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.07)}
 .back:hover{color:#fff;background:rgba(255,255,255,.14)}
@@ -80,7 +80,7 @@ h1{margin:0;font-size:clamp(1.8rem,6vw,2.7rem);font-weight:900;letter-spacing:-.
 #ld.out{opacity:0;transform:scale(1.06);pointer-events:none}
 #ld>*:not(#ldRain){position:relative;z-index:1}
 #ldRain{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-#ldRain span{position:absolute;top:-40px;opacity:.85;animation:fall linear infinite;filter:drop-shadow(0 0 8px rgba(251,191,36,.6))}
+#ldRain span{position:absolute;top:-40px;opacity:.85;animation:fall linear infinite;will-change:transform}
 @keyframes fall{to{transform:translateY(112vh) rotate(360deg)}}
 .cw{position:relative;width:120px;height:120px;margin-bottom:6px}
 .cw::after{content:"";position:absolute;inset:-34px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.38),transparent 65%);animation:halo 2s ease-in-out infinite}
@@ -105,7 +105,6 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 @keyframes rise{12%{opacity:.9}to{transform:translate(24px,-105vh);opacity:0}}
 #podium{position:relative;isolation:isolate;margin-top:18px}
 #podium::before{content:"";position:absolute;left:50%;top:-50px;width:340px;height:340px;transform:translateX(-50%);background:radial-gradient(circle,rgba(251,191,36,.32),transparent 66%);pointer-events:none;z-index:-1;animation:halo 3s ease-in-out infinite}
-.pc,.row{backdrop-filter:blur(6px)}
 .pc{padding-bottom:0!important;box-shadow:0 0 30px var(--glow),0 14px 30px rgba(0,0,0,.4)}
 .pc::before,.row::before{content:"";position:absolute;top:0;left:-130%;width:55%;height:100%;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,255,255,.26),transparent);transform:skewX(-20deg)}
 .pc::before{animation:sweep 3.8s ease-in-out infinite}.pc.r2::before{animation-delay:.9s}.pc.r3::before{animation-delay:1.8s}
@@ -119,15 +118,14 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 .rk.t10{width:38px;padding:5px 0;border-radius:10px;color:#1c1100;background:linear-gradient(135deg,#fde68a,#f59e0b);box-shadow:0 0 12px rgba(251,191,36,.45)}
 .wb{height:4px;margin-top:6px;border-radius:4px;background:rgba(255,255,255,.13);overflow:hidden}
 .wb i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#b45309,#fbbf24,#fff3b0);box-shadow:0 0 8px rgba(251,191,36,.7)}
-.md{backdrop-filter:blur(10px)}
 @media(max-width:520px){.ped{width:calc(100% + 8px);margin:10px -4px 0}.ped b{font-size:1.25rem}.pc.r1 .ped{height:46px}.pc.r2 .ped{height:34px}.pc.r3 .ped{height:26px}}
 
 /* ===== MỞ MÀN ĐIỆN ẢNH ===== */
-.rv{opacity:0;transform:perspective(900px) translateY(90px) rotateX(38deg) scale(.94);filter:blur(10px)}
+.rv{opacity:0;will-change:transform,opacity;transform:perspective(900px) translateY(90px) rotateX(38deg) scale(.94)}
 .pc.rv{transform:perspective(900px) translateY(170px) rotateX(30deg) scale(.82)}
 .pc.r1.rv{transform:perspective(900px) translateY(250px) rotateX(24deg) scale(.7)}
-#me.rv{transform:translateY(110%);filter:none}
-.rv.in{opacity:1!important;transform:none!important;filter:blur(0)!important;transition:opacity .5s ease,transform .95s cubic-bezier(.16,1,.3,1),filter .7s ease}
+#me.rv{transform:translateY(110%)}
+.rv.in{opacity:1!important;transform:none!important;transition:opacity .5s ease,transform .95s cubic-bezier(.16,1,.3,1)}
 #me.rv.in{transition:transform .8s cubic-bezier(.16,1,.3,1)}
 .row.lnd{animation:lndGlow .95s ease!important}.row.lnd::before{animation:sweep .95s ease}
 @keyframes lndGlow{0%{box-shadow:0 0 0 rgba(251,191,36,0)}35%{box-shadow:0 0 30px rgba(251,191,36,.7)}100%{box-shadow:0 6px 18px rgba(0,0,0,.3)}}
@@ -135,7 +133,7 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 @keyframes crownDrop{from{transform:translate(-50%,-80px) scale(.2) rotate(-45deg);opacity:0}}
 #fx{position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none}
 #dim{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity .9s;background:radial-gradient(ellipse at 50% 26%,transparent 0,rgba(0,0,0,.35) 40%,rgba(0,0,0,.78) 100%)}#dim.on{opacity:1}
-#beam{position:fixed;top:0;left:50%;width:min(560px,96vw);height:75vh;transform:translateX(-50%);z-index:39;pointer-events:none;opacity:0;transition:opacity 1s;filter:blur(6px);background:linear-gradient(180deg,rgba(253,230,138,.42),rgba(253,230,138,.06) 80%,transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%)}#beam.on{opacity:1}
+#beam{position:fixed;top:0;left:50%;width:min(560px,96vw);height:75vh;transform:translateX(-50%);z-index:39;pointer-events:none;opacity:0;transition:opacity 1s;background:linear-gradient(180deg,rgba(253,230,138,.38),rgba(253,230,138,.06) 80%,transparent);clip-path:polygon(38% 0,62% 0,100% 100%,0 100%)}#beam.on{opacity:1}
 #ann{position:fixed;left:50%;top:58%;transform:translateX(-50%);z-index:45;pointer-events:none;text-align:center;white-space:nowrap;max-width:94vw;opacity:0}
 #ann small{display:block;font-weight:800;letter-spacing:.5em;font-size:.8rem;color:#fde68a;text-shadow:0 0 14px rgba(251,191,36,.8)}
 #ann b{display:block;margin-top:2px;font-size:clamp(1.6rem,7vw,2.6rem);font-weight:900;color:#fff;text-shadow:0 0 30px rgba(251,191,36,.85);overflow:hidden;text-overflow:ellipsis}
@@ -175,6 +173,7 @@ import { db, loadSession, keyOf } from "/js/core.js";
 import { ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const $ = (id) => document.getElementById(id);
+const LITE = (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 4) <= 2;   /* máy yếu: giảm hạt */
 const session = loadSession();
 if (!session) location.replace("/login");
 const myKey = session ? keyOf(session.username) : "";
@@ -248,7 +247,7 @@ function hideLoader() {
 }
 (function rain() {
   const r = $("ldRain"), em = ["🪙", "💰", "💎", "🪙", "💵"];
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < (LITE ? 12 : 22); i++) {
     const s = document.createElement("span");
     s.textContent = em[i % em.length]; s.style.left = Math.random() * 100 + "%";
     s.style.fontSize = 16 + Math.random() * 18 + "px";
@@ -258,7 +257,7 @@ function hideLoader() {
 })();
 (function dust() {
   const d = $("dust");
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < (LITE ? 12 : 26); i++) {
     const s = document.createElement("i");
     s.style.left = Math.random() * 100 + "%";
     s.style.animationDuration = 7 + Math.random() * 9 + "s"; s.style.animationDelay = -Math.random() * 12 + "s";
@@ -370,17 +369,21 @@ function spark(x, y, n, spd) {
   loop();
 }
 function ring(x, y) { RG.push({ x, y, r: 10, a: 1 }); loop(); }
+const spr = document.createElement("canvas"); spr.width = spr.height = 32;
+(function () { const s = spr.getContext("2d"), gr = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+  gr.addColorStop(0, "rgba(255,246,200,1)"); gr.addColorStop(0.3, "rgba(251,191,36,.85)"); gr.addColorStop(1, "rgba(251,191,36,0)");
+  s.fillStyle = gr; s.fillRect(0, 0, 32, 32); })();
 function tick() {
   raf = 0; g.clearRect(0, 0, innerWidth, innerHeight); g.globalCompositeOperation = "lighter";
-  if (performance.now() < rainUntil) for (let i = 0; i < 3; i++) P.push({ x: Math.random() * innerWidth, y: -10, vx: (Math.random() - 0.5) * 0.8, vy: 2 + Math.random() * 3, g: 0.03, l: 1, d: 0.006, r: 1 + Math.random() * 2.2, h: 42 + Math.random() * 10 });
+  if (performance.now() < rainUntil && P.length < 200) for (let i = 0; i < (LITE ? 1 : 2); i++) P.push({ x: Math.random() * innerWidth, y: -10, vx: (Math.random() - 0.5) * 0.8, vy: 2 + Math.random() * 3, g: 0.03, l: 1, d: 0.006, r: 1 + Math.random() * 2.2 });
   P = P.filter((p) => p.l > 0 && p.y < innerHeight + 20);
-  g.shadowColor = "rgba(251,191,36,.9)"; g.shadowBlur = 8;
   for (const p of P) {
     p.x += p.vx; p.y += p.vy; p.vy += p.g; p.vx *= 0.992; p.l -= p.d;
-    g.fillStyle = `hsla(${p.h},100%,${60 + Math.random() * 25}%,${Math.max(0, p.l)})`;
-    g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+    const s = p.r * 3.2; g.globalAlpha = Math.max(0, p.l);
+    g.drawImage(spr, p.x - s, p.y - s, s * 2, s * 2);
   }
-  RG = RG.filter((r) => r.a > 0); g.shadowBlur = 0;
+  g.globalAlpha = 1;
+  RG = RG.filter((r) => r.a > 0);
   for (const r of RG) { r.r += 14; r.a -= 0.028; g.strokeStyle = `rgba(253,224,130,${Math.max(0, r.a)})`; g.lineWidth = 3 + r.a * 5; g.beginPath(); g.arc(r.x, r.y, r.r, 0, 6.283); g.stroke(); }
   if (P.length || RG.length || performance.now() < rainUntil) raf = requestAnimationFrame(tick);
   else g.clearRect(0, 0, innerWidth, innerHeight);
@@ -417,7 +420,7 @@ async function startIntro() {
       if (one) {
         announce(1, ALL[0].name); await sleep(900); land(one); countNums(one); await sleep(520);
         const r = one.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height * 0.4;
-        ring(x, y); spark(x, y, 90, 9); rainUntil = performance.now() + 2600; loop(); shake();
+        ring(x, y); spark(x, y, LITE ? 45 : 90, 9); rainUntil = performance.now() + 2600; loop(); shake();
         await sleep(1900);
       }
       $("dim").classList.remove("on"); $("beam").classList.remove("on");
@@ -435,4 +438,4 @@ $("rf").onclick = load;
 load();
 </script>
 </body>
-</html>
+</html>s
