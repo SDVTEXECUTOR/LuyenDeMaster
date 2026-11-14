@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script src="/js/guard.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đăng nhập · Luyện Đề Master</title>
+<link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<main class="box hide" id="box">
+  <div class="logo">📚</div>
+  <h1>Luyện Đề Master</h1>
+  <p class="sub">Đăng nhập để tiếp tục</p>
+  <label>Tên đăng nhập<input id="u" autocomplete="username" autocapitalize="none"></label>
+  <label>Mật khẩu<input id="p" type="password" autocomplete="current-password"></label>
+  <div class="err" id="err"></div>
+  <button id="go">Đăng nhập</button>
+  <p class="alt">Chưa có tài khoản? <a href="/register">Đăng ký</a></p>
+</main>
+<script type="module">
+import { db, saveSession, clearSession, keyOf, checkFirebaseBan } from "/js/core.js";
+import { findAdmin } from "/js/config.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { $, go, sha256Hex, redirectIfLoggedIn } from "/js/auth-common.js";
+
+if (await redirectIfLoggedIn()) $("box").classList.remove("hide");
+
+async function login(u, p) {
+  const admin = findAdmin(u);
+  if (admin) {
+    if (await sha256Hex(p) !== admin.passHash) throw new Error("Sai mật khẩu.");
+    const a = admin.profile;
+    saveSession({ key: keyOf(a.username), username: a.username, name: a.name, cls: a.cls, isAdmin: true });
+    return;
+  }
+  if (!db) throw new Error("Chưa kết nối được máy chủ.");
+  const key = keyOf(u);
+  const snap = await get(ref(db, "accounts/" + key));
+  if (!snap.exists()) throw new Error("Tài khoản không tồn tại.");
+  const acc = snap.val();
+  if (await checkFirebaseBan(acc.username)) { clearSession(); throw new Error("Tài khoản đã bị khóa."); }
+  if (acc.passHash !== await sha256Hex(p)) throw new Error("Sai mật khẩu.");
+  saveSession({ key, username: acc.username, name: acc.name, cls: acc.cls || "" });
+}
+
+async function submit() {
+  $("err").textContent = "";
+  const u = $("u").value.trim(), p = $("p").value;
+  if (!u || !p) { $("err").textContent = "Vui lòng nhập đầy đủ."; return; }
+  $("go").disabled = true;
+  try { await login(u, p); go(); }
+  catch (e) { $("err").textContent = e.message; $("go").disabled = false; }
+}
+$("go").onclick = submit;
+$("p").onkeydown = (e) => { if (e.key === "Enter") submit(); };
+</script>
+</body>
+</html>
