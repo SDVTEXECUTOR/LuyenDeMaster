@@ -643,6 +643,7 @@ window.__showFatalError(msg);
 <button class="tabbtn" id="tabBtnCommunity" type="button">👥 Cộng đồng</button>
 <button class="tabbtn" id="tabBtnGameplay" type="button">🎮 GamePlay</button>
 <button class="tabbtn" id="tabBtnDev" type="button">🤖 DEV</button>
+<button class="tabbtn" id="tabBtnRich" type="button">💎 Đại gia</button>
 <button class="tabbtn hide" id="tabBtnAdmin" type="button">🛡️ AdminPanel</button>
 </div>
 <div id="tab-practice">
@@ -1495,7 +1496,7 @@ $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
 $("tabBtnCommunity").onclick = () => switchTab("community");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
-$("tabBtnDev").onclick = () => switchTab("dev");
+$("tabBtnDev").onclick = () => switchTab("dev"); $("tabBtnRich").onclick = () => { location.href = "/richorpool"; };
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
 
