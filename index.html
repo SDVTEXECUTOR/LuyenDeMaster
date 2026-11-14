@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<script src="/js/guard.js"></script>
 <meta charset="utf-8">
 <script>
 (function(){
@@ -1452,7 +1453,7 @@ async function refreshMathCard() {
 $("cardMath").onclick = (e) => { if (e.target.closest("button")) return; $("startMathMaster").click(); };
 
 async function enterApp() {
-if (!session) { show("auth"); return; }
+if (!session) { location.replace("/login"); return; }
 $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 
 $("hiName").textContent = "👋 Xin chào, " + session.name + "!";
@@ -1472,7 +1473,7 @@ checkAndAwardDaily(session.username, 15).then(async (gotDaily) => {
 await checkNewsOnLogin();
 }
 
-$("logout").onclick = function() { _syncSession(null); show("auth"); };
+$("logout").onclick = function() { _syncSession(null); location.replace("/login"); };
 
 function switchTab(name) {
 $("tabBtnPractice").classList.toggle("active", name === "practice");
@@ -2385,7 +2386,7 @@ await enterApp();
 }
 }
 } else {
-show("auth");
+location.replace("/login");
 }
 } catch(e) {
 console.error('Init failed:', e);
