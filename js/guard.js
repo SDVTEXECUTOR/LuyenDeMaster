@@ -20,8 +20,9 @@
 
   /* 2. Nhúng iframe / clone qua frame */
   if (window.top !== window.self) {
-    try { window.top.location.replace(location.href); } catch (e) {}
-    return kill();
+    var sameSite = false;
+    try { sameSite = window.top.location.hostname === h; } catch (e) {} /* khác domain => throw */
+    if (!sameSite) return kill();
   }
 
   /* 3. Trình duyệt tự động (bot cào web) */
