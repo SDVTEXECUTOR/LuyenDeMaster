@@ -9,32 +9,81 @@
 </head>
 <body>
 <main class="box hide" id="box">
-  <div class="logo">📝</div>
-  <h1>Tạo tài khoản</h1>
-  <p class="sub">Luyện Đề Master</p>
-  <label>Họ và tên<input id="name" autocomplete="name" maxlength="60"></label>
-  <label>Lớp (không bắt buộc)<input id="cls" maxlength="40" placeholder="VD: 9A1"></label>
-  <label>Tên đăng nhập<input id="u" autocomplete="username" autocapitalize="none" maxlength="60"></label>
-  <label>Mật khẩu (từ 6 ký tự)<input id="p" type="password" autocomplete="new-password"></label>
-  <label>Nhập lại mật khẩu<input id="p2" type="password" autocomplete="new-password"></label>
-  <label class="hide" id="codeRow">🔒 Mã đăng ký (do admin cấp)<input id="code" autocapitalize="characters"></label>
+  <div class="brand"><div class="logo">📝</div><h1>Tạo tài khoản</h1><p class="sub">Vài giây thôi là bắt đầu luyện đề!</p></div>
+  <nav class="tabs"><a href="/login">Đăng nhập</a><a class="on" href="/register">Đăng ký</a></nav>
+  <label class="f"><span>Họ và tên</span><div class="in"><i>🪪</i><input id="name" autocomplete="name" maxlength="60" placeholder="VD: Nguyễn Văn A"></div></label>
+  <label class="f"><span>Lớp (không bắt buộc)</span><div class="in"><i>🏫</i><input id="cls" maxlength="40" placeholder="VD: 9A1"></div></label>
+  <label class="f"><span>Tên đăng nhập</span><div class="in"><i>👤</i><input id="u" autocomplete="username" autocapitalize="none" maxlength="60" placeholder="Viết liền, không dấu"></div></label>
+  <label class="f"><span>Mật khẩu (từ 6 ký tự)</span><div class="in"><i>🔒</i><input id="p" type="password" autocomplete="new-password" placeholder="Tạo mật khẩu"><button class="eye" type="button" tabindex="-1">👁</button></div><div class="meter"><b id="mt"></b></div></label>
+  <label class="f"><span>Nhập lại mật khẩu</span><div class="in"><i>🔁</i><input id="p2" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu"><button class="eye" type="button" tabindex="-1">👁</button></div></label>
   <div class="err" id="err"></div>
-  <button id="go">Đăng ký</button>
+  <button class="main" id="go">Đăng ký</button>
   <p class="alt">Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
 </main>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="lock">🔒</div>
+    <h2>Nhập mã đăng ký</h2>
+    <p>Đăng ký đang được khóa. Hãy nhập mã do admin cấp.</p>
+    <div id="codeWrap"><input id="codeInput" placeholder="LDM-XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+    <div class="err" id="codeErr"></div>
+    <div class="row"><button class="ghost" id="codeCancel">Hủy</button><button class="ok" id="codeOk">Xác nhận</button></div>
+  </div>
+</div>
+
 <script type="module">
 import { db, saveSession, keyOf, checkProfanity, checkProfanitySetting,
          checkRegistrationLock, validateRegistrationCode, markCodeUsed } from "/js/core.js";
 import { findAdmin } from "/js/config.js";
 import { ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { $, go, sha256Hex, redirectIfLoggedIn } from "/js/auth-common.js";
+import { $, go, sha256Hex, redirectIfLoggedIn, bindEyes, busy } from "/js/auth-common.js";
 
-let locked = false, profanityOn = false;
+bindEyes();
+let profanityOn = false;
 if (await redirectIfLoggedIn()) {
-  try { locked = await checkRegistrationLock(); } catch (e) {}
   try { profanityOn = await checkProfanitySetting(); } catch (e) {}
-  if (locked) $("codeRow").classList.remove("hide");
-  $("box").classList.remove("hide");
+  $("box").classList.remove("hide"); $("name").focus();
+}
+
+/* Thanh độ mạnh mật khẩu */
+$("p").oninput = () => {
+  const v = $("p").value;
+  const s = (v.length >= 6) + (v.length >= 10) + (/[a-z]/.test(v) && /[A-Z]/.test(v)) + (/\d/.test(v) && /[^A-Za-z0-9]/.test(v));
+  const m = $("mt"); m.style.width = (v ? Math.max(1, s) * 25 : 0) + "%";
+  m.style.background = ["#ef4444", "#f59e0b", "#84cc16", "#16a34a"][Math.max(0, s - 1)];
+};
+
+/* Bảng nhập mã đăng ký (chỉ hiện khi đăng ký đang bị khóa) */
+function askCode() {
+  return new Promise((resolve) => {
+    const mask = $("mask"), inp = $("codeInput"), err = $("codeErr"), ok = $("codeOk"), cancel = $("codeCancel"), wrap = $("codeWrap");
+    inp.value = ""; err.textContent = ""; ok.disabled = false; ok.textContent = "Xác nhận";
+    const done = (v) => { mask.classList.remove("on"); inp.oninput = inp.onkeydown = ok.onclick = cancel.onclick = mask.onclick = null; resolve(v); };
+    const shake = () => { wrap.classList.remove("shake"); void wrap.offsetWidth; wrap.classList.add("shake"); };
+    inp.oninput = () => {
+      let v = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (v.startsWith("LDM")) v = v.slice(3);
+      v = v.slice(0, 10);
+      if (v.length > 5) v = v.slice(0, 5) + "-" + v.slice(5);
+      inp.value = v ? "LDM-" + v : "";
+    };
+    const confirm = async () => {
+      const code = inp.value.trim();
+      if (!/^LDM-[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(code)) { err.textContent = "❌ Mã không đúng định dạng (LDM-XXXXX-XXXXX)"; shake(); return; }
+      ok.disabled = true; ok.innerHTML = '<span class="sp" style="display:inline-block"></span>'; err.textContent = "";
+      try {
+        const chk = await validateRegistrationCode(code);
+        if (!chk.valid) { err.textContent = "❌ " + chk.reason; shake(); ok.disabled = false; ok.textContent = "Xác nhận"; return; }
+        done(chk.code);
+      } catch (e) { err.textContent = "❌ Lỗi: " + e.message; ok.disabled = false; ok.textContent = "Xác nhận"; }
+    };
+    ok.onclick = confirm;
+    cancel.onclick = () => done(null);
+    inp.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); confirm(); } else if (e.key === "Escape") done(null); };
+    mask.onclick = (e) => { if (e.target === mask) done(null); };
+    mask.classList.add("on"); setTimeout(() => inp.focus(), 120);
+  });
 }
 
 async function register() {
@@ -48,13 +97,12 @@ async function register() {
   if (profanityOn && (checkProfanity(u) || checkProfanity(name)))
     throw new Error("Tên đăng nhập / tên hiển thị chứa từ không phù hợp.");
 
-  let usedCode = null;
+  let usedCode = null, locked = false;
+  try { locked = await checkRegistrationLock(); } catch (e) {}
   if (locked) {
-    const code = $("code").value.trim();
-    if (!code) throw new Error("🔒 Đăng ký đang khóa, cần mã đăng ký từ admin.");
-    const chk = await validateRegistrationCode(code);
-    if (!chk.valid) throw new Error("❌ " + chk.reason);
-    usedCode = chk.code;
+    usedCode = await askCode();
+    if (!usedCode) throw new Error("🔒 Đăng ký đang bị khóa. Cần mã đăng ký từ admin.");
+    busy($("go"), true);
   }
 
   const key = keyOf(u), passHash = await sha256Hex(p);
@@ -65,11 +113,13 @@ async function register() {
   saveSession({ key, username: u, name, cls });
 }
 
-$("go").onclick = async () => {
-  $("err").textContent = ""; $("go").disabled = true;
+async function submit() {
+  $("err").textContent = ""; busy($("go"), true);
   try { await register(); go(); }
-  catch (e) { $("err").textContent = e.message; $("go").disabled = false; }
-};
+  catch (e) { $("err").textContent = e.message; busy($("go"), false, "Đăng ký"); }
+}
+$("go").onclick = submit;
+$("p2").onkeydown = (e) => { if (e.key === "Enter") submit(); };
 </script>
 </body>
 </html>
