@@ -9,22 +9,22 @@
 </head>
 <body>
 <main class="box hide" id="box">
-  <div class="logo">📚</div>
-  <h1>Luyện Đề Master</h1>
-  <p class="sub">Đăng nhập để tiếp tục</p>
-  <label>Tên đăng nhập<input id="u" autocomplete="username" autocapitalize="none"></label>
-  <label>Mật khẩu<input id="p" type="password" autocomplete="current-password"></label>
+  <div class="brand"><div class="logo">📚</div><h1>Luyện Đề Master</h1><p class="sub">Chào mừng quay lại, cùng ôn thi nào!</p></div>
+  <nav class="tabs"><a class="on" href="/login">Đăng nhập</a><a href="/register">Đăng ký</a></nav>
+  <label class="f"><span>Tên đăng nhập</span><div class="in"><i>👤</i><input id="u" autocomplete="username" autocapitalize="none" placeholder="Nhập tên đăng nhập"></div></label>
+  <label class="f"><span>Mật khẩu</span><div class="in"><i>🔒</i><input id="p" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu"><button class="eye" type="button" tabindex="-1">👁</button></div></label>
   <div class="err" id="err"></div>
-  <button id="go">Đăng nhập</button>
-  <p class="alt">Chưa có tài khoản? <a href="/register">Đăng ký</a></p>
+  <button class="main" id="go">Đăng nhập</button>
+  <p class="alt">Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
 </main>
 <script type="module">
 import { db, saveSession, clearSession, keyOf, checkFirebaseBan } from "/js/core.js";
 import { findAdmin } from "/js/config.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { $, go, sha256Hex, redirectIfLoggedIn } from "/js/auth-common.js";
+import { $, go, sha256Hex, redirectIfLoggedIn, bindEyes, busy } from "/js/auth-common.js";
 
-if (await redirectIfLoggedIn()) $("box").classList.remove("hide");
+bindEyes();
+if (await redirectIfLoggedIn()) { $("box").classList.remove("hide"); $("u").focus(); }
 
 async function login(u, p) {
   const admin = findAdmin(u);
@@ -48,12 +48,12 @@ async function submit() {
   $("err").textContent = "";
   const u = $("u").value.trim(), p = $("p").value;
   if (!u || !p) { $("err").textContent = "Vui lòng nhập đầy đủ."; return; }
-  $("go").disabled = true;
+  busy($("go"), true);
   try { await login(u, p); go(); }
-  catch (e) { $("err").textContent = e.message; $("go").disabled = false; }
+  catch (e) { $("err").textContent = e.message; busy($("go"), false, "Đăng nhập"); }
 }
 $("go").onclick = submit;
-$("p").onkeydown = (e) => { if (e.key === "Enter") submit(); };
+$("p").onkeydown = $("u").onkeydown = (e) => { if (e.key === "Enter") submit(); };
 </script>
 </body>
 </html>
