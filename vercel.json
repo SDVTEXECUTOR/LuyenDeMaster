@@ -4,6 +4,7 @@
     { "source": "/register", "destination": "/register.html" },
     { "source": "/adminpanel", "destination": "/adminpanel.html" },
     { "source": "/shop", "destination": "/shop.html" },
+    { "source": "/richorpool", "destination": "/richorpool.html" },
     { "source": "/codes", "destination": "/codes.html" },
     { "source": "/help_list", "destination": "/listhelp.html" },
     { "source": "/pack/firepack", "destination": "/pack/firepack.html" },

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script src="/js/guard.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>👑 Đại Gia · Luyện Đề Master</title>
+<style>
+:root{--gold:#fbbf24;--gold2:#f59e0b;--ink:#f8fafc;--mut:#94a3b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+background:radial-gradient(900px 500px at 50% -10%,#3b2a06 0,transparent 65%),radial-gradient(700px 500px at 100% 100%,#312e81 0,transparent 60%),#07070f;padding:0 14px 90px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;
+background-image:radial-gradient(2px 2px at 20% 30%,#fde68a,transparent),radial-gradient(1.5px 1.5px at 70% 20%,#fff,transparent),radial-gradient(2px 2px at 85% 65%,#fde68a,transparent),radial-gradient(1.5px 1.5px at 35% 80%,#fff,transparent),radial-gradient(2px 2px at 55% 55%,#fde68a,transparent);
+background-size:420px 420px;animation:drift 40s linear infinite}
+@keyframes drift{to{background-position:420px 420px}}
+.wrap{position:relative;max-width:760px;margin:0 auto}
+.back{position:absolute;left:0;top:18px;color:var(--mut);text-decoration:none;font-weight:600;font-size:.9rem;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.07)}
+.back:hover{color:#fff;background:rgba(255,255,255,.14)}
+header{text-align:center;padding:64px 0 14px}
+h1{margin:0;font-size:clamp(1.8rem,6vw,2.7rem);font-weight:900;letter-spacing:-.02em;background:linear-gradient(90deg,#fde68a,#fbbf24,#f97316,#fbbf24,#fde68a);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+@keyframes shine{to{background-position:200% center}}
+.sub{margin:6px 0 14px;color:var(--mut);font-size:.92rem}
+.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.chip{padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(251,191,36,.25);font-size:.85rem;color:#fde68a;font-weight:700}
+.tools{display:flex;gap:8px;margin:18px 0 14px}
+.tools input{flex:1;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;font-size:.95rem}
+.tools input:focus{outline:0;border-color:var(--gold)}
+.tools button{padding:0 16px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1c1100;font-weight:800;cursor:pointer;font-size:1.1rem}
+/* Podium */
+#podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:10px;align-items:end;margin:10px 0 18px}
+.pc{position:relative;border-radius:20px;padding:30px 10px 16px;text-align:center;overflow:hidden;cursor:pointer;text-decoration:none;color:inherit;border:2px solid var(--rim);box-shadow:0 0 28px var(--glow);transition:transform .25s}
+.pc:hover{transform:translateY(-4px)}
+.pc.r1{--rim:#fbbf24;--glow:rgba(251,191,36,.55);padding-top:40px}.pc.r2{--rim:#cbd5e1;--glow:rgba(203,213,225,.35)}.pc.r3{--rim:#d6803f;--glow:rgba(214,128,63,.4)}
+.pc .crown{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:1.7rem;animation:bob 2.4s ease-in-out infinite}
+.pc .medal{position:absolute;top:8px;left:10px;font-size:1.3rem}
+@keyframes bob{50%{transform:translate(-50%,-5px)}}
+.av{width:64px;height:64px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;font-size:2rem;background:rgba(255,255,255,.14);border:2px solid var(--rim,rgba(255,255,255,.3));overflow:hidden}
+.pc.r1 .av{width:80px;height:80px;font-size:2.5rem}.av img{width:100%;height:100%;object-fit:cover}
+.pn{font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pcl{font-size:.74rem;color:rgba(255,255,255,.65);margin-top:1px}
+.pm{margin-top:8px;font-weight:900;font-size:1.05rem;color:#fde68a;text-shadow:0 0 14px rgba(251,191,36,.6)}.pc.r1 .pm{font-size:1.25rem}
+/* Nền người chơi đã chọn */
+.bg-default{background:linear-gradient(160deg,#1e3a8a 0%,#1e293b 60%,#0f172a 100%)}
+.bg-pack_fire{background:radial-gradient(ellipse at 50% 120%,rgba(255,90,0,.85) 0%,transparent 60%),linear-gradient(180deg,#1a0400 0%,#5a1300 100%)}
+.bg-pack_fire::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 20% 100%,rgba(255,170,0,.5),transparent 40%),radial-gradient(circle at 80% 100%,rgba(255,60,0,.5),transparent 40%);animation:flame 1.6s ease-in-out infinite alternate;mix-blend-mode:screen}
+@keyframes flame{from{opacity:.45;transform:translateY(6px)}to{opacity:1;transform:translateY(-4px)}}
+.bg-pack_fire .pn,.bg-pack_fire .nm{color:#ffd29a;text-shadow:0 0 10px rgba(255,110,0,.7)}
+/* Danh sách */
+.row{position:relative;display:flex;align-items:center;gap:12px;padding:10px 14px;margin-bottom:9px;border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,.1);transition:transform .2s;animation:in .4s both}
+.row:hover{transform:translateX(4px)}@keyframes in{from{opacity:0;transform:translateY(10px)}}
+.row>*{position:relative;z-index:1}.row.me{border:2px solid #34d399;box-shadow:0 0 18px rgba(52,211,153,.35)}
+.rk{width:34px;text-align:center;font-weight:900;font-size:1rem;color:var(--mut)}
+.row .av{width:44px;height:44px;margin:0;font-size:1.4rem;flex:none}
+.inf{flex:1;min-width:0}.nm{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cl{font-size:.75rem;color:rgba(255,255,255,.6)}
+.cn{font-weight:900;color:#fde68a;white-space:nowrap}.cn small{font-size:.7rem;color:#fbbf24;opacity:.8}
+.tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:#34d399;color:#022c22;font-size:.65rem;font-weight:800;vertical-align:middle}
+#me{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(7,7,15,.9);backdrop-filter:blur(14px);border-top:1px solid rgba(251,191,36,.3);text-align:center;font-weight:700;color:#fde68a;font-size:.92rem}
+.empty{text-align:center;color:var(--mut);padding:40px 0}
+@media(max-width:520px){#podium{gap:6px}.pc{padding:30px 4px 12px}.av{width:50px;height:50px;font-size:1.5rem}.pc.r1 .av{width:62px;height:62px}.pn{font-size:.8rem}.pm{font-size:.85rem}.pc.r1 .pm{font-size:1rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Trang chủ</a>
+  <header>
+    <h1>👑 ĐẠI GIA LUYỆN ĐỀ</h1>
+    <p class="sub">Bảng xếp hạng người giàu nhất · tính theo xu LDM</p>
+    <div class="stats"><span class="chip" id="sPlayers">👥 …</span><span class="chip" id="sTotal">💰 …</span></div>
+  </header>
+  <div class="tools"><input id="q" placeholder="🔎 Tìm theo tên hoặc lớp…" autocomplete="off"><button id="rf" title="Làm mới">↻</button></div>
+  <section id="podium"></section>
+  <section id="list"><div class="empty">Đang tải bảng xếp hạng…</div></section>
+</div>
+<div id="me">…</div>
+
+<script type="module">
+import { db, loadSession, keyOf } from "/js/core.js";
+import { ref, get, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const $ = (id) => document.getElementById(id);
+const session = loadSession();
+if (!session) location.replace("/login");
+const myKey = session ? keyOf(session.username) : "";
+const fmt = (n) => Number(n || 0).toLocaleString("vi-VN");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const bgClass = (b) => "bg-" + (/^[a-z0-9_]{1,40}$/i.test(b || "") ? b : "default");
+const medal = ["🥇", "🥈", "🥉"];
+let ALL = [];
+
+function avatar(p) {
+  const img = typeof p.avatarImg === "string" && p.avatarImg.startsWith("data:image/") ? p.avatarImg : "";
+  return img ? `<img src="${esc(img)}" alt="">` : esc(p.avatar || "🙂");
+}
+function link(p) { return "/profile_" + encodeURIComponent(p.username); }
+
+function countUp(el, to) {
+  const t0 = performance.now(), d = 900;
+  (function step(t) {
+    const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = fmt(Math.round(to * e));
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+function render() {
+  const kw = $("q").value.trim().toLowerCase();
+  const rows = ALL.map((p, i) => ({ ...p, rank: i + 1 }));
+  const shown = kw ? rows.filter((p) => (p.name + " " + p.username + " " + p.cls).toLowerCase().includes(kw)) : rows;
+
+  const top = kw ? [] : rows.slice(0, 3);
+  const order = [top[1], top[0], top[2]].filter(Boolean);
+  $("podium").innerHTML = order.map((p) => `
+    <a class="pc r${p.rank} ${bgClass(p.activeBg)}" href="${link(p)}">
+      ${p.rank === 1 ? '<span class="crown">👑</span>' : ""}<span class="medal">${medal[p.rank - 1]}</span>
+      <div class="av">${avatar(p)}</div>
+      <div class="pn">${esc(p.name)}</div><div class="pcl">${p.cls ? "Lớp " + esc(p.cls) : "@" + esc(p.username)}</div>
+      <div class="pm"><span data-n="${p.coins}">0</span> 🪙</div>
+    </a>`).join("");
+  $("podium").style.display = top.length ? "" : "none";
+
+  const rest = kw ? shown : rows.slice(3);
+  $("list").innerHTML = rest.length ? rest.map((p, i) => `
+    <a class="row ${bgClass(p.activeBg)} ${p.key === myKey ? "me" : ""}" href="${link(p)}" style="animation-delay:${Math.min(i, 14) * 35}ms">
+      <div class="rk">#${p.rank}</div><div class="av">${avatar(p)}</div>
+      <div class="inf"><div class="nm">${esc(p.name)}${p.key === myKey ? '<span class="tag">BẠN</span>' : ""}</div><div class="cl">${p.cls ? "Lớp " + esc(p.cls) + " · " : ""}@${esc(p.username)}</div></div>
+      <div class="cn">${fmt(p.coins)} <small>LDM</small></div>
+    </a>`).join("") : (top.length ? "" : '<div class="empty">Không tìm thấy ai 😢</div>');
+  document.querySelectorAll("[data-n]").forEach((el) => countUp(el, +el.dataset.n));
+}
+
+async function load() {
+  $("rf").disabled = true;
+  try {
+    const snap = await get(query(ref(db, "profiles"), orderByChild("coins"), limitToLast(100)));
+    const list = [];
+    snap.forEach((c) => { const v = c.val() || {}; list.push({ key: c.key, coins: Number(v.coins) || 0, avatar: v.avatar, avatarImg: v.avatarImg, activeBg: v.activeBg }); });
+    list.sort((a, b) => b.coins - a.coins);
+    const accs = await Promise.all(list.map((p) => get(ref(db, "accounts/" + p.key)).then((s) => s.val()).catch(() => null)));
+    ALL = list.map((p, i) => accs[i] ? { ...p, username: accs[i].username, name: accs[i].name || accs[i].username, cls: accs[i].cls || "" } : null).filter(Boolean);
+    $("sPlayers").textContent = "👥 " + fmt(ALL.length) + " người chơi";
+    $("sTotal").textContent = "💰 " + fmt(ALL.reduce((s, p) => s + p.coins, 0)) + " LDM";
+    render();
+    const i = ALL.findIndex((p) => p.key === myKey);
+    if (i >= 0) $("me").textContent = `Bạn đang hạng #${i + 1} · ${fmt(ALL[i].coins)} LDM`;
+    else {
+      const mine = await get(ref(db, `profiles/${myKey}/coins`)).catch(() => null);
+      $("me").textContent = mine && mine.exists() ? `Bạn có ${fmt(mine.val())} LDM · chưa lọt top 100` : "Hãy làm bài để kiếm xu và leo hạng!";
+    }
+  } catch (e) {
+    $("list").innerHTML = '<div class="empty">❌ Không tải được bảng xếp hạng: ' + esc(e.message) + "</div>";
+  }
+  $("rf").disabled = false;
+}
+$("q").oninput = render;
+$("rf").onclick = load;
+load();
+</script>
+</body>
+</html>
