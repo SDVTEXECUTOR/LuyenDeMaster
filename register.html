@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script src="/js/guard.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đăng ký · Luyện Đề Master</title>
+<link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<main class="box hide" id="box">
+  <div class="logo">📝</div>
+  <h1>Tạo tài khoản</h1>
+  <p class="sub">Luyện Đề Master</p>
+  <label>Họ và tên<input id="name" autocomplete="name" maxlength="60"></label>
+  <label>Lớp (không bắt buộc)<input id="cls" maxlength="40" placeholder="VD: 9A1"></label>
+  <label>Tên đăng nhập<input id="u" autocomplete="username" autocapitalize="none" maxlength="60"></label>
+  <label>Mật khẩu (từ 6 ký tự)<input id="p" type="password" autocomplete="new-password"></label>
+  <label>Nhập lại mật khẩu<input id="p2" type="password" autocomplete="new-password"></label>
+  <label class="hide" id="codeRow">🔒 Mã đăng ký (do admin cấp)<input id="code" autocapitalize="characters"></label>
+  <div class="err" id="err"></div>
+  <button id="go">Đăng ký</button>
+  <p class="alt">Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+</main>
+<script type="module">
+import { db, saveSession, keyOf, checkProfanity, checkProfanitySetting,
+         checkRegistrationLock, validateRegistrationCode, markCodeUsed } from "/js/core.js";
+import { findAdmin } from "/js/config.js";
+import { ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { $, go, sha256Hex, redirectIfLoggedIn } from "/js/auth-common.js";
+
+let locked = false, profanityOn = false;
+if (await redirectIfLoggedIn()) {
+  try { locked = await checkRegistrationLock(); } catch (e) {}
+  try { profanityOn = await checkProfanitySetting(); } catch (e) {}
+  if (locked) $("codeRow").classList.remove("hide");
+  $("box").classList.remove("hide");
+}
+
+async function register() {
+  const u = $("u").value.trim(), name = $("name").value.trim(), cls = $("cls").value.trim();
+  const p = $("p").value, p2 = $("p2").value;
+  if (!name || !u || !p) throw new Error("Vui lòng nhập đầy đủ họ tên, tên đăng nhập và mật khẩu.");
+  if (p.length < 6) throw new Error("Mật khẩu cần tối thiểu 6 ký tự.");
+  if (p !== p2) throw new Error("Hai mật khẩu không khớp.");
+  if (!db) throw new Error("Chưa kết nối được máy chủ.");
+  if (findAdmin(u)) throw new Error("Tên đăng nhập đã tồn tại.");
+  if (profanityOn && (checkProfanity(u) || checkProfanity(name)))
+    throw new Error("Tên đăng nhập / tên hiển thị chứa từ không phù hợp.");
+
+  let usedCode = null;
+  if (locked) {
+    const code = $("code").value.trim();
+    if (!code) throw new Error("🔒 Đăng ký đang khóa, cần mã đăng ký từ admin.");
+    const chk = await validateRegistrationCode(code);
+    if (!chk.valid) throw new Error("❌ " + chk.reason);
+    usedCode = chk.code;
+  }
+
+  const key = keyOf(u), passHash = await sha256Hex(p);
+  const r = await runTransaction(ref(db, "accounts/" + key), (cur) =>
+    cur === null ? { username: u, passHash, name, cls, createdAt: Date.now() } : undefined);
+  if (!r.committed) throw new Error("Tên đăng nhập đã tồn tại.");
+  if (usedCode) { try { await markCodeUsed(usedCode, u); } catch (e) {} }
+  saveSession({ key, username: u, name, cls });
+}
+
+$("go").onclick = async () => {
+  $("err").textContent = ""; $("go").disabled = true;
+  try { await register(); go(); }
+  catch (e) { $("err").textContent = e.message; $("go").disabled = false; }
+};
+</script>
+</body>
+</html>
