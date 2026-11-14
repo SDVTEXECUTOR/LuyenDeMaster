@@ -121,6 +121,20 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 .wb i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#b45309,#fbbf24,#fff3b0);box-shadow:0 0 8px rgba(251,191,36,.7)}
 .md{backdrop-filter:blur(10px)}
 @media(max-width:520px){.ped{width:calc(100% + 8px);margin:10px -4px 0}.ped b{font-size:1.25rem}.pc.r1 .ped{height:46px}.pc.r2 .ped{height:34px}.pc.r3 .ped{height:26px}}
+
+/* ===== HIỆU ỨNG MỞ MÀN: chiếu từ dưới lên, từng người một ===== */
+.rv{opacity:0;transform:translateY(70px) scale(.95)}
+.pc.rv{transform:translateY(150px) scale(.88)}
+.pc.r1.rv{transform:translateY(210px) scale(.78)}
+#me.rv{transform:translateY(110%)}
+.rv.in{opacity:1!important;transform:none!important;transition:opacity .55s ease,transform .9s cubic-bezier(.2,.9,.25,1.12)}
+#me.rv.in{transition:transform .8s cubic-bezier(.2,.9,.25,1)}
+.pc.r1.in .crown{animation:crownDrop 1s cubic-bezier(.2,1.5,.4,1) both,bob 2.4s ease-in-out 1s infinite}
+@keyframes crownDrop{from{transform:translate(-50%,-70px) scale(.2) rotate(-45deg);opacity:0}}
+.flash{position:fixed;inset:0;z-index:50;pointer-events:none;background:radial-gradient(circle at 50% 32%,rgba(253,230,138,.6),transparent 62%);animation:fl .9s ease-out forwards}
+@keyframes fl{from{opacity:1}to{opacity:0}}
+.bp{position:fixed;z-index:51;pointer-events:none;animation:bp 1.25s cubic-bezier(.1,.7,.3,1) forwards}
+@keyframes bp{from{transform:translate(-50%,-50%) scale(.3);opacity:1}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(200deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -146,7 +160,7 @@ h1{filter:drop-shadow(0 0 18px rgba(251,191,36,.35));font-size:clamp(2rem,7vw,3r
 </div>
 <div class="mk" id="mk"><div class="md" id="md"></div></div>
 <div class="mk cf" id="cf"><div class="md sm bg-default" id="cfBox"></div></div>
-<div id="me">…</div>
+<div id="me" class="rv">…</div>
 
 <script type="module">
 import { db, loadSession, keyOf } from "/js/core.js";
@@ -204,7 +218,12 @@ function render() {
       <div class="inf"><div class="nm">${esc(p.name)}${p.key === myKey ? '<span class="tag">BẠN</span>' : ""}</div><div class="cl">${p.cls ? "Lớp " + esc(p.cls) + " · " : ""}@${esc(p.username)}</div><div class="wb"><i style="width:${Math.max(2, p.coins / maxC * 100).toFixed(1)}%"></i></div></div>
       <div class="cn">${fmt(p.coins)} <small>LDM</small></div>
     </div>`).join("") : (top.length ? "" : '<div class="empty">Không tìm thấy ai 😢</div>');
-  document.querySelectorAll("[data-n]").forEach((el) => countUp(el, +el.dataset.n));
+  if (introPending) {
+    document.querySelectorAll("#podium .pc, #list .row").forEach((el) => { el.classList.add("rv"); el.style.animation = "none"; });
+    document.querySelectorAll("[data-n]").forEach((el) => { el.textContent = fmt(0); });
+  } else {
+    document.querySelectorAll("[data-n]").forEach((el) => countUp(el, +el.dataset.n));
+  }
 }
 
 const LD_T0 = performance.now();
@@ -217,7 +236,7 @@ function hideLoader() {
   const el = $("ld"); if (!el || el.dataset.done) return;
   el.dataset.done = 1; setP(100, "Chào mừng đại gia! 👑");
   const wait = Math.max(0, 1700 - (performance.now() - LD_T0));
-  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 700); }, wait);
+  setTimeout(() => { el.classList.add("out"); setTimeout(startIntro, 280); setTimeout(() => el.remove(), 700); }, wait);
 }
 (function rain() {
   const r = $("ldRain"), em = ["🪙", "💰", "💎", "🪙", "💵"];
@@ -325,6 +344,44 @@ $("podium").onkeydown = $("list").onkeydown = (e) => { if (e.key === "Enter" || 
 $("mk").onclick = (e) => { if (e.target === $("mk")) closeInfo(); };
 $("cf").onclick = (e) => { if (e.target === $("cf")) closeConfirm(); };
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if ($("cf").classList.contains("on")) closeConfirm(); else closeInfo(); } });
+
+
+/* ── Mở màn: hiện từ dưới lên, từng người một, kết thúc bằng top 3 → 2 → 1 ── */
+let introPending = true;
+function burst(el) {
+  const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const f = document.createElement("div"); f.className = "flash"; document.body.appendChild(f); setTimeout(() => f.remove(), 950);
+  const em = ["✨", "🪙", "💎", "⭐"];
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement("span"), a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 160;
+    s.className = "bp"; s.textContent = em[i % 4];
+    s.style.cssText = `left:${cx}px;top:${cy}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d - 40}px;font-size:${14 + Math.random() * 14}px`;
+    document.body.appendChild(s); setTimeout(() => s.remove(), 1400);
+  }
+}
+function startIntro() {
+  if (!introPending) return;
+  introPending = false;
+  const rows = [...document.querySelectorAll("#list .row")];
+  const pods = [...document.querySelectorAll("#podium .pc")];
+  const show = rows.slice(0, 9);                       /* chỉ diễn các hàng đang nhìn thấy */
+  rows.slice(9).forEach((r) => r.classList.remove("rv"));
+  let t = 200;
+  const step = Math.max(80, Math.min(130, 1100 / Math.max(1, show.length)));
+  show.reverse().forEach((r) => { setTimeout(() => r.classList.add("in"), t); t += step; });   /* dưới → trên */
+  [3, 2, 1].forEach((n, k) => {
+    const el = pods.find((x) => x.classList.contains("r" + n)); if (!el) return;
+    const at = t + 250 + k * 560 + (n === 1 ? 250 : 0);
+    setTimeout(() => {
+      el.classList.add("in");
+      el.querySelectorAll("[data-n]").forEach((x) => countUp(x, +x.dataset.n));
+      if (n === 1) setTimeout(() => burst(el), 420);
+    }, at);
+    t = Math.max(t, at);
+  });
+  setTimeout(() => $("me").classList.add("in"), t + 900);
+  setTimeout(() => document.querySelectorAll(".rv").forEach((el) => el.classList.remove("rv")), t + 2300);
+}
 
 $("q").oninput = render;
 $("rf").onclick = load;
