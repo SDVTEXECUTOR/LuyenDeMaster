@@ -2343,6 +2343,7 @@ installAntiCheat({
 blockCopyPaste: false,
 blockSelection: false,
 detectIframe: true,
+...(window.LDM_APP ? { detectDevtools: false, blockContextMenu: false, detectWindowResize: false } : {}),
 onTabSwitch: () => {
 if ($("quiz").classList.contains("hide")) return;
 tabSwitchCount++;
