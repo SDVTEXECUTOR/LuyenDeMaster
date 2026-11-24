@@ -5,6 +5,12 @@
   var h = String(location.hostname || "").toLowerCase();
   var dev = h === "localhost" || h === "127.0.0.1";
   var dead = false;
+  /* App Android (Capacitor WebView): đánh dấu + nạp cầu nối app */
+  var IN_APP = /LuyenDeMasterApp/.test(navigator.userAgent || "");
+  window.LDM_APP = IN_APP;
+  if (IN_APP && OK.indexOf(h) !== -1) {
+    try { document.write('<script src="/js/app-bridge.js"><\/script>'); } catch (e) {}
+  }
   var MSG = '<head><meta charset="utf-8"><title>Chặn truy cập</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box"><div><div style="font-size:5rem">🚨</div><h1 style="color:#f87171;font-size:2rem;margin:12px 0">ĐỪNG CÓ ĂN CẮP MÀ BROOOOO!</h1><p style="color:#cbd5e1">Trang được bảo vệ. Hãy đóng công cụ nhà phát triển rồi tải lại trang.</p></div></body>';
 
   function kill() {
