@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tải app Luyện đề master</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#0f172a,#1e1b4b);color:#fff;font-family:Inter,system-ui,sans-serif;line-height:1.6;padding:24px 16px}
+main{max-width:520px;margin:0 auto}
+.logo{width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:12px auto}
+h1{text-align:center;font-size:1.6rem;margin:8px 0 4px}
+.sub{text-align:center;color:#cbd5e1;margin:0 0 20px}
+.btn{display:block;background:#22c55e;color:#052e16;text-align:center;font-weight:800;font-size:1.1rem;padding:16px;border-radius:14px;text-decoration:none}
+.card{background:rgba(255,255,255,.07);border-radius:16px;padding:16px 18px;margin-top:18px}
+.card h2{font-size:1rem;margin:0 0 8px}
+ol{margin:0;padding-left:20px;color:#e2e8f0}li{margin:6px 0}
+small{color:#94a3b8;display:block;text-align:center;margin-top:16px}
+</style></head><body><main>
+<div class="logo">🎓</div>
+<h1>Luyện Đề Master</h1>
+<p class="sub">App Android cho học sinh lớp 9</p>
+<a id="dl" class="btn" href="#">⬇️ Tải app (APK)</a>
+<small id="ver"></small>
+<div class="card"><h2>Cách cài đặt</h2>
+<ol>
+<li>Bấm nút <b>Tải app</b> ở trên, chờ tải xong.</li>
+<li>Mở file <b>LuyenDeMaster.apk</b> trong mục Tải xuống.</li>
+<li>Nếu máy hỏi, bấm <b>Cài đặt</b> → bật <b>Cho phép từ nguồn này</b> rồi quay lại bấm <b>Cài đặt</b>.</li>
+<li>Nếu hiện cảnh báo Play Protect, chọn <b>Chi tiết → Vẫn cài đặt</b>.</li>
+<li>Mở app, đăng nhập bằng tài khoản Luyện Đề Master.</li>
+</ol></div>
+<div class="card"><h2>Lưu ý</h2>
+<ol><li>App cần Internet (Wi-Fi/4G).</li><li>Khi có bản mới, app sẽ tự báo để bạn cập nhật.</li><li>Chỉ hỗ trợ Android.</li></ol></div>
+</main>
+<script>
+/* ⚙️ SỬA DÒNG NÀY: repo GitHub chứa project APK (Public) */
+var GITHUB_REPO = "SDVTEXECUTOR/luyen-de-master-app";
+var url = "https://github.com/" + GITHUB_REPO + "/releases/latest/download/LuyenDeMaster.apk";
+document.getElementById("dl").href = url;
+fetch("https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest").then(function(r){return r.json()}).then(function(j){
+  if (j.tag_name) document.getElementById("ver").textContent = "Phiên bản mới nhất: " + j.tag_name + (j.published_at ? " · " + new Date(j.published_at).toLocaleDateString("vi-VN") : "");
+}).catch(function(){});
+</script>
+</body></html>
