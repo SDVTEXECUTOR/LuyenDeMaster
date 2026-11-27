@@ -35,6 +35,8 @@ const MATH_RESULTS_NODE  = "results_math";
 /* Local constants khác */
 const PROFANITY_LOCK_NODE = "config/profanityEnabled";
 const GIFT_CODES_NODE = "config/giftCodes";
+const SITE_LOCK_NODE = "config/siteLock";
+const SITE_LOCK_LOG_NODE = "config/siteLockLog";
 
 /* ──────────────────────────────────────────────────────────────────────
    🔥 FIREBASE INIT
@@ -257,6 +259,40 @@ export async function setRegistrationLock(locked) {
     await set(ref(db, REGISTRATION_LOCK_NODE), !!locked);
     return true;
   } catch (e) { return false; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   🛑 KHÓA TOÀN WEB (hiển thị bởi js/sitelock.js)
+   ══════════════════════════════════════════════════════════════════════ */
+export async function getSiteLock() {
+  if (!db) return null;
+  try { const snap = await get(ref(db, SITE_LOCK_NODE)); return snap.exists() ? snap.val() : null; } catch (e) { return null; }
+}
+export async function setSiteLock(locked, opt) {
+  if (!db || !isAdminSession()) return false;
+  opt = opt || {};
+  const by = (getSession() && getSession().username) || "admin";
+  const data = {
+    locked: !!locked,
+    title: String(opt.title || "").slice(0, 80),
+    reason: String(opt.reason || "").slice(0, 600),
+    until: opt.until ? Number(opt.until) : null,
+    grace: Math.max(0, Math.min(600, Number(opt.grace) || 0)),
+    by, at: Date.now()
+  };
+  try {
+    await set(ref(db, SITE_LOCK_NODE), data);
+    await push(ref(db, SITE_LOCK_LOG_NODE), { locked: data.locked, reason: data.reason, until: data.until, by, at: data.at });
+    return true;
+  } catch (e) { return false; }
+}
+export async function getSiteLockLog(n) {
+  if (!db) return [];
+  try {
+    const snap = await get(ref(db, SITE_LOCK_LOG_NODE)); const out = [];
+    if (snap.exists()) snap.forEach(ch => { out.push(ch.val()); });
+    return out.sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, n || 5);
+  } catch (e) { return []; }
 }
 
 export function generateRegistrationCode() {
