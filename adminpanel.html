@@ -415,6 +415,42 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important;
     <div class="stat-card ok"><div class="num" id="stCodes">—</div><div class="lbl">Mã khả dụng</div></div>
   </div>
 
+  <div class="card" id="siteLockCard">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px">
+        <h2 style="margin:0 0 4px">🛑 Khóa toàn bộ web</h2>
+        <div class="mut" id="slStatus">Đang tải…</div>
+      </div>
+      <span id="slBadge" style="padding:6px 14px;border-radius:99px;font-weight:800;font-size:.8rem;background:var(--ok);color:#fff">ĐANG MỞ</span>
+    </div>
+    <div style="margin-top:14px">
+      <div class="mut" style="font-size:.82rem;margin-bottom:6px">Chọn nhanh lý do:</div>
+      <div id="slPresets" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="g sm" type="button" data-t="Web đang bảo trì" data-r="Hệ thống đang được bảo trì để hoạt động ổn định hơn.">🛠 Bảo trì</button>
+        <button class="g sm" type="button" data-t="Đang cập nhật đề" data-r="Quản trị viên đang cập nhật kho đề và đáp án mới.">📚 Cập nhật đề</button>
+        <button class="g sm" type="button" data-t="Đang xử lý sự cố" data-r="Hệ thống gặp sự cố kỹ thuật, đang được khắc phục.">⚠️ Sự cố</button>
+        <button class="g sm" type="button" data-t="Tạm khóa kỳ thi" data-r="Web tạm đóng trong thời gian diễn ra kỳ thi.">📝 Kỳ thi</button>
+        <button class="g sm" type="button" data-t="Nâng cấp giao diện" data-r="Đang nâng cấp giao diện và tính năng mới, sẽ quay lại sớm.">🎨 Nâng cấp</button>
+      </div>
+      <input type="text" id="slTitle" maxlength="80" placeholder="Tiêu đề hiển thị (VD: Web đang bảo trì)" style="margin-top:10px">
+      <textarea id="slReason" maxlength="600" rows="3" placeholder="Lý do khóa (học sinh sẽ thấy nội dung này)…" style="width:100%;margin-top:8px;padding:12px 14px;font:inherit;border:1.5px solid var(--ln);border-radius:10px;background:transparent;color:var(--fg);resize:vertical"></textarea>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
+        <label style="flex:1;min-width:200px;font-size:.82rem" class="mut">Dự kiến mở lại (tuỳ chọn, tự mở khi hết giờ)
+          <input type="datetime-local" id="slUntil" style="margin-top:4px;width:100%;padding:10px 12px;font:inherit;border:1.5px solid var(--ln);border-radius:10px;background:transparent;color:var(--fg)"></label>
+        <label style="flex:1;min-width:200px;font-size:.82rem" class="mut">Báo trước cho người đang làm bài
+          <select id="slGrace" style="margin-top:4px;width:100%;padding:10px 12px;font:inherit;border:1.5px solid var(--ln);border-radius:10px;background:transparent;color:var(--fg)">
+            <option value="0">Khóa ngay lập tức</option><option value="30">Báo trước 30 giây</option><option value="60" selected>Báo trước 1 phút</option><option value="180">Báo trước 3 phút</option>
+          </select></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="g sm" type="button" id="slPreview">👁 Xem trước màn hình khóa</button>
+        <button class="danger" type="button" id="slToggle">🛑 Khóa web ngay</button>
+      </div>
+      <div class="mut" style="font-size:.78rem;margin-top:10px">Admin vẫn truy cập bình thường khi web đang khóa. Học sinh bấm "Dành cho quản trị viên" ở màn hình khóa sẽ vào được trang đăng nhập.</div>
+    </div>
+    <div id="slLog" class="mut" style="font-size:.8rem;margin-top:12px;border-top:1px dashed var(--ln);padding-top:10px"></div>
+  </div>
+
   <div class="card">
     <div class="top">
       <div style="flex:1;min-width:0">
@@ -1546,11 +1582,62 @@ $("mathPriceInput").addEventListener("keydown", (e) => {
   }
 });
 
+
+/* ═══ 🛑 KHÓA TOÀN WEB ═══ */
+let _siteLock = null;
+const _pad = n => String(n).padStart(2, "0");
+const _toLocalInput = ms => { const d = new Date(ms); return d.getFullYear() + "-" + _pad(d.getMonth()+1) + "-" + _pad(d.getDate()) + "T" + _pad(d.getHours()) + ":" + _pad(d.getMinutes()); };
+function _slActive(d) { return !!(d && d.locked === true && !(d.until && Date.now() > Number(d.until))); }
+async function loadSiteLock() {
+  try {
+    _siteLock = await core.getSiteLock();
+    const on = _slActive(_siteLock);
+    $("slBadge").textContent = on ? "ĐANG KHÓA" : "ĐANG MỞ";
+    $("slBadge").style.background = on ? "var(--bad)" : "var(--ok)";
+    $("siteLockCard").style.borderColor = on ? "var(--bad)" : "";
+    $("slToggle").textContent = on ? "🔓 Mở khóa web" : "🛑 Khóa web ngay";
+    $("slToggle").className = on ? "success" : "danger";
+    $("slStatus").textContent = on
+      ? "Khóa bởi @" + (_siteLock.by || "?") + " lúc " + new Date(_siteLock.at).toLocaleString("vi-VN") + (_siteLock.until ? " · tự mở " + new Date(_siteLock.until).toLocaleString("vi-VN") : "")
+      : "Web đang hoạt động bình thường.";
+    if (on) { $("slTitle").value = _siteLock.title || ""; $("slReason").value = _siteLock.reason || ""; if (_siteLock.until) $("slUntil").value = _toLocalInput(_siteLock.until); }
+    const log = await core.getSiteLockLog(5);
+    $("slLog").innerHTML = log.length ? "<b>Nhật ký gần đây:</b><br>" + log.map(l => (l.locked ? "🔒 Khóa" : "🔓 Mở") + " · @" + esc(l.by || "?") + " · " + new Date(l.at).toLocaleString("vi-VN") + (l.reason ? " · " + esc(l.reason) : "")).join("<br>") : "";
+  } catch (e) { $("slStatus").textContent = "Không đọc được trạng thái: " + e.message; }
+}
+function _slForm() {
+  const u = $("slUntil").value ? new Date($("slUntil").value).getTime() : null;
+  return { title: $("slTitle").value.trim(), reason: $("slReason").value.trim(), until: u, grace: Number($("slGrace").value) || 0 };
+}
+document.querySelectorAll("#slPresets button").forEach(b => b.onclick = () => { $("slTitle").value = b.dataset.t; $("slReason").value = b.dataset.r; });
+$("slPreview").onclick = async () => {
+  window.__LDM_NO_LOCK_AUTORUN = true;
+  const m = await import("/js/sitelock.js?v=" + BUILD_V);
+  const f = _slForm(); m.showLockScreen({ ...f, reason: f.reason || "(chưa nhập lý do)" }, { preview: true });
+};
+$("slToggle").onclick = async () => {
+  if (!isAdminSession()) { showToast("Chỉ admin mới dùng được.", true); return; }
+  const turnOn = !_slActive(_siteLock), f = _slForm();
+  if (turnOn) {
+    if (!f.reason) { showToast("Nhập lý do khóa để học sinh biết nhé.", true); $("slReason").focus(); return; }
+    if (f.until && f.until <= Date.now()) { showToast("Giờ mở lại phải ở tương lai.", true); return; }
+    if (!confirm("KHÓA toàn bộ web?\nMọi học sinh sẽ không vào được cho tới khi bạn mở lại.")) return;
+  }
+  ovOn(turnOn ? "Đang khóa web…" : "Đang mở khóa…");
+  try {
+    const ok = await core.setSiteLock(turnOn, turnOn ? f : { title: "", reason: "", until: null, grace: 0 });
+    ovOff();
+    if (ok) { showToast(turnOn ? "🔒 Đã khóa web" : "🔓 Đã mở khóa web"); if (!turnOn) { $("slReason").value = ""; $("slTitle").value = ""; $("slUntil").value = ""; } loadSiteLock(); }
+    else showToast("Không thể cập nhật (kiểm tra quyền/Firebase rules).", true);
+  } catch (e) { ovOff(); showToast("Lỗi: " + e.message, true); }
+};
+
 /* ═══ REFRESH ALL ═══ */
 $("btnRefresh").onclick = () => {
   loadData();
   loadCodes();
   loadLockStatus();
+  loadSiteLock();
   loadAnnouncements();
   loadProfanityStatus();
   loadGiftCodes();
@@ -1589,7 +1676,7 @@ document.addEventListener("keydown", (e) => {
     if (!checkAccess()) { $("denied").classList.remove("hide"); return; }
     $("panel").classList.remove("hide");
     await Promise.all([
-      loadData(), loadLockStatus(), loadCodes(),
+      loadSiteLock(), loadData(), loadLockStatus(), loadCodes(),
       loadAnnouncements(), loadProfanityStatus(), loadGiftCodes(),
       loadMathPrice()
     ]);

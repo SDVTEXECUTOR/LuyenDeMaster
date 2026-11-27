@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <script src="/js/guard.js"></script>
+<script type="module" src="/js/sitelock.js"></script>
 <meta charset="utf-8">
 <script>
 (function(){
@@ -20,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("ldm_theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
 <link rel="stylesheet" href="/css/theme.css?v=2">
 <style>
 
@@ -153,6 +155,45 @@ flex: 1; background: transparent; border: none; color: var(--mut); padding: 10px
 border-radius: 8px; font-weight: 600; box-shadow: none; white-space: nowrap;
 }
 .tabbtn.active { background: var(--card); color: var(--ac); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+/* ===== NAV MỚI: ☰ drawer + bottom bar ===== */
+.tabs { display: none !important; }
+.menu-btn { position: relative; width: 42px; height: 42px; padding: 0; display: grid; place-items: center; flex: none; background: var(--acs); color: var(--ac); box-shadow: none; border-radius: 12px; }
+.menu-btn:hover { box-shadow: none; background: var(--acs); }
+.menu-btn svg { width: 22px; height: 22px; }
+.nav-dot { position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; border: 2px solid var(--card); }
+#drawerMask { position: fixed; inset: 0; z-index: 900; background: rgba(2,6,23,.5); opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+#drawerMask.open { opacity: 1; visibility: visible; }
+#drawer { position: fixed; top: 0; bottom: 0; left: 0; z-index: 901; width: min(300px, 84vw); background: var(--bg); border-right: 1px solid var(--ln); box-shadow: 8px 0 40px rgba(0,0,0,.25); transform: translateX(-102%); transition: transform .28s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
+#drawer.open { transform: none; }
+.dr-head { padding: 22px 18px 16px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
+.dr-ava { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,.22); display: grid; place-items: center; font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+.dr-name { font-weight: 800; font-size: 1.05rem; line-height: 1.3; word-break: break-word; }
+.dr-sub { font-size: .82rem; opacity: .85; }
+.dr-list { flex: 1; overflow-y: auto; padding: 10px; }
+.dr-sep { height: 1px; background: var(--ln); margin: 8px 6px; }
+.dr-item { width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin: 2px 0; border-radius: 12px; background: transparent; color: var(--fg); box-shadow: none; font-weight: 600; text-align: left; position: relative; }
+.dr-item:hover { background: var(--acs); transform: none; box-shadow: none; }
+.dr-item svg { width: 22px; height: 22px; flex: none; color: var(--mut); }
+.dr-item.active { background: var(--acs); color: var(--ac); }
+.dr-item.active svg { color: var(--ac); }
+.dr-item.active::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 4px; background: var(--ac); }
+.dr-item .nav-dot { position: static; margin-left: auto; border: 0; }
+.dr-foot { padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--ln); }
+#bottomBar { display: none; }
+@media (max-width: 767px) {
+  #bottomBar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 800; background: var(--card); -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass); border-top: 1px solid var(--ln); box-shadow: 0 -4px 20px rgba(0,0,0,.08); padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); }
+  main { padding-bottom: 92px; }
+}
+.bb-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; background: transparent; color: var(--mut); box-shadow: none; border-radius: 12px; font-size: .68rem; font-weight: 600; position: relative; }
+.bb-item:hover { transform: none; box-shadow: none; }
+.bb-item svg { width: 24px; height: 24px; transition: transform .2s; }
+.bb-item.active { color: var(--ac); }
+.bb-item.active svg { transform: translateY(-2px) scale(1.12); }
+.bb-item.active::after { content: ""; position: absolute; top: -7px; left: 30%; right: 30%; height: 3px; border-radius: 0 0 4px 4px; background: var(--ac); }
+@keyframes tabIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.tab-anim { animation: tabIn .28s ease both; }
+@media (prefers-reduced-motion: reduce) { .tab-anim { animation: none; } #drawer, #drawerMask { transition: none; } }
 .pills { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .pill {
 padding: 6px 14px; border-radius: 99px; border: 1.5px solid var(--ln); background: var(--card);
@@ -614,9 +655,38 @@ window.__showFatalError(msg);
 </section>
 
 <section id="app" class="hide">
+<div id="drawerMask"></div>
+<aside id="drawer" aria-label="Menu">
+<div class="dr-head"><div class="dr-ava" id="drAva">👤</div><div class="dr-name" id="drName">Xin chào!</div><div class="dr-sub" id="drSub"></div></div>
+<div class="dr-list">
+<button class="dr-item" type="button" data-go="practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg><span>Luyện tập</span></button>
+<button class="dr-item" type="button" data-go="leaderboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span>Bảng xếp hạng</span></button>
+<button class="dr-item" type="button" data-go="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4 2 4 4.5"/></svg><span>Cộng đồng</span></button>
+<button class="dr-item" type="button" data-go="gameplay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18.5" cy="14" r=".8"/></svg><span>GamePlay</span></button>
+<div class="dr-sep"></div>
+<button class="dr-item" type="button" data-go="dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 13h.01M15 13h.01"/></svg><span>DEV</span></button>
+<button class="dr-item" type="button" data-go="rich"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18"/></svg><span>Đại gia</span></button>
+<button class="dr-item" type="button" data-go="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16l-1 12H5z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span>Shop</span></button>
+<button class="dr-item" type="button" data-go="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>Hồ sơ của tôi</span></button>
+<button class="dr-item" type="button" data-go="news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13v16H6a2 2 0 0 1-2-2z"/><path d="M17 8h3v10a2 2 0 0 1-2 2M8 8h5M8 12h5"/></svg><span>Tin tức & Thông báo</span><span class="nav-dot hide" id="drNewsDot"></span></button>
+<button class="dr-item" type="button" data-go="admin" id="drAdmin" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/></svg><span>AdminPanel</span></button>
+</div>
+<div class="dr-foot">
+<button class="dr-item" type="button" id="drTheme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span id="drThemeTxt">Chế độ tối</span></button>
+<button class="dr-item" type="button" data-go="logout" style="color:var(--bad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>Đăng xuất</span></button>
+</div>
+</aside>
+<nav id="bottomBar" aria-label="Điều hướng chính">
+<button class="bb-item" type="button" data-go="practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg><span>Luyện tập</span></button>
+<button class="bb-item" type="button" data-go="leaderboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span>Xếp hạng</span></button>
+<button class="bb-item" type="button" data-go="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4 2 4 4.5"/></svg><span>Cộng đồng</span></button>
+<button class="bb-item" type="button" data-go="gameplay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18.5" cy="14" r=".8"/></svg><span>Game</span></button>
+<button class="bb-item" type="button" id="bbMore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Thêm</span></button>
+</nav>
 <div class="card" style="padding:16px 20px">
 <div class="top">
 <div style="display:flex; align-items: center; gap:12px;">
+<button class="menu-btn" id="btnMenu" type="button" aria-label="Mở menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="nav-dot hide" id="menuDot"></span></button>
 <div class="brand-logo" style="padding:6px;">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
@@ -1459,6 +1529,7 @@ $("tabBtnAdmin").classList.toggle("hide", !isAdminSession());
 
 $("hiName").textContent = "👋 Xin chào, " + session.name + "!";
 $("hiSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+fillDrawer();
 
 $("auUser").value = ""; $("auPass").value = "";
 show("app"); switchTab("practice"); refreshMathCard();
@@ -1491,6 +1562,7 @@ $("tab-dev").classList.toggle("hide", name !== "dev");
 $("tab-admin").classList.toggle("hide", name !== "admin");
 if (name === "leaderboard") wirePills("lbPillsMain", "lbMain", "all");
 if (name === "community") loadCommunity();
+syncNav(name);
 }
 $("tabBtnPractice").onclick = () => switchTab("practice");
 $("tabBtnLeaderboard").onclick = () => switchTab("leaderboard");
@@ -1498,6 +1570,49 @@ $("tabBtnCommunity").onclick = () => switchTab("community");
 $("tabBtnGameplay").onclick = () => switchTab("gameplay");
 $("tabBtnDev").onclick = () => switchTab("dev"); $("tabBtnRich").onclick = () => { location.href = "/richorpool"; };
 $("tabBtnAdmin").onclick = () => { if (isAdminSession()) switchTab("admin"); };
+
+/* ===== NAV MỚI (☰ drawer + bottom bar) — không đụng logic tab cũ ===== */
+const _drawer = $("drawer"), _mask = $("drawerMask");
+function openDrawer() { _drawer.classList.add("open"); _mask.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeDrawer() { _drawer.classList.remove("open"); _mask.classList.remove("open"); document.body.style.overflow = ""; }
+function fillDrawer() {
+  if (!session) return;
+  $("drName").textContent = session.name || session.username;
+  $("drSub").textContent = "@" + session.username + (session.cls ? " · Lớp " + session.cls : "");
+  $("drAva").textContent = String(session.name || session.username || "?").trim().charAt(0).toUpperCase();
+  $("drAdmin").hidden = !isAdminSession();
+}
+function syncNav(name) {
+  document.querySelectorAll("#drawer .dr-item[data-go], #bottomBar .bb-item[data-go]").forEach(b => b.classList.toggle("active", b.dataset.go === name));
+  const bbMore = $("bbMore"); if (bbMore) bbMore.classList.toggle("active", ["dev","admin"].includes(name));
+  const el = $("tab-" + name);
+  if (el) { el.classList.remove("tab-anim"); void el.offsetWidth; el.classList.add("tab-anim"); }
+}
+const _goMap = {
+  practice: () => switchTab("practice"), leaderboard: () => switchTab("leaderboard"),
+  community: () => switchTab("community"), gameplay: () => switchTab("gameplay"), dev: () => switchTab("dev"),
+  rich: () => { location.href = "/richorpool"; }, shop: () => { location.href = "/shop"; },
+  profile: () => $("btnProfile").click(), news: () => $("btnNews").click(),
+  admin: () => { if (isAdminSession()) switchTab("admin"); }, logout: () => $("logout").click()
+};
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => {
+  closeDrawer(); const f = _goMap[b.dataset.go]; if (f) f(); window.scrollTo({ top: 0, behavior: "smooth" });
+}));
+$("btnMenu").onclick = openDrawer; $("bbMore").onclick = openDrawer; _mask.onclick = closeDrawer;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+(function swipeClose() { let x0 = null; _drawer.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  _drawer.addEventListener("touchend", e => { if (x0 !== null && e.changedTouches[0].clientX - x0 < -60) closeDrawer(); x0 = null; }, { passive: true }); })();
+function applyTheme(dark) {
+  document.documentElement.toggleAttribute("data-theme", false);
+  if (dark) document.documentElement.setAttribute("data-theme", "dark"); else document.documentElement.removeAttribute("data-theme");
+  try { localStorage.setItem("ldm_theme", dark ? "dark" : "light"); } catch (e) {}
+  $("drThemeTxt").textContent = dark ? "Chế độ sáng" : "Chế độ tối";
+}
+$("drTheme").onclick = () => applyTheme(document.documentElement.getAttribute("data-theme") !== "dark");
+$("drThemeTxt").textContent = document.documentElement.getAttribute("data-theme") === "dark" ? "Chế độ sáng" : "Chế độ tối";
+(function mirrorNewsBadge() { const nb = $("newsBadge"); if (!nb) return;
+  const upd = () => { const on = !nb.classList.contains("hide"); $("menuDot").classList.toggle("hide", !on); $("drNewsDot").classList.toggle("hide", !on); };
+  new MutationObserver(upd).observe(nb, { attributes: true, attributeFilter: ["class"] }); upd(); })();
 $("btnPlayTower").onclick = () => { location.href = "/Tower"; };
 
 function wirePills(pillsId, listId, initial) {
@@ -2343,7 +2458,6 @@ installAntiCheat({
 blockCopyPaste: false,
 blockSelection: false,
 detectIframe: true,
-...(window.LDM_APP ? { detectDevtools: false, blockContextMenu: false, detectWindowResize: false } : {}),
 onTabSwitch: () => {
 if ($("quiz").classList.contains("hide")) return;
 tabSwitchCount++;
